@@ -24,10 +24,11 @@ def record(root, kind, key, date, scores):
     return sorted(d[kind][key].items())  # [(date, scores)]
 
 
-def _trend(hist, keys):
+def _trend(hist, keys, excluded=""):
     pts = [(dt, sum(v for k, v in sc.items() if k in keys and v is not None)) for dt, sc in hist][-30:]
     if len(pts) < 2:
         return f'<p>打分从 {pts[-1][0][5:].replace("-", "/")} 开始记录，之后每次更新都会在这里画出合计分的走势。</p>'
+    lab = "、".join(sorted(keys))
     w, h = 300, 64
     bw = w / len(pts)
     mx = max(4, max(abs(v) for _, v in pts))
@@ -36,11 +37,12 @@ def _trend(hist, keys):
         hh = abs(v) * (h / 2 - 4) / mx
         y = h / 2 - hh if v > 0 else h / 2
         bars += f'<rect x="{i * bw + 1:.1f}" y="{y:.1f}" width="{bw - 2:.1f}" height="{max(hh, 1):.1f}" class="{"u" if v > 0 else "d" if v < 0 else "z"}"/>'
-    return (f'<p>近 {len(pts)} 次更新的合计分（{pts[0][0][5:]}–{pts[-1][0][5:]}，从 {pts[0][1]:+d} 到 {pts[-1][1]:+d}）。</p>'
+    return (f'<p>下面是近 {len(pts)} 个交易日 {lab} 的合计（{pts[0][0][5:].replace("-", "/")}–{pts[-1][0][5:].replace("-", "/")}，'
+            f'从 {pts[0][1]:+d} 到 {pts[-1][1]:+d}），按每天当时已公布的数据回算。{excluded}</p>'
             f'<svg viewBox="0 0 {w} {h}" class="trend">{bars}<line x1="0" x2="{w}" y1="{h / 2}" y2="{h / 2}" stroke="#7C8696" stroke-width=".6"/></svg>')
 
 
-def card(rows, total_label, note, hist):
+def card(rows, total_label, note, hist, no_hist=()):
     """rows: [{"key","name","score"(None=暂缺),"hits":[(text,pt)],"manual":bool,"href"}]"""
     cells = ""
     for r in rows:
@@ -60,4 +62,4 @@ def card(rows, total_label, note, hist):
     span = 3 - n % 3 if n % 3 else 3
     return (f'<div class="score">{cells}<div class="sc total" style="grid-column:span {span}"><div class="lbl">{E(total_label)}'
             f'<span class="v">{(f"{t:+d}" if t else "0")}</span></div><p>满分 ±{2 * len(valid)}（{len(valid)} 项有数据）。{E(note)}</p>'
-            f'{_trend(hist, {r["key"] for r in rows})}</div></div>')
+            f'{_trend(hist, {r["key"] for r in rows if r["key"] not in no_hist}, ("、".join(no_hist) + " 没有历史数据，从今天开始记录。") if no_hist else "")}</div></div>')

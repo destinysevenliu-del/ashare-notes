@@ -238,7 +238,7 @@ def render(a, ctx, stocks_in):
     )
     rows = [{"key": k2, "name": NODE_NAMES[k2].split("：")[0] if k2 != "C" else "行业利润", "score": sc.get(k2),
              "hits": a["nodes"].get(k2) or [], "manual": k2 == "B", "href": f"#n-{k2}"} for k2 in "ABCEFG"]
-    card_html = scorecard.card(rows, "板块合计", "“人工”一项需要你确认。", a["hist"])
+    card_html = scorecard.card(rows, "板块合计", "“人工”一项需要你确认。", a["hist"], ("B",))
     cand = "".join(f'<a class="chip2" href="../stocks/{s["cfg"]["slug"]}.html">{E(s["cfg"]["name"])}</a>' for s in stocks_in)
     tot = a["total"]
     body = f"""

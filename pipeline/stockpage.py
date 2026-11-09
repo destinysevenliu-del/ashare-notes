@@ -444,7 +444,7 @@ def render(a, ctx):
 
     SC_NAMES = {"A": "客户与订单", "B": "公司事件", "C": "净利润", "D": "利润质量", "E": "盈利预测", "F": "估值", "G": "筹码"}
     card_html = scorecard.card([{"key": k2, "name": SC_NAMES[k2], "score": sc.get(k2), "hits": a["nodes"].get(k2) or [],
-                                 "href": f"#n-{k2}"} for k2 in "ABCDEFG"], "个股合计", "股价层只呈现位置，不打分。", a["hist"])
+                                 "href": f"#n-{k2}"} for k2 in "ABCDEFG"], "个股合计", "股价层只呈现位置，不打分。", a["hist"], ("E",))
     pr = cfg["prior"]
     body = f"""
 <div class="crumb"><a href="index.html">个股</a> ／ 候选 ／ {E(cfg['name'])}</div>
