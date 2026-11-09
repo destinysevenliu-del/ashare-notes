@@ -54,9 +54,12 @@ try:
 except urllib.error.HTTPError as e:
     if e.code == 404:
         body = json.dumps({"source": {"branch": "main", "path": "/docs"}}).encode()
-        urllib.request.urlopen(urllib.request.Request(api, data=body, headers=H, method="POST"), timeout=20)
-        print("pages enabled")
+        try:
+            urllib.request.urlopen(urllib.request.Request(api, data=body, headers=H, method="POST"), timeout=20)
+            print("pages enabled")
+        except urllib.error.HTTPError:
+            print("PAGES_NOT_ENABLED: 请在仓库 Settings → Pages 里选 main 分支 /docs 并保存")
     else:
-        raise
+        print("pages check skipped:", e.code)
 shutil.rmtree(work, ignore_errors=True)
 print(f"https://{OWNER}.github.io/{REPO}/")
