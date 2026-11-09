@@ -1,0 +1,53 @@
+{
+ "date": "2026-11-09",
+ "total": -4,
+ "scores": {
+  "ext": -2,
+  "econ": -2,
+  "pol": 1,
+  "liq": 0,
+  "val": 1,
+  "funds": -2
+ },
+ "nodes": {
+  "A": "down",
+  "B": "up",
+  "C": "down",
+  "D": "flat",
+  "E": "na",
+  "F": "up",
+  "G": "down",
+  "H": "price"
+ },
+ "conds": {
+  "score": false,
+  "margin5": true,
+  "us10": false,
+  "cn10": true,
+  "pe": false,
+  "pmi": true
+ },
+ "changes": [
+  {
+   "dir": "down",
+   "node": "G",
+   "text": "两融单日净偿还 236 亿元（11-06）"
+  },
+  {
+   "dir": "up",
+   "node": "F",
+   "text": "全 A 估值分位从 59% 变为 54%"
+  },
+  {
+   "dir": "flat",
+   "node": "A",
+   "text": "2026年10月份 CPI 同比：0.7"
+  },
+  {
+   "dir": "flat",
+   "node": "C",
+   "text": "2026年10月份 PPI 同比：5.7"
+  }
+ ],
+ "rules_version": "2026-11-09 v1"
+}
