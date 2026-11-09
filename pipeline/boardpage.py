@@ -1,5 +1,6 @@
 """板块页：行业层 A–H。由 build.py 调用：boardpage.build(ctx) → 返回 {secid: 分析结果}。"""
 import json, os, html
+import scorecard
 
 E = html.escape
 
@@ -235,6 +236,9 @@ def render(a, ctx, stocks_in):
               f'在 60 日线{"上方" if t["close"] > t["ma60"] else "下方"}' + (f'、250 日线{"上方" if t["close"] > t["ma250"] else "下方"}' if t["ma250"] else "") +
               f'；距一年高点 {t["dd"]:.1f}%。</p>' + h_chart)
     )
+    rows = [{"key": k2, "name": NODE_NAMES[k2].split("：")[0] if k2 != "C" else "行业利润", "score": sc.get(k2),
+             "hits": a["nodes"].get(k2) or [], "manual": k2 == "B", "href": f"#n-{k2}"} for k2 in "ABCEFG"]
+    card_html = scorecard.card(rows, "板块合计", "“人工”一项需要你确认。", a["hist"])
     cand = "".join(f'<a class="chip2" href="../stocks/{s["cfg"]["slug"]}.html">{E(s["cfg"]["name"])}</a>' for s in stocks_in)
     tot = a["total"]
     body = f"""
@@ -242,7 +246,7 @@ def render(a, ctx, stocks_in):
 <div class="hero shero"><div><h1>{E(cfg['name'])}<small>{cfg['slug']}</small></h1>
 <div class="tags2"><span>{a['m']['n']} 家成分股</span><span>候选股：</span>{cand}</div></div>
 <div class="px"><b>{t['close']:.2f}</b><span class="{st(t['d1'])}">{t['d1']:+.2f}%</span><small>板块指数</small></div></div>
-<p class="sum2">A–G 合计 <b class="{st(tot)}">{sg(tot)}</b>（不含引用大盘的 D）。{E('；'.join(f'{k2} {sg(v)}' for k2, v in sc.items() if v and k2 != 'D'))}</p>
+<section class="block" id="score"><h2>板块打分卡</h2><p class="sub">行业层六个维度各打 −2 到 +2 分，点任意一项跳到下面的展开分析。D（利率与风险偏好）直接引用大盘页，不计入板块合计。</p>{card_html}</section>
 <section class="block" id="nodes"><h2>行业层传导图</h2><p class="sub">和大盘页、个股页同一套 A–H 骨架，换成了行业的变量。</p>
 <div class="fwbox">{"".join(o)}</div><div class="chips">{chips}</div><div class="ndlist">{nodes_html}</div></section>
 <section class="block"><h2>主要成分股</h2><p class="sub">按总市值排前 15。带链接的是候选股。</p>{ctab}</section>"""
@@ -280,6 +284,7 @@ def build(ctx, stock_cfgs):
         if not os.path.exists(p):
             continue
         a = analyze_board(cfg, json.load(open(p, encoding="utf-8")), ctx)
+        a["hist"] = scorecard.record(root, "boards", cfg["slug"], ctx["TODAY"], {k: v for k, v in a["scores"].items() if k != "D"})
         analyses.append(a)
         res[cfg["secid"]] = a
         html_ = ctx["page"](f"{cfg['name']} | 板块 | A 股框架笔记", "bk", render(a, ctx, by_board.get(cfg["secid"], [])), "../")

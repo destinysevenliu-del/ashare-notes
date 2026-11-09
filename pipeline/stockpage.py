@@ -2,6 +2,7 @@
 由 build.py 调用：stockpage.build(ctx)，ctx 是 build.py 的 globals()。
 """
 import json, os, datetime, html
+import scorecard
 
 E = html.escape
 POS_KW = ["回购", "增持"]
@@ -441,6 +442,9 @@ def render(a, ctx):
     tr_html = ('<p class="note">还没有这只股票的操作记录。买卖时在对话里告诉 Claude 即可。</p>' if not trades else
                "<ul class='ev'>" + "".join(f"<li><b>{E(x['date'])} {E(x['side'])} {E(str(x['price']))}</b><p>{E(x.get('reason', ''))}</p></li>" for x in trades) + "</ul>")
 
+    SC_NAMES = {"A": "客户与订单", "B": "公司事件", "C": "净利润", "D": "利润质量", "E": "盈利预测", "F": "估值", "G": "筹码"}
+    card_html = scorecard.card([{"key": k2, "name": SC_NAMES[k2], "score": sc.get(k2), "hits": a["nodes"].get(k2) or [],
+                                 "href": f"#n-{k2}"} for k2 in "ABCDEFG"], "个股合计", "股价层只呈现位置，不打分。", a["hist"])
     pr = cfg["prior"]
     body = f"""
 <div class="crumb"><a href="index.html">个股</a> ／ 候选 ／ {E(cfg['name'])}</div>
@@ -449,6 +453,8 @@ def render(a, ctx):
 <div class="px"><b>{t['close']:.2f}</b><span class="{st(t['d1'])}">{t['d1']:+.2f}%</span><small>{t['date']} 收盘</small></div></div>
 
 <section class="block" id="layers"><h2>四层信号</h2><p class="sub">从大盘到股价，每一层现在是利好、利空还是中性。不加总，也不给买卖结论。</p>{layers}</section>
+
+<section class="block" id="score"><h2>个股打分卡</h2><p class="sub">个股层 A–G 七个维度各打 −2 到 +2 分，也就是上面“个股”这一层的明细。点任意一项跳到下面的展开分析。</p>{card_html}</section>
 
 <section class="block"><h2>{E(pr.get('label', '之前的结论'))}：{E(pr['title'])}</h2><p class="prior">{E(pr['text'])}<span class="src">来源：{E(pr['source'])}</span></p></section>
 
@@ -492,6 +498,7 @@ def build(ctx):
             continue
         raw = json.load(open(p, encoding="utf-8"))
         a = analyze_stock(cfg, raw, ctx)
+        a["hist"] = scorecard.record(root, "stocks", cfg["code"], ctx["TODAY"], a["scores"])
         analyses.append(a)
         html_ = ctx["page"](f"{cfg['name']} | A 股框架笔记", "gg", render(a, ctx), "../")
         open(os.path.join(out, cfg["slug"] + ".html"), "w", encoding="utf-8").write(html_)

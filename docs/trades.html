@@ -236,6 +236,9 @@ footer p{margin:4px 0}
 .sum2{font-size:15px;color:var(--ink2);margin:14px 0 0}
 .sum2 b{font-size:18px}
 .brow{grid-template-columns:1.6fr .7fr .9fr .9fr 1fr 1.4fr}
+.sc .sk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--flat-bg);color:var(--ink2);font-size:11px;font-weight:700}
+@media (max-width:760px){.sc.total{grid-column:1/-1!important}}
+@media (max-width:760px){.score .sc:nth-last-child(2):nth-child(odd){grid-column:1/-1}}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="index.html">大盘</a><a href="boards/index.html">板块</a><a href="stocks/index.html">个股</a><a href="reports/index.html">报告</a><a href="trades.html" aria-current="page">我的操作</a></nav></div></header>
 <main class="wrap"><div class="hero"><h1>我的操作</h1><p class="sum">每一笔买卖都记下当时看到了什么，6 个月后回头检验判断，找出问题出在哪一层。</p>
