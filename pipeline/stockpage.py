@@ -461,7 +461,7 @@ def render(a, ctx):
     body = f"""
 <div class="crumb"><a href="index.html">个股</a> ／ {('<a href="../boards/' + cfg['board']['secid'][3:] + '.html">' + E(cfg['board']['name']) + '</a>') if cfg.get('group') == '追踪' else '观察'} ／ {E(cfg['name'])}</div>
 <div class="hero shero"><div><h1>{E(cfg['name'])}<small>{cfg['code']}</small></h1>
-<div class="tags2"><span class="drv">{E(cfg['driver'])}</span><span>{E(cfg['industry'])}</span>{'<span class="st2">追踪中</span>' if cfg.get('group') == '追踪' else '<span class="cand">观察，不在追踪板块内</span>'}</div></div>
+<div class="tags2"><span class="drv">{E(cfg['driver'])}</span><span>{E(cfg['industry'])}</span>{'<span class="st2">追踪中</span>' if cfg.get('group') == '追踪' else '<span class="cand">观察</span>'}</div></div>
 <div class="px"><b>{t['close']:.2f}</b><span class="{st(t['d1'])}">{t['d1']:+.2f}%</span><small>{t['date']} 收盘</small></div></div>
 
 <section class="block" id="layers"><h2>四层信号</h2><p class="sub">从大盘到股价，每一层现在是利好、利空还是中性。不加总，也不给买卖结论。</p>{layers}</section>
@@ -494,12 +494,12 @@ def stock_index(analyses, ctx):
     boards = json.load(open(os.path.join(ctx["ROOT"], "data", "boards.json"), encoding="utf-8"))["boards"]
     secs = ""
     for b in boards:
-        items = [a for a in analyses if a["cfg"].get("group") == "追踪" and a["cfg"]["board"]["secid"] == b["secid"]]
+        items = [a for a in analyses if a["cfg"].get("group") == "追踪" and a["cfg"].get("track_board", a["cfg"]["board"]["secid"]) == b["secid"]]
         if items:
             secs += (f'<h3 class="h3s gh"><a href="../boards/{b["slug"]}.html">{E(b["name"])}</a><small>{E(b.get("style", ""))}，{len(items)} 只</small></h3>'
                      f'<div class="slist">{"".join(row(a) for a in items)}</div>')
     obs = [a for a in analyses if a["cfg"].get("group") != "追踪"]
-    obs_html = (f'<section class="block"><h2>观察（不在追踪板块内）</h2><p class="sub">之前加进来的股票，所属板块不在这 7 个里，去留待定。</p>'
+    obs_html = (f'<section class="block"><h2>观察</h2><p class="sub">不在正式追踪名单里、但仍保留页面的股票：之前分析过的、从追踪名单换下来的（股价太高或同类太多），以及不在 7 个板块里的。数据照常每天更新。</p>'
                 f'<div class="slist">{"".join(row(a) for a in obs)}</div></section>') if obs else ""
     n = sum(1 for a in analyses if a["cfg"].get("group") == "追踪")
     return f"""<div class="hero"><h1>个股</h1><p class="sum">2026 年 11 月 9 日一起选定的 {n} 只追踪股，按板块分组：科技约 14 只，其他板块各 2 只。</p>
