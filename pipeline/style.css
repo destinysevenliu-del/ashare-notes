@@ -231,3 +231,7 @@ footer p{margin:4px 0}
  .lay th,.lay td{border:0;padding:2px 8px}
  .lay td:last-child{grid-column:1/-1}
 }
+.chip2{display:inline-block;font-size:12px;padding:1px 10px;border-radius:20px;background:var(--link-bg);color:var(--link);margin-right:4px}
+.sum2{font-size:15px;color:var(--ink2);margin:14px 0 0}
+.sum2 b{font-size:18px}
+.brow{grid-template-columns:1.6fr .7fr .9fr .9fr 1fr 1.4fr}

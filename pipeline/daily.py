@@ -24,6 +24,7 @@ def run(script, *args):
 
 run("fetch.py")
 run("stocks.py")
+run("boards.py")
 raw = os.path.join(ROOT, "data", "raw")
 idx_date = json.load(open(os.path.join(raw, "idx_all.json")))["rows"][-1]["date"]
 m_date = max(r["DIM_DATE"][:10] for r in json.load(open(os.path.join(raw, "margin.json"))))

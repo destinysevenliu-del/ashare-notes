@@ -214,8 +214,7 @@ def analyze_stock(cfg, raw, ctx):
     stock_sum = sum(s for s in scores.values() if s is not None)
     layers = [
         {"name": "大盘", "state": st(R["total"]), "text": f"六项合计 {R['total']:+d}。" + ctx["summary"]().split("。", 1)[1], "link": "../index.html"},
-        {"name": "板块", "state": "up" if bd["rs20"] >= 5 else ("down" if bd["rs20"] <= -5 else "flat"),
-         "text": f"{bd['name']}近 20 日 {bd['d20']:+.1f}%，相对沪深 300 {bd['rs20']:+.1f} 个点；近 60 日相对 {bd['rs60']:+.1f} 个点；{'在' if bd['ma60'] else '跌破'} 60 日线{'上方' if bd['ma60'] else ''}。", "link": None},
+        board_layer(cfg, bd, ctx),
         {"name": "个股", "state": st(stock_sum), "text": f"A–G 合计 {stock_sum:+d}。" + "；".join(
             f"{k2} {s:+d}" for k2, s in scores.items() if s), "link": "#nodes"},
     ]
@@ -244,6 +243,16 @@ def analyze_stock(cfg, raw, ctx):
 
     return {"cfg": cfg, "t": t, "v": v, "f": f, "e": e, "m": m, "hd": hd, "bd": bd, "nodes": nodes, "scores": scores,
             "layers": layers, "conds": conds, "key_notices": key, "notices": raw["notices"], "dates": dts, "closes": c}
+
+
+def board_layer(cfg, bd, ctx):
+    b = (ctx.get("BOARDS") or {}).get(cfg["board"]["secid"])
+    rel = f"{bd['name']}近 20 日 {bd['d20']:+.1f}%，相对沪深 300 {bd['rs20']:+.1f} 个点"
+    if not b:
+        return {"name": "板块", "state": "up" if bd["rs20"] >= 5 else ("down" if bd["rs20"] <= -5 else "flat"), "text": rel + "。", "link": None}
+    parts = "；".join(f"{k} {v:+d}" for k, v in b["scores"].items() if v and k != "D")
+    return {"name": "板块", "state": st(b["total"]), "text": f"行业层 A–G 合计 {b['total']:+d}" + (f"（{parts}）" if parts else "") + "；" + rel + "。",
+            "link": f"../boards/{b['cfg']['slug']}.html"}
 
 
 # ---------------- 因子地图：当前状态 ----------------
@@ -297,7 +306,7 @@ def render(a, ctx):
         lab = {"up": "利好", "down": "利空", "flat": "中性"}[L["state"]]
         if L["name"] == "股价":
             lab = {"up": "估值偏低", "down": "估值偏高", "flat": "估值居中"}[L["state"]]
-        link = f' <a href="{L["link"]}">展开</a>' if L["link"] else ' <span class="soon2">板块页第二期</span>'
+        link = f' <a href="{L["link"]}">展开</a>' if L["link"] else ""
         lrows += f'<tr><th scope="row">{L["name"]}</th><td><span class="tag {L["state"]}">{lab}</span></td><td>{E(L["text"])}{link}</td></tr>'
     layers = f'<div class="tblwrap"><table class="mt lay"><tbody>{lrows}</tbody></table></div>'
 

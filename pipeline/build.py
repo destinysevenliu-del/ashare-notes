@@ -439,7 +439,7 @@ CSS = open(os.path.join(ROOT, "pipeline", "style.css"), encoding="utf-8").read()
 
 
 def page(title, active, body, prefix=""):
-    nav = [("index.html", "大盘", "dp"), ("", "板块", "第二期"), ("stocks/index.html", "个股", "gg"),
+    nav = [("index.html", "大盘", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg"),
            ("reports/index.html", "报告", "bg"), ("trades.html", "我的操作", "tr")]
     links = ""
     for href, lab, key in nav:
@@ -518,7 +518,8 @@ with open(os.path.join(SITE, "index.html"), "w", encoding="utf-8") as f:
 with open(os.path.join(SITE, "trades.html"), "w", encoding="utf-8") as f:
     f.write(trades_page())
 
-import stockpage, reportspage  # noqa: E402
+import stockpage, reportspage, boardpage  # noqa: E402
+BOARDS = boardpage.build(globals(), json.load(open(os.path.join(ROOT, "data", "stocks.json"), encoding="utf-8"))["stocks"])
 stock_analyses = stockpage.build(globals())
 reportspage.build(globals())
 
