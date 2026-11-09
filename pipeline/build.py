@@ -438,18 +438,19 @@ def summary():
 CSS = open(os.path.join(ROOT, "pipeline", "style.css"), encoding="utf-8").read()
 
 
-def page(title, active, body):
-    nav = [("index.html", "大盘", "dp"), ("", "板块", "第二期"), ("", "个股", "第三期"), ("trades.html", "我的操作", "tr")]
+def page(title, active, body, prefix=""):
+    nav = [("index.html", "大盘", "dp"), ("", "板块", "第二期"), ("stocks/index.html", "个股", "gg"),
+           ("reports/index.html", "报告", "bg"), ("trades.html", "我的操作", "tr")]
     links = ""
     for href, lab, key in nav:
         if not href:
             links += f'<span class="soon">{lab}<small>{key}</small></span>'
         else:
             cur = ' aria-current="page"' if key == active else ""
-            links += f'<a href="{href}"{cur}>{lab}</a>'
+            links += f'<a href="{prefix}{href}"{cur}>{lab}</a>'
     return f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>{E(title)}</title><style>{CSS}</style></head><body>
-<header class="top"><div class="wrap"><a class="brand" href="index.html">A 股框架笔记</a><nav aria-label="主导航">{links}</nav></div></header>
+<header class="top"><div class="wrap"><a class="brand" href="{prefix}index.html">A 股框架笔记</a><nav aria-label="主导航">{links}</nav></div></header>
 <main class="wrap">{body}</main>
 <footer><div class="wrap"><p>数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 {R['rules_version']}，每节的“怎么判的”里有完整规则。</p>
 <p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer></body></html>"""
@@ -516,6 +517,10 @@ with open(os.path.join(SITE, "index.html"), "w", encoding="utf-8") as f:
     f.write(index())
 with open(os.path.join(SITE, "trades.html"), "w", encoding="utf-8") as f:
     f.write(trades_page())
+
+import stockpage, reportspage  # noqa: E402
+stock_analyses = stockpage.build(globals())
+reportspage.build(globals())
 
 snap = {"date": TODAY, "total": R["total"], "scores": {r["key"]: r["score"] for r in R["score_rows"]},
         "nodes": {k: v["state"] for k, v in N.items()}, "conds": {c["id"]: c["hit"] for c in R["conds"]},
