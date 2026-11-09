@@ -498,11 +498,16 @@ def stock_index(analyses, ctx):
         if items:
             secs += (f'<h3 class="h3s gh"><a href="../boards/{b["slug"]}.html">{E(b["name"])}</a><small>{E(b.get("style", ""))}，{len(items)} 只</small></h3>'
                      f'<div class="slist">{"".join(row(a) for a in items)}</div>')
+    bsec = {b["secid"] for b in boards}
+    other = [a for a in analyses if a["cfg"].get("group") == "追踪" and a["cfg"].get("track_board", a["cfg"]["board"]["secid"]) not in bsec]
+    if other:
+        secs += (f'<h3 class="h3s gh">其他<small>不在 7 个追踪板块里的正式股票，{len(other)} 只</small></h3>'
+                 f'<div class="slist">{"".join(row(a) for a in other)}</div>')
     obs = [a for a in analyses if a["cfg"].get("group") != "追踪"]
     obs_html = (f'<section class="block"><h2>观察</h2><p class="sub">不在正式追踪名单里、但仍保留页面的股票：之前分析过的、从追踪名单换下来的（股价太高或同类太多），以及不在 7 个板块里的。数据照常每天更新。</p>'
                 f'<div class="slist">{"".join(row(a) for a in obs)}</div></section>') if obs else ""
     n = sum(1 for a in analyses if a["cfg"].get("group") == "追踪")
-    return f"""<div class="hero"><h1>个股</h1><p class="sum">2026 年 11 月 9 日一起选定的 {n} 只追踪股，按板块分组：科技约 14 只，其他板块各 2 只。</p>
+    return f"""<div class="hero"><h1>个股</h1><p class="sum">2026 年 11 月 9 日一起选定的 {n} 只追踪股，按板块分组。</p>
 <p class="stamp">四个色块依次是大盘、板块、个股、股价四层的状态：红色利好，绿色利空，灰色中性。“个股合计”是个股打分卡 A–G 的合计。</p></div>
 <section class="block">{secs}</section>{obs_html}"""
 

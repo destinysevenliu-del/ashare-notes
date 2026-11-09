@@ -244,12 +244,12 @@ def render(a, ctx, stocks_in):
     body = f"""
 <div class="crumb"><a href="index.html">板块</a> ／ {E(cfg['name'])}</div>
 <div class="hero shero"><div><h1>{E(cfg['name'])}<small>{cfg['slug']}</small></h1>
-<div class="tags2"><span>{a['m']['n']} 家成分股</span><span>候选股：</span>{cand}</div></div>
+<div class="tags2"><span>{a['m']['n']} 家成分股</span><span>追踪股：</span>{cand}</div></div>
 <div class="px"><b>{t['close']:.2f}</b><span class="{st(t['d1'])}">{t['d1']:+.2f}%</span><small>板块指数</small></div></div>
 <section class="block" id="score"><h2>板块打分卡</h2><p class="sub">行业层六个维度各打 −2 到 +2 分，点任意一项跳到下面的展开分析。D（利率与风险偏好）直接引用大盘页，不计入板块合计。</p>{card_html}</section>
 <section class="block" id="nodes"><h2>行业层传导图</h2><p class="sub">和大盘页、个股页同一套 A–H 骨架，换成了行业的变量。</p>
 <div class="fwbox">{"".join(o)}</div><div class="chips">{chips}</div><div class="ndlist">{nodes_html}</div></section>
-<section class="block"><h2>主要成分股</h2><p class="sub">按总市值排前 15。带链接的是候选股。</p>{ctab}</section>"""
+<section class="block"><h2>主要成分股</h2><p class="sub">按总市值排前 15。带链接的是追踪股。</p>{ctab}</section>"""
     return body
 
 
