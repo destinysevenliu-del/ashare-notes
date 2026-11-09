@@ -5,7 +5,7 @@ import json, os, datetime, html
 
 E = html.escape
 POS_KW = ["回购", "增持"]
-NEG_KW = ["减持", "解禁", "处罚", "立案", "问询函", "质押", "警示"]
+NEG_KW = ["减持", "解禁", "处罚", "立案", "问询函", "监管工作函", "质押", "警示"]
 KEY_KW = POS_KW + NEG_KW + ["业绩预告", "季度报告", "年度报告", "半年度报告", "重大合同", "中标", "激励"]
 
 
@@ -28,6 +28,10 @@ def pct_rank(vals, x):
 def quantile(vals, q):
     v = sorted(vals)
     return v[min(len(v) - 1, int(len(v) * q))]
+
+
+def fmt2(x, n=3):
+    return "—" if x is None else f"{x:.{n}f}"
 
 
 def yi(x):
@@ -171,6 +175,11 @@ def analyze_stock(cfg, raw, ctx):
     nodes["C"] = h
     h = []
     cr = f["cash_ratio"]
+    if f["eps"] is not None and f["eps"] <= 0:
+        if f["cfps"] is not None and f["cfps"] < 0:
+            h.append((f"本年仍亏损（每股收益 {f['eps']:.3f}），经营现金流也为负（每股 {f['cfps']:.3f}），在持续失血", -1))
+        else:
+            h.append((f"本年仍亏损（每股收益 {f['eps']:.3f}），但经营现金流为正", 0))
     if cr is not None:
         if cr >= 0.9: h.append((f"每股经营现金流是每股收益的 {cr:.2f} 倍，利润有现金支撑", 0.5))
         elif cr < 0.5: h.append((f"每股经营现金流只有每股收益的 {cr:.2f} 倍，利润含金量偏低", -1))
@@ -242,17 +251,23 @@ def factor_now(name, ctx, a):
     R, D, manual = ctx["R"], ctx["D"], ctx["manual"]
     sr = {r["key"]: r for r in R["score_rows"]}
     us = D.us10[-1][1]
+    sg = lambda x: f"{x:+d}" if x else "0"
+    if "重组" in name or "资产处置" in name:
+        hits = [n for n in a["notices"] if any(w in n["title"] for w in ["收购", "转让", "出售", "重组", "股权"])]
+        if hits:
+            return f"近期相关公告 {len(hits)} 条，最新：{hits[0]['date'][5:]} {hits[0]['title'].split(':', 1)[-1][:30]}", "flat"
+        return "近期没有相关公告", "flat"
     if "利率" in name:
-        return f"美国 10 年国债 {us:.2f}%；大盘「利率与流动性」{sr['liq']['score']:+d}", "down" if us >= 4.5 else "flat"
+        return f"美国 10 年国债 {us:.2f}%；大盘「利率与流动性」{sg(sr['liq']['score'])}", "down" if us >= 4.5 else "flat"
     if "汇率" in name:
         x = D.cnh[-1][1]; x20 = D.cnh[-21][1]
         return f"离岸人民币 {x:.4f}，近 20 日{'升值' if x < x20 else '贬值'} {abs(x / x20 - 1) * 100:.1f}%（升值对出口型公司不利）", "down" if x < x20 else "up"
     if "两融" in name or "情绪" in name:
-        return f"本股融资余额 10 日 {a['m']['m10']:+.1f}%；大盘「资金」{sr['funds']['score']:+d}", st(sr["funds"]["score"])
+        return f"本股融资余额 10 日 {a['m']['m10']:+.1f}%；大盘「资金」{sg(sr['funds']['score'])}", st(sr["funds"]["score"])
     if any(w in name for w in ["出口限制", "关税", "管制", "对华"]):
         return f"大盘「外部环境」{manual['external']['score']:+d}（人工判定）", st(manual["external"]["score"])
     if "国内经济" in name or "消费" in name:
-        return f"大盘「国内经济」{sr['econ']['score']:+d}：PMI {D.pmi[-1]['v']}，社零同比 {D.retail[-1]['v']}%", st(sr["econ"]["score"])
+        return f"大盘「国内经济」{sg(sr['econ']['score'])}：PMI {D.pmi[-1]['v']}，社零同比 {D.retail[-1]['v']}%", st(sr["econ"]["score"])
     if "政策" in name or "医保" in name:
         return f"大盘「政策」{manual['policy']['score']:+d}（人工判定）；行业政策待整理", "flat"
     if "资本开支" in name or "订单" in name:
@@ -368,8 +383,8 @@ def render(a, ctx):
               + f'<p class="note">最新报告：{E(f["type"])}，{f["notice"]} 公布。单季数据由累计值相减得到。近 8 个季度单季净利润走势：{np_spark}</p>'
               + rules("最新单季净利润同比 ≥ 20% 加 1，0–20% 加 0.5，负增长减 1；环比 ≥ +5% 加 0.5，≤ −5% 减 0.5；单季亏损减 1。"))
         + sec("D", "利润质量", "赚的是真金白银吗？毛利率守得住吗？",
-              f'<p class="note">本年累计：每股收益 {f["eps"]}，每股经营现金流 {f["cfps"] if f["cfps"] is not None else "—"}，毛利率 {f["gm"] if f["gm"] is not None else "—"}%，ROE {f["roe"]}%。存货和扣非利润暂未接入。</p>'
-              + rules("每股经营现金流 ÷ 每股收益 ≥ 0.9 加 0.5，< 0.5 减 1；毛利率比去年同期高 2 个点以上加 0.5，低 2 个点以上减 0.5。"))
+              f'<p class="note">本年累计：每股收益 {fmt2(f["eps"])}，每股经营现金流 {fmt2(f["cfps"])}，毛利率 {fmt2(f["gm"], 1)}%，ROE {fmt2(f["roe"], 1)}%。存货和扣非利润暂未接入。</p>'
+              + rules("亏损且经营现金流为负减 1；每股经营现金流 ÷ 每股收益 ≥ 0.9 加 0.5，< 0.5 减 1；毛利率比去年同期高 2 个点以上加 0.5，低 2 个点以上减 0.5。"))
         + sec("E", "盈利预测", "机构预期明年比今年多赚多少？", estr
               + rules("明年每股收益比今年预测增长 ≥ 30% 加 1，10–30% 加 0.5，负增长减 1。"))
         + sec("F", "个股估值", "市场现在愿意给它多少倍市盈率？", '<p class="note">估值的细节在下面的「股价层」。</p>'
@@ -426,7 +441,7 @@ def render(a, ctx):
 
 <section class="block" id="layers"><h2>四层信号</h2><p class="sub">从大盘到股价，每一层现在是利好、利空还是中性。不加总，也不给买卖结论。</p>{layers}</section>
 
-<section class="block"><h2>之前的结论：{E(pr['title'])}</h2><p class="prior">{E(pr['text'])}<span class="src">来源：{E(pr['source'])}</span></p></section>
+<section class="block"><h2>{E(pr.get('label', '之前的结论'))}：{E(pr['title'])}</h2><p class="prior">{E(pr['text'])}<span class="src">来源：{E(pr['source'])}</span></p></section>
 
 <section class="block" id="fmap"><h2>因子影响地图</h2><p class="sub">框架里哪些因素对这只股票影响大。“现在的状态”取自大盘页和本页的实时数据。这张表是初稿，等你确认后按季度更新。</p>{fmap}</section>
 
@@ -450,7 +465,7 @@ def stock_index(analyses, ctx):
                  f'<span class="kv">距高点 <b class="down">{t["dd"]:.0f}%</b></span>'
                  f'<span class="kv">PE 分位 <b>{"—" if v["pct"] is None else format(v["pct"], ".0f") + "%"}</b></span>'
                  f'<span class="lys">{tags}</span></a>')
-    return f"""<div class="hero"><h1>个股</h1><p class="sum">正式的 20 只追踪股还没选。下面是之前分析过的 5 只，先作为候选放进来，用来熟悉个股页的结构。</p>
+    return f"""<div class="hero"><h1>个股</h1><p class="sum">正式的 20 只追踪股还没选。下面先放进来的都是候选，用来熟悉个股页的结构。</p>
 <p class="stamp">四个色块依次是大盘、板块、个股、股价四层的状态：红色利好，绿色利空，灰色中性。</p></div>
 <section class="block"><div class="slist">{rows}</div></section>
 <section class="block"><h2>正式股票池怎么定</h2><p class="note">按需求文档的流程：先根据大盘判断定 6–8 个板块，每个板块挑 3–5 只候选，逐只初筛后一起讨论，定下约 20 只。这 5 只也要经过同样的筛选，不会自动入选。</p></section>"""

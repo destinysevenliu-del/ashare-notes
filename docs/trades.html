@@ -227,6 +227,11 @@ footer p{margin:4px 0}
  .fm .why{min-width:140px}
 }
 .lc2{color:#fff!important}
+@media (max-width:760px){
+ .lay tr{display:grid;grid-template-columns:64px 1fr;padding:8px 0;border-top:1px solid var(--line2)}
+ .lay th,.lay td{border:0;padding:2px 8px}
+ .lay td:last-child{grid-column:1/-1}
+}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="index.html">大盘</a><span class="soon">板块<small>第二期</small></span><a href="stocks/index.html">个股</a><a href="reports/index.html">报告</a><a href="trades.html" aria-current="page">我的操作</a></nav></div></header>
 <main class="wrap"><div class="hero"><h1>我的操作</h1><p class="sum">每一笔买卖都记下当时看到了什么，6 个月后回头检验判断，找出问题出在哪一层。</p>
