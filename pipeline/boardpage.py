@@ -267,7 +267,8 @@ def index(analyses, ctx, by_board):
                  f'<span class="lys">{chips}</span></a>')
     return f"""<div class="hero"><h1>板块</h1><p class="sum">目前覆盖候选股所属的 6 个板块。每个板块用行业层的 A–H 拆开看，合计分不含引用大盘的 D。</p>
 <p class="stamp">色块依次是 A 下游需求、B 政策、C 行业利润、E 景气方向、F 估值、G 拥挤度：红色利好，绿色利空，灰色中性。“20 日相对”是板块近 20 日涨幅减去沪深 300，单位是百分点。</p></div>
-<section class="block"><div class="slist">{rows}</div></section>"""
+<section class="block"><div class="slist">{rows}</div></section>
+<section class="block"><h2>正在一起挑选未来半年的 6 个板块</h2><p class="note">上面 6 个只是现有候选股恰好所属的板块。按自上而下的顺序，我们正在从全市场重新挑选：<a href="screen.html">看全市场行业初筛和入围名单</a>。</p></section>"""
 
 
 def build(ctx, stock_cfgs):
@@ -290,4 +291,46 @@ def build(ctx, stock_cfgs):
         html_ = ctx["page"](f"{cfg['name']} | 板块 | A 股框架笔记", "bk", render(a, ctx, by_board.get(cfg["secid"], [])), "../")
         open(os.path.join(out, cfg["slug"] + ".html"), "w", encoding="utf-8").write(html_)
     open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(ctx["page"]("板块 | A 股框架笔记", "bk", index(analyses, ctx, by_board), "../"))
+    screen_page(ctx)
     return res
+
+
+def screen_page(ctx):
+    root = ctx["ROOT"]
+    rp = os.path.join(root, "data", "raw", "screen", "result.json")
+    lp = os.path.join(root, "data", "screen_longlist.json")
+    if not (os.path.exists(rp) and os.path.exists(lp)):
+        return
+    res = {r["bk"]: r for r in json.load(open(rp, encoding="utf-8"))}
+    ll = json.load(open(lp, encoding="utf-8"))
+    prop = set(ll["proposal"])
+    f = lambda x, p="+.0f", suf="%": "—" if x is None else format(x, p) + suf
+    cards = ""
+    for style in ("成长", "周期", "防守"):
+        items = [i for i in ll["items"] if i["style"] == style]
+        lis = ""
+        for i in items:
+            r = res[i["bk"]]
+            star = '<span class="star">首轮提议</span>' if i["bk"] in prop else ""
+            lis += (f'<div class="ll"><div class="llh"><b>{E(r["name"])}</b>{star}<span class="v {st(r["total"])}">{sg(r["total"])}</span></div>'
+                    f'<p class="kv2">单季利润 {f(r["np_yoy"])}　营收 {f(r["rev_yoy"])}　PE {f(r["pe"], ".0f", " 倍")}　PEG {f(r["peg"], ".2f", "")}　'
+                    f'近一年相对沪深 300 {f(r["rs250"], "+.0f", " 点")}　拥挤度 {r["sh_pct"]:.0f}% 分位</p>'
+                    f'<p><span class="tag up">理由</span>{E(i["why"])}</p><p><span class="tag down">风险</span>{E(i["risk"])}</p></div>')
+        cards += f'<h3 class="h3s">{style}（{len(items)} 个）</h3><div class="lls">{lis}</div>'
+    rows = ""
+    in_ll = {i["bk"] for i in ll["items"]}
+    for r in sorted(res.values(), key=lambda r: (-r["total"], -(r["np_yoy"] or -999))):
+        mark = "★" if r["bk"] in prop else ("○" if r["bk"] in in_ll else "")
+        rows += (f'<tr class="{"hl" if mark else ""}"><th scope="row">{mark} {E(r["name"])}<span class="hint">{r["bk"]}，{r["n"]} 家</span></th>'
+                 f'<td class="{st(r["total"])}"><b>{sg(r["total"])}</b></td>'
+                 + "".join(f'<td class="{st(r["sc"][k])}">{sg(r["sc"][k])}</td>' for k in "ACEFG")
+                 + f'<td class="{st(r["np_yoy"] or 0)}">{f(r["np_yoy"])}</td><td>{f(r["pe"], ".0f", "")}</td><td>{f(r["peg"], ".2f", "")}</td>'
+                 f'<td class="{st(r["rs60"])}">{r["rs60"]:+.0f}</td><td class="{st(r["rs250"])}">{r["rs250"]:+.0f}</td><td>{r["sh_pct"]:.0f}%</td></tr>')
+    body = f"""<div class="crumb"><a href="index.html">板块</a> ／ 全市场初筛</div>
+<div class="hero"><h1>全市场行业初筛</h1><p class="sum">把东方财富 {len(res)} 个行业，全部按行业层的 A、C、E、F、G 五项打分，用来一起挑出未来半年值得追踪的 6 个板块。</p>
+<p class="stamp">数据截至 {ll['date']}：利润用 2026 年三季报（单季 = 前三季度 − 上半年），估值为当日市值加权 PE。B（政策）是人工项，这里没有打。</p></div>
+<section class="block"><h2>入围名单</h2><p class="sub">按“攻守平衡”的偏好，从成长、周期、防守三类里各挑出几个。标“首轮提议”的是我建议的 6 个，等你删改。</p>{cards}</section>
+<section class="block"><h2>全部行业</h2><p class="sub">★ 首轮提议，○ 入围。“60 日 / 一年”是相对沪深 300 的超额涨幅（百分点）；拥挤度是近 5 日成交额占全 A 比例在近一年的分位。</p>
+<div class="tblwrap"><table class="mt scr"><thead><tr><th>行业</th><th>合计</th><th>A</th><th>C</th><th>E</th><th>F</th><th>G</th><th>单季利润</th><th>PE</th><th>PEG</th><th>60 日</th><th>一年</th><th>拥挤</th></tr></thead>
+<tbody>{rows}</tbody></table></div></section>"""
+    open(os.path.join(ctx["SITE"], "boards", "screen.html"), "w", encoding="utf-8").write(ctx["page"]("全市场行业初筛 | A 股框架笔记", "bk", body, "../"))

@@ -239,6 +239,17 @@ footer p{margin:4px 0}
 .sc .sk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--flat-bg);color:var(--ink2);font-size:11px;font-weight:700}
 @media (max-width:760px){.sc.total{grid-column:1/-1!important}}
 @media (max-width:760px){.score .sc:nth-last-child(2):nth-child(odd){grid-column:1/-1}}
+.lls{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:22px}
+.ll{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.ll p{margin:6px 0 0;font-size:14px}
+.llh{display:flex;align-items:center;gap:8px}
+.llh b{font:600 17px var(--serif)}
+.llh .v{margin-left:auto;font:700 18px var(--sans)}
+.star{font-size:11px;font-weight:700;background:var(--link);color:#fff;padding:1px 7px;border-radius:4px}
+.kv2{color:var(--ink3);font-size:12px!important}
+.scr td,.scr th{white-space:nowrap;font-size:13px}
+.scr tr.hl{background:#F7F9FE}
+@media (max-width:760px){.lls{grid-template-columns:1fr}}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="index.html">大盘</a><a href="boards/index.html">板块</a><a href="stocks/index.html">个股</a><a href="reports/index.html">报告</a><a href="trades.html" aria-current="page">我的操作</a></nav></div></header>
 <main class="wrap"><div class="hero"><h1>我的操作</h1><p class="sum">每一笔买卖都记下当时看到了什么，6 个月后回头检验判断，找出问题出在哪一层。</p>
