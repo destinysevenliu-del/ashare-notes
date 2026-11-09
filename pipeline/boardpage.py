@@ -265,7 +265,7 @@ def index(analyses, ctx, by_board):
                  f'<span class="kv">利润同比 <b class="{st(a["m"]["np_yoy"] or 0)}">{("转亏" if a["m"]["turn_loss"] else "亏损" if a["m"]["q_np"] < 0 else "—") if a["m"]["np_yoy"] is None else format(a["m"]["np_yoy"], "+.0f") + "%"}</b></span>'
                  f'<span class="kv">PE / PEG <b>{"亏损" if a["pe_now"] is None else format(a["pe_now"], ".0f")}{"" if a["peg"] is None else " / " + format(a["peg"], ".2f")}</b></span>'
                  f'<span class="lys">{chips}</span></a>')
-    return f"""<div class="hero"><h1>板块</h1><p class="sum">这是 2026 年 11 月 9 日一起定下的未来半年追踪板块：成长、周期、防守各 2 个。每个板块用行业层的 A–H 拆开看，合计分不含引用大盘的 D。</p>
+    return f"""<div class="hero"><h1>板块</h1><p class="sum">这是 2026 年 11 月 9 日一起定下的未来半年追踪板块：偏科技：科技 4 个，周期 1 个，防守 2 个。每个板块用行业层的 A–H 拆开看，合计分不含引用大盘的 D。</p>
 <p class="stamp">色块依次是 A 下游需求、B 政策、C 行业利润、E 景气方向、F 估值、G 拥挤度：红色利好，绿色利空，灰色中性。“20 日相对”是板块近 20 日涨幅减去沪深 300，单位是百分点。</p></div>
 <section class="block"><div class="slist">{rows}</div></section>
 <section class="block"><h2>这 6 个板块是怎么选出来的</h2><p class="note">先根据大盘判断，再把全市场约 120 个行业按行业层打分，按攻守平衡挑出入围名单，最后一起讨论定下。过程见 <a href="screen.html">全市场行业初筛</a>。下一步：每个板块挑 3–5 只候选股。</p></section>"""
