@@ -7,8 +7,8 @@
    "name": "中际旭创",
    "slug": "300308",
    "board": {
-    "secid": "90.BK1136",
-    "name": "光通信模块"
+    "secid": "90.BK0448",
+    "name": "通信设备"
    },
    "industry": "光模块",
    "driver": "估值驱动",
@@ -62,8 +62,8 @@
    "name": "新易盛",
    "slug": "300502",
    "board": {
-    "secid": "90.BK1136",
-    "name": "光通信模块"
+    "secid": "90.BK0448",
+    "name": "通信设备"
    },
    "industry": "光模块",
    "driver": "估值 + 盈利驱动",
@@ -117,8 +117,8 @@
    "name": "寒武纪",
    "slug": "688256",
    "board": {
-    "secid": "90.BK1127",
-    "name": "AI 芯片"
+    "secid": "90.BK1036",
+    "name": "半导体"
    },
    "industry": "AI 芯片",
    "driver": "资金与叙事驱动",
@@ -167,8 +167,8 @@
    "name": "恒瑞医药",
    "slug": "600276",
    "board": {
-    "secid": "90.BK1106",
-    "name": "创新药"
+    "secid": "90.BK0465",
+    "name": "化学制药"
    },
    "industry": "创新药",
    "driver": "政策与叙事驱动",

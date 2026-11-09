@@ -259,16 +259,16 @@ def index(analyses, ctx, by_board):
         cfg, t, sc = a["cfg"], a["t"], a["scores"]
         chips = "".join(f'<span class="tag {"na" if sc.get(k) is None else st(sc[k])}" title="{NODE_NAMES[k]}">{k}</span>' for k in "ABCEFG")
         names = "、".join(s["cfg"]["name"] for s in by_board.get(cfg["secid"], []))
-        rows += (f'<a class="srow brow" href="{cfg["slug"]}.html"><span class="nm">{E(cfg["name"])}<small>{E(names)}</small></span>'
+        rows += (f'<a class="srow brow" href="{cfg["slug"]}.html"><span class="nm">{E(cfg["name"])}<small>{E(cfg.get("style", ""))}{"｜" + E(names) if names else ""}</small></span>'
                  f'<span class="kv">合计 <b class="{st(a["total"])}">{sg(a["total"])}</b></span>'
                  f'<span class="kv">20 日相对 <b class="{st(t["rs20"])}">{t["rs20"]:+.1f}</b></span>'
                  f'<span class="kv">利润同比 <b class="{st(a["m"]["np_yoy"] or 0)}">{("转亏" if a["m"]["turn_loss"] else "亏损" if a["m"]["q_np"] < 0 else "—") if a["m"]["np_yoy"] is None else format(a["m"]["np_yoy"], "+.0f") + "%"}</b></span>'
                  f'<span class="kv">PE / PEG <b>{"亏损" if a["pe_now"] is None else format(a["pe_now"], ".0f")}{"" if a["peg"] is None else " / " + format(a["peg"], ".2f")}</b></span>'
                  f'<span class="lys">{chips}</span></a>')
-    return f"""<div class="hero"><h1>板块</h1><p class="sum">目前覆盖候选股所属的 6 个板块。每个板块用行业层的 A–H 拆开看，合计分不含引用大盘的 D。</p>
+    return f"""<div class="hero"><h1>板块</h1><p class="sum">这是 2026 年 11 月 9 日一起定下的未来半年追踪板块：成长、周期、防守各 2 个。每个板块用行业层的 A–H 拆开看，合计分不含引用大盘的 D。</p>
 <p class="stamp">色块依次是 A 下游需求、B 政策、C 行业利润、E 景气方向、F 估值、G 拥挤度：红色利好，绿色利空，灰色中性。“20 日相对”是板块近 20 日涨幅减去沪深 300，单位是百分点。</p></div>
 <section class="block"><div class="slist">{rows}</div></section>
-<section class="block"><h2>正在一起挑选未来半年的 6 个板块</h2><p class="note">上面 6 个只是现有候选股恰好所属的板块。按自上而下的顺序，我们正在从全市场重新挑选：<a href="screen.html">看全市场行业初筛和入围名单</a>。</p></section>"""
+<section class="block"><h2>这 6 个板块是怎么选出来的</h2><p class="note">先根据大盘判断，再把全市场约 120 个行业按行业层打分，按攻守平衡挑出入围名单，最后一起讨论定下。过程见 <a href="screen.html">全市场行业初筛</a>。下一步：每个板块挑 3–5 只候选股。</p></section>"""
 
 
 def build(ctx, stock_cfgs):
@@ -311,7 +311,7 @@ def screen_page(ctx):
         lis = ""
         for i in items:
             r = res[i["bk"]]
-            star = '<span class="star">首轮提议</span>' if i["bk"] in prop else ""
+            star = f'<span class="star">{"已选定" if ll.get("final") else "首轮提议"}</span>' if i["bk"] in prop else ""
             lis += (f'<div class="ll"><div class="llh"><b>{E(r["name"])}</b>{star}<span class="v {st(r["total"])}">{sg(r["total"])}</span></div>'
                     f'<p class="kv2">单季利润 {f(r["np_yoy"])}　营收 {f(r["rev_yoy"])}　PE {f(r["pe"], ".0f", " 倍")}　PEG {f(r["peg"], ".2f", "")}　'
                     f'近一年相对沪深 300 {f(r["rs250"], "+.0f", " 点")}　拥挤度 {r["sh_pct"]:.0f}% 分位</p>'
@@ -329,7 +329,7 @@ def screen_page(ctx):
     body = f"""<div class="crumb"><a href="index.html">板块</a> ／ 全市场初筛</div>
 <div class="hero"><h1>全市场行业初筛</h1><p class="sum">把东方财富 {len(res)} 个行业，全部按行业层的 A、C、E、F、G 五项打分，用来一起挑出未来半年值得追踪的 6 个板块。</p>
 <p class="stamp">数据截至 {ll['date']}：利润用 2026 年三季报（单季 = 前三季度 − 上半年），估值为当日市值加权 PE。B（政策）是人工项，这里没有打。</p></div>
-<section class="block"><h2>入围名单</h2><p class="sub">按“攻守平衡”的偏好，从成长、周期、防守三类里各挑出几个。标“首轮提议”的是我建议的 6 个，等你删改。</p>{cards}</section>
+<section class="block"><h2>入围名单</h2><p class="sub">按“攻守平衡”的偏好，从成长、周期、防守三类里各挑出几个。{"标“已选定”的是最终确认的 6 个。" + ll.get("final_note", "") if ll.get("final") else "标“首轮提议”的是我建议的 6 个，等你删改。"}</p>{cards}</section>
 <section class="block"><h2>全部行业</h2><p class="sub">★ 首轮提议，○ 入围。“60 日 / 一年”是相对沪深 300 的超额涨幅（百分点）；拥挤度是近 5 日成交额占全 A 比例在近一年的分位。</p>
 <div class="tblwrap"><table class="mt scr"><thead><tr><th>行业</th><th>合计</th><th>A</th><th>C</th><th>E</th><th>F</th><th>G</th><th>单季利润</th><th>PE</th><th>PEG</th><th>60 日</th><th>一年</th><th>拥挤</th></tr></thead>
 <tbody>{rows}</tbody></table></div></section>"""
