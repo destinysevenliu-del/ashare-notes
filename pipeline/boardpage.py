@@ -79,12 +79,12 @@ def analyze_board(cfg, raw, ctx):
     h = []
     ry = m["rev_yoy"]
     if ry is not None:
-        if ry >= 20: h.append((f"{ql} 成分股合计单季营收同比 {ry:+.0f}%，需求旺盛", 1))
+        if ry >= 20: h.append((f"{ql} 成分股合计单季营收同比 {ry:+.0f}%，已实现收入增长", 1))
         elif ry >= 5: h.append((f"{ql} 成分股合计单季营收同比 {ry:+.0f}%", 0.5))
-        elif ry < 0: h.append((f"{ql} 成分股合计单季营收同比 {ry:+.0f}%，需求在收缩", -1))
+        elif ry < 0: h.append((f"{ql} 成分股合计单季营收同比 {ry:+.0f}%，已实现收入下降", -1))
         else: h.append((f"{ql} 成分股合计单季营收同比 {ry:+.0f}%，增长平缓", 0))
     N["A"] = h
-    N["B"] = [(cfg["b_note"], cfg["b_score"])]
+    N["B"] = [(cfg["b_note"], cfg["b_score"])] if cfg.get("evidence_verified") else []
     h = []
     if q["np"] <= 0:
         h.append((f"{ql} 成分股合计单季亏损 {yi(-q['np'])}", -1))
@@ -106,16 +106,16 @@ def analyze_board(cfg, raw, ctx):
     if m["qoq"] is not None:
         if m["qoq"] >= 5: h.append((f"单季净利润环比 {m['qoq']:+.0f}%", 0.5))
         elif m["qoq"] <= -5: h.append((f"单季净利润环比 {m['qoq']:+.0f}%", -0.5))
-    N["E"] = h
+    N["E"] = []  # 实际利润增速保留展示，不能替代机构预期修订。
     h = []
     if pe_now is None:
         h.append(("成分股合计滚动利润为负，无法计算板块 PE", -1))
     else:
         cy = m["cum_np_yoy"]
         if peg is not None:
-            if peg < 1: h.append((f"板块 PE {pe_now:.0f} 倍，前三季度利润增速 {cy:+.0f}%，PEG {peg:.2f}，增速撑得住估值", 1))
-            elif peg > 2: h.append((f"板块 PE {pe_now:.0f} 倍，利润增速 {cy:+.0f}%，PEG {peg:.2f}，估值跑在增速前面", -1))
-            else: h.append((f"板块 PE {pe_now:.0f} 倍，利润增速 {cy:+.0f}%，PEG {peg:.2f}，大致匹配", 0))
+            if peg < 1: h.append((f"板块 PE {pe_now:.0f} 倍，前三季度利润增速 {cy:+.0f}%，PEG {peg:.2f}，静态 PEG 较低，需验证增长持续性", 1))
+            elif peg > 2: h.append((f"板块 PE {pe_now:.0f} 倍，利润增速 {cy:+.0f}%，PEG {peg:.2f}，静态 PEG 较高，需结合周期判断", -1))
+            else: h.append((f"板块 PE {pe_now:.0f} 倍，利润增速 {cy:+.0f}%，PEG {peg:.2f}，仅为静态比较", 0))
         else:
             h.append((f"板块 PE {pe_now:.0f} 倍，但利润在下滑（{cy:+.0f}%），估值缺少增速支撑" if cy is not None else f"板块 PE {pe_now:.0f} 倍", -1 if pe_now > 25 else 0))
         if pe_1y:
@@ -217,12 +217,12 @@ def render(a, ctx, stocks_in):
     nodes_html = (
         sec("A", "谁在买这个行业的产品，买得多不多？", f'<p class="note">{E(cfg["a_note"])}</p>'
             + rules("用成分股合计单季营收同比代替观察：≥ 20% 加 1，5–20% 加 0.5，0–5% 为 0，负增长减 1。具体的下游指标（如云厂商资本开支、汽车销量）需要人工跟踪。"))
-        + sec("B", "政策和外部环境是顺风还是逆风？", '<p class="mnote">人工判定，' + ("你已确认。" if cfg.get("confirmed_by_user") else "等待你确认。") + '</p>'
+        + sec("B", "政策和外部环境是顺风还是逆风？", '<p class="mnote">人工判定，' + ("你已确认。" if cfg.get("confirmed_by_user") else "待核验原始政策来源，暂不计分。") + '</p>'
               + rules("人工打分：明显顺风 +2，偏顺风 +1，中性 0，偏逆风 −1，明显逆风 −2。"))
         + sec("C", "行业整体还在多赚钱吗？", ftab
               + rules("成分股合计单季净利润同比 ≥ 20% 加 1，0–20% 加 0.5，负增长减 1；合计亏损减 1；一半以上成分股亏损再减 0.5。"))
         + sec("D", "利率和风险偏好对这个行业是压力还是支撑？", '<p class="note">直接引用大盘页的 D 节点，不计入板块合计。不同行业对利率的敏感度不同，具体看个股页的因子影响地图。</p>')
-        + sec("E", "利润增速在加快还是放缓？", '<p class="note">机构对行业的一致预期暂未接入，先用实际利润的二阶导判断。</p>'
+        + sec("E", "利润增速在加快还是放缓？", '<p class="note">机构对行业的一致预期暂未接入，本项暂不计分；下表仅描述实际利润同比与环比，不代表预期修订。</p>'
               + rules("最新单季利润同比比上半年累计同比高 10 个点以上加 1，低 10 个点以上减 1；单季环比 ≥ +5% 加 0.5，≤ −5% 减 0.5。"))
         + sec("F", "市场给的估值，增速撑得住吗？",
               f'<p class="note">板块 PE = 成分股总市值 ÷ 成分股滚动利润之和（截至 {a["d_now"]}），总市值 {yi(a["mc"])}。PEG = PE ÷ 前三季度利润增速。</p>'
@@ -238,7 +238,7 @@ def render(a, ctx, stocks_in):
     )
     rows = [{"key": k2, "name": NODE_NAMES[k2].split("：")[0] if k2 != "C" else "行业利润", "score": sc.get(k2),
              "hits": a["nodes"].get(k2) or [], "manual": k2 == "B", "href": f"#n-{k2}"} for k2 in "ABCEFG"]
-    card_html = scorecard.card(rows, "板块合计", "“人工”一项需要你确认。", a["hist"], ("B",))
+    card_html = scorecard.card(rows, "板块合计", "合计只作变化提醒，不用于跨行业排名；人工草稿待核验。", a["hist"], ("B",))
     cand = "".join(f'<a class="chip2" href="../stocks/{s["cfg"]["slug"]}.html">{E(s["cfg"]["name"])}</a>' for s in stocks_in)
     tot = a["total"]
     body = f"""
@@ -265,8 +265,8 @@ def index(analyses, ctx, by_board):
                  f'<span class="kv">利润同比 <b class="{st(a["m"]["np_yoy"] or 0)}">{("转亏" if a["m"]["turn_loss"] else "亏损" if a["m"]["q_np"] < 0 else "—") if a["m"]["np_yoy"] is None else format(a["m"]["np_yoy"], "+.0f") + "%"}</b></span>'
                  f'<span class="kv">PE / PEG <b>{"亏损" if a["pe_now"] is None else format(a["pe_now"], ".0f")}{"" if a["peg"] is None else " / " + format(a["peg"], ".2f")}</b></span>'
                  f'<span class="lys">{chips}</span></a>')
-    return f"""<div class="hero"><h1>板块</h1><p class="sum">这是 2026 年 11 月 9 日一起定下的未来半年追踪板块：偏科技：科技 4 个，周期 1 个，防守 2 个。每个板块用行业层的 A–H 拆开看，合计分不含引用大盘的 D。</p>
-<p class="stamp">色块依次是 A 下游需求、B 政策、C 行业利润、E 景气方向、F 估值、G 拥挤度：红色利好，绿色利空，灰色中性。“20 日相对”是板块近 20 日涨幅减去沪深 300，单位是百分点。</p></div>
+    return f"""<div class="hero"><h1>板块</h1><p class="sum">这是 2026 年 11 月 9 日一起定下的未来半年追踪板块：科技 4 个，工业金属 1 个，煤炭红利/周期 1 个，创新药成长 1 个。每个板块用行业层的 A–H 拆开看，合计分不含引用大盘的 D。</p>
+<p class="stamp">色块依次是 A 下游需求、B 政策、C 行业利润、E 盈利预期（待数据）、F 估值、G 拥挤度：红色利好，绿色利空，灰色中性。“20 日相对”是板块近 20 日涨幅减去沪深 300，单位是百分点。</p></div>
 <section class="block"><div class="slist">{rows}</div></section>
 <section class="block"><h2>这 6 个板块是怎么选出来的</h2><p class="note">先根据大盘判断，再把全市场约 120 个行业按行业层打分，按攻守平衡挑出入围名单，最后一起讨论定下。过程见 <a href="screen.html">全市场行业初筛</a>。下一步：每个板块挑 3–5 只候选股。</p></section>"""
 
@@ -327,7 +327,7 @@ def screen_page(ctx):
                  + f'<td class="{st(r["np_yoy"] or 0)}">{f(r["np_yoy"])}</td><td>{f(r["pe"], ".0f", "")}</td><td>{f(r["peg"], ".2f", "")}</td>'
                  f'<td class="{st(r["rs60"])}">{r["rs60"]:+.0f}</td><td class="{st(r["rs250"])}">{r["rs250"]:+.0f}</td><td>{r["sh_pct"]:.0f}%</td></tr>')
     body = f"""<div class="crumb"><a href="index.html">板块</a> ／ 全市场初筛</div>
-<div class="hero"><h1>全市场行业初筛</h1><p class="sum">把东方财富 {len(res)} 个行业，全部按行业层的 A、C、E、F、G 五项打分，用来一起挑出未来半年值得追踪的 6 个板块。</p>
+<div class="hero"><h1>全市场行业初筛（旧版留档）</h1><p class="mnote">此页沿用 v1 初筛方法，仅保留历史研究过程；不与 v2 分数比较，当前名单以个股页为准。</p><p class="sum">把东方财富 {len(res)} 个行业，全部按行业层的 A、C、E、F、G 五项打分，用来一起挑出未来半年值得追踪的 6 个板块。</p>
 <p class="stamp">数据截至 {ll['date']}：利润用 2026 年三季报（单季 = 前三季度 − 上半年），估值为当日市值加权 PE。B（政策）是人工项，这里没有打。</p></div>
 <section class="block"><h2>入围名单</h2><p class="sub">按“攻守平衡”的偏好，从成长、周期、防守三类里各挑出几个。{"标“已选定”的是最终确认的 6 个。" + ll.get("final_note", "") if ll.get("final") else "标“首轮提议”的是我建议的 6 个，等你删改。"}</p>{cards}</section>
 <section class="block"><h2>全部行业</h2><p class="sub">★ 首轮提议，○ 入围。“60 日 / 一年”是相对沪深 300 的超额涨幅（百分点）；拥挤度是近 5 日成交额占全 A 比例在近一年的分位。</p>

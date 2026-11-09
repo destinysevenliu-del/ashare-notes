@@ -1,7 +1,8 @@
 """候选个股：抓数据（fetch）和计算（analyze_stock）。
 抓数据：python3 -I pipeline/stocks.py <项目根目录>
 """
-import json, os, sys, time, urllib.parse
+import json, os, sys, time, urllib.parse, datetime
+from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fetch import get_json, kline, dc  # noqa: E402
@@ -20,6 +21,7 @@ def fetch_stock(s):
     out["margin"] = dc("RPTA_WEB_RZRQ_GGMX", "DATE", "DATE,SPJ,RZYE,RZJME,RZYEZB", 120, 1, f'(SCODE="{code}")')
     try:
         out["consensus"] = dc("RPT_WEB_RESPREDICT", "RATING_ORG_NUM", "ALL", 1, 1, flt)
+        out["consensus_observed_at"] = datetime.datetime.now(ZoneInfo("Asia/Shanghai")).isoformat()
     except Exception:
         out["consensus"] = []
     try:

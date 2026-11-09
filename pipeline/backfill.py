@@ -7,6 +7,8 @@
 """
 import json, os, sys, copy, io, contextlib
 
+raise SystemExit("v2 禁用旧回填：历史成分、公告时点与估值缺失回退尚未核验。保留 scores.json 旧档，v2 从真实观察日记录。")
+
 ROOT, MODE = sys.argv[1], sys.argv[2]
 sys.path.insert(0, os.path.join(ROOT, "pipeline"))
 N_DAYS = 30

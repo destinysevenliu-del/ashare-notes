@@ -3,7 +3,7 @@
 """
 import json, os, datetime
 
-RULES_VERSION = "2026-11-09 v1"
+RULES_VERSION = "2026-11-09 v2"
 
 
 # ---------- 读数据 ----------
@@ -207,8 +207,7 @@ def node_earnings(D, d):
     elif e60 <= -3: hits.append((f"全 A 滚动盈利近 60 个交易日下降 {abs(e60):.1f}%", -1))
     else: hits.append((f"全 A 滚动盈利近 60 个交易日变化 {e60:+.1f}%，基本持平", 0))
     ppi = mupto(D.ppi, d)[-1]["v"]
-    if ppi > 0: hits.append((f"PPI 同比 {ppi:+.1f}%，出厂价格在涨，利好上游和制造业利润", 0.5))
-    else: hits.append((f"PPI 同比 {ppi:+.1f}%，出厂价格在跌，压制企业利润", -0.5))
+    hits.append((f"PPI 同比 {ppi:+.1f}%；量价与成本对各行业影响不同，不统一加减分", 0))
     return {"score": clip(rnd(sum(h[1] for h in hits))), "hits": hits, "e60": e60, "e250": e250}
 
 

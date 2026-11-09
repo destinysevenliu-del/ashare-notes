@@ -17,7 +17,7 @@ def _scale(s):
 
 
 def record(root, kind, key, date, scores):
-    p = os.path.join(root, "data", "snapshots", "scores.json")
+    p = os.path.join(root, "data", "snapshots", "scores_v2.json")
     d = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {}
     d.setdefault(kind, {}).setdefault(key, {})[date] = scores
     json.dump(d, open(p, "w", encoding="utf-8"), ensure_ascii=False, indent=0)
@@ -38,7 +38,7 @@ def _trend(hist, keys, excluded=""):
         y = h / 2 - hh if v > 0 else h / 2
         bars += f'<rect x="{i * bw + 1:.1f}" y="{y:.1f}" width="{bw - 2:.1f}" height="{max(hh, 1):.1f}" class="{"u" if v > 0 else "d" if v < 0 else "z"}"/>'
     return (f'<p>下面是近 {len(pts)} 个交易日 {lab} 的合计（{pts[0][0][5:].replace("-", "/")}–{pts[-1][0][5:].replace("-", "/")}，'
-            f'从 {pts[0][1]:+d} 到 {pts[-1][1]:+d}），按每天当时已公布的数据回算。{excluded}</p>'
+            f'从 {pts[0][1]:+d} 到 {pts[-1][1]:+d}），按 v2 规则逐次记录；不可与 v1 历史直接拼接。{excluded}</p>'
             f'<svg viewBox="0 0 {w} {h}" class="trend">{bars}<line x1="0" x2="{w}" y1="{h / 2}" y2="{h / 2}" stroke="#7C8696" stroke-width=".6"/></svg>')
 
 
@@ -49,7 +49,7 @@ def card(rows, total_label, note, hist, no_hist=()):
         s = r["score"]
         c = "flat" if not s else ("up" if s > 0 else "down")
         if s is None:
-            txt, val = "暂缺：没有可用数据，不参与合计", "—"
+            txt, val = "待核验或缺少可比数据，不参与合计", "—"
         else:
             txt = "；".join(E(h[0]) for h in r["hits"][:2]) or "没有触发加减分"
             val = f"{s:+d}" if s else "0"

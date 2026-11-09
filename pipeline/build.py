@@ -17,6 +17,10 @@ WEEK = "一二三四五六日"
 
 D = A.Data(RAW)
 manual = json.load(open(os.path.join(ROOT, "data", "manual.json"), encoding="utf-8"))
+for item in (manual['external'], manual['policy']):
+    if not item.get('evidence_verified', False):
+        item['score'] = 0
+        item['reason'] = '待核验，暂不计分。草稿：' + item['reason']
 trades = json.load(open(os.path.join(ROOT, "data", "trades.json"), encoding="utf-8"))["trades"]
 R = A.analyze(D, manual)
 TODAY = R["date"]
@@ -138,7 +142,7 @@ def events(layer):
     ev = [e for e in manual["events"] if e["layer"] == layer]
     if not ev:
         return ""
-    lis = "".join(f'<li><span class="tag {"up" if e["dir"] == "up" else "down"}">{"利好" if e["dir"] == "up" else "利空"}</span>'
+    lis = "".join(f'<li><span class="tag {"up" if e["dir"] == "up" else "flat"}">{"利好" if e["dir"] == "up" else "待核验"}</span>'
                   f'<b>{E(e["title"])}</b><span class="evd">{E(e["date"])}</span><p>{E(e["note"])}<span class="src">来源：{E(e["source"])}</span></p></li>'
                   for e in ev)
     return f'<h4>相关事件</h4><ul class="ev">{lis}</ul>'
@@ -155,7 +159,7 @@ pe300_pct = A.pct_rank([v for _, v in D.pe_300], D.pe_300[-1][1])
 erp = A.erp_series(D, TODAY)
 
 sec = {}
-manual_flag = lambda m: ("人工判定，" + ("你已确认" if m.get("confirmed_by_user") else "等待你确认") + f"，更新于 {cn_date(m['updated'])}。")
+manual_flag = lambda m: ("人工判定，" + ("证据已核验" if m.get("evidence_verified") else "证据待核验，暂不计分") + f"，更新于 {cn_date(m['updated'])}。")
 
 sec["A"] = dict(
     title="全球环境与国内经济",
@@ -202,9 +206,9 @@ sec["C"] = dict(
         row("全 A 滚动盈利（推算）", "指数点位 ÷ 市盈率，近似全市场过去 12 个月利润，一年前 = 100",
             f"{eps_idx[-1][1]:.1f}", f"近 60 日 {R['earn']['e60']:+.1f}%", cls(R['earn']['e60'], 1),
             spark([v for _, v in eps_idx[-250:]]), short(eps_idx[-1][0]), "每日（随财报跳变）"),
-        mrow("PPI 同比", "工业品出厂价格，涨价利好上游利润", D.ppi, "%", 1),
+        mrow("PPI 同比", "工业品出厂价格；对利润需结合成本与需求判断", D.ppi, "%", 1),
     ])
-    + rules("全 A 滚动盈利近 60 个交易日增长 ≥ 3% 加 1，下降 ≥ 3% 减 1；PPI 同比为正加 0.5，为负减 0.5。"
+    + rules("全 A 滚动盈利近 60 个交易日增长 ≥ 3% 加 1，下降 ≥ 3% 减 1；PPI 仅作价格环境参考，不统一加减分。"
             "注意：盈利数据主要在财报季（4、8、10 月底）跳变，其余时间变化不大。"),
 )
 
@@ -381,7 +385,7 @@ def scorecard():
         if not r.get("manual") and len(r["hits"]) > 1:
             first = "；".join(E(h[0]) for h in r["hits"][:2])
         lab = '<span class="man">人工</span>' if r.get("manual") else ""
-        cells += (f'<a class="sc" href="#node-{r["node"]}"><div class="lbl">{E(r["name"])}{lab}<span class="v {c}">{(f"{s:+d}" if s else "0")}</span></div>'
+        cells += (f'<a class="sc" href="#node-{r["node"]}"><div class="lbl">{E(r["name"])}{lab}<span class="v {c}">{("待核验" if r.get("manual") and not manual["external" if r["key"] == "ext" else "policy"].get("evidence_verified") else (f"{s:+d}" if s else "0"))}</span></div>'
                   f'{scale(s)}<p>{first}</p></a>')
     t = R["total"]
     # 30 日自动维度合计走势
@@ -397,8 +401,8 @@ def scorecard():
     trend = (f'<svg viewBox="0 0 {w} {h}" class="trend" aria-label="近 30 个交易日自动维度合计">{bars}'
              f'<line x1="0" x2="{w}" y1="{h / 2}" y2="{h / 2}" stroke="#7C8696" stroke-width=".6"/></svg>')
     return (f'<div class="score">{cells}<div class="sc total"><div class="lbl">六项合计<span class="v">{t:+d}</span></div>'
-            f'<p>满分 ±12。下面是近 30 个交易日四个自动维度的合计（{short(R["hist"][0]["date"])}–{short(R["hist"][-1]["date"])}，'
-            f'从 {hs[0]:+d} 到 {hs[-1]:+d}），人工维度从今天开始记录。</p>{trend}</div></div>')
+            f'<p>人工草稿未核验时暂不计分。下面是近 30 个交易日四个自动维度的合计（{short(R["hist"][0]["date"])}–{short(R["hist"][-1]["date"])}，'
+            f'从 {hs[0]:+d} 到 {hs[-1]:+d}），人工维度待核验。历史宏观发布日期部分为估计，只供学习观察，不作严格回测。</p>{trend}</div></div>')
 
 
 # ---------- 今日变化 ----------
@@ -477,7 +481,7 @@ def index():
 <section class="block" id="map"><h2>传导图</h2><p class="sub">红色利好，绿色利空，灰色中性。点任意一环跳到下面的展开分析。</p>
 <div class="fwbox">{diagram()}</div><div class="chips">{chips}</div></section>
 
-<section class="block" id="score"><h2>择时打分卡</h2><p class="sub">六个维度各打 −2 到 +2 分。分数的变化比绝对值更重要；“人工”两项需要你确认。</p>{scorecard()}</section>
+<section class="block" id="score"><h2>信号观察卡</h2><p class="sub">六个维度各打 −2 到 +2 分。分项只作变化提醒，未经收益预测验证；“人工”两项需要你确认。</p>{scorecard()}</section>
 
 <section class="block" id="nodes"><h2>逐项展开</h2><p class="sub">每一环都写清楚看什么指标、现在多少、怎么判的。表格里“较上期”的颜色同样表示利好（红）或利空（绿）。</p>{nodes_html}</section>
 
@@ -526,6 +530,6 @@ reportspage.build(globals())
 snap = {"date": TODAY, "total": R["total"], "scores": {r["key"]: r["score"] for r in R["score_rows"]},
         "nodes": {k: v["state"] for k, v in N.items()}, "conds": {c["id"]: c["hit"] for c in R["conds"]},
         "changes": R["changes"], "rules_version": R["rules_version"]}
-with open(os.path.join(SNAP, TODAY + ".json"), "w", encoding="utf-8") as f:
+with open(os.path.join(SNAP, TODAY + "_v2.json"), "w", encoding="utf-8") as f:
     json.dump(snap, f, ensure_ascii=False, indent=1)
 print("built", TODAY, "total", R["total"])

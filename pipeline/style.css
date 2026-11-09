@@ -252,3 +252,15 @@ footer p{margin:4px 0}
 .gh{margin:22px 0 8px;display:flex;align-items:baseline;gap:10px}
 .gh small{font:13px var(--sans);color:var(--ink3)}
 .tags2 .st2{background:var(--link-bg);border-color:var(--link-bg);color:var(--link)}
+
+/* v2 research cards: preserve readable columns, scroll tables on narrow screens. */
+#research{scroll-margin-top:110px}
+#research table{min-width:920px}
+#research th:first-child{min-width:85px}
+#research td{vertical-align:top}
+@media(max-width:600px){
+ header.top .wrap{height:auto;min-height:72px;flex-wrap:wrap;gap:6px;padding-top:10px;padding-bottom:8px}
+ .brand{white-space:nowrap}
+ header nav{width:100%;justify-content:space-between;white-space:nowrap}
+ header nav a{padding:5px 8px}
+}

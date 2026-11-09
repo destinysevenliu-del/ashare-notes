@@ -2,7 +2,7 @@
 由 build.py 调用：stockpage.build(ctx)，ctx 是 build.py 的 globals()。
 """
 import json, os, datetime, html
-import scorecard
+import scorecard, research
 
 E = html.escape
 POS_KW = ["回购", "增持"]
@@ -153,15 +153,16 @@ def analyze_stock(cfg, raw, ctx):
     h = []
     ry = lq.get("rev_yoy")
     if ry is not None:
-        if ry >= 30: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，订单旺盛", 1))
+        if ry >= 30: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，已实现收入增长；新增订单待核验", 1))
         elif ry >= 10: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%", 0.5))
-        elif ry < 0: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，需求在收缩", -1))
+        elif ry < 0: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，已实现收入下降；原因待核验", -1))
         else: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，增长平缓", 0))
     nodes["A"] = h
     h = []
-    if pos_n: h.append(("近 30 天有" + "、".join(sorted({w for n in pos_n for w in POS_KW if w in n["title"]})) + "公告", 0.5))
-    if neg_n: h.append(("近 30 天有" + "、".join(sorted({w for n in neg_n for w in NEG_KW if w in n["title"]})) + "相关公告", -1))
-    if not h: h.append(("近 30 天没有回购、增减持、解禁等重要事项公告", 0))
+    if pos_n or neg_n:
+        h.append(("检测到事件关键词；需核对公告正文、实施金额和进度，暂不判方向", 0))
+    else:
+        h.append(("已抓取标题未命中事件关键词；不代表没有风险", 0))
     nodes["B"] = h
     h = []
     if lq["yoy"] is not None:
@@ -169,8 +170,8 @@ def analyze_stock(cfg, raw, ctx):
         elif lq["yoy"] >= 0: h.append((f"{lq['label']} 单季净利润同比 {lq['yoy']:+.0f}%", 0.5))
         else: h.append((f"{lq['label']} 单季净利润同比 {lq['yoy']:+.0f}%，利润在下滑", -1))
     if lq["qoq"] is not None:
-        if lq["qoq"] >= 5: h.append((f"环比上季度 {lq['qoq']:+.0f}%，二阶导向上", 0.5))
-        elif lq["qoq"] <= -5: h.append((f"环比上季度 {lq['qoq']:+.0f}%，二阶导向下", -0.5))
+        if lq["qoq"] >= 5: h.append((f"环比上季度 {lq['qoq']:+.0f}%，利润环比增长（未经季调，不计分）", 0))
+        elif lq["qoq"] <= -5: h.append((f"环比上季度 {lq['qoq']:+.0f}%，利润环比下降（未经季调，不计分）", 0))
         else: h.append((f"环比上季度 {lq['qoq']:+.0f}%，基本持平", 0))
     if lq["np"] <= 0: h.append((f"{lq['label']} 单季亏损", -1))
     nodes["C"] = h
@@ -191,16 +192,15 @@ def analyze_stock(cfg, raw, ctx):
         elif dg <= -2: h.append((f"毛利率 {f['gm']:.1f}%，比去年同期低 {abs(dg):.1f} 个点", -0.5))
     nodes["D"] = h
     h = []
-    if e and e["g"] is not None:
-        if e["g"] >= 30: h.append((f"机构预期 {e['y2']} 年每股收益比 {e['y1']} 年增长 {e['g']:.0f}%", 1))
-        elif e["g"] >= 10: h.append((f"机构预期 {e['y2']} 年每股收益增长 {e['g']:.0f}%", 0.5))
-        elif e["g"] < 0: h.append((f"机构预期 {e['y2']} 年每股收益下降 {abs(e['g']):.0f}%", -1))
-        else: h.append((f"机构预期 {e['y2']} 年每股收益增长 {e['g']:.0f}%，偏慢", 0))
+    rev = research.consensus_change(ctx["ROOT"], cfg["code"], raw, e)
+    if rev:
+        delta = rev['change']
+        h.append((f"同一目标年 {rev['year']} 的 EPS 预测较 {rev['date']} 变化 {delta:+.1f}%（机构样本可能变化）", 1 if delta >= 5 else -1 if delta <= -5 else 0))
     nodes["E"] = h
     h = []
     if v["pct"] is not None:
-        if v["pct"] < 20: h.append((f"PE-TTM {pe_now:.1f} 倍，近 3 年 {v['pct']:.0f}% 分位，偏低", 1))
-        elif v["pct"] > 80: h.append((f"PE-TTM {pe_now:.1f} 倍，近 3 年 {v['pct']:.0f}% 分位，偏高", -1))
+        if v["pct"] < 20: h.append((f"PE-TTM {pe_now:.1f} 倍，近 3 年 {v['pct']:.0f}% 分位，历史相对位置低（不等于便宜）", 1))
+        elif v["pct"] > 80: h.append((f"PE-TTM {pe_now:.1f} 倍，近 3 年 {v['pct']:.0f}% 分位，历史相对位置高", -1))
         else: h.append((f"PE-TTM {pe_now:.1f} 倍，近 3 年 {v['pct']:.0f}% 分位，中间位置", 0))
     nodes["F"] = h
     h = []
@@ -210,6 +210,7 @@ def analyze_stock(cfg, raw, ctx):
     if m["lev"] >= 4: h.append((f"融资余额占流通市值 {m['lev']:.2f}%，杠杆偏重", -0.5))
     nodes["G"] = h
     scores = {k2: clip(rnd(sum(p for _, p in hh))) if hh else None for k2, hh in nodes.items()}
+    scores["B"] = None  # 标题仅用于提醒，证据未核验不计分。
 
     # ---- 四层汇总 ----
     stock_sum = sum(s for s in scores.values() if s is not None)
@@ -237,13 +238,13 @@ def analyze_stock(cfg, raw, ctx):
     if len(qs) >= 2 and qs[-1]["qoq"] is not None and qs[-2]["qoq"] is not None:
         flip = (qs[-1]["qoq"] > 0) != (qs[-2]["qoq"] > 0)
         conds.append(("单季利润环比由正转负，或由负转正", flip, f"{qs[-2]['label']} {qs[-2]['qoq']:+.0f}% → {qs[-1]['label']} {qs[-1]['qoq']:+.0f}%"))
-    conds.append(("机构一致预期 1 个月内上调或下调超过 5%", False, "从今天开始记录，满 1 个月后可以判断"))
+    conds.append(("同一目标年度 EPS 预测约 1 个月变化超过 5%", abs(rev["change"]) >= 5 if rev else False, f"{rev['year']} 年预测变化 {rev['change']:+.1f}%" if rev else "缺少同一目标年度的历史采集快照，暂不可判断"))
     k5 = [n for n in raw["notices"] if n["date"] >= dts[-6] and any(w in n["title"] for w in POS_KW + NEG_KW)]
     conds.append(("近 5 个交易日有回购、增减持、解禁等公告", bool(k5), "；".join(n["title"].split(":", 1)[-1] for n in k5[:2]) or "无"))
     conds.append(("持仓触发了操作记录里写下的计划条件", False, "还没有这只股票的操作记录"))
 
     return {"cfg": cfg, "t": t, "v": v, "f": f, "e": e, "m": m, "hd": hd, "bd": bd, "nodes": nodes, "scores": scores,
-            "layers": layers, "conds": conds, "key_notices": key, "notices": raw["notices"], "dates": dts, "closes": c}
+            "revision": rev, "layers": layers, "conds": conds, "key_notices": key, "notices": raw["notices"], "dates": dts, "closes": c}
 
 
 def board_layer(cfg, bd, ctx):
@@ -267,33 +268,27 @@ def factor_now(name, ctx, a):
         if hits:
             return f"近期相关公告 {len(hits)} 条，最新：{hits[0]['date'][5:]} {hits[0]['title'].split(':', 1)[-1][:30]}", "flat"
         return "近期没有相关公告", "flat"
-    if "国债收益率" in name:
-        cn = D.cn10[-1][1]
-        return f"中国 10 年国债 {cn:.2f}%（近一年低位，利好高股息资产）", "up" if cn < 1.7 else "flat"
-    if "价格" in name and any(w in name for w in ["铜", "金", "铝", "煤", "存储"]):
-        return f"宏观代理：PPI 同比 {D.ppi[-1]['v']:+.1f}%（{D.ppi[-1]['period'][-4:]}）；具体商品价格待接入", "up" if D.ppi[-1]["v"] > 0 else "down"
-    if "利率" in name:
-        return f"美国 10 年国债 {us:.2f}%；大盘「利率与流动性」{sg(sr['liq']['score'])}", "down" if us >= 4.5 else "flat"
-    if "汇率" in name:
-        x = D.cnh[-1][1]; x20 = D.cnh[-21][1]
-        return f"离岸人民币 {x:.4f}，近 20 日{'升值' if x < x20 else '贬值'} {abs(x / x20 - 1) * 100:.1f}%（升值对出口型公司不利）", "down" if x < x20 else "up"
     if "两融" in name or "情绪" in name:
-        return f"本股融资余额 10 日 {a['m']['m10']:+.1f}%；大盘「资金」{sg(sr['funds']['score'])}", st(sr["funds"]["score"])
-    if any(w in name for w in ["出口限制", "关税", "管制", "对华"]):
-        return f"大盘「外部环境」{manual['external']['score']:+d}（人工判定）", st(manual["external"]["score"])
-    if "国内经济" in name or "消费" in name:
-        return f"大盘「国内经济」{sg(sr['econ']['score'])}：PMI {D.pmi[-1]['v']}，社零同比 {D.retail[-1]['v']}%", st(sr["econ"]["score"])
-    if "政策" in name or "医保" in name:
-        return f"大盘「政策」{manual['policy']['score']:+d}（人工判定）；行业政策待整理", "flat"
+        return f"本股融资余额 10 日 {a['m']['m10']:+.1f}%（截至 {a['m']['date']}）；不代表全部投资者资金", "flat"
+    if "国债收益率" in name:
+        return f"宏观数据：中国 10 年国债 {D.cn10[-1][1]:.2f}%；分红可持续性另行核验", "flat"
+    if "利率" in name:
+        return f"宏观数据：美国 10 年国债 {us:.2f}%；公司敏感度未量化", "flat"
+    if "汇率" in name:
+        return f"宏观数据：离岸人民币 {D.cnh[-1][1]:.4f}；收入、成本及套保净敞口待核验", "flat"
+    if "价格" in name:
+        return "待核验：需接入对应产品价格与成本价差；不以 PPI 代替", "na"
+    if any(w in name for w in ["政策", "医保", "管制", "关税", "对华", "出口限制"]):
+        return "待核验：政策原文、适用产品/客户、生效日与传导方向", "na"
     if any(w in name for w in ["资本开支", "订单", "销售", "需求", "出货"]):
-        q = a["f"]["qs"][-1]
-        return f"用公司收入代替观察：{q['label']} 单季营收同比 {q['rev_yoy']:+.0f}%" if q.get("rev_yoy") is not None else "待整理", st(q.get("rev_yoy") or 0)
-    return "待整理（需要行业数据或人工跟踪）", "na"
+        q = a['f']['qs'][-1]
+        return f"代理指标：{q['label']} 公司已实现收入；该因子的直接证据尚待补充", "na"
+    return "待核验：需要行业数据或公司公告", "na"
 
 
 # ---------------- 渲染 ----------------
-NODE_NAMES = {"A": "客户与订单", "B": "公司事件：减持 / 回购 / 解禁", "C": "营收 × 毛利率 → 净利润", "D": "利润质量：现金流与毛利率",
-              "E": "盈利预测：今年 → 明年", "F": "个股估值（PE）", "G": "筹码：融资 / 股东", "H": "股价"}
+NODE_NAMES = {"A": "收入与需求验证", "B": "公司事件：减持 / 回购 / 解禁", "C": "营收 × 毛利率 → 净利润", "D": "利润质量：现金流与毛利率",
+              "E": "盈利预测修订", "F": "个股估值（PE）", "G": "筹码：融资 / 股东", "H": "股价"}
 
 
 def render(a, ctx):
@@ -311,7 +306,7 @@ def render(a, ctx):
     for L in a["layers"]:
         lab = {"up": "利好", "down": "利空", "flat": "中性"}[L["state"]]
         if L["name"] == "股价":
-            lab = {"up": "估值偏低", "down": "估值偏高", "flat": "估值居中"}[L["state"]]
+            lab = {"up": "历史分位低", "down": "历史分位高", "flat": "历史位置/待评估"}[L["state"]]
         link = f' <a href="{L["link"]}">展开</a>' if L["link"] else ""
         lrows += f'<tr><th scope="row">{L["name"]}</th><td><span class="tag {L["state"]}">{lab}</span></td><td>{E(L["text"])}{link}</td></tr>'
     layers = f'<div class="tblwrap"><table class="mt lay"><tbody>{lrows}</tbody></table></div>'
@@ -385,23 +380,24 @@ def render(a, ctx):
                 + (f'<tr><th scope="row">{e["act"][0]} 实际</th><td>{e["act"][1]:.2f}</td><td>{t["close"] / e["act"][1]:.1f} 倍</td></tr>' if e["act"] and e["act"][1] > 0 else "")
                 + f'<tr><th scope="row">{e["y1"]} 预测</th><td>{e["e1"]:.2f}</td><td>{e["fpe1"]:.1f} 倍</td></tr>'
                 + f'<tr><th scope="row">{e["y2"]} 预测</th><td>{e["e2"]:.2f}</td><td>{e["fpe2"]:.1f} 倍</td></tr></tbody></table></div>'
-                + f'<p class="note">{e["orgs"]} 家机构给出预测，其中 {e["buy"]} 家评级为买入或增持。预测的上调、下调从今天开始逐日记录。</p>')
+                + f'<p class="note">{e["orgs"]} 家机构给出预测，其中 {e["buy"]} 家评级为买入或增持。跨年度预测增长不等于预期上调。新抓取记录才附采集时间；旧缓存不补造历史。</p>')
     hd = a["hd"]
     hdtxt = (f'<p class="note">股东户数 {hd["HOLDER_NUM"]:,} 户（截至 {hd["END_DATE"][:10]}），比上一期变化 {hd["HOLDER_NUM_RATIO"]:+.1f}%。户数增加通常意味着筹码在分散。</p>' if hd else "")
 
     nodes_html = (
-        sec("A", "客户与订单", "谁在买它的产品，买得多不多？", f'<p class="note">{E(cfg["customer_note"])}</p>'
+        sec("A", "收入与需求验证", "谁在买它的产品，买得多不多？", f'<p class="note">{E(cfg["customer_note"])}</p>'
             + rules("单季营收同比 ≥ 30% 加 1，10–30% 加 0.5，0–10% 为 0，负增长减 1。订单和客户的具体变化需要人工跟踪。"))
         + sec("B", "公司事件", "最近有没有回购、增减持、解禁、监管问询？", f'<h4>最近公告</h4><ul class="ann">{ann}</ul>'
-              + rules("近 30 天有回购、增持公告加 0.5；有减持、解禁、处罚、立案、问询函、质押、警示等公告减 1。按标题关键词判断，需要点开原文确认。"))
+              + rules("公告标题仅触发待核验提醒，不自动加减分。核验正文、金额占比、用途与执行进度后再判断影响。"))
         + sec("C", "营收 × 毛利率 → 净利润", "公司还在多赚钱吗？增速在加快还是放缓？", qtable
+              + f'<p class="note">{E(research.growth_description(f["qs"]))}</p>'
               + f'<p class="note">最新报告：{E(f["type"])}，{f["notice"]} 公布。单季数据由累计值相减得到。近 8 个季度单季净利润走势：{np_spark}</p>'
-              + rules("最新单季净利润同比 ≥ 20% 加 1，0–20% 加 0.5，负增长减 1；环比 ≥ +5% 加 0.5，≤ −5% 减 0.5；单季亏损减 1。"))
+              + rules("最新单季净利润同比 ≥ 20% 加 1，0–20% 加 0.5，负增长减 1；环比仅展示，不计分，且不等同于增速加快；单季亏损减 1。"))
         + sec("D", "利润质量", "赚的是真金白银吗？毛利率守得住吗？",
               f'<p class="note">本年累计：每股收益 {fmt2(f["eps"])}，每股经营现金流 {fmt2(f["cfps"])}，毛利率 {fmt2(f["gm"], 1)}%，ROE {fmt2(f["roe"], 1)}%。存货和扣非利润暂未接入。</p>'
               + rules("亏损且经营现金流为负减 1；每股经营现金流 ÷ 每股收益 ≥ 0.9 加 0.5，< 0.5 减 1；毛利率比去年同期高 2 个点以上加 0.5，低 2 个点以上减 0.5。"))
-        + sec("E", "盈利预测", "机构预期明年比今年多赚多少？", estr
-              + rules("明年每股收益比今年预测增长 ≥ 30% 加 1，10–30% 加 0.5，负增长减 1。"))
+        + sec("E", "盈利预测修订", "同一目标年度的盈利预测是否被上调或下调？", estr
+              + rules("同一目标年度 EPS 与 30–45 天前采集值相比，上调 ≥ 5% 加 1，下调 ≥ 5% 减 1。没有带采集时间的可比历史不计分；跨年度增长单独展示。机构样本变化也会影响一致预期。"))
         + sec("F", "个股估值", "市场现在愿意给它多少倍市盈率？", '<p class="note">估值的细节在下面的「股价层」。</p>'
               + rules("PE-TTM 在近 3 年分位低于 20% 加 1，高于 80% 减 1。亏损或 PE 为负时不判定。"))
         + sec("G", "筹码", "谁在买、谁在卖？杠杆资金在进还是在出？",
@@ -418,7 +414,7 @@ def render(a, ctx):
         ch = ('<div class="tblwrap"><table class="mt"><thead><tr><th>PE 通道</th><th>PE</th><th>对应股价</th><th>和现价比</th></tr></thead><tbody>'
               + "".join(f'<tr><th scope="row">近 3 年 {int(q * 100)}% 分位</th><td>{v["q"][q]:.1f} 倍</td><td>{v["channel"][q]:.2f}</td>'
                         f'<td class="{st(v["channel"][q] - t["close"])}">{(v["channel"][q] / t["close"] - 1) * 100:+.0f}%</td></tr>' for q in (0.2, 0.5, 0.8))
-              + '</tbody></table></div><p class="note">PE 通道 = 当前滚动每股收益 × 历史 PE 分位，回答“按现在的利润，便宜时和贵时分别是什么价”。利润变化后通道会跟着移动。</p>'
+              + '</tbody></table></div><p class="note">PE 通道 = 当前滚动每股收益 × 历史 PE 分位，展示历史倍数对应的机械映射，不是目标价或合理价值区间。利润变化后通道会跟着移动。</p>'
               + (f'<p class="mnote">注意：3 年前 PE 约 {v["pe_3y_ago"]:.0f} 倍，现在 {v["pe"]:.0f} 倍。利润大幅增长或下滑时，PE 会被动大幅变化，历史分位的参考意义会下降，要结合 C、E 两环一起看。</p>' if v["pe_3y_ago"] > v["pe"] * 2.5 or v["pe_3y_ago"] < v["pe"] / 2.5 else ""))
     n = 250
     ds = a["dates"][-n:]; cs = a["closes"][-n:]
@@ -439,17 +435,17 @@ def render(a, ctx):
                  f'<div class="nd"><h3 class="h3s">估值位置</h3><p class="note">PE-TTM {v["pe"]:.1f} 倍{"，近 3 年 " + format(v["pct"], ".0f") + "% 分位" if v["pct"] is not None else ""}；PB {v["pb"]:.2f} 倍；总市值 {yi(v["mcap"])}'
                  + (f'；按 {e["y2"]} 年预测利润算的前瞻 PE {e["fpe2"]:.1f} 倍' if e and e["fpe2"] else "") + f'（截至 {v["date"]}）。</p>{ch}{pe_chart}</div>'
                  f'<div class="nd"><h3 class="h3s">技术位置</h3>{tech}{price_chart}</div>'
-                 f'<div class="nd"><h3 class="h3s">筹码：融资余额和股价是否同向</h3><p class="note">同向下跌是去杠杆；股价跌而融资增加是有人借钱抄底；股价涨而融资减少说明上涨不靠杠杆。</p>{mg_chart}</div></section>')
+                 f'<div class="nd"><h3 class="h3s">筹码：融资余额和股价是否同向</h3><p class="note">融资余额与股价同向变化只能描述同期现象，不能据此确定交易动机或因果关系；融资账户也不代表全部资金。</p>{mg_chart}</div></section>')
 
-    conds = "".join(f'<li class="{"hit" if h else "ok"}"><span class="cs">{"触发中" if h else "未触发"}</span><b>{E(nm)}</b><span class="cn">{E(now)}</span></li>' for nm, h, now in a["conds"])
+    conds = "".join(f'<li class="{"hit" if h else "ok"}"><span class="cs">{"触发中" if h else ("待数据" if "暂不可判断" in now else "未触发")}</span><b>{E(nm)}</b><span class="cn">{E(now)}</span></li>' for nm, h, now in a["conds"])
 
     trades = [x for x in ctx["trades"] if x.get("code") == cfg["code"]]
-    tr_html = ('<p class="note">还没有这只股票的操作记录。买卖时在对话里告诉 Claude 即可。</p>' if not trades else
+    tr_html = ('<p class="note">还没有这只股票的操作记录。实际交易后可在对话中补记。</p>' if not trades else
                "<ul class='ev'>" + "".join(f"<li><b>{E(x['date'])} {E(x['side'])} {E(str(x['price']))}</b><p>{E(x.get('reason', ''))}</p></li>" for x in trades) + "</ul>")
 
-    SC_NAMES = {"A": "客户与订单", "B": "公司事件", "C": "净利润", "D": "利润质量", "E": "盈利预测", "F": "估值", "G": "筹码"}
+    SC_NAMES = {"A": "收入与需求验证", "B": "公司事件", "C": "净利润", "D": "利润质量", "E": "盈利预测", "F": "估值", "G": "筹码"}
     card_html = scorecard.card([{"key": k2, "name": SC_NAMES[k2], "score": sc.get(k2), "hits": a["nodes"].get(k2) or [],
-                                 "href": f"#n-{k2}"} for k2 in "ABCDEFG"], "个股合计", "股价层只呈现位置，不打分。", a["hist"], ("E",))
+                                 "href": f"#n-{k2}"} for k2 in "ABCDEFG"], "分项合计", "分项存在相关性；合计只作变化提醒，不能跨公司排名或推导仓位。", a["hist"], ("E",))
     pr = cfg.get("prior")
     if not pr:
         lq = f["qs"][-1]
@@ -459,18 +455,19 @@ def render(a, ctx):
                       f"毛利率 {fmt2(f['gm'], 1)}%，ROE {fmt2(f['roe'], 1)}%。现价 PE-TTM {v['pe']:.1f} 倍，距一年高点 {t['dd']:.0f}%。",
               "source": f"{f['type']}（{f['notice']} 公布），由数据自动生成；这只股票还没有做过深度复盘"}
     body = f"""
-<div class="crumb"><a href="index.html">个股</a> ／ {('<a href="../boards/' + cfg['board']['secid'][3:] + '.html">' + E(cfg['board']['name']) + '</a>') if cfg.get('group') == '追踪' else '观察'} ／ {E(cfg['name'])}</div>
+<div class="crumb"><a href="index.html">个股</a> ／ {('<a href="../boards/' + cfg['board']['secid'][3:] + '.html">' + E(cfg['board']['name']) + '</a>') if cfg['board']['secid'] in ctx.get('BOARDS', {}) else E(cfg['board']['name'])} ／ {E(cfg['name'])}</div>
 <div class="hero shero"><div><h1>{E(cfg['name'])}<small>{cfg['code']}</small></h1>
 <div class="tags2"><span class="drv">{E(cfg['driver'])}</span><span>{E(cfg['industry'])}</span>{'<span class="st2">追踪中</span>' if cfg.get('group') == '追踪' else '<span class="cand">观察</span>'}</div></div>
 <div class="px"><b>{t['close']:.2f}</b><span class="{st(t['d1'])}">{t['d1']:+.2f}%</span><small>{t['date']} 收盘</small></div></div>
 
 <section class="block" id="layers"><h2>四层信号</h2><p class="sub">从大盘到股价，每一层现在是利好、利空还是中性。不加总，也不给买卖结论。</p>{layers}</section>
 
+{research.render(a, ctx["ROOT"])}
 <section class="block" id="score"><h2>个股打分卡</h2><p class="sub">个股层 A–G 七个维度各打 −2 到 +2 分，也就是上面“个股”这一层的明细。点任意一项跳到下面的展开分析。</p>{card_html}</section>
 
-<section class="block"><h2>{E(pr.get('label', '之前的结论'))}：{E(pr['title'])}</h2><p class="prior">{E(pr['text'])}<span class="src">来源：{E(pr['source'])}</span></p></section>
+<section class="block"><h2>{E(pr.get('label', '历史研究结论（本次未复核）'))}：{E(pr['title'])}</h2><p class="prior">{E(pr['text'])}<span class="src">来源：{E(pr['source'])}</span></p></section>
 
-<section class="block" id="fmap"><h2>因子影响地图</h2><p class="sub">框架里哪些因素对这只股票影响大。“现在的状态”取自大盘页和本页的实时数据。这张表是初稿，等你确认后按季度更新。</p>{fmap}</section>
+<section class="block" id="fmap"><h2>因子影响地图</h2><p class="sub">框架里哪些因素对这只股票影响大。“现在的状态”取自大盘页和本页的实时数据。直接证据与代理指标分别标注；缺少公司层证据时不自动推断利好利空。</p>{fmap}</section>
 
 <section class="block" id="nodes"><h2>个股层传导图</h2><p class="sub">和大盘页同一套 A–H 骨架，换成了这只股票自己的变量。</p>{diagram}<div class="ndlist">{nodes_html}</div></section>
 {price_sec}
@@ -489,7 +486,7 @@ def stock_index(analyses, ctx):
                 f'<span class="px2"><b>{t["close"]:.2f}</b><span class="{st(t["d1"])}">{t["d1"]:+.2f}%</span></span>'
                 f'<span class="kv">年内 <b class="{st(t["ytd"] or 0)}">{(t["ytd"] or 0):+.0f}%</b></span>'
                 f'<span class="kv">距高点 <b class="down">{t["dd"]:.0f}%</b></span>'
-                f'<span class="kv">个股合计 <b class="{st(sum(x for x in a["scores"].values() if x))}">{sum(x for x in a["scores"].values() if x):+d}</b></span>'
+                f'<span class="kv">分项合计 <b class="{st(sum(x for x in a["scores"].values() if x))}">{sum(x for x in a["scores"].values() if x):+d}</b></span>'
                 f'<span class="lys">{tags}</span></a>')
     boards = json.load(open(os.path.join(ctx["ROOT"], "data", "boards.json"), encoding="utf-8"))["boards"]
     secs = ""
@@ -508,8 +505,8 @@ def stock_index(analyses, ctx):
                 f'<div class="slist">{"".join(row(a) for a in obs)}</div></section>') if obs else ""
     n = sum(1 for a in analyses if a["cfg"].get("group") == "追踪")
     return f"""<div class="hero"><h1>个股</h1><p class="sum">2026 年 11 月 9 日一起选定的 {n} 只追踪股，按板块分组。</p>
-<p class="stamp">四个色块依次是大盘、板块、个股、股价四层的状态：红色利好，绿色利空，灰色中性。“个股合计”是个股打分卡 A–G 的合计。</p></div>
-<section class="block">{secs}</section>{obs_html}"""
+<p class="stamp">四个色块依次是大盘、板块、个股、股价四层的状态：红色利好，绿色利空，灰色中性。“分项合计”是个股打分卡 A–G 的合计。</p></div>
+{research.exposure_html(analyses, ctx["ROOT"])}<section class="block">{secs}</section>{obs_html}"""
 
 
 def build(ctx):
@@ -524,6 +521,7 @@ def build(ctx):
             continue
         raw = json.load(open(p, encoding="utf-8"))
         a = analyze_stock(cfg, raw, ctx)
+        research.record_consensus(root, cfg["code"], raw, a["e"])
         a["hist"] = scorecard.record(root, "stocks", cfg["code"], ctx["TODAY"], a["scores"])
         analyses.append(a)
         html_ = ctx["page"](f"{cfg['name']} | A 股框架笔记", "gg", render(a, ctx), "../")
