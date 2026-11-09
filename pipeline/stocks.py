@@ -40,7 +40,10 @@ if __name__ == "__main__":
     root = sys.argv[1]
     d = os.path.join(root, "data", "raw", "stocks")
     os.makedirs(d, exist_ok=True)
+    only = sys.argv[2:]  # 可指定只抓某几只（股票代码）
     for s in load_cfg(root):
+        if only and s["code"] not in only:
+            continue
         try:
             data = fetch_stock(s)
             json.dump(data, open(os.path.join(d, s["code"] + ".json"), "w", encoding="utf-8"), ensure_ascii=False)

@@ -249,3 +249,6 @@ footer p{margin:4px 0}
 .scr td,.scr th{white-space:nowrap;font-size:13px}
 .scr tr.hl{background:#F7F9FE}
 @media (max-width:760px){.lls{grid-template-columns:1fr}}
+.gh{margin:22px 0 8px;display:flex;align-items:baseline;gap:10px}
+.gh small{font:13px var(--sans);color:var(--ink3)}
+.tags2 .st2{background:var(--link-bg);border-color:var(--link-bg);color:var(--link)}

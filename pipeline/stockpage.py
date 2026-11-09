@@ -267,6 +267,11 @@ def factor_now(name, ctx, a):
         if hits:
             return f"近期相关公告 {len(hits)} 条，最新：{hits[0]['date'][5:]} {hits[0]['title'].split(':', 1)[-1][:30]}", "flat"
         return "近期没有相关公告", "flat"
+    if "国债收益率" in name:
+        cn = D.cn10[-1][1]
+        return f"中国 10 年国债 {cn:.2f}%（近一年低位，利好高股息资产）", "up" if cn < 1.7 else "flat"
+    if "价格" in name and any(w in name for w in ["铜", "金", "铝", "煤", "存储"]):
+        return f"宏观代理：PPI 同比 {D.ppi[-1]['v']:+.1f}%（{D.ppi[-1]['period'][-4:]}）；具体商品价格待接入", "up" if D.ppi[-1]["v"] > 0 else "down"
     if "利率" in name:
         return f"美国 10 年国债 {us:.2f}%；大盘「利率与流动性」{sg(sr['liq']['score'])}", "down" if us >= 4.5 else "flat"
     if "汇率" in name:
@@ -280,7 +285,7 @@ def factor_now(name, ctx, a):
         return f"大盘「国内经济」{sg(sr['econ']['score'])}：PMI {D.pmi[-1]['v']}，社零同比 {D.retail[-1]['v']}%", st(sr["econ"]["score"])
     if "政策" in name or "医保" in name:
         return f"大盘「政策」{manual['policy']['score']:+d}（人工判定）；行业政策待整理", "flat"
-    if "资本开支" in name or "订单" in name:
+    if any(w in name for w in ["资本开支", "订单", "销售", "需求", "出货"]):
         q = a["f"]["qs"][-1]
         return f"用公司收入代替观察：{q['label']} 单季营收同比 {q['rev_yoy']:+.0f}%" if q.get("rev_yoy") is not None else "待整理", st(q.get("rev_yoy") or 0)
     return "待整理（需要行业数据或人工跟踪）", "na"
@@ -445,11 +450,18 @@ def render(a, ctx):
     SC_NAMES = {"A": "客户与订单", "B": "公司事件", "C": "净利润", "D": "利润质量", "E": "盈利预测", "F": "估值", "G": "筹码"}
     card_html = scorecard.card([{"key": k2, "name": SC_NAMES[k2], "score": sc.get(k2), "hits": a["nodes"].get(k2) or [],
                                  "href": f"#n-{k2}"} for k2 in "ABCDEFG"], "个股合计", "股价层只呈现位置，不打分。", a["hist"], ("E",))
-    pr = cfg["prior"]
+    pr = cfg.get("prior")
+    if not pr:
+        lq = f["qs"][-1]
+        pf = lambda x: "—" if x is None else f"{x:+.0f}%"
+        pr = {"label": "最新财报要点", "title": f"{f['type']}",
+              "text": f"{lq['label']} 单季营收 {yi(lq['rev'])}（同比 {pf(lq.get('rev_yoy'))}），单季净利润 {yi(lq['np'])}（同比 {pf(lq['yoy'])}，环比 {pf(lq['qoq'])}）；"
+                      f"毛利率 {fmt2(f['gm'], 1)}%，ROE {fmt2(f['roe'], 1)}%。现价 PE-TTM {v['pe']:.1f} 倍，距一年高点 {t['dd']:.0f}%。",
+              "source": f"{f['type']}（{f['notice']} 公布），由数据自动生成；这只股票还没有做过深度复盘"}
     body = f"""
-<div class="crumb"><a href="index.html">个股</a> ／ 候选 ／ {E(cfg['name'])}</div>
+<div class="crumb"><a href="index.html">个股</a> ／ {('<a href="../boards/' + cfg['board']['secid'][3:] + '.html">' + E(cfg['board']['name']) + '</a>') if cfg.get('group') == '追踪' else '观察'} ／ {E(cfg['name'])}</div>
 <div class="hero shero"><div><h1>{E(cfg['name'])}<small>{cfg['code']}</small></h1>
-<div class="tags2"><span class="drv">{E(cfg['driver'])}</span><span>{E(cfg['industry'])}</span><span class="cand">候选，未正式入池</span></div></div>
+<div class="tags2"><span class="drv">{E(cfg['driver'])}</span><span>{E(cfg['industry'])}</span>{'<span class="st2">追踪中</span>' if cfg.get('group') == '追踪' else '<span class="cand">观察，不在追踪板块内</span>'}</div></div>
 <div class="px"><b>{t['close']:.2f}</b><span class="{st(t['d1'])}">{t['d1']:+.2f}%</span><small>{t['date']} 收盘</small></div></div>
 
 <section class="block" id="layers"><h2>四层信号</h2><p class="sub">从大盘到股价，每一层现在是利好、利空还是中性。不加总，也不给买卖结论。</p>{layers}</section>
@@ -470,20 +482,29 @@ def render(a, ctx):
 
 
 def stock_index(analyses, ctx):
-    rows = ""
-    for a in analyses:
+    def row(a):
         cfg, t, v = a["cfg"], a["t"], a["v"]
         tags = "".join(f'<span class="tag {L["state"]}" title="{L["name"]}">{L["name"]}</span>' for L in a["layers"])
-        rows += (f'<a class="srow" href="{cfg["slug"]}.html"><span class="nm">{E(cfg["name"])}<small>{cfg["code"]} {E(cfg["industry"])}</small></span>'
-                 f'<span class="px2"><b>{t["close"]:.2f}</b><span class="{st(t["d1"])}">{t["d1"]:+.2f}%</span></span>'
-                 f'<span class="kv">年内 <b class="{st(t["ytd"] or 0)}">{(t["ytd"] or 0):+.0f}%</b></span>'
-                 f'<span class="kv">距高点 <b class="down">{t["dd"]:.0f}%</b></span>'
-                 f'<span class="kv">PE 分位 <b>{"—" if v["pct"] is None else format(v["pct"], ".0f") + "%"}</b></span>'
-                 f'<span class="lys">{tags}</span></a>')
-    return f"""<div class="hero"><h1>个股</h1><p class="sum">正式的 20 只追踪股还没选。下面先放进来的都是候选，用来熟悉个股页的结构。</p>
-<p class="stamp">四个色块依次是大盘、板块、个股、股价四层的状态：红色利好，绿色利空，灰色中性。</p></div>
-<section class="block"><div class="slist">{rows}</div></section>
-<section class="block"><h2>正式股票池怎么定</h2><p class="note">按需求文档的流程：先根据大盘判断定 6–8 个板块，每个板块挑 3–5 只候选，逐只初筛后一起讨论，定下约 20 只。这 5 只也要经过同样的筛选，不会自动入选。</p></section>"""
+        return (f'<a class="srow" href="{cfg["slug"]}.html"><span class="nm">{E(cfg["name"])}<small>{cfg["code"]} {E(cfg["industry"])}</small></span>'
+                f'<span class="px2"><b>{t["close"]:.2f}</b><span class="{st(t["d1"])}">{t["d1"]:+.2f}%</span></span>'
+                f'<span class="kv">年内 <b class="{st(t["ytd"] or 0)}">{(t["ytd"] or 0):+.0f}%</b></span>'
+                f'<span class="kv">距高点 <b class="down">{t["dd"]:.0f}%</b></span>'
+                f'<span class="kv">个股合计 <b class="{st(sum(x for x in a["scores"].values() if x))}">{sum(x for x in a["scores"].values() if x):+d}</b></span>'
+                f'<span class="lys">{tags}</span></a>')
+    boards = json.load(open(os.path.join(ctx["ROOT"], "data", "boards.json"), encoding="utf-8"))["boards"]
+    secs = ""
+    for b in boards:
+        items = [a for a in analyses if a["cfg"].get("group") == "追踪" and a["cfg"]["board"]["secid"] == b["secid"]]
+        if items:
+            secs += (f'<h3 class="h3s gh"><a href="../boards/{b["slug"]}.html">{E(b["name"])}</a><small>{E(b.get("style", ""))}，{len(items)} 只</small></h3>'
+                     f'<div class="slist">{"".join(row(a) for a in items)}</div>')
+    obs = [a for a in analyses if a["cfg"].get("group") != "追踪"]
+    obs_html = (f'<section class="block"><h2>观察（不在追踪板块内）</h2><p class="sub">之前加进来的股票，所属板块不在这 7 个里，去留待定。</p>'
+                f'<div class="slist">{"".join(row(a) for a in obs)}</div></section>') if obs else ""
+    n = sum(1 for a in analyses if a["cfg"].get("group") == "追踪")
+    return f"""<div class="hero"><h1>个股</h1><p class="sum">2026 年 11 月 9 日一起选定的 {n} 只追踪股，按板块分组：科技约 14 只，其他板块各 2 只。</p>
+<p class="stamp">四个色块依次是大盘、板块、个股、股价四层的状态：红色利好，绿色利空，灰色中性。“个股合计”是个股打分卡 A–G 的合计。</p></div>
+<section class="block">{secs}</section>{obs_html}"""
 
 
 def build(ctx):

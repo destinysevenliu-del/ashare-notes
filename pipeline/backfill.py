@@ -29,7 +29,10 @@ if MODE == "stocks":
     import stockpage
     dates = ctx["D"].dates[-N_DAYS:]
     cfgs = json.load(open(os.path.join(ROOT, "data", "stocks.json"), encoding="utf-8"))["stocks"]
+    only = sys.argv[3:]
     for cfg in cfgs:
+        if only and cfg["code"] not in only:
+            continue
         raw = json.load(open(os.path.join(ROOT, "data", "raw", "stocks", cfg["code"] + ".json"), encoding="utf-8"))
         for d in dates[:-1]:
             r = copy.deepcopy(raw)
