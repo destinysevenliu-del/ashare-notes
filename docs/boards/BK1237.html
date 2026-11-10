@@ -265,6 +265,22 @@ footer p{margin:4px 0}
  header nav{width:100%;justify-content:space-between;white-space:nowrap}
  header nav a{padding:5px 8px}
 }
+
+/* HK market navigation and observation cards */
+.market-switch{display:flex;gap:6px;padding-top:26px;align-items:center}
+.market-switch a{padding:8px 24px;border:1px solid var(--line,#dedbd5);border-radius:5px;text-decoration:none;color:inherit;font-weight:600}
+.market-switch a[aria-current="page"]{background:#293e50;color:#fff;border-color:#293e50}
+.market-switch+.hero{padding-top:30px}
+.hk-scores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #dedbd5;border-radius:6px;overflow:hidden}
+.hk-score{padding:20px;border:1px solid #eeeae4;display:flex;flex-direction:column;gap:9px}
+.hk-score strong{font-size:22px}.hk-score small{color:#777}
+.hk-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.hk-node{border:1px solid #dedbd5;border-left:3px solid currentColor;border-radius:5px;padding:15px;text-decoration:none;display:flex;flex-direction:column;gap:8px;color:#66717c}
+.hk-node b{font:700 22px Georgia,serif}.hk-node span{font-weight:600;color:#293e50}.hk-node small{font-size:11px;color:#777}
+.hk-changes{padding-left:22px;line-height:2.1}.hk-notice{border-left:3px solid #947539;padding:8px 18px;background:#f6f1e5;font-size:13px}
+.hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:#293e50}.hk-diagram .small{font-size:10px;fill:#777}
+@media(min-width:761px){.hk-diagram+.hk-map{display:none}}
+@media(max-width:760px){.hk-scores,.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score{padding:15px}.hk-score strong{font-size:18px}.hk-diagram{display:none}.hk-changes{font-size:14px}.hk-node{padding:12px}.market-switch{padding-top:18px}}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="../index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="../index.html">大盘</a><a href="../boards/index.html" aria-current="page">板块</a><a href="../stocks/index.html">个股</a><a href="../reports/index.html">报告</a><a href="../trades.html">我的操作</a></nav></div></header>
 <main class="wrap">

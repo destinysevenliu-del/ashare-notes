@@ -450,13 +450,20 @@ def page(title, active, body, prefix=""):
         if not href:
             links += f'<span class="soon">{lab}<small>{key}</small></span>'
         else:
-            cur = ' aria-current="page"' if key == active else ""
+            cur = ' aria-current="page"' if key == active or (key == 'dp' and active == 'hk') else ""
             links += f'<a href="{prefix}{href}"{cur}>{lab}</a>'
+    switch = ''
+    if active in ('dp', 'hk'):
+        switch = ('<nav class="market-switch" aria-label="大盘市场">'
+                  f'<a href="{prefix}index.html"' + (' aria-current="page"' if active == 'dp' else '') + '>A 股</a>'
+                  f'<a href="{prefix}hk/index.html"' + (' aria-current="page"' if active == 'hk' else '') + '>港股</a></nav>')
+    sources = ('港股指数来自东方财富，港元拆息和银行体系总结余来自香港金管局，南向成交来自港交所。规则 HK v1，数据日期和局限见各节。'
+               if active == 'hk' else f"数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 {R['rules_version']}，每节的“怎么判的”里有完整规则。")
     return f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>{E(title)}</title><style>{CSS}</style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="{prefix}index.html">A 股框架笔记</a><nav aria-label="主导航">{links}</nav></div></header>
-<main class="wrap">{body}</main>
-<footer><div class="wrap"><p>数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 {R['rules_version']}，每节的“怎么判的”里有完整规则。</p>
+<main class="wrap">{switch}{body}</main>
+<footer><div class="wrap"><p>{sources}</p>
 <p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer></body></html>"""
 
 
@@ -521,6 +528,9 @@ with open(os.path.join(SITE, "index.html"), "w", encoding="utf-8") as f:
     f.write(index())
 with open(os.path.join(SITE, "trades.html"), "w", encoding="utf-8") as f:
     f.write(trades_page())
+
+import hkpage
+hkpage.build(globals())
 
 import stockpage, reportspage, boardpage  # noqa: E402
 BOARDS = boardpage.build(globals(), json.load(open(os.path.join(ROOT, "data", "stocks.json"), encoding="utf-8"))["stocks"])

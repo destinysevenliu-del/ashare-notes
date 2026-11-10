@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-09",
+  "observed_at": "2026-11-10T10:03:33.391216+08:00",
+  "rules_version": "HK v1 · 2026-11-10",
+  "scores": {
+    "external": null,
+    "economy": null,
+    "policy": null,
+    "liquidity": 0,
+    "valuation": null,
+    "funds": 1
+  },
+  "net5": 30.872900000000016,
+  "net20": -361.0077,
+  "hibor_20obs_bp": -15.73199999999999,
+  "sources": {
+    "hsi": "2026-11-09",
+    "hscei": "2026-11-09",
+    "hstech": "2026-11-09"
+  }
+}

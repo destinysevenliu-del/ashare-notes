@@ -1,0 +1,51 @@
+"""Run: python3 -I pipeline/test_hk.py <project root>."""
+import datetime,json,sys,unittest
+from pathlib import Path
+ROOT=Path(sys.argv[1]);sys.argv=sys.argv[:1];sys.path.insert(0,str(ROOT/'pipeline'))
+from hk_fetch import parse_connect,completed_rows
+from hkpage import aligned_series,flow_window,funding_score,change
+class HKTest(unittest.TestCase):
+ def records(self):
+  def record(m,b,s):
+   return {'market':m,'date':'2026-11-09','tradingDay':1,'content':[{'table':{'classname':'tradingTable','schema':[['Buy Turnover','Sell Turnover']],'tr':[{'td':[[b]]},{'td':[[s]]}]}}]}
+  return [record('SSE Northbound','9,000','0'),record('SSE Southbound','2,000','1,500'),record('SZSE Southbound','1,000','800')]
+ def test_units_and_direction(self):
+  r=parse_connect('tabData = '+json.dumps(self.records())+';','2026-11-09')
+  self.assertEqual(r['buy'],30);self.assertEqual(r['sell'],23);self.assertEqual(r['net'],7)
+ def test_incomplete_connect_rejected(self):
+  records=self.records()
+  with self.assertRaises(ValueError):parse_connect(json.dumps(records[:-1]),'2026-11-09')
+  records[-1]['date']='2026-11-06'
+  with self.assertRaises(ValueError):parse_connect(json.dumps(records),'2026-11-09')
+ def test_intraday_excluded(self):
+  data={'rows':[{'date':'2026-11-09'},{'date':'2026-11-10'},{'date':'2026-11-11'}]}
+  self.assertEqual(len(completed_rows(data,datetime.datetime(2026,11,10,16,30))),1)
+  self.assertEqual(len(completed_rows(data,datetime.datetime(2026,11,10,17))),2)
+ def test_intraday_cache_never_becomes_close_without_refresh(self):
+  data={'observed_at':'2026-11-10T10:00:00+08:00','rows':[{'date':'2026-11-09'},{'date':'2026-11-10'}]}
+  self.assertEqual(len(completed_rows(data,datetime.datetime(2026,11,11,17))),1)
+ def test_missing_flow_not_zero(self):
+  rows=[{'date':'2026-11-06','net':3},{'date':'2026-11-09','net':-5}]
+  self.assertEqual(flow_window(rows,['2026-11-06','2026-11-09'],2),-2)
+  self.assertIsNone(flow_window(rows,['2026-11-05','2026-11-06','2026-11-09'],3))
+ def test_chart_common_dates_and_returns(self):
+  values={'hsi':[{'date':'a','close':10},{'date':'b','close':20},{'date':'c','close':30}],'hstech':[{'date':'b','close':40},{'date':'c','close':20}]}
+  aligned=aligned_series(values)
+  self.assertEqual(aligned[0][2],[('b',100),('c',150)])
+  self.assertEqual(aligned[1][2],[('b',100),('c',50)])
+  self.assertAlmostEqual(change(values['hsi'],1),50)
+ def test_funding_staleness(self):
+  rows=[{'end_of_date':(datetime.date(2026,10,1)+datetime.timedelta(days=i)).isoformat(),'hibor_fixing_1m':3-i*.02} for i in range(21)]
+  self.assertEqual(funding_score(rows,'2026-10-21')[0],1)
+  self.assertIsNone(funding_score(rows,'2026-11-09')[0])
+  self.assertIsNone(funding_score(rows[:20],'2026-10-21')[0])
+ def test_page_links_and_unknowns(self):
+  hk=(ROOT/'docs/hk/index.html').read_text();a=(ROOT/'docs/index.html').read_text()
+  self.assertIn('href="hk/index.html"',a)
+  self.assertIn('href="../index.html"',hk)
+  for key in 'ABCDEFGH':self.assertIn('id="node-'+key+'"',hk)
+  self.assertIn('不合成总分',hk);self.assertIn('17:00 前剔除当日',hk)
+  for p in (ROOT/'data/snapshots/hk_v1').glob('*.json'):
+   s=json.loads(p.read_text())
+   for k in ['external','economy','policy','valuation']:self.assertIsNone(s['scores'][k])
+if __name__=='__main__':unittest.main()
