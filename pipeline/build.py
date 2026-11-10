@@ -457,7 +457,7 @@ def page(title, active, body, prefix=""):
         switch = ('<nav class="market-switch" aria-label="大盘市场">'
                   f'<a href="{prefix}index.html"' + (' aria-current="page"' if active == 'dp' else '') + '>A 股</a>'
                   f'<a href="{prefix}hk/index.html"' + (' aria-current="page"' if active == 'hk' else '') + '>港股</a></nav>')
-    sources = ('港股指数来自东方财富，港元拆息和银行体系总结余来自香港金管局，南向成交来自港交所。规则 HK v1，数据日期和局限见各节。'
+    sources = ('港股指数来自东方财富，港元拆息和银行体系总结余来自香港金管局，南向成交来自港交所。规则 HK v2，数据日期和局限见各节。'
                if active == 'hk' else f"数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 {R['rules_version']}，每节的“怎么判的”里有完整规则。")
     return f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>{E(title)}</title><style>{CSS}</style></head><body>

@@ -248,7 +248,7 @@ def build(ctx):
     daily=[]
     for key,rows in indices.items():daily.append(f'<li><b>{NAMES[key]}</b> 收于 {rows[-1]["close"]:,.2f}，较上一交易日 {change(rows,1):+.2f}%。</li>')
     if latest:daily.append(f'<li><b>南向资金</b> {latest["date"]} 净买入 {latest["net"]:+.2f} 亿港元。</li>')
-    snapshot_note='首次建立港股信号记录，暂不展示昨天的评分变化。'
+    snapshot_note='本版框架首次记录，后续按同版本快照追踪分项变化。'
     if previous:
         changed=[f'{labels[k]}：{previous["scores"].get(k)} → {v}' for k,v in scores.items() if previous['scores'].get(k)!=v]
         snapshot_note='与上次有效记录 '+previous['date']+' 相比：'+('；'.join(changed) if changed else '分项状态未变')+'。缺失值表示待数据。'
@@ -273,7 +273,7 @@ def build(ctx):
     if net5 is None or net20 is None:warnings.append('南向合计：部分观察窗口缺日或遇到非互联互通交易日，不补零、不输出完整窗口合计。')
     conditions=[('港元成本明显变动', '已触发' if delta is not None and abs(delta)>=25 else '未触发' if delta is not None else '待数据','1 个月 HIBOR 较 20 个观测前变动至少 25bp。'),('南向短期转为净卖出','已触发' if net5 is not None and net5<0 else '未触发' if net5 is not None else '待数据','最近 5 个港股交易日合计净买入为负。'),('恒生跌破 60 日均线','已触发' if indices['hsi'][-1]['close']<sum(r['close'] for r in indices['hsi'][-60:])/60 else '未触发','只作趋势观察，不作为买卖指令。'),('盈利与估值证据','待补齐','C / E / F 未接入前，不形成港股整体便宜或盈利改善的结论。')]
     stamp=f'三个指数统一截至 {asof} 收盘；页面生成于 {now.strftime("%Y-%m-%d %H:%M")}（香港 / 北京时间）。当日 17:00 前剔除当日 K 线；各数据源日期见下表。'
-    body=f'<div class="hero"><p class="date">{asof} · 港股观察</p><h1>港股大盘处在什么状态</h1><p class="sum">中国基本面与美国流动性双重锚，叠加三层政策，追踪人民币汇率、企业盈利、估值与参与者行为。</p><p class="stamp">{stamp}</p></div>'
+    body=f'<div class="hero"><p class="date">{asof} · 港股观察 · HK v2</p><h1>港股大盘处在什么状态</h1><p class="sum">中国基本面与美国流动性双重锚，叠加三层政策，追踪人民币汇率、企业盈利、估值与参与者行为。</p><p class="stamp">{stamp}</p></div>'
     if warnings:body+='<div class="hk-notice">'+''.join('<p>'+E(w)+'</p>' for w in warnings)+'</div>'
     body+='<section class="block" id="today"><h2>今天变了什么</h2><p class="sub">行情比较最近两个完整交易日；资金按自身最新披露日展示。</p><ul class="hk-changes">'+''.join(daily)+'</ul><p class="sub">'+E(snapshot_note)+'</p></section>'
     body+='<section class="block" id="map"><h2>传导图</h2><p class="sub">按参考框架展开 A–H，并增加独立的 X 人民币汇率节点。点击节点查看影响路径、指标和证据状态。</p>'+diagram+'<div class="hk-map">'+nodes+'</div><p class="sub">蓝色节点及箭头标出人民币的盈利折算与资金偏好路径。灰色虚线框表示综合判断待证据，深色 H 展示价格结果。图中箭头表示待验证的影响路径。</p></section>'
