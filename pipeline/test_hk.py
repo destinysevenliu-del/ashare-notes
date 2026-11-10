@@ -59,4 +59,21 @@ class HKTest(unittest.TestCase):
   html=(ROOT/'docs/hk/index.html').read_text()
   for label in ['人民币汇率','盈利折算','资金偏好','美联储','仓位、申赎与交易约束','信用／融资条件']:
    self.assertIn(label,html)
+ def test_completed_research_has_evidence_for_all_nodes(self):
+  from hk_research import load
+  r=load(ROOT,'2026-11-09')
+  self.assertEqual(set(r['sections']),set('ABCDEFGX'))
+  for entry in r['sections'].values():
+   for field in ('facts','analysis','counter','monitor','boundary'):
+    self.assertTrue(entry[field])
+   self.assertTrue(all(fact['source'].startswith('https://') for fact in entry['facts']))
+  self.assertTrue(r['gaps'])
+ def test_official_index_csv_encodings_and_missing_pe(self):
+  from hsi_public_data import parse_daily
+  text='日期\t指數\nTrade Date\tIndex\tIndex Currency\tIndex Close\tPE Ratio (times)\tDividend Yield (%)\n20261109\tHang Seng Index\tHKD\t24448.95\t13.69\t2.99\n'
+  row=parse_daily(text.encode('utf-16'),'hsi','source')
+  self.assertEqual(row['pe_ratio'],13.69)
+  text=text.replace('Hang Seng Index','Hang Seng TECH Index').replace('13.69','')
+  row=parse_daily(text.encode('utf-16'),'hstech','source')
+  self.assertIsNone(row['pe_ratio'])
 if __name__=='__main__':unittest.main()

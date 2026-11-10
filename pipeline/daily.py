@@ -31,10 +31,12 @@ run("hk_fetch.py")
 # HK and mainland trading calendars can differ; A-share margin data cannot gate HK updates.
 hk_raw = os.path.join(ROOT, "data", "raw", "hk")
 hk_content = []
-for name in ("hsi", "hscei", "hstech", "liquidity", "southbound"):
+for name in ("hsi", "hscei", "hstech", "liquidity", "southbound", "context", "valuations"):
     path = os.path.join(hk_raw, name + ".json")
     data = json.load(open(path)) if os.path.exists(path) else {"rows": []}
-    hk_content.append(completed_rows(data, now) if name in ("hsi", "hscei", "hstech") else data.get("rows", []))
+    if name == "context":
+        data = {"rows": {key: series.get("rows", []) for key, series in data.get("series", {}).items()}}
+    hk_content.append(completed_rows(data, now) if name in ("hsi", "hscei", "hstech") else data.get("series", data.get("indices", data.get("rows", []))))
 hk_signature = hashlib.sha256(json.dumps(hk_content, sort_keys=True).encode()).hexdigest()
 hk_changed = last.get("hk_signature") != hk_signature
 raw = os.path.join(ROOT, "data", "raw")

@@ -1,0 +1,111 @@
+{
+  "as_of": "2026-11-10",
+  "market_activity": {
+    "period": "2026-10",
+    "source": "https://www.hkex.com.hk/market-data/statistics/consolidated-reports/hkex-monthly-market-highlights?sc_lang=en",
+    "market_cap_trillion_hkd": 42.4,
+    "turnover_month_million_hkd": 3613013,
+    "turnover_daily_million_hkd": 180651,
+    "turnover_daily_previous_month_million_hkd": 201917,
+    "turnover_daily_mom_pct": -10.5,
+    "market_trading_days": 20,
+    "equities_turnover_daily_million_hkd": 134599.84,
+    "unit_trust_including_etf_daily_million_hkd": 33051.04,
+    "southbound_daily_buy_plus_sell_million_hkd": 73678,
+    "southbound_daily_mom_pct": -12.8,
+    "southbound_trading_days": 16,
+    "southbound_month_single_side_share_of_all_market_pct_calculated": 16.3139186048,
+    "calculation": "73678 * 16 / (2 * 3613013) * 100",
+    "interpretation": "10月整体交易活跃度较9月下降，南向买卖成交活跃度亦下降。南向月内买卖成交除以2后约占全市场月成交16.31%。该指标反映成交参与度，净买入方向另看每日买入减卖出。",
+    "limitations": "南向日历16日，港股市场20日，分母需对齐月内总量。全市场包括股票、ETF及衍生权证等。不能用1减此占比来称外资成交占比。"
+  },
+  "etf_units": {
+    "name": "盈富基金 Tracker Fund of Hong Kong",
+    "code": "02800 / 82800",
+    "period_end": "2026-10-31",
+    "published": "2026-11-05",
+    "source": "https://www.trahk.com.hk/content/dam/hsvm/trahk/fund_docs/monthly_return/2800_MonthlyReturns_202610.pdf",
+    "discovery_source": "https://www.trahk.com.hk/content/hsvm/en_hk/configuration/json/trahk/monthly_return/jcr:content/upload/file.json",
+    "units_previous": 5261992500,
+    "units_issued": 1065000000,
+    "units_cancelled": 1051000000,
+    "units_end": 5275992500,
+    "net_units_calculated": 14000000,
+    "net_units_pct_calculated": 0.2660589121,
+    "interpretation": "盈富基金10月份额净增加1400万份，增幅约0.27%，表明这个恒生宽基ETF样本一级市场净发行略为正向。",
+    "limitations": "只是盈富单只ETF的净份额，无法覆盖全部港股ETF或主动基金。份额申赎可含实物交收，未据此换算现金净流入。二级市场成交量与一级市场份额申赎分别展示。"
+  },
+  "short_positions": {
+    "date": "2026-10-30",
+    "previous_date": "2026-10-23",
+    "source": "https://www.sfc.hk/-/media/EN/pdf/spr/2026/10/30/Short_Position_Reporting_Aggregated_Data_20261030.csv",
+    "previous_source": "https://www.sfc.hk/-/media/EN/pdf/spr/2026/10/23/Short_Position_Reporting_Aggregated_Data_20261023.csv",
+    "index_source": "https://www.sfc.hk/en/Regulatory-functions/Market/Short-position-reporting/Aggregated-reportable-short-positions-of-specified-shares",
+    "reported_security_rows": 1265,
+    "reported_value_hkd_calculated": 975066437893,
+    "previous_reported_value_hkd_calculated": 988742684380,
+    "value_change_pct_calculated": -1.3831957195,
+    "selected": [
+      {
+        "code": "00700",
+        "name": "腾讯控股",
+        "shares": 63564861,
+        "previous_shares": 72213645,
+        "shares_change_pct_calculated": -11.9766617514
+      },
+      {
+        "code": "09988",
+        "name": "阿里巴巴",
+        "shares": 172220962,
+        "previous_shares": 170479807,
+        "shares_change_pct_calculated": 1.0213262384
+      },
+      {
+        "code": "03690",
+        "name": "美团",
+        "shares": 148913999,
+        "previous_shares": 158898575,
+        "shares_change_pct_calculated": -6.2836158222
+      },
+      {
+        "code": "01810",
+        "name": "小米",
+        "shares": 1323707833,
+        "previous_shares": 1322417231,
+        "shares_change_pct_calculated": 0.0975941609
+      }
+    ],
+    "interpretation": "代表股淡仓股数变化分化，腾讯、美团下降，阿里略升，小米基本持平。金额合计较前周下降约1.38%，同时受股价变化影响。",
+    "limitations": "合计仅覆盖达到申报门槛的净淡仓。普通指定证券按发行人市值0.02%或3000万港元较低者触发，CIS/ETF/REIT为3000万港元。周度存量不能当每日沽空成交，也不能识别外资身份或将对冲交易都解释为看空。网站最新列示截至10月30日，距查询11天。"
+  },
+  "investor_structure": {
+    "period": "2020全年",
+    "published": "2022-04",
+    "source": "https://www.hkex.com.hk/-/media/HKEX-Market/News/Research-Reports/HKEX-Surveys/Cash-Market-Transaction-Survey-2020/CMTS2020_e.pdf",
+    "latest_index": "https://www.hkex.com.hk/News/Research-Reports/HKEX-Surveys/HKEX-Surveys?sc_lang=en",
+    "overseas_institutional_turnover_pct": 35.9,
+    "overseas_retail_turnover_pct": 5.3,
+    "local_institutional_turnover_pct": 20.6,
+    "local_retail_turnover_pct": 10.2,
+    "exchange_participant_principal_pct": 28.1,
+    "limitations": "官网调查列表最新现金市场调查为2020。仅作历史结构参考，不能作为2026实时外资占比。调查的海外口径包括内地，南向已计入，不能再叠加南向占比。成交构成不代表持仓构成，调查来自EP估算且有终端身份识别局限。"
+  },
+  "trading_constraints": [
+    {
+      "fact": "受规管沽空须有担保并适用于指定证券，通常受tick rule约束，做市／对冲等类别存在规则例外。借券成本与额度、融券可得性会影响交易实施。",
+      "source": "https://www.hkex.com.hk/services/trading/securities/overview/regulated-short-selling?sc_lang=en"
+    },
+    {
+      "fact": "香港现行结算为T+2。港交所2026-10-16公布目标于2028年下半年实施T+1，仍以准备情况及监管批准为条件。",
+      "source": "https://www.hkex.com.hk/News/Market-Communications/2026/261016news?sc_lang=en",
+      "secondary_primary": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR171"
+    }
+  ],
+  "access_attempts": [
+    {
+      "source": "https://www.hkex.com.hk/eng/stat/smstat/ssturnover/ncms/ASHTMAIN.HTM",
+      "result": "查询时官方当日收盘文件显示收盘后提供，无法取得11月9日完整日报，故以SFC可下载的周度淡仓作存量观测，不补造日成交占比。"
+    }
+  ],
+  "overall_readthrough": "成交活跃度降温，宽基ETF样本份额轻微净发行，代表公司周度淡仓方向分化。结合每日南向净买入可分析局部边际需求。公开数据尚不能推出全港股境外资金整体净流向，观察结论为资金结构分化。"
+}

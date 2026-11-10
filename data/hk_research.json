@@ -1,0 +1,374 @@
+{
+  "reviewed_at": "2026-11-10",
+  "cutoff": "2026-11-10 11:15 Asia/Shanghai",
+  "sections": {
+    "A": {
+      "headline": "内需偏弱，上游成本压力与美元利率约束并存",
+      "state": "down",
+      "facts": [
+        {
+          "label": "制造业 PMI",
+          "value": "49.3 点",
+          "date": "2026-10",
+          "source": "https://www.stats.gov.cn/sj/zxfb/202610/t20261031_1965718.html",
+          "scope": "发布于 2026-10-31"
+        },
+        {
+          "label": "非制造业商务活动指数",
+          "value": "49.7 点",
+          "date": "2026-10",
+          "source": "https://www.stats.gov.cn/sj/zxfbhjd/202610/t20261031_1965718.html",
+          "scope": "发布于 2026-10-31"
+        },
+        {
+          "label": "实际 GDP 同比",
+          "value": "4.6%",
+          "date": "2026Q1-Q3",
+          "source": "https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965618.html",
+          "scope": "发布于 2026-10-19"
+        },
+        {
+          "label": "社会消费品零售总额同比",
+          "value": "1.1%",
+          "date": "2026-09",
+          "source": "https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965614.html",
+          "scope": "发布于 2026-10-19"
+        },
+        {
+          "label": "CPI 同比",
+          "value": "0.7%",
+          "date": "2026-10",
+          "source": "https://www.stats.gov.cn/sj/zxfb/202611/t20261109_1965795.html",
+          "scope": "发布于 2026-11-09"
+        },
+        {
+          "label": "核心 CPI 同比",
+          "value": "0.8%",
+          "date": "2026-10",
+          "source": "https://www.stats.gov.cn/xxgk/jd/sjjd2020/202611/t20261109_1965796.html",
+          "scope": "发布于 2026-11-09"
+        },
+        {
+          "label": "PPI 同比",
+          "value": "5.7%",
+          "date": "2026-10",
+          "source": "https://www.stats.gov.cn/sj/zxfbhjd/202611/t20261109_1965794.html",
+          "scope": "发布于 2026-11-09"
+        },
+        {
+          "label": "美国 CPI 同比",
+          "value": "3.7%",
+          "date": "2026-09",
+          "source": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+          "scope": "发布于 2026-10-14"
+        }
+      ],
+      "analysis": "内需与美国利率两端约束仍在。中国10月PMI回落、核心CPI偏低，PPI和购进价格上涨使上下游盈利分化。三季度GDP较二季度加快构成相反证据。港股应按消费、资源、科技和金融实际业务分开验证。",
+      "counter": "三季度 GDP 较二季度加快，互联网服务等子行业仍有扩张。资源企业可受益于产品价格上升。",
+      "monitor": "看新订单、消费量价、企业毛利率与现金流能否改善。美国 10 月 CPI 预定今晚北京时间 21:30 发布，本次使用 9 月数据。",
+      "boundary": "宏观总量需要映射到港股公司的实际业务和收入地区。美联储广义美元指数采用贸易加权篮子。",
+      "map_note": "内需承压 · 成本分化"
+    },
+    "B": {
+      "headline": "内地定向支持，美联储利率约束，香港交易制度改善",
+      "state": "flat",
+      "facts": [
+        {
+          "label": "内地货币与产业",
+          "value": "一年期 PSL 利率由1.75%降至1.50%，降低25bp，支持范围扩至水网、新型电网、算力网、通信网、地下管网、物流网。科技创新和技改再贷款额度增加2000亿元至1.4万亿元。",
+          "date": "2026-09-29",
+          "source": "https://jrj.sh.gov.cn/ZXYW178/20260930/e4c5f21586fe40d8a67381313ba37801.html",
+          "scope": "已宣布调整"
+        },
+        {
+          "label": "内地财政与地产",
+          "value": "符合条件的新发首套商贷年化贴息1个百分点，最长5年，计息贷款规模上限100万元。住房面积≤120平方米、总价≤150万元。",
+          "date": "2026-10-01",
+          "source": "https://m.mof.gov.cn/zcfb/202609/t20260929_3998312.htm",
+          "scope": "实施期暂定1年"
+        },
+        {
+          "label": "美联储",
+          "value": "联邦基金目标利率区间维持3.75%–4.00%，投票10比2，两名委员倾向加息25bp，声明仍称通胀偏高。",
+          "date": "2026-10-28",
+          "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm",
+          "scope": "已决议"
+        },
+        {
+          "label": "香港货币制度",
+          "value": "基本利率上调至4.25%，依据联邦基金区间下限加50bp与隔夜及1个月HIBOR五日均线平均值中较高者的预设公式。",
+          "date": "2026-09-17",
+          "source": "https://www.info.gov.hk/gia/general/202609/17/P2026091700133p.htm",
+          "scope": "即时生效，日数据应核对是否仍4.25%"
+        },
+        {
+          "label": "香港市场制度",
+          "value": "最小价差第二阶段，将适用证券0.5–10港元价格档最小价差从0.01减至0.005港元，降低50%。",
+          "date": "2026-08-03",
+          "source": "https://www.hkex.com.hk/Services/Trading/Securities/Overview/Trading-Mechanism/Reduction-of-Minimum-Spreads?sc_lang=en",
+          "scope": "已实施"
+        },
+        {
+          "label": "香港市场制度与人民币",
+          "value": "人民币柜台交易印花税与交易费用人民币计算及支付安排。",
+          "date": "预计2027年中，待生效公告与监管批准",
+          "source": "https://www.hkex.com.hk/Services/Trading/Securities/Overview/Trading-Mechanism/Arrangements-for-RMB-Payment-of-Stamp-Duty-and-Trading-Related-Fees?sc_lang=en",
+          "scope": "已公布实施安排，尚未实施"
+        }
+      ],
+      "analysis": "内地定向融资和购房贴息形成支持，美联储维持利率且仍有加息异议，香港市场微观结构改善。三层作用方向和对象不同，宜分别呈现事实与兑现条件。",
+      "counter": "购房贴息有价格与面积门槛，企业覆盖程度不同。人民币缴付费用安排预计 2027 年中实施，当前只能跟踪准备进度。",
+      "monitor": "核对政策性信贷实际投放、购房贷款与销售回款、价差及盘口深度。",
+      "boundary": "政策发布、生效和盈利兑现分别记录。PSL 与再贷款为定向工具。",
+      "map_note": "内地支持 · 美元约束"
+    },
+    "C": {
+      "headline": "代表性权重股盈利分化，科技投入的现金回报需验证",
+      "state": "flat",
+      "facts": [
+        {
+          "label": "腾讯控股 00700",
+          "value": "收入 2047.85 亿元（+11%），IFRS 归母利润 560.22 亿元（+0.7%），non-IFRS 归母利润 684.15 亿元（+9%）。经营现金流 527 亿元，自由现金流 −138 亿元，资本开支 527.84 亿元（+176%）。",
+          "date": "2026Q2",
+          "source": "https://www.tencent.com/wp-content/uploads/2026/08/Tencent-Announces-2026-Second-Quarter-Results.pdf",
+          "scope": "发布于 2026-08-12，恒指权重 7.86%（2026-11-09）"
+        },
+        {
+          "label": "阿里巴巴 09988",
+          "value": "收入 2689.53 亿元（+9%），GAAP 归母利润 105.37 亿元（−76%），non-GAAP 净利润 207.15 亿元（−38%），资本开支 676.78 亿元（+75%）。",
+          "date": "截至2026-06-30季度（FY2027Q1）",
+          "source": "https://data.alibabagroup.com/ecms-files/1532295521/fa5d65fc-9b3e-4e82-a8fc-4ce1c3e2c407/Alibaba%20Group%20Announces%20June%20Quarter%202026%20Results.pdf",
+          "scope": "发布于 2026-08-20，恒指权重 7.85%（2026-11-09）"
+        },
+        {
+          "label": "汇丰控股 00005",
+          "value": "收入 186.20 亿美元（+5%），报告税前利润 96.32 亿美元（+32%），剔除显著项目税前利润 100.21 亿美元（固定汇率同比 +10%）。净息差 1.57%，上一季度 1.62%。",
+          "date": "2026Q3",
+          "source": "https://www.hsbc.com/-/files/hsbc/investors/hsbc-results/2026/3q/pdfs/hsbc-holdings-plc/261027-3q-2026-earnings-release.pdf",
+          "scope": "发布于 2026-10-27，恒指权重 7.09%（2026-11-09）"
+        },
+        {
+          "label": "恒指全成分行业结构",
+          "value": "95 只成分，金融 33.51%、可选消费 21.33%、信息科技 16.19%。腾讯 7.86%、阿里 7.85%、汇丰 7.09%。",
+          "date": "2026-11-09",
+          "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=/public-website/webapp/contents/en/indexes/report/hsi/con_9Nov26.pdf",
+          "scope": "由官方全部成分的行业代码与权重加总，四舍五入总权重 99.99%。"
+        }
+      ],
+      "analysis": "腾讯、阿里与汇丰在 11 月 9 日合计占恒指权重 22.80%，分别呈现核心盈利增长但现金回报承压、收入增长而利润下降、银行报告盈利增长的分化。",
+      "counter": "科技公司的当期利润压力可能伴随后续增长，银行利润同比也受一次性项目基数影响。",
+      "monitor": "看腾讯及阿里的资本开支、自由现金流和云业务投入回报，汇丰关注净息差、贷款增长和信用成本。",
+      "boundary": "三股覆盖 2026-11-09 恒指权重 22.80%，其余 77.20% 尚未逐家汇总。不同季度、币种及利润口径分别标示。",
+      "map_note": "22.80% 恒指权重样本分化"
+    },
+    "E": {
+      "headline": "已取得真实一致预期样本，汇丰三季度略低于业绩前预期",
+      "state": "flat",
+      "facts": [
+        {
+          "label": "汇丰 17 位分析师一致预期",
+          "value": "2026 / 2027 / 2028 EPS 为 1.65 / 2.00 / 2.08 美元，DPS 为 0.85 / 0.96 / 1.05 美元。",
+          "date": "2026-10-16",
+          "source": "https://www.hsbc.com/-/files/hsbc/investors/investing-in-hsbc/pdf/261016-consensus-financial-estimates-for-hsbc.pdf?download=1",
+          "scope": "公司汇总卖方预测，业绩前快照"
+        },
+        {
+          "label": "汇丰 2026Q3 预期与实际",
+          "value": "收入预期 189.34 亿美元，实际 186.20 亿美元，偏离 −1.66%。税前利润预期 96.96 亿美元，实际 96.32 亿美元，偏离 −0.66%。",
+          "date": "2026-10-27",
+          "source": "https://www.hsbc.com/-/files/hsbc/investors/hsbc-results/2026/3q/pdfs/hsbc-holdings-plc/261027-3q-2026-earnings-release.pdf",
+          "scope": "实际值来自公司业绩，预期值来自上行快照"
+        },
+        {
+          "label": "未来年度盈利路径",
+          "value": "2027 EPS 较 2026 预期增长约 21.21%，2028 较 2027 增长 4.0%。",
+          "date": "2026-10-16",
+          "source": "https://www.hsbc.com/-/files/hsbc/investors/investing-in-hsbc/pdf/261016-consensus-financial-estimates-for-hsbc.pdf?download=1",
+          "scope": "跨年度增长，据原表计算"
+        }
+      ],
+      "analysis": "预期水平和实际业绩偏离已可观察。汇丰样本中，报告利润增长与略低于业绩前预期同时存在，需要分别判断。",
+      "counter": "单季略低预期可能来自项目时点或汇率。后续指引和成本、利息收入走势可改变下一年度预测。",
+      "monitor": "补录业绩后的同目标年度预测，比较 2026、2027 EPS 的前后修订及覆盖人数，再扩展到腾讯、阿里等权重股。",
+      "boundary": "当前 E 覆盖单一公司的 17 位分析师样本。全指数同年 EPS 的 30／90 日修订没有可用完整历史，跨年度增长只作盈利路径观察。",
+      "map_note": "17 位分析师预期样本"
+    },
+    "F": {
+      "headline": "三指数估值层次已可比较，恒生科技需要更强盈利兑现",
+      "state": "flat",
+      "facts": [
+        {
+          "label": "恒生科技指数",
+          "value": "PE 25.43 倍，股息率 1.23%，过去一年年化波动率 26.93%。",
+          "date": "2026-10-30",
+          "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=/public-website/webapp/factsheets/en-hk/hstech.pdf",
+          "scope": "恒生指数公司月末官方资料"
+        }
+      ],
+      "analysis": "国企指数 PE 倍数较恒指低，恒生科技月末倍数更高、股息率更低。结构差异、利润可持续性与折现率共同影响可比性。最新日度数据与月末科技数据采用各自日期。",
+      "counter": "低 PE 可包含金融权重较高、盈利见顶或风险补偿。科技成长兑现也可消化较高倍数。",
+      "monitor": "将月末 PE 和股息率与后续盈利变化、利率和风险溢价一起复核。跟踪三指数估值差收敛或扩大的来源。",
+      "boundary": "恒生与国企的公开日报提供 PE、股息率和约五周真实历史。恒生科技日报未披露 PE，采用 10 月 30 日官方单张。PB 及同口径多年分位仍缺可核验公开序列。",
+      "map_note": "三指数 PE 与股息率"
+    },
+    "D": {
+      "headline": "美债利率回落，波动率和信用利差抬升",
+      "state": "flat",
+      "facts": [
+        {
+          "label": "香港中小企信贷调查",
+          "value": "认为审批相同或较容易的比例 83%，上季度 78%。现有额度收紧比例 2%，上季度 4%。新申请全部或部分获批比例 78%，上季度 85%。",
+          "date": "2026Q3",
+          "source": "https://www.hkma.gov.hk/eng/news-and-media/press-releases/2026/11/20261106-4/",
+          "scope": "2026-11-06 发布，调查约 2500 家中小企"
+        }
+      ],
+      "analysis": "截至 11 月 6 日，美国 10 年国债收益率较 20 个有效观测前下降 36bp 至 4.86%，VIX 上升 10.80 点至 25.64，美国高收益利差上升 31bp 至 3.42%。折现率回落与风险溢价抬升并存。香港信贷调查显示观感改善，但新申请获批比例回落，融资改善仍有分化。",
+      "counter": "调查中新申请企业仅占样本 2%，现有信贷额度企业占 18%，相关比例容易受小样本影响。VIX 与美国信用利差反映海外风险环境。",
+      "monitor": "比较 20 个有效观测的利率、波动率与利差变化，并核对香港实际贷款、再融资与企业信用成本。",
+      "boundary": "美国高收益利差仅作为全球风险代理。本地企业美元融资利差和个体再融资条件仍需对应发行人证据。",
+      "map_note": "利率回落 · 风险溢价抬升"
+    },
+    "G": {
+      "headline": "成交降温，ETF样本略增份额，代表股淡仓分化",
+      "state": "flat",
+      "facts": [
+        {
+          "label": "市场成交与南向参与度",
+          "value": "全市场日均 1806.51 亿港元，较 9 月 −10.5%。南向日均买卖合计 736.78 亿港元，较 9 月 −12.8%。按月总量对齐后的南向单侧成交参与度 16.31%。",
+          "date": "2026-10",
+          "source": "https://www.hkex.com.hk/market-data/statistics/consolidated-reports/hkex-monthly-market-highlights?sc_lang=en",
+          "scope": "港股 20 个交易日，南向 16 日。单侧参与度 = 73678×16÷2÷3613013。分子分母原始单位均为百万港元"
+        },
+        {
+          "label": "盈富基金实际发行及注销",
+          "value": "发行 10.65 亿份，注销 10.51 亿份，净发行 1400 万份（+0.266%）。月末 52.759925 亿份。",
+          "date": "2026-10",
+          "source": "https://www.trahk.com.hk/content/dam/hsvm/trahk/fund_docs/monthly_return/2800_MonthlyReturns_202610.pdf",
+          "scope": "月报提交于 2026-11-05，覆盖 02800／82800 同一基金"
+        },
+        {
+          "label": "申报淡仓金额合计",
+          "value": "1265 行证券申报淡仓合计 9750.66 亿港元，较前一周 −1.38%。",
+          "date": "2026-10-30",
+          "source": "https://www.sfc.hk/-/media/EN/pdf/spr/2026/10/30/Short_Position_Reporting_Aggregated_Data_20261030.csv",
+          "scope": "与 2026-10-23 比较，由 SFC CSV 求和，金额受股价变化影响"
+        },
+        {
+          "label": "腾讯控股申报淡仓股数",
+          "value": "63,564,861 股，较 10 月 23 日 -11.98%。",
+          "date": "2026-10-30",
+          "source": "https://www.sfc.hk/-/media/EN/pdf/spr/2026/10/30/Short_Position_Reporting_Aggregated_Data_20261030.csv",
+          "scope": "周度达到申报门槛的净淡仓存量"
+        },
+        {
+          "label": "阿里巴巴申报淡仓股数",
+          "value": "172,220,962 股，较 10 月 23 日 +1.02%。",
+          "date": "2026-10-30",
+          "source": "https://www.sfc.hk/-/media/EN/pdf/spr/2026/10/30/Short_Position_Reporting_Aggregated_Data_20261030.csv",
+          "scope": "周度达到申报门槛的净淡仓存量"
+        },
+        {
+          "label": "美团申报淡仓股数",
+          "value": "148,913,999 股，较 10 月 23 日 -6.28%。",
+          "date": "2026-10-30",
+          "source": "https://www.sfc.hk/-/media/EN/pdf/spr/2026/10/30/Short_Position_Reporting_Aggregated_Data_20261030.csv",
+          "scope": "周度达到申报门槛的净淡仓存量"
+        },
+        {
+          "label": "小米申报淡仓股数",
+          "value": "1,323,707,833 股，较 10 月 23 日 +0.10%。",
+          "date": "2026-10-30",
+          "source": "https://www.sfc.hk/-/media/EN/pdf/spr/2026/10/30/Short_Position_Reporting_Aggregated_Data_20261030.csv",
+          "scope": "周度达到申报门槛的净淡仓存量"
+        },
+        {
+          "label": "历史投资者成交结构",
+          "value": "海外机构 35.9%、海外个人 5.3%、本地机构 20.6%、本地个人 10.2%、交易所参与者自营 28.1%。",
+          "date": "2020 全年",
+          "source": "https://www.hkex.com.hk/-/media/HKEX-Market/News/Research-Reports/HKEX-Surveys/Cash-Market-Transaction-Survey-2020/CMTS2020_e.pdf",
+          "scope": "历史参考。官网最新现金市场调查列至 2020，海外口径含内地，南向已计入，四舍五入合计可偏离100%"
+        },
+        {
+          "label": "交易约束",
+          "value": "受规管沽空须有担保并适用于指定证券，通常受tick rule约束，做市／对冲等类别存在规则例外。借券成本与额度、融券可得性会影响交易实施。",
+          "date": "截至 2026-11-10",
+          "source": "https://www.hkex.com.hk/services/trading/securities/overview/regulated-short-selling?sc_lang=en",
+          "scope": ""
+        },
+        {
+          "label": "交易约束",
+          "value": "香港现行结算为T+2。港交所2026-10-16公布目标于2028年下半年实施T+1，仍以准备情况及监管批准为条件。",
+          "date": "截至 2026-11-10",
+          "source": "https://www.hkex.com.hk/News/Market-Communications/2026/261016news?sc_lang=en",
+          "scope": ""
+        }
+      ],
+      "analysis": "成交活跃度降温，宽基ETF样本份额轻微净发行，代表公司周度淡仓方向分化。结合每日南向净买入可分析局部边际需求。公开数据尚不能推出全港股境外资金整体净流向，观察结论为资金结构分化。",
+      "counter": "盈富 10 月份额轻微净发行与整体成交降温同时存在。腾讯、美团申报淡仓股数下降，阿里略增，参与者方向存在分化。",
+      "monitor": "同时核对每日南向净买入、下一期 ETF 份额净变化及淡仓股数变化，再看成交和价格是否相互印证。",
+      "boundary": "盈富为单基金申赎样本，含实物交收。淡仓为周度存量，无法识别国籍。2020 调查仅作历史结构说明。境外投资者总持仓和全市场现金净申赎缺少公开统一的当期序列。",
+      "map_note": "成交降温 · 份额／淡仓分化"
+    },
+    "X": {
+      "headline": "人民币阶段性走强，折算支持需看企业净敞口",
+      "state": "up",
+      "facts": [
+        {
+          "label": "离岸人民币 USD/CNH",
+          "value": "6.6715，较 2026-10-12 的 20 个观测间隔变化 -0.35%。",
+          "date": "2026-11-09",
+          "source": "https://quote.eastmoney.com/forex/USDCNH.html",
+          "scope": "USD/CNH下降对应人民币升值，港元转换还取决于同期USD/HKD"
+        },
+        {
+          "label": "汇率与权重公司经营口径",
+          "value": "腾讯与阿里以人民币披露主要业绩，汇丰以美元披露业绩。利润、成本、债务和对冲各自核对币种。",
+          "date": "2026Q2 / Q3",
+          "source": "https://www.tencent.com/wp-content/uploads/2026/08/Tencent-Announces-2026-Second-Quarter-Results.pdf",
+          "scope": "腾讯事实来源见链接，阿里和汇丰对应原始业绩见 C"
+        }
+      ],
+      "analysis": "近期人民币方向给人民币净盈利的港元折算提供条件性支持。腾讯、阿里的经营收入和成本还受到本地需求、海外业务与资本开支影响，需先看经营结果，再拆折算。",
+      "counter": "美元收入的出口型企业或有美元净资产的公司，人民币升值影响可能相反。资金配置还取决于对冲成本和预期，人民币方向本身不足以确定资金增减。",
+      "monitor": "持续核对 USD/CNH、公司币种净敞口和汇兑损益，结合 G 的南向、ETF 份额与淡仓样本验证资金路径。",
+      "boundary": "X 的正向判断只指近期人民币净盈利折算路径，未推算全港股收益。企业整体影响依其净敞口而变。",
+      "map_note": "近期人民币升值 · 折算支持"
+    }
+  },
+  "source_files": [
+    "macro_policy.json",
+    "research_CEF.json",
+    "participants.json"
+  ],
+  "gaps": [
+    {
+      "item": "三指数 PB 与同口径多年估值分位",
+      "attempt": "恒生指数公司公开单张、公开日报及 Index360 基本面入口",
+      "result": "已取得 PE、股息率和波动率。公开单张缺 PB，完整基本面历史需要 Index360 权限。",
+      "fallback": "展示官方日期与同口径短窗 PE 变化，历史分位保留未取得状态。",
+      "source": "https://www.hsi.com.hk/en-hk/indexes/all-indexes/index-details/?seriesCode=hsi"
+    },
+    {
+      "item": "全指数未来 EPS 和同年预测修订",
+      "attempt": "发行人 IR 的一致预期、财报及公开指数资料",
+      "result": "已取得汇丰公司汇总的 17 位分析师预测及业绩偏离。没有覆盖全部指数成分的同口径历史快照。",
+      "fallback": "展示样本预测水平、覆盖人数及业绩偏离，逐期积累同一目标年度快照。",
+      "source": "https://www.hsbc.com/-/files/hsbc/investors/investing-in-hsbc/pdf/261016-consensus-financial-estimates-for-hsbc.pdf?download=1"
+    },
+    {
+      "item": "2026 全市场境外投资者净流量及持仓",
+      "attempt": "港交所现金市场调查目录、月报，SFC 申报淡仓",
+      "result": "官方现金市场参与者细分调查目录最新列至 2020。SFC 淡仓无法区分投资者国籍。",
+      "fallback": "当期南向成交、盈富真实份额申赎和淡仓存量分开展示，历史调查单列。",
+      "source": "https://www.hkex.com.hk/News/Research-Reports/HKEX-Surveys/HKEX-Surveys?sc_lang=en"
+    },
+    {
+      "item": "当期全市场每日沽空成交",
+      "attempt": "港交所当日卖空汇总文件 ASHTMAIN.HTM",
+      "result": "查询时页面提示收盘后提供，未返回 11 月 9 日完整每日汇总。",
+      "fallback": "采用最新可下载的 10 月 30 日 SFC 周度申报淡仓，并写明发布时间差。",
+      "source": "https://www.hkex.com.hk/eng/stat/smstat/ssturnover/ncms/ASHTMAIN.HTM"
+    }
+  ]
+}

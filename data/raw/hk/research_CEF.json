@@ -1,0 +1,187 @@
+{
+  "observed_at": "2026-11-10",
+  "index_valuations": [
+    {
+      "index": "hsi",
+      "date": "2026-10-30",
+      "dividend_yield_pct": 3.14,
+      "pe_ratio": 13.04,
+      "annual_volatility_pct_1y": 18.29,
+      "annual_volatility_pct_3y": 23.03,
+      "annual_volatility_pct_5y": 24.78,
+      "sector_weights": {
+        "Consumer Discretionary": 18.279999999999998,
+        "Information Technology": 14.83,
+        "Financials": 34.26,
+        "Telecommunications": 3.19,
+        "Energy": 5.49,
+        "Healthcare": 4.7299999999999995,
+        "Conglomerates": 1.5999999999999999,
+        "Materials": 1.51,
+        "Properties & Construction": 2.8699999999999997,
+        "Utilities": 1.9,
+        "Consumer Staples": 0.55,
+        "Industrials": 0.45
+      },
+      "weight_sum": 89.66,
+      "coverage": "top50 of 95",
+      "representative_weights": {
+        "9988": 7.65,
+        "0700": 7.56,
+        "0005": 7.35
+      },
+      "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=/public-website/webapp/factsheets/en-hk/hsi.pdf"
+    },
+    {
+      "index": "hscei",
+      "date": "2026-10-30",
+      "dividend_yield_pct": 2.97,
+      "pe_ratio": 11.64,
+      "annual_volatility_pct_1y": 19.07,
+      "annual_volatility_pct_3y": 24.87,
+      "annual_volatility_pct_5y": 27.7,
+      "sector_weights": {
+        "Financials": 31.13,
+        "Consumer Discretionary": 23.84,
+        "Information Technology": 18.880000000000003,
+        "Telecommunications": 5.14,
+        "Energy": 8.32,
+        "Healthcare": 5.960000000000001,
+        "Materials": 2.29,
+        "Properties & Construction": 2.3499999999999996,
+        "Consumer Staples": 0.83,
+        "Conglomerates": 0.69,
+        "Industrials": 0.59
+      },
+      "weight_sum": 100.02,
+      "coverage": "all constituents",
+      "representative_weights": {
+        "9988": 7.57,
+        "0700": 7.49,
+        "0005": null
+      },
+      "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=/public-website/webapp/factsheets/en-hk/hscei.pdf"
+    },
+    {
+      "index": "hstech",
+      "date": "2026-10-30",
+      "dividend_yield_pct": 1.23,
+      "pe_ratio": 25.43,
+      "annual_volatility_pct_1y": 26.93,
+      "annual_volatility_pct_3y": 33.72,
+      "annual_volatility_pct_5y": 38.2,
+      "sector_weights": {
+        "Information Technology": 46.89000000000001,
+        "Consumer Discretionary": 50.98,
+        "Healthcare": 2.11
+      },
+      "weight_sum": 99.98,
+      "coverage": "all constituents",
+      "representative_weights": {
+        "9988": 8.42,
+        "0700": 8.33,
+        "0005": null
+      },
+      "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=/public-website/webapp/factsheets/en-hk/hstech.pdf"
+    }
+  ],
+  "earnings_sample": [
+    {
+      "company": "腾讯控股",
+      "code": "00700",
+      "period": "2026Q2",
+      "published_at": "2026-08-12",
+      "currency": "CNY",
+      "unit": "million",
+      "revenue": 204785,
+      "revenue_yoy_pct": 11,
+      "attributable_profit_ifrs": 56022,
+      "attributable_profit_ifrs_yoy_pct": 0.7,
+      "attributable_profit_non_ifrs": 68415,
+      "attributable_profit_non_ifrs_yoy_pct": 9,
+      "operating_cashflow": 52700,
+      "free_cashflow": -13800,
+      "capex": 52784,
+      "capex_yoy_pct": 176,
+      "hsi_weight_pct_20261030": 7.56,
+      "source": "https://www.tencent.com/wp-content/uploads/2026/08/Tencent-Announces-2026-Second-Quarter-Results.pdf",
+      "interpretation": "收入与核心利润增长，AI资本开支和预付款使现金流承压。归母IFRS和non-IFRS分开披露。"
+    },
+    {
+      "company": "阿里巴巴",
+      "code": "09988",
+      "period": "截至2026-06-30季度（FY2027Q1）",
+      "published_at": "2026-08-20",
+      "currency": "CNY",
+      "unit": "million",
+      "revenue": 268953,
+      "revenue_yoy_pct": 9,
+      "attributable_profit_gaap": 10537,
+      "attributable_profit_gaap_yoy_pct": -76,
+      "net_income_non_gaap": 20715,
+      "net_income_non_gaap_yoy_pct": -38,
+      "operating_income": 15161,
+      "operating_income_yoy_pct": -57,
+      "capex": 67678,
+      "capex_yoy_pct": 75,
+      "hsi_weight_pct_20261030": 7.65,
+      "source": "https://data.alibabagroup.com/ecms-files/1532295521/fa5d65fc-9b3e-4e82-a8fc-4ce1c3e2c407/Alibaba%20Group%20Announces%20June%20Quarter%202026%20Results.pdf",
+      "interpretation": "收入增长同时利润下降，需检验AI及即时零售等投入能否转化为现金回报。"
+    },
+    {
+      "company": "汇丰控股",
+      "code": "00005",
+      "period": "2026Q3",
+      "published_at": "2026-10-27",
+      "currency": "USD",
+      "unit": "million",
+      "revenue_reported": 18620,
+      "revenue_yoy_pct": 5,
+      "pretax_profit_reported": 9632,
+      "pretax_profit_reported_yoy_pct": 32,
+      "pretax_profit_excluding_notable_items": 10021,
+      "pretax_profit_excluding_notable_items_yoy_cc_pct": 10,
+      "net_interest_margin_pct": 1.57,
+      "net_interest_margin_prev_quarter_pct": 1.62,
+      "hsi_weight_pct_20261030": 7.35,
+      "source": "https://www.hsbc.com/-/files/hsbc/investors/hsbc-results/2026/3q/pdfs/hsbc-holdings-plc/261027-3q-2026-earnings-release.pdf",
+      "interpretation": "银行业绩增长与科技资本开支承压同时存在，报告利润还受一次性项目基数影响。"
+    }
+  ],
+  "consensus_sample": {
+    "company": "汇丰控股",
+    "compiled_by": "company compiled consensus",
+    "asof": "2026-10-16",
+    "analyst_count": 17,
+    "currency": "USD",
+    "eps_2026": 1.65,
+    "eps_2027": 2.0,
+    "eps_2028": 2.08,
+    "dps_2026": 0.85,
+    "dps_2027": 0.96,
+    "dps_2028": 1.05,
+    "revenue_2026_million": 75275,
+    "revenue_2027_million": 82267,
+    "pretax_profit_2026_million": 38035,
+    "pretax_profit_2027_million": 44564,
+    "forecast_q3_revenue_million": 18934,
+    "forecast_q3_pretax_million": 9696,
+    "reported_q3_revenue_million": 18620,
+    "reported_q3_pretax_million": 9632,
+    "q3_revenue_surprise_pct": -1.6583923101299303,
+    "q3_pretax_surprise_pct": -0.660066006600657,
+    "eps_2027_vs_2026_growth_pct": 21.212121212121215,
+    "source": "https://www.hsbc.com/-/files/hsbc/investors/investing-in-hsbc/pdf/261016-consensus-financial-estimates-for-hsbc.pdf?download=1",
+    "boundary": "这是单一发行人的公司汇总卖方预测，日期早于10月27日业绩。2027相对2026的增长为不同年度增长，不能记作上调修订。完整指数未来EPS及30/90日同年修订仍需相同成分及覆盖的历史快照。"
+  },
+  "conclusions": {
+    "C": "权重样本呈现分化。阿里、腾讯、汇丰在10月30日合计占HSI22.56%，分别对应投入压低利润、收入及核心利润增长但现金流承压、银行盈利增长。样本无法代表剩余77.44%成分，不能自动推导全指数盈利趋势。",
+    "E": "可补实际公司汇总一致预期与业绩偏离，当前样本为汇丰17位分析师，3Q收入较预期低1.66%、税前利润低0.66%，未来EPS2026/27为1.65/2.00美元。",
+    "F": "10月30日HSI、HSCEI、HSTECH的PE分别13.04、11.64、25.43，股息率3.14%、2.97%、1.23%。科技估值倍数更高、股息率更低，盈利兑现与折现率变动对其估值框架更值得跟踪。未经同口径历史和风险匹配，不能判断绝对便宜。"
+  },
+  "limitations": {
+    "valuation": "官方单张未披露PB。当前取得月末PE、股息率和波动率，不能把月末值写成11月9日或10日当前估值。",
+    "sector_weights": "HSI单张仅前50成分，覆盖权重89.66%，分类合计只是下限。HSCEI50、HSTECH30为完整成分，四舍五入后总权重100.02%/99.98%。",
+    "history": "未取得官方完整历史估值序列，不能报告历史分位。官网基本面明细需登录Index360，未尝试绕过。"
+  }
+}

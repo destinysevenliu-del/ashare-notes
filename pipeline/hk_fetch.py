@@ -95,4 +95,14 @@ def fetch(root):
     (target/'status.json').write_text(json.dumps(status,ensure_ascii=False,indent=2))
     print(json.dumps(status,ensure_ascii=False))
     if not all((target/(k+'.json')).exists() for k in INDEX_IDS):raise SystemExit('Missing essential HK index data')
-if __name__=='__main__':fetch(sys.argv[1])
+if __name__=='__main__':
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    fetch(sys.argv[1])
+    from hk_context import fetch as fetch_context
+    fetch_context(sys.argv[1])
+    from hsi_public_data import refresh
+    hsi = json.loads((Path(sys.argv[1])/'data/raw/hk/hsi.json').read_text())
+    complete = completed_rows(hsi, datetime.datetime.now(TZ))
+    if complete:
+        result = refresh(sys.argv[1], complete[-1]['date'])
+        print('HK official valuations', {key:len(rows) for key,rows in result.get('indices',{}).items()})
