@@ -444,7 +444,7 @@ CSS = open(os.path.join(ROOT, "pipeline", "style.css"), encoding="utf-8").read()
 
 def page(title, active, body, prefix=""):
     nav = [("index.html", "大盘", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg"),
-           ("reports/index.html", "报告", "bg"), ("trades.html", "我的操作", "tr")]
+           ("picks/index.html", "半年名单", "pk"), ("reports/index.html", "报告", "bg"), ("trades.html", "我的操作", "tr")]
     links = ""
     for href, lab, key in nav:
         if not href:
@@ -532,10 +532,11 @@ with open(os.path.join(SITE, "trades.html"), "w", encoding="utf-8") as f:
 import hkpage
 hkpage.build(globals())
 
-import stockpage, reportspage, boardpage  # noqa: E402
+import stockpage, reportspage, boardpage, picks  # noqa: E402
 BOARDS = boardpage.build(globals(), json.load(open(os.path.join(ROOT, "data", "stocks.json"), encoding="utf-8"))["stocks"])
 stock_analyses = stockpage.build(globals())
 reportspage.build(globals())
+picks.build(globals())
 
 snap = {"date": TODAY, "total": R["total"], "scores": {r["key"]: r["score"] for r in R["score_rows"]},
         "nodes": {k: v["state"] for k, v in N.items()}, "conds": {c["id"]: c["hit"] for c in R["conds"]},

@@ -1,0 +1,351 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>招商轮船 | A 股框架笔记</title><style>:root{color-scheme:light;
+--paper:#F4F5F7;--surface:#FFFFFF;--ink:#18202B;--ink2:#4B5565;--ink3:#7C8696;--line:#DCE0E6;--line2:#EEF0F3;
+--up:#C8312B;--up-bg:#FBE8E6;--down:#15804E;--down-bg:#E2F2E9;--flat-bg:#ECEEF2;--link:#27408B;--link-bg:#E8ECF7;
+--warn:#8A6D12;--warn-bg:#FFF3C4;
+--serif:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong",serif;
+--sans:-apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.7 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--link);text-decoration:none}
+a:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px}
+.brand{font:600 18px/1 var(--serif);color:var(--ink)}
+header nav{display:flex;gap:2px;font-size:14px;align-items:center}
+header nav a,header nav .soon{padding:5px 10px;border-radius:6px;color:var(--ink2)}
+header nav a[aria-current]{background:var(--link-bg);color:var(--link);font-weight:600}
+header nav .soon{color:#B0B6C0}
+header nav .soon small{font-size:11px;margin-left:3px}
+
+.hero{padding:34px 0 6px}
+.hero .date{margin:0;color:var(--ink3);font-size:14px}
+.hero h1{font:600 34px/1.3 var(--serif);margin:2px 0 10px}
+.hero .sum{font:500 19px/1.6 var(--serif);margin:0;max-width:36em}
+.hero .stamp{font-size:13px;color:var(--ink3);margin:8px 0 0}
+
+.block{padding:34px 0 4px}
+h2{font:600 23px/1.3 var(--serif);margin:0 0 4px}
+.sub{color:var(--ink2);margin:0 0 16px;max-width:44em;font-size:14px}
+.note{color:var(--ink2);font-size:14px;max-width:46em}
+
+.tag{display:inline-block;font-size:12px;line-height:20px;padding:0 8px;border-radius:4px;margin-right:8px;white-space:nowrap;font-weight:600}
+.tag.up{background:var(--up-bg);color:var(--up)}
+.tag.down{background:var(--down-bg);color:var(--down)}
+.tag.flat,.tag.na{background:var(--flat-bg);color:var(--ink2)}
+.tag.alert{background:var(--warn-bg);color:var(--warn)}
+
+.chg-list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.chg-list li{padding:11px 16px;border-top:1px solid var(--line2);font-size:15px}
+.chg-list li:first-child{border-top:0}
+.chg-list li a{font-size:13px;margin-left:6px;white-space:nowrap}
+
+/* 框架图 */
+.fwbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 10px 6px;overflow-x:auto}
+svg.fw{display:block;width:100%;min-width:760px;height:auto}
+.fw .edge{fill:none;stroke:#9AA2AF;stroke-width:1.4}
+.fw .edge.fb{stroke:#D88B1F;stroke-dasharray:5 4}
+.fw .node rect{stroke-width:1.5}
+.fw .node .n{font:600 15px var(--sans);fill:var(--ink)}
+.fw .node .s{font:13px var(--sans);fill:var(--ink2)}
+.fw .node .lc{fill:var(--ink)} .fw .node .lt{font:700 13px var(--sans);fill:#fff}
+.fw .node.up rect{fill:var(--up-bg);stroke:var(--up)} .fw .node.up .s{fill:var(--up)} .fw .node.up .lc{fill:var(--up)}
+.fw .node.down rect{fill:var(--down-bg);stroke:var(--down)} .fw .node.down .s{fill:var(--down)} .fw .node.down .lc{fill:var(--down)}
+.fw .node.flat rect{fill:var(--flat-bg);stroke:#AEB5C1} .fw .node.flat .lc{fill:#7C8696}
+.fw .node.na rect{fill:#fff;stroke:#C3C8D0;stroke-dasharray:4 3} .fw .node.na .lc{fill:#B0B6C0} .fw .node.na .n{fill:var(--ink3)}
+.fw .node.price rect{fill:var(--ink);stroke:var(--ink)} .fw .node.price .n{fill:#fff} .fw .node.price .s{fill:#C9CFD8} .fw .node.price .lc{fill:#fff} .fw .node.price .lt{fill:var(--ink)}
+.fw .node:hover rect{stroke-width:3}
+.chips{display:none}
+
+/* 打分卡 */
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sc{background:var(--surface);padding:13px 16px;color:var(--ink);display:block}
+a.sc:hover{background:#FAFBFC}
+.sc .lbl{display:flex;align-items:baseline;gap:6px;font-weight:600}
+.sc .lbl .v{margin-left:auto;font:700 19px var(--sans)}
+.sc .man{font-size:11px;font-weight:600;color:var(--warn);background:var(--warn-bg);padding:0 5px;border-radius:3px}
+.v.up{color:var(--up)} .v.down{color:var(--down)} .v.flat{color:var(--ink3)}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin:7px 0 6px}
+.scale span{height:7px;border-radius:2px;background:var(--flat-bg)}
+.scale span.mid{background:#C9CED6} .scale span.u{background:var(--up)} .scale span.d{background:var(--down)}
+.sc p{margin:0;font-size:13px;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sc.total{grid-column:1/-1;background:var(--ink);color:#fff}
+.sc.total .v{color:#fff;font-size:26px}
+.sc.total p{color:#C9CFD8;-webkit-line-clamp:unset;margin-top:4px}
+.trend{display:block;width:100%;max-width:480px;height:auto;margin-top:8px}
+.trend .u{fill:#FF8A80} .trend .d{fill:#5BC28A} .trend .z{fill:#7C8696}
+
+/* 节点展开 */
+.nd{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px 16px;margin-bottom:16px;scroll-margin-top:72px}
+.nd:target{box-shadow:0 0 0 3px var(--link-bg);border-color:var(--link)}
+.ndh{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
+.ndh h3{margin:0;font:600 19px/1.35 var(--serif)}
+.ndh .q{margin:2px 0 0;color:var(--ink2);font-size:14px}
+.lc2{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;background:#7C8696}
+.lc2.up{background:var(--up)} .lc2.down{background:var(--down)} .lc2.price{background:var(--ink)} .lc2.na{background:#B0B6C0}
+h4{font-size:14px;margin:18px 0 8px;color:var(--ink2)}
+
+.verdict{border-left:4px solid #AEB5C1;background:#F8F9FB;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px}
+.verdict.up{border-color:var(--up);background:#FDF5F4} .verdict.down{border-color:var(--down);background:#F3FAF6}
+.verdict .vh{display:flex;align-items:center;gap:4px}
+.verdict .vh b{font-size:18px}
+.verdict.up .vh b{color:var(--up)} .verdict.down .vh b{color:var(--down)}
+.verdict .vwhy{margin-left:auto;font-size:12px;color:var(--ink3)}
+.verdict ul{list-style:none;margin:6px 0 0;padding:0}
+.verdict li{display:flex;gap:10px;font-size:14px;padding:3px 0;color:var(--ink)}
+.pt{flex:0 0 40px;text-align:right;font-weight:700;font-size:13px}
+.pt.up{color:var(--up)} .pt.down{color:var(--down)} .pt.flat{color:var(--ink3)}
+.mnote{font-size:13px;color:var(--warn);margin:6px 0 0}
+.verdict.na .mnote{color:var(--ink2)}
+
+.tblwrap{overflow-x:auto}
+table.mt{width:100%;border-collapse:collapse;font-size:14px}
+.mt th,.mt td{padding:9px 10px;border-top:1px solid var(--line2);text-align:left;vertical-align:middle}
+.mt thead th{border-top:0;font-size:12px;color:var(--ink3);font-weight:600;white-space:nowrap}
+.mt tbody th{font-weight:600;min-width:150px}
+.mt .hint{display:block;font-weight:400;font-size:12px;color:var(--ink3);line-height:1.45}
+.mt .v{font-weight:700;white-space:nowrap}
+.mt .chg{white-space:nowrap;font-size:13px}
+.mt .up,.chg.up{color:var(--up)} .mt .down,.chg.down{color:var(--down)} .chg.flat{color:var(--ink3)}
+.mt .dt{font-size:13px;color:var(--ink2);white-space:nowrap}
+.mt .freq{display:block;font-size:11px;color:var(--ink3)}
+.mt .sp{width:130px}
+.spark{display:block}
+.it td,.it th{white-space:nowrap}
+
+.chartbox{margin:14px 0 4px}
+svg.chart{display:block;width:100%;height:auto}
+.chart .grid{stroke:#EEF0F3} .chart .ax{font:11px var(--sans);fill:var(--ink3)}
+.chart .band{stroke:#D88B1F;stroke-dasharray:4 4} .chart .bandlab{font:11px var(--sans);fill:#B07015}
+.cleg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);padding-left:48px}
+.cleg i{display:inline-block;width:14px;height:3px;margin-right:6px;vertical-align:3px;border-radius:2px}
+
+.ev{list-style:none;margin:0;padding:0}
+.ev li{padding:8px 0;border-top:1px solid var(--line2);font-size:14px}
+.ev li:first-child{border-top:0}
+.ev .evd{color:var(--ink3);font-size:12px;margin-left:8px}
+.ev p{margin:2px 0 0;color:var(--ink2)}
+.ev .src{display:block;font-size:12px;color:var(--ink3)}
+
+details.rules{margin-top:12px;font-size:13px;color:var(--ink2);background:#F8F9FB;border-radius:8px;padding:8px 12px}
+details.rules summary{cursor:pointer;color:var(--link);font-weight:600}
+details.rules[open] summary{margin-bottom:6px}
+
+.conds{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.conds li{display:grid;grid-template-columns:96px 1fr;gap:2px 12px;padding:11px 16px;border-top:1px solid var(--line2);font-size:14px}
+.conds li:first-child{border-top:0}
+.conds .cs{grid-row:span 2;font-size:12px;font-weight:600;align-self:start;margin-top:2px;padding:1px 8px;border-radius:4px;text-align:center;background:var(--flat-bg);color:var(--ink3)}
+.conds li.hit .cs{background:var(--warn-bg);color:var(--warn)}
+.conds .cn{color:var(--ink2);font-size:13px}
+
+.empty{background:var(--surface);border:1px dashed #C3C8D0;border-radius:12px;padding:20px 24px}
+.empty h3{margin:0 0 6px;font:600 18px var(--serif)}
+.empty blockquote{margin:10px 0;padding:10px 14px;background:#F8F9FB;border-left:3px solid var(--link);color:var(--ink);border-radius:0 6px 6px 0}
+
+footer{margin-top:44px;padding:20px 0 40px;border-top:1px solid var(--line);font-size:13px;color:var(--ink3)}
+footer p{margin:4px 0}
+
+@media (max-width:760px){
+ .wrap{padding:0 16px}
+ .brand{font-size:16px}
+ header nav .soon{display:none}
+ .hero h1{font-size:26px} .hero .sum{font-size:17px}
+ .fwbox{display:none}
+ .chips{display:grid;gap:8px}
+ .chip{display:grid;grid-template-columns:28px 1fr;gap:0 10px;background:var(--surface);border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:9px 12px;color:var(--ink);font-size:14px;font-weight:600}
+ .chip b{grid-row:span 2;width:26px;height:26px;border-radius:50%;background:#7C8696;color:#fff;display:grid;place-items:center;font-size:13px}
+ .chip span{font-weight:400;font-size:13px;color:var(--ink2)}
+ .chip.up{border-left-color:var(--up)} .chip.up b{background:var(--up)} .chip.up span{color:var(--up)}
+ .chip.down{border-left-color:var(--down)} .chip.down b{background:var(--down)} .chip.down span{color:var(--down)}
+ .chip.price b{background:var(--ink)} .chip.na{border-style:dashed} .chip.na b{background:#B0B6C0}
+ .score{grid-template-columns:1fr 1fr}
+ .nd{padding:16px 14px 12px}
+ .mt .sp{display:none}
+ .mt tbody th{min-width:118px}
+ .conds li{grid-template-columns:1fr}
+ .conds .cs{grid-row:auto;justify-self:start}
+}
+
+/* 个股页 */
+.crumb{font-size:13px;color:var(--ink3);padding-top:22px}
+.crumb a{color:var(--ink2)}
+.shero{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-top:6px}
+.shero h1{margin:0}
+.shero h1 small{font:400 16px var(--sans);color:var(--ink3);margin-left:12px}
+.tags2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tags2 span{font-size:12px;padding:1px 10px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--ink2)}
+.tags2 .drv{background:var(--ink);border-color:var(--ink);color:#fff}
+.tags2 .cand{background:var(--warn-bg);border-color:var(--warn-bg);color:var(--warn)}
+.px{text-align:right}
+.px b{font:700 34px/1 var(--sans);display:block}
+.px span{font-weight:700;margin-right:8px}
+.px small{color:var(--ink3);font-size:12px}
+.up{color:var(--up)} .down{color:var(--down)}
+.tag.up,.tag.down{color:inherit}
+.tag.up{color:var(--up)} .tag.down{color:var(--down)}
+.lay th{width:72px;font-size:15px}
+.lay td:nth-child(2){width:96px}
+.soon2{font-size:12px;color:var(--ink3);margin-left:6px}
+.prior{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--link);border-radius:0 10px 10px 0;padding:12px 16px;margin:0;max-width:52em;font:500 16px/1.7 var(--serif)}
+.prior .src{display:block;font:12px var(--sans);color:var(--ink3);margin-top:4px}
+.fm .why{color:var(--ink2);font-size:13px;min-width:180px}
+.fm .now{font-size:13px;min-width:200px}
+.fm .now.na{color:var(--ink3)} .fm .now.flat{color:var(--ink2)}
+.lv{display:inline-block;font-size:12px;font-weight:700;padding:0 8px;border-radius:4px}
+.lv.hi{background:var(--ink);color:#fff} .lv.mid{background:#C9CED6;color:var(--ink)} .lv.lo{background:var(--flat-bg);color:var(--ink3)}
+.ndlist{margin-top:16px}
+.h3s{margin:0 0 6px;font:600 18px var(--serif)}
+.ann{list-style:none;margin:0;padding:0;font-size:14px}
+.ann li{padding:5px 0;border-top:1px solid var(--line2)}
+.ann li:first-child{border-top:0}
+.ann .evd{display:inline-block;width:92px;color:var(--ink3);font-size:12px}
+/* 个股列表 */
+.slist{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.srow{display:grid;grid-template-columns:1.4fr 1fr .8fr .9fr .9fr 1.6fr;gap:12px;align-items:center;padding:14px 18px;border-top:1px solid var(--line2);color:var(--ink)}
+.srow:first-child{border-top:0}
+.srow:hover{background:#FAFBFC}
+.srow .nm{font-weight:700;font-size:16px}
+.srow .nm small{display:block;font-weight:400;font-size:12px;color:var(--ink3)}
+.srow .px2 b{display:block;font-size:16px}
+.srow .px2 span{font-size:13px;font-weight:600}
+.srow .kv{font-size:12px;color:var(--ink3)} .srow .kv b{display:block;font-size:15px;color:var(--ink)}
+.srow .kv b.up{color:var(--up)} .srow .kv b.down{color:var(--down)}
+.lys{display:flex;gap:4px;flex-wrap:wrap}
+.lys .tag{margin:0}
+/* 报告 */
+.rplist{display:grid;gap:10px}
+.rp{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;color:var(--ink)}
+.rp:hover{border-color:var(--link)}
+.rp b{font:600 17px var(--serif);display:block}
+.rp .rh{display:block;color:var(--ink);font-size:14px;margin-top:2px}
+.rp .rd{display:block;color:var(--ink3);font-size:13px}
+@media (max-width:760px){
+ .srow{grid-template-columns:1fr 1fr;gap:6px 12px}
+ .srow .lys{grid-column:1/-1}
+ .px{text-align:left}
+ .fm .why{min-width:140px}
+}
+.lc2{color:#fff!important}
+@media (max-width:760px){
+ .lay tr{display:grid;grid-template-columns:64px 1fr;padding:8px 0;border-top:1px solid var(--line2)}
+ .lay th,.lay td{border:0;padding:2px 8px}
+ .lay td:last-child{grid-column:1/-1}
+}
+.chip2{display:inline-block;font-size:12px;padding:1px 10px;border-radius:20px;background:var(--link-bg);color:var(--link);margin-right:4px}
+.sum2{font-size:15px;color:var(--ink2);margin:14px 0 0}
+.sum2 b{font-size:18px}
+.brow{grid-template-columns:1.6fr .7fr .9fr .9fr 1fr 1.4fr}
+.sc .sk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--flat-bg);color:var(--ink2);font-size:11px;font-weight:700}
+@media (max-width:760px){.sc.total{grid-column:1/-1!important}}
+@media (max-width:760px){.score .sc:nth-last-child(2):nth-child(odd){grid-column:1/-1}}
+.lls{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:22px}
+.ll{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.ll p{margin:6px 0 0;font-size:14px}
+.llh{display:flex;align-items:center;gap:8px}
+.llh b{font:600 17px var(--serif)}
+.llh .v{margin-left:auto;font:700 18px var(--sans)}
+.star{font-size:11px;font-weight:700;background:var(--link);color:#fff;padding:1px 7px;border-radius:4px}
+.kv2{color:var(--ink3);font-size:12px!important}
+.scr td,.scr th{white-space:nowrap;font-size:13px}
+.scr tr.hl{background:#F7F9FE}
+@media (max-width:760px){.lls{grid-template-columns:1fr}}
+.gh{margin:22px 0 8px;display:flex;align-items:baseline;gap:10px}
+.gh small{font:13px var(--sans);color:var(--ink3)}
+.tags2 .st2{background:var(--link-bg);border-color:var(--link-bg);color:var(--link)}
+
+/* v2 research cards: preserve readable columns, scroll tables on narrow screens. */
+#research{scroll-margin-top:110px}
+#research table{min-width:920px}
+#research th:first-child{min-width:85px}
+#research td{vertical-align:top}
+@media(max-width:600px){
+ header.top .wrap{height:auto;min-height:72px;flex-wrap:wrap;gap:6px;padding-top:10px;padding-bottom:8px}
+ .brand{white-space:nowrap}
+ header nav{width:100%;justify-content:space-between;white-space:nowrap}
+ header nav a{padding:5px 8px}
+}
+
+/* HK market navigation and observation cards */
+.market-switch{display:flex;gap:6px;padding-top:26px;align-items:center}
+.market-switch a{padding:8px 24px;border:1px solid var(--line,#dedbd5);border-radius:5px;text-decoration:none;color:inherit;font-weight:600}
+.market-switch a[aria-current="page"]{background:#293e50;color:#fff;border-color:#293e50}
+.market-switch+.hero{padding-top:30px}
+.hk-scores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #dedbd5;border-radius:6px;overflow:hidden}
+.hk-score{padding:20px;border:1px solid #eeeae4;display:flex;flex-direction:column;gap:9px}
+.hk-score strong{font-size:22px}.hk-score small{color:#777}
+.hk-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.hk-node{border:1px solid #dedbd5;border-left:3px solid currentColor;border-radius:5px;padding:15px;text-decoration:none;display:flex;flex-direction:column;gap:8px;color:#66717c}
+.hk-node b{font:700 22px Georgia,serif}.hk-node span{font-weight:600;color:#293e50}.hk-node small{font-size:11px;color:#777}
+.hk-changes{padding-left:22px;line-height:2.1}.hk-notice{border-left:3px solid #947539;padding:8px 18px;background:#f6f1e5;font-size:13px}
+.hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:#293e50}.hk-diagram .small{font-size:10px;fill:#777}
+@media(min-width:761px){.hk-diagram+.hk-map{display:none}}
+@media(max-width:760px){.hk-scores,.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score{padding:15px}.hk-score strong{font-size:18px}.hk-diagram{display:none}.hk-changes{font-size:14px}.hk-node{padding:12px}.market-switch{padding-top:18px}}
+
+.hk-node.fx,.lc2.fx{color:#3478db;border-color:#4e91ff;background:#eef5ff}
+.lc2.fx{background:#3478db;color:#fff}
+.hk-node.price{background:#172333;color:#fff}.hk-node.price span,.hk-node.price small{color:#fff}
+.hk-scores{grid-template-columns:repeat(4,minmax(0,1fr))}.hk-score strong{font-size:18px}
+@media(max-width:760px){.hk-scores{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score strong{font-size:16px}}
+
+.hk-call{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#f0f3f7;padding:16px;margin-bottom:18px;border-radius:6px}.hk-call small{color:#64748b}.hk-scope{display:block;color:#64748b;font-size:11px;line-height:1.6;margin-top:6px}.hk-evidence p{line-height:1.9}.hk-evidence .mt th:first-child{min-width:100px}.hk-evidence .mt td:last-child{white-space:nowrap}.hk-score{text-decoration:none;color:inherit}.hk-score strong{font-size:16px;line-height:1.6}.hk-score small{line-height:1.5}
+@media(max-width:760px){.hk-evidence .mt{min-width:640px}.hk-evidence .tblwrap{overflow-x:auto}.hk-score strong{font-size:14px}.hk-call{padding:12px}}
+
+.hk-mobilehint{display:none}@media(max-width:760px){.hk-mobilehint{display:block;font-size:12px;color:#64748b}}
+
+/* ---- 半年名单 /picks/ ---- */
+.pkbar{width:100%;height:auto;margin:8px 0 0}
+.pkb{fill:#fff;font:600 13px var(--sans)}
+.pkbl{fill:var(--ink2);font:12px var(--sans)}
+.pklegend{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 0;font-size:13px;color:var(--ink2)}
+.pkleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+table.pk td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.pk td.pkjudge{font-size:13px;color:var(--ink2);min-width:260px}
+.pkh3{font:600 17px/1.4 var(--serif);margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
+.pkh3:first-of-type{margin-top:8px}
+.pkh3 span{font:13px var(--sans);color:var(--ink3)}
+.pkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.pkcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 12px;border-top:3px solid var(--line)}
+.pkcard.tA{border-top-color:var(--link)}
+.pkcard.tB{border-top-color:var(--ink3)}
+.pkcard.tC{border-top-color:var(--up)}
+.pkh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.pkh a{font:600 18px/1.3 var(--serif);color:var(--ink)}
+.pkw{font:700 15px var(--sans);color:var(--link)}
+.pkmeta{margin:2px 0 8px;font-size:12px;color:var(--ink3)}
+.pkmini{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pkmini span{font-size:12px;color:var(--ink2);background:var(--line2);border-radius:6px;padding:2px 8px}
+.pkmini b{color:var(--ink);font-weight:700}
+.pkass{margin:0 0 8px;font-size:13.5px;line-height:1.65;color:var(--ink)}
+.pklab{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--ink);border-radius:4px;padding:0 6px;margin-right:6px}
+.pklab2{display:block;margin:0 0 4px;background:var(--warn-bg);color:var(--warn)}
+.pkfals{margin:0;padding-left:18px;font-size:13px;color:var(--ink2)}
+.pkfals li{margin:2px 0}
+.pknote{margin:8px 0 0;font-size:12px;color:var(--ink3)}
+.pkrules{margin:0;padding-left:22px;font-size:14.5px}
+.pkrules li{margin:6px 0}
+</style></head><body>
+<header class="top"><div class="wrap"><a class="brand" href="../index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="../index.html">大盘</a><a href="../boards/index.html">板块</a><a href="../stocks/index.html" aria-current="page">个股</a><a href="../picks/index.html">半年名单</a><a href="../reports/index.html">报告</a><a href="../trades.html">我的操作</a></nav></div></header>
+<main class="wrap">
+<div class="crumb"><a href="index.html">个股</a> ／ <a href="../boards/BK0450.html">航运港口</a> ／ 招商轮船</div>
+<div class="hero shero"><div><h1>招商轮船<small>601872</small></h1>
+<div class="tags2"><span class="drv">周期驱动</span><span>油运 / 干散</span><span class="st2">追踪中</span></div></div>
+<div class="px"><b>16.56</b><span class="up">+2.41%</span><small>2026-11-09 收盘</small></div></div>
+
+<section class="block" id="layers"><h2>四层信号</h2><p class="sub">从大盘到股价，每一层现在是利好、利空还是中性。不加总，也不给买卖结论。</p><div class="tblwrap"><table class="mt lay"><tbody><tr><th scope="row">大盘</th><td><span class="tag down">利空</span></td><td>六项合计 -3。拖累来自国内经济、资金；支撑来自估值。 <a href="../index.html">展开</a></td></tr><tr><th scope="row">板块</th><td><span class="tag up">利好</span></td><td>行业层 A–G 合计 +3（A +1；C +1；F +1）；航运港口近 20 日 -4.4%，相对沪深 300 +1.0 个点。 <a href="../boards/BK0450.html">展开</a></td></tr><tr><th scope="row">个股</th><td><span class="tag up">利好</span></td><td>A–G 合计 +4。A +1；C +1；D +1；F +1 <a href="#nodes">展开</a></td></tr><tr><th scope="row">股价</th><td><span class="tag up">历史分位低</span></td><td>PE 9.1 倍，近 3 年 0% 分位；股价在 120 日线下方、250 日线上方，距一年高点 -27%。 <a href="#price">展开</a></td></tr></tbody></table></div></section>
+
+
+<section class="block" id="score"><h2>个股打分卡</h2><p class="sub">个股层 A–G 七个维度各打 −2 到 +2 分，也就是上面“个股”这一层的明细。点任意一项跳到下面的展开分析。</p><div class="score"><a class="sc" href="#n-A"><div class="lbl"><span class="sk">A</span>收入与需求验证<span class="v up">+1</span></div><div class="scale"><span class=""></span><span class=""></span><span class="mid"></span><span class="u"></span><span class=""></span></div><p>26Q3 单季营收同比 +90%，已实现收入增长；新增订单待核验</p></a><a class="sc" href="#n-B"><div class="lbl"><span class="sk">B</span>公司事件<span class="v flat">—</span></div><div class="scale"><span class=""></span><span class=""></span><span class="mid"></span><span class=""></span><span class=""></span></div><p>待核验或缺少可比数据，不参与合计</p></a><a class="sc" href="#n-C"><div class="lbl"><span class="sk">C</span>净利润<span class="v up">+1</span></div><div class="scale"><span class=""></span><span class=""></span><span class="mid"></span><span class="u"></span><span class=""></span></div><p>26Q3 单季净利润同比 +327%；环比上季度 +20%，利润环比增长（未经季调，不计分）</p></a><a class="sc" href="#n-D"><div class="lbl"><span class="sk">D</span>利润质量<span class="v up">+1</span></div><div class="scale"><span class=""></span><span class=""></span><span class="mid"></span><span class="u"></span><span class=""></span></div><p>每股经营现金流是每股收益的 1.15 倍，利润有现金支撑；毛利率 44.7%，比去年同期高 21.4 个点</p></a><a class="sc" href="#n-E"><div class="lbl"><span class="sk">E</span>盈利预测<span class="v flat">—</span></div><div class="scale"><span class=""></span><span class=""></span><span class="mid"></span><span class=""></span><span class=""></span></div><p>待核验或缺少可比数据，不参与合计</p></a><a class="sc" href="#n-F"><div class="lbl"><span class="sk">F</span>估值<span class="v up">+1</span></div><div class="scale"><span class=""></span><span class=""></span><span class="mid"></span><span class="u"></span><span class=""></span></div><p>PE-TTM 9.1 倍，近 3 年 0% 分位，历史相对位置低（不等于便宜）</p></a><a class="sc" href="#n-G"><div class="lbl"><span class="sk">G</span>筹码<span class="v flat">0</span></div><div class="scale"><span class=""></span><span class=""></span><span class="mid"></span><span class=""></span><span class=""></span></div><p>融资余额 10 日变化 +4.0%，基本稳定</p></a><div class="sc total" style="grid-column:span 2"><div class="lbl">分项合计<span class="v">+4</span></div><p>满分 ±10（5 项有数据）。分项存在相关性；合计只作变化提醒，不能跨公司排名或推导仓位。</p><p>打分从 11/09 开始记录，之后每次更新都会在这里画出合计分的走势。</p></div></div></section>
+
+<section class="block"><h2>最新财报要点：2026年 三季报</h2><p class="prior">26Q3 单季营收 127.7 亿（同比 +90%），单季净利润 50.2 亿（同比 +327%，环比 +20%）；毛利率 44.7%，ROE 26.2%。现价 PE-TTM 9.1 倍，距一年高点 -27%。<span class="src">来源：2026年 三季报（2026-10-29 公布），由数据自动生成；这只股票还没有做过深度复盘</span></p></section>
+
+<section class="block" id="fmap"><h2>因子影响地图</h2><p class="sub">框架里哪些因素对这只股票影响大。“现在的状态”取自大盘页和本页的实时数据。直接证据与代理指标分别标注；缺少公司层证据时不自动推断利好利空。</p><div class="tblwrap"><table class="mt fm"><thead><tr><th>因素</th><th>影响</th><th>为什么</th><th>现在的状态</th></tr></thead><tbody><tr><th scope="row">VLCC 运价</th><td><span class="lv hi">高</span></td><td class="why">油运利润的核心变量</td><td class="now na">待核验：需要行业数据或公司公告</td></tr><tr><th scope="row">OPEC 增产与运距</th><td><span class="lv hi">高</span></td><td class="why">增产和绕行使吨海里需求上升</td><td class="now na">待核验：需要行业数据或公司公告</td></tr><tr><th scope="row">新船交付</th><td><span class="lv hi">高</span></td><td class="why">2027 年油轮交付量决定供给</td><td class="now na">待核验：需要行业数据或公司公告</td></tr><tr><th scope="row">地缘冲突</th><td><span class="lv mid">中</span></td><td class="why">影响航线与保险费率</td><td class="now na">待核验：需要行业数据或公司公告</td></tr><tr><th scope="row">人民币汇率</th><td><span class="lv lo">低</span></td><td class="why">收入以美元计价</td><td class="now flat">宏观数据：离岸人民币 6.6715；收入、成本及套保净敞口待核验</td></tr></tbody></table></div></section>
+
+<section class="block" id="nodes"><h2>个股层传导图</h2><p class="sub">和大盘页同一套 A–H 骨架，换成了这只股票自己的变量。</p><div class="fwbox"><svg class="fw" viewBox="0 0 1000 410" role="img" aria-label="个股层传导图"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9AA2AF"/></marker><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D88B1F"/></marker></defs><path d="M110,82 V120" class="edge" marker-end="url(#ar)"/><path d="M460,82 V100 H235 V120" class="edge" marker-end="url(#ar)"/><path d="M530,82 V120" class="edge" marker-end="url(#ar)"/><path d="M125,182 V220" class="edge" marker-end="url(#ar)"/><path d="M480,182 V220" class="edge" marker-end="url(#ar)"/><path d="M140,282 V316 H670 V330" class="edge" marker-end="url(#ar)"/><path d="M520,282 V304 H710 V330" class="edge" marker-end="url(#ar)"/><path d="M770,282 V330" class="edge" marker-end="url(#ar)"/><path d="M800,330 V306 H870 V282" class="edge fb" marker-end="url(#ar2)"/><a href="#n-A" class="node up"><rect x="20" y="20" width="290" height="62" rx="10"/><circle cx="42" cy="51" r="12" class="lc"/><text x="42" y="56" class="lt" text-anchor="middle">A</text><text x="64" y="47" class="n">收入与需求验证</text><text x="64" y="68" class="s">利好 +1</text></a><a href="#n-B" class="node na"><rect x="370" y="20" width="290" height="62" rx="10"/><circle cx="392" cy="51" r="12" class="lc"/><text x="392" y="56" class="lt" text-anchor="middle">B</text><text x="414" y="47" class="n">公司事件：减持 / 回购 / 解禁</text><text x="414" y="68" class="s">暂缺</text></a><a href="#n-C" class="node up"><rect x="35" y="120" width="290" height="62" rx="10"/><circle cx="57" cy="151" r="12" class="lc"/><text x="57" y="156" class="lt" text-anchor="middle">C</text><text x="79" y="147" class="n">营收 × 毛利率 → 净利润</text><text x="79" y="168" class="s">利好 +1</text></a><a href="#n-D" class="node up"><rect x="370" y="120" width="290" height="62" rx="10"/><circle cx="392" cy="151" r="12" class="lc"/><text x="392" y="156" class="lt" text-anchor="middle">D</text><text x="414" y="147" class="n">利润质量：现金流与毛利率</text><text x="414" y="168" class="s">利好 +1</text></a><a href="#n-E" class="node na"><rect x="50" y="220" width="290" height="62" rx="10"/><circle cx="72" cy="251" r="12" class="lc"/><text x="72" y="256" class="lt" text-anchor="middle">E</text><text x="94" y="247" class="n">盈利预测修订</text><text x="94" y="268" class="s">暂缺</text></a><a href="#n-F" class="node up"><rect x="370" y="220" width="290" height="62" rx="10"/><circle cx="392" cy="251" r="12" class="lc"/><text x="392" y="256" class="lt" text-anchor="middle">F</text><text x="414" y="247" class="n">个股估值（PE）</text><text x="414" y="268" class="s">利好 +1</text></a><a href="#n-G" class="node flat"><rect x="700" y="220" width="290" height="62" rx="10"/><circle cx="722" cy="251" r="12" class="lc"/><text x="722" y="256" class="lt" text-anchor="middle">G</text><text x="744" y="247" class="n">筹码：融资 / 股东</text><text x="744" y="268" class="s">中性 0</text></a><a href="#price" class="node price"><rect x="640" y="330" width="330" height="62" rx="10"/><circle cx="662" cy="361" r="12" class="lc"/><text x="662" y="366" class="lt" text-anchor="middle">H</text><text x="684" y="357" class="n">股价</text><text x="684" y="378" class="s">16.56，今日 +2.41%，距一年高点 -27%</text></a></svg></div><div class="chips"><a href="#n-A" class="chip up"><b>A</b>收入与需求验证<span>利好 +1</span></a><a href="#n-B" class="chip na"><b>B</b>公司事件：减持 / 回购 / 解禁<span>暂缺</span></a><a href="#n-C" class="chip up"><b>C</b>营收 × 毛利率 → 净利润<span>利好 +1</span></a><a href="#n-D" class="chip up"><b>D</b>利润质量：现金流与毛利率<span>利好 +1</span></a><a href="#n-E" class="chip na"><b>E</b>盈利预测修订<span>暂缺</span></a><a href="#n-F" class="chip up"><b>F</b>个股估值（PE）<span>利好 +1</span></a><a href="#n-G" class="chip flat"><b>G</b>筹码：融资 / 股东<span>中性 0</span></a><a href="#price" class="chip price"><b>H</b>股价<span>16.56，今日 +2.41%，距一年高点 -27%</span></a></div><div class="ndlist"><section class="nd" id="n-A"><div class="ndh"><span class="lc2 up">A</span><div><h3>收入与需求验证</h3><p class="q">谁在买它的产品，买得多不多？</p></div></div><div class="verdict up"><div class="vh"><span class="tag up">利好</span><b>+1</b><span class="vwhy">判定依据</span></div><ul><li><span class="pt up">+1</span>26Q3 单季营收同比 +90%，已实现收入增长；新增订单待核验</li></ul></div><p class="note">VLCC 油运、干散货和滚装船，油运收入跟 VLCC 运价和 OPEC 增产走，运距拉长是主要逻辑。</p><details class="rules"><summary>怎么判的</summary>单季营收同比 ≥ 30% 加 1，10–30% 加 0.5，0–10% 为 0，负增长减 1。订单和客户的具体变化需要人工跟踪。</details></section><section class="nd" id="n-B"><div class="ndh"><span class="lc2 na">B</span><div><h3>公司事件</h3><p class="q">最近有没有回购、增减持、解禁、监管问询？</p></div></div><div class="verdict na"><div class="vh"><span class="tag na">暂缺</span><span class="vwhy">判定依据</span></div><ul><li><span class="pt flat">+0</span>已抓取标题未命中事件关键词；不代表没有风险</li></ul></div><h4>最近公告</h4><ul class="ann"><li><span class="evd">2026-11-05</span><a href="https://data.eastmoney.com/notices/detail/601872/AN202611051831458767.html" rel="noopener">投资者关系活动记录表_20261105</a></li><li><span class="evd">2026-10-29</span><a href="https://data.eastmoney.com/notices/detail/601872/AN202610291831181157.html" rel="noopener">投资者关系活动记录表_20261029</a></li><li><span class="evd">2026-10-29</span><a href="https://data.eastmoney.com/notices/detail/601872/AN202610281831106166.html" rel="noopener">招商轮船关于召开2026年第三季度业绩说明会的公告</a></li><li><span class="evd">2026-10-29</span><a href="https://data.eastmoney.com/notices/detail/601872/AN202610281831106165.html" rel="noopener">招商轮船2026年第三季度报告</a></li><li><span class="evd">2026-10-29</span><a href="https://data.eastmoney.com/notices/detail/601872/AN202610281831106164.html" rel="noopener">招商轮船关于拟增加2026年度日常关联交易额度的公告</a></li><li><span class="evd">2026-10-29</span><a href="https://data.eastmoney.com/notices/detail/601872/AN202610281831106163.html" rel="noopener">招商轮船第八届董事会第三次会议决议公告</a></li><li><span class="evd">2026-10-22</span><a href="https://data.eastmoney.com/notices/detail/601872/AN202610221830801040.html" rel="noopener">投资者关系活动记录表20261022V4(清洁版)</a></li><li><span class="evd">2026-10-17</span><a href="https://data.eastmoney.com/notices/detail/601872/AN202610161830607231.html" rel="noopener">招商轮船关于在关联方订造滚装船舶的进展公告</a></li><li><span class="evd">2026-10-16</span><a href="https://data.eastmoney.com/notices/detail/601872/AN202610151830511995.html" rel="noopener">招商轮船2026年半年度权益分派实施公告</a></li><li><span class="evd">2026-10-13</span><a href="https://data.eastmoney.com/notices/detail/601872/AN202610121830362267.html" rel="noopener">招商轮船关于在关联方订造滚装船舶的进展公告</a></li></ul><details class="rules"><summary>怎么判的</summary>公告标题仅触发待核验提醒，不自动加减分。核验正文、金额占比、用途与执行进度后再判断影响。</details></section><section class="nd" id="n-C"><div class="ndh"><span class="lc2 up">C</span><div><h3>营收 × 毛利率 → 净利润</h3><p class="q">公司还在多赚钱吗？增速在加快还是放缓？</p></div></div><div class="verdict up"><div class="vh"><span class="tag up">利好</span><b>+1</b><span class="vwhy">判定依据</span></div><ul><li><span class="pt up">+1</span>26Q3 单季净利润同比 +327%</li><li><span class="pt flat">+0</span>环比上季度 +20%，利润环比增长（未经季调，不计分）</li></ul></div><div class="tblwrap"><table class="mt"><thead><tr><th>季度</th><th>单季营收</th><th>营收同比</th><th>单季净利润</th><th>利润同比</th><th>利润环比</th></tr></thead><tbody><tr><th scope="row">24Q4</th><td>65.0 亿</td><td class="down">-5%</td><td>17.4 亿</td><td class="up">+61%</td><td class="up">+99%</td></tr><tr><th scope="row">25Q1</th><td>56.0 亿</td><td class="down">-11%</td><td>8.7 亿</td><td class="down">-37%</td><td class="down">-50%</td></tr><tr><th scope="row">25Q2</th><td>69.9 亿</td><td class="up">+0%</td><td>12.6 亿</td><td class="up">+12%</td><td class="up">+45%</td></tr><tr><th scope="row">25Q3</th><td>67.3 亿</td><td class="up">+11%</td><td>11.8 亿</td><td class="up">+35%</td><td class="down">-7%</td></tr><tr><th scope="row">25Q4</th><td>88.7 亿</td><td class="up">+36%</td><td>27.1 亿</td><td class="up">+56%</td><td class="up">+131%</td></tr><tr><th scope="row">26Q1</th><td>85.6 亿</td><td class="up">+53%</td><td>27.6 亿</td><td class="up">+219%</td><td class="up">+2%</td></tr><tr><th scope="row">26Q2</th><td>111.0 亿</td><td class="up">+59%</td><td>42.0 亿</td><td class="up">+233%</td><td class="up">+52%</td></tr><tr><th scope="row">26Q3</th><td>127.7 亿</td><td class="up">+90%</td><td>50.2 亿</td><td class="up">+327%</td><td class="up">+20%</td></tr></tbody></table></div><p class="note">利润同比 +327.4%，环比 +19.7%。同比增速较上一季提高 94.2 个百分点。环比增速较上一季降低 32.1 个百分点。同比受基数影响，环比未经季节调整；两种变化分别观察，不直接推断未来加速。</p><p class="note">最新报告：2026年 三季报，2026-10-29 公布。单季数据由累计值相减得到。近 8 个季度单季净利润走势：<svg class="spark" viewBox="0 0 160 36" width="160" height="36" aria-hidden="true"><polyline points="2.0,26.7 24.3,33.0 46.6,30.2 68.9,30.8 91.1,19.7 113.4,19.3 135.7,9.0 158.0,3.0" fill="none" stroke="#4B5565" stroke-width="1.4"/><circle cx="158.0" cy="3.0" r="2.4" fill="#4B5565"/></svg></p><details class="rules"><summary>怎么判的</summary>最新单季净利润同比 ≥ 20% 加 1，0–20% 加 0.5，负增长减 1；环比仅展示，不计分，且不等同于增速加快；单季亏损减 1。</details></section><section class="nd" id="n-D"><div class="ndh"><span class="lc2 up">D</span><div><h3>利润质量</h3><p class="q">赚的是真金白银吗？毛利率守得住吗？</p></div></div><div class="verdict up"><div class="vh"><span class="tag up">利好</span><b>+1</b><span class="vwhy">判定依据</span></div><ul><li><span class="pt up">+0.5</span>每股经营现金流是每股收益的 1.15 倍，利润有现金支撑</li><li><span class="pt up">+0.5</span>毛利率 44.7%，比去年同期高 21.4 个点</li></ul></div><p class="note">本年累计：每股收益 1.480，每股经营现金流 1.695，毛利率 44.7%，ROE 26.2%。存货和扣非利润暂未接入。</p><details class="rules"><summary>怎么判的</summary>亏损且经营现金流为负减 1；每股经营现金流 ÷ 每股收益 ≥ 0.9 加 0.5，< 0.5 减 1；毛利率比去年同期高 2 个点以上加 0.5，低 2 个点以上减 0.5。</details></section><section class="nd" id="n-E"><div class="ndh"><span class="lc2 na">E</span><div><h3>盈利预测修订</h3><p class="q">同一目标年度的盈利预测是否被上调或下调？</p></div></div><div class="verdict na"><div class="vh"><span class="tag na">暂缺</span></div></div><div class="tblwrap"><table class="mt"><thead><tr><th>年份</th><th>每股收益</th><th>对应 PE（按现价）</th></tr></thead><tbody><tr><th scope="row">2025 实际</th><td>0.74</td><td>22.2 倍</td></tr><tr><th scope="row">2026 预测</th><td>2.75</td><td>6.0 倍</td></tr><tr><th scope="row">2027 预测</th><td>3.48</td><td>4.8 倍</td></tr></tbody></table></div><p class="note">17 家机构给出预测，其中 17 家评级为买入或增持。跨年度预测增长不等于预期上调。新抓取记录才附采集时间；旧缓存不补造历史。</p><details class="rules"><summary>怎么判的</summary>同一目标年度 EPS 与 30–45 天前采集值相比，上调 ≥ 5% 加 1，下调 ≥ 5% 减 1。没有带采集时间的可比历史不计分；跨年度增长单独展示。机构样本变化也会影响一致预期。</details></section><section class="nd" id="n-F"><div class="ndh"><span class="lc2 up">F</span><div><h3>个股估值</h3><p class="q">市场现在愿意给它多少倍市盈率？</p></div></div><div class="verdict up"><div class="vh"><span class="tag up">利好</span><b>+1</b><span class="vwhy">判定依据</span></div><ul><li><span class="pt up">+1</span>PE-TTM 9.1 倍，近 3 年 0% 分位，历史相对位置低（不等于便宜）</li></ul></div><p class="note">估值的细节在下面的「股价层」。</p><details class="rules"><summary>怎么判的</summary>PE-TTM 在近 3 年分位低于 20% 加 1，高于 80% 减 1。亏损或 PE 为负时不判定。</details></section><section class="nd" id="n-G"><div class="ndh"><span class="lc2 flat">G</span><div><h3>筹码</h3><p class="q">谁在买、谁在卖？杠杆资金在进还是在出？</p></div></div><div class="verdict flat"><div class="vh"><span class="tag flat">中性</span><b>0</b><span class="vwhy">判定依据</span></div><ul><li><span class="pt flat">+0</span>融资余额 10 日变化 +4.0%，基本稳定</li></ul></div><p class="note">融资余额 23.5 亿，占流通市值 1.76%（截至 2026-11-09）。</p><p class="note">股东户数 129,389 户（截至 2026-10-20），比上一期变化 +10.0%。户数增加通常意味着筹码在分散。</p><details class="rules"><summary>怎么判的</summary>融资余额 10 日增加 ≥ 5% 加 0.5，减少 ≥ 5% 减 0.5；融资余额占流通市值 ≥ 4% 减 0.5。</details></section></div></section>
+<section class="block" id="price"><h2>股价层：现在这个价格处在什么位置</h2><p class="sub">只呈现位置，不下结论。估值回答“贵不贵”，技术面回答“趋势在哪”，筹码回答“谁在推”。</p><div class="nd"><h3 class="h3s">估值位置</h3><p class="note">PE-TTM 9.1 倍，近 3 年 0% 分位；PB 2.66 倍；总市值 1,337.1 亿；按 2027 年预测利润算的前瞻 PE 4.8 倍（截至 2026-11-09）。</p><div class="tblwrap"><table class="mt"><thead><tr><th>PE 通道</th><th>PE</th><th>对应股价</th><th>和现价比</th></tr></thead><tbody><tr><th scope="row">近 3 年 20% 分位</th><td>10.9 倍</td><td>19.82</td><td class="up">+20%</td></tr><tr><th scope="row">近 3 年 50% 分位</th><td>12.9 倍</td><td>23.49</td><td class="up">+42%</td></tr><tr><th scope="row">近 3 年 80% 分位</th><td>15.9 倍</td><td>28.85</td><td class="up">+74%</td></tr></tbody></table></div><p class="note">PE 通道 = 当前滚动每股收益 × 历史 PE 分位，展示历史倍数对应的机械映射，不是目标价或合理价值区间。利润变化后通道会跟着移动。</p><div class="chartbox"><svg class="chart" viewBox="0 0 900 240" role="img" aria-label="近 3 年 PE-TTM"><line x1="48" x2="884" y1="212.0" y2="212.0" class="grid"/><text x="42" y="216.0" class="ax" text-anchor="end">7.5</text><line x1="48" x2="884" y1="162.5" y2="162.5" class="grid"/><text x="42" y="166.5" class="ax" text-anchor="end">13.9</text><line x1="48" x2="884" y1="113.0" y2="113.0" class="grid"/><text x="42" y="117.0" class="ax" text-anchor="end">20.2</text><line x1="48" x2="884" y1="63.5" y2="63.5" class="grid"/><text x="42" y="67.5" class="ax" text-anchor="end">26.5</text><line x1="48" x2="884" y1="14.0" y2="14.0" class="grid"/><text x="42" y="18.0" class="ax" text-anchor="end">32.8</text><line x1="48" x2="884" y1="185.7" y2="185.7" class="band"/><text x="880" y="180.7" class="bandlab" text-anchor="end">20% 分位</text><line x1="48" x2="884" y1="146.9" y2="146.9" class="band"/><text x="880" y="141.9" class="bandlab" text-anchor="end">80% 分位</text><text x="48.0" y="232" class="ax" text-anchor="start">2023-11</text><text x="326.7" y="232" class="ax" text-anchor="middle">2024-11</text><text x="605.3" y="232" class="ax" text-anchor="middle">2025-11</text><text x="884.0" y="232" class="ax" text-anchor="end">2026-11</text><polyline points="48.0,186.6 49.1,188.0 50.3,189.4 51.4,190.5 52.6,191.4 53.7,191.4 54.9,191.8 56.0,192.1 57.2,192.2 58.3,192.2 59.5,192.6 60.6,194.2 61.8,194.1 62.9,195.1 64.1,194.1 65.2,195.1 66.3,193.2 67.5,193.8 68.6,194.0 69.8,194.0 70.9,194.2 72.1,193.1 73.2,195.0 74.4,195.6 75.5,196.7 76.7,197.3 77.8,195.9 79.0,196.2 80.1,197.4 81.3,198.3 82.4,198.8 83.6,194.7 84.7,195.6 85.8,195.8 87.0,194.9 88.1,193.5 89.3,196.0 90.4,195.8 91.6,194.1 92.7,195.4 93.9,195.6 95.0,193.5 96.2,190.0 97.3,188.2 98.5,188.2 99.6,187.8 100.8,190.6 101.9,190.8 103.0,189.4 104.2,188.3 105.3,185.5 106.5,184.9 107.6,186.7 108.8,186.7 109.9,188.6 111.1,190.3 112.2,189.2 113.4,187.7 114.5,186.2 115.7,184.6 116.8,185.0 118.0,187.3 119.1,187.3 120.2,189.4 121.4,189.9 122.5,189.9 123.7,187.2 124.8,184.5 126.0,185.1 127.1,179.6 128.3,181.4 129.4,181.3 130.6,179.8 131.7,182.1 132.9,183.0 134.0,183.1 135.2,184.0 136.3,178.8 137.4,178.6 138.6,172.6 139.7,173.8 140.9,175.6 142.0,174.7 143.2,174.5 144.3,174.8 145.5,177.3 146.6,178.6 147.8,176.3 148.9,174.8 150.1,171.6 151.2,173.0 152.4,170.9 153.5,170.9 154.7,172.7 155.8,172.4 156.9,171.3 158.1,171.8 159.2,169.4 160.4,166.1 161.5,166.1 162.7,163.0 163.8,162.6 165.0,165.7 166.1,165.8 167.3,164.8 168.4,165.9 169.6,159.6 170.7,157.2 171.9,159.1 173.0,156.1 174.1,157.6 175.3,154.1 176.4,155.1 177.6,159.2 178.7,158.3 179.9,158.3 181.0,157.9 182.2,161.9 183.3,164.2 184.5,162.7 185.6,164.2 186.8,160.5 187.9,157.2 189.1,156.5 190.2,152.4 191.3,152.7 192.5,147.9 193.6,156.0 194.8,156.4 195.9,152.3 197.1,153.7 198.2,157.4 199.4,157.0 200.5,156.8 201.7,154.5 202.8,151.7 204.0,153.3 205.1,157.0 206.3,159.9 207.4,157.3 208.5,157.4 209.7,160.3 210.8,158.4 212.0,154.5 213.1,162.3 214.3,161.7 215.4,162.4 216.6,165.5 217.7,167.3 218.9,166.3 220.0,166.3 221.2,162.5 222.3,163.7 223.5,164.9 224.6,165.8 225.8,166.9 226.9,168.9 228.0,165.2 229.2,161.7 230.3,163.7 231.5,165.9 232.6,163.3 233.8,160.8 234.9,164.7 236.1,164.9 237.2,169.0 238.4,167.4 239.5,170.7 240.7,171.4 241.8,169.7 243.0,171.8 244.1,170.0 245.2,170.3 246.4,169.4 247.5,169.4 248.7,168.4 249.8,174.5 251.0,173.5 252.1,174.3 253.3,175.2 254.4,173.3 255.6,174.0 256.7,173.3 257.9,177.9 259.0,174.0 260.2,172.5 261.3,176.0 262.4,176.3 263.6,174.5 264.7,174.2 265.9,175.4 267.0,174.9 268.2,169.9 269.3,167.5 270.5,168.4 271.6,169.3 272.8,168.5 273.9,168.9 275.1,167.7 276.2,166.9 277.4,168.2 278.5,162.7 279.6,166.1 280.8,169.1 281.9,167.6 283.1,170.7 284.2,174.4 285.4,177.8 286.5,180.7 287.7,180.6 288.8,183.9 290.0,182.3 291.1,181.3 292.3,179.0 293.4,179.5 294.6,177.5 295.7,176.4 296.9,173.2 298.0,174.9 299.1,173.6 300.3,165.1 301.4,158.7 302.6,159.1 303.7,170.1 304.9,166.9 306.0,169.7 307.2,166.1 308.3,172.1 309.5,171.9 310.6,174.2 311.8,172.5 312.9,170.7 314.1,170.5 315.2,170.8 316.3,172.8 317.5,172.9 318.6,173.3 319.8,173.7 320.9,173.4 322.1,174.7 323.2,172.5 324.4,174.2 325.5,173.2 326.7,174.1 327.8,171.9 329.0,172.5 330.1,171.5 331.3,172.5 332.4,171.5 333.5,174.1 334.7,173.9 335.8,174.4 337.0,174.1 338.1,173.4 339.3,174.2 340.4,178.1 341.6,176.5 342.7,177.8 343.9,178.5 345.0,180.8 346.2,180.5 347.3,180.2 348.5,179.7 349.6,179.5 350.7,180.5 351.9,179.7 353.0,179.1 354.2,179.7 355.3,178.1 356.5,178.1 357.6,181.2 358.8,181.4 359.9,180.5 361.1,179.1 362.2,180.4 363.4,182.1 364.5,180.8 365.7,177.4 366.8,177.9 368.0,179.0 369.1,178.2 370.2,177.5 371.4,179.1 372.5,182.2 373.7,181.2 374.8,180.2 376.0,180.8 377.1,175.9 378.3,179.7 379.4,180.8 380.6,176.1 381.7,173.2 382.9,171.4 384.0,170.9 385.2,169.9 386.3,173.5 387.4,170.6 388.6,172.5 389.7,172.5 390.9,173.5 392.0,171.8 393.2,169.2 394.3,172.4 395.5,170.8 396.6,170.9 397.8,168.9 398.9,170.9 400.1,172.4 401.2,173.1 402.4,174.1 403.5,175.7 404.6,177.2 405.8,178.4 406.9,178.2 408.1,180.1 409.2,180.4 410.4,180.7 411.5,179.5 412.7,180.7 413.8,181.5 415.0,181.2 416.1,181.1 417.3,181.2 418.4,179.7 419.6,179.8 420.7,179.8 421.8,180.5 423.0,180.5 424.1,179.5 425.3,179.7 426.4,178.2 427.6,179.7 428.7,177.5 429.9,177.8 431.0,178.1 432.2,177.8 433.3,179.1 434.5,179.0 435.6,191.3 436.8,189.6 437.9,188.5 439.1,189.1 440.2,190.4 441.3,198.4 442.5,195.6 443.6,196.8 444.8,193.8 445.9,195.9 447.1,196.2 448.2,197.4 449.4,196.8 450.5,197.1 451.7,197.8 452.8,197.7 454.0,197.9 455.1,197.4 456.3,196.9 457.4,196.8 458.5,194.7 459.7,195.7 460.8,189.8 462.0,186.7 463.1,185.1 464.3,187.3 465.4,187.6 466.6,186.7 467.7,185.8 468.9,182.9 470.0,185.3 471.2,186.1 472.3,186.0 473.5,186.5 474.6,186.5 475.7,187.1 476.9,188.2 478.0,187.6 479.2,187.8 480.3,186.8 481.5,186.7 482.6,187.8 483.8,188.1 484.9,187.9 486.1,187.9 487.2,187.2 488.4,187.2 489.5,186.7 490.7,186.3 491.8,185.7 492.9,180.1 494.1,180.4 495.2,179.0 496.4,179.3 497.5,181.7 498.7,181.3 499.8,180.8 501.0,185.7 502.1,185.7 503.3,185.0 504.4,185.0 505.6,184.9 506.7,185.3 507.9,186.1 509.0,186.4 510.2,186.7 511.3,186.8 512.4,186.4 513.6,186.8 514.7,186.8 515.9,186.5 517.0,186.4 518.2,187.2 519.3,187.2 520.5,187.4 521.6,187.2 522.8,186.0 523.9,185.3 525.1,185.4 526.2,184.6 527.4,184.8 528.5,186.3 529.6,186.5 530.8,186.1 531.9,187.6 533.1,187.8 534.2,187.5 535.4,186.8 536.5,185.0 537.7,185.7 538.8,185.6 540.0,186.1 541.1,186.1 542.3,186.5 543.4,186.7 544.6,187.1 545.7,187.1 546.8,187.1 548.0,186.3 549.1,185.6 550.3,180.4 551.4,180.2 552.6,179.4 553.7,181.7 554.9,181.8 556.0,184.3 557.2,182.2 558.3,182.1 559.5,181.9 560.6,179.9 561.8,174.6 562.9,165.0 564.0,162.5 565.2,162.9 566.3,163.0 567.5,159.3 568.6,151.3 569.8,153.7 570.9,151.5 572.1,155.3 573.2,152.7 574.4,153.9 575.5,154.7 576.7,151.4 577.8,155.5 579.0,157.1 580.1,154.3 581.3,152.5 582.4,159.8 583.5,155.3 584.7,149.5 585.8,150.1 587.0,154.2 588.1,152.7 589.3,155.0 590.4,153.7 591.6,154.3 592.7,157.4 593.9,157.5 595.0,160.7 596.2,160.2 597.3,160.7 598.5,156.5 599.6,152.6 600.7,154.8 601.9,155.3 603.0,166.3 604.2,165.7 605.3,164.2 606.5,162.2 607.6,164.1 608.8,164.2 609.9,163.6 611.1,157.1 612.2,156.1 613.4,155.6 614.5,160.0 615.7,154.6 616.8,158.5 617.9,161.0 619.1,157.7 620.2,160.0 621.4,162.5 622.5,162.5 623.7,160.5 624.8,149.8 626.0,161.8 627.1,161.1 628.3,160.1 629.4,166.6 630.6,166.3 631.7,167.7 632.9,167.9 634.0,168.1 635.1,165.8 636.3,162.8 637.4,166.1 638.6,161.1 639.7,159.6 640.9,164.2 642.0,159.0 643.2,159.1 644.3,161.3 645.5,159.2 646.6,159.2 647.8,156.6 648.9,158.3 650.1,158.3 651.2,158.5 652.4,156.3 653.5,158.0 654.6,150.6 655.8,147.7 656.9,136.8 658.1,130.4 659.2,129.9 660.4,128.1 661.5,130.3 662.7,127.4 663.8,129.9 665.0,132.4 666.1,132.3 667.3,135.4 668.4,128.2 669.6,130.0 670.7,130.9 671.8,132.6 673.0,128.5 674.1,135.6 675.3,126.5 676.4,120.5 677.6,124.9 678.7,128.5 679.9,120.2 681.0,116.5 682.2,120.2 683.3,105.2 684.5,118.1 685.6,102.8 686.8,86.0 687.9,75.4 689.0,67.3 690.2,47.0 691.3,24.6 692.5,48.9 693.6,52.1 694.8,56.3 695.9,73.9 697.1,64.5 698.2,66.6 699.4,70.7 700.5,75.6 701.7,61.0 702.8,64.2 704.0,45.0 705.1,49.5 706.2,60.6 707.4,57.8 708.5,44.0 709.7,52.7 710.8,61.7 712.0,91.3 713.1,92.0 714.3,99.1 715.4,81.8 716.6,66.4 717.7,56.7 718.9,58.1 720.0,59.1 721.2,63.5 722.3,70.5 723.5,79.5 724.6,76.3 725.7,77.2 726.9,81.0 728.0,76.1 729.2,70.5 730.3,70.4 731.5,82.2 732.6,86.9 733.8,87.8 734.9,133.7 736.1,136.8 737.2,130.3 738.4,130.4 739.5,122.1 740.7,123.8 741.8,115.3 742.9,124.2 744.1,128.9 745.2,127.2 746.4,127.2 747.5,131.7 748.7,134.8 749.8,131.3 751.0,129.3 752.1,128.8 753.3,126.5 754.4,129.0 755.6,133.1 756.7,140.8 757.9,142.4 759.0,144.3 760.1,146.9 761.3,147.2 762.4,150.1 763.6,151.5 764.7,152.7 765.9,158.0 767.0,156.3 768.2,154.2 769.3,155.8 770.5,146.3 771.6,133.9 772.8,140.1 773.9,134.4 775.1,134.1 776.2,120.4 777.3,111.9 778.5,96.0 779.6,98.5 780.8,114.7 781.9,125.1 783.1,130.6 784.2,136.2 785.4,138.9 786.5,135.2 787.7,129.7 788.8,141.6 790.0,146.7 791.1,142.4 792.3,147.4 793.4,152.5 794.6,150.8 795.7,149.1 796.8,157.8 798.0,159.8 799.1,156.8 800.3,153.4 801.4,145.1 802.6,144.2 803.7,145.5 804.9,144.0 806.0,141.6 807.2,140.8 808.3,139.4 809.5,136.8 810.6,134.9 811.8,136.9 812.9,126.4 814.0,128.1 815.2,127.3 816.3,125.8 817.5,139.3 818.6,135.0 819.8,134.1 820.9,134.8 822.1,128.1 823.2,127.3 824.4,122.4 825.5,123.5 826.7,113.0 827.8,119.2 829.0,120.6 830.1,124.2 831.2,122.2 832.4,119.4 833.5,161.7 834.7,163.8 835.8,167.2 837.0,158.5 838.1,159.1 839.3,162.1 840.4,159.8 841.6,148.7 842.7,151.1 843.9,154.4 845.0,154.4 846.2,151.5 847.3,155.3 848.4,143.7 849.6,140.7 850.7,137.5 851.9,145.8 853.0,149.9 854.2,149.0 855.3,150.7 856.5,155.1 857.6,153.6 858.8,142.6 859.9,142.4 861.1,154.4 862.2,146.8 863.4,145.8 864.5,158.3 865.7,165.0 866.8,167.0 867.9,168.5 869.1,168.4 870.2,176.2 871.4,174.4 872.5,172.0 873.7,169.6 874.8,171.4 876.0,197.0 877.1,194.8 878.3,193.7 879.4,196.4 880.6,195.6 881.7,198.5 882.9,201.4 884.0,199.7" fill="none" stroke="#27408B" stroke-width="1.8"/><circle cx="884.0" cy="199.7" r="3.5" fill="#27408B"/></svg><div class="cleg"><span><i style="background:#27408B"></i>PE-TTM（倍）</span></div></div></div><div class="nd"><h3 class="h3s">技术位置</h3><div class="tblwrap"><table class="mt"><thead><tr><th>均线</th><th>数值</th><th>股价位置</th><th>均线方向</th></tr></thead><tbody><tr><th scope="row">20 日线</th><td>17.70</td><td class="down">下方 -6.4%</td><td>向下</td></tr><tr><th scope="row">60 日线</th><td>18.82</td><td class="down">下方 -12.0%</td><td>向下</td></tr><tr><th scope="row">120 日线</th><td>17.55</td><td class="down">下方 -5.6%</td><td>向下</td></tr><tr><th scope="row">250 日线</th><td>14.98</td><td class="up">上方 +10.5%</td><td>向上</td></tr></tbody></table></div><p class="note">近一年最高 22.78（2026-09-21），现价距高点 -27.3%；近一年最低 7.82，现价距低点 +111.8%。近 20 日区间 16.14–21.35，可作为短期支撑和压力参考。今日成交额是 20 日均值的 0.74 倍。</p><div class="chartbox"><svg class="chart" viewBox="0 0 900 240" role="img" aria-label="近一年股价和均线"><line x1="48" x2="884" y1="212.0" y2="212.0" class="grid"/><text x="42" y="216.0" class="ax" text-anchor="end">5</text><line x1="48" x2="884" y1="162.5" y2="162.5" class="grid"/><text x="42" y="166.5" class="ax" text-anchor="end">10</text><line x1="48" x2="884" y1="113.0" y2="113.0" class="grid"/><text x="42" y="117.0" class="ax" text-anchor="end">14</text><line x1="48" x2="884" y1="63.5" y2="63.5" class="grid"/><text x="42" y="67.5" class="ax" text-anchor="end">19</text><line x1="48" x2="884" y1="14.0" y2="14.0" class="grid"/><text x="42" y="18.0" class="ax" text-anchor="end">24</text><text x="48.0" y="232" class="ax" text-anchor="start">2025-10</text><text x="326.7" y="232" class="ax" text-anchor="middle">2026-03</text><text x="605.3" y="232" class="ax" text-anchor="middle">2026-07</text><text x="884.0" y="232" class="ax" text-anchor="end">2026-11</text><polyline points="48.0,179.4 51.4,170.2 54.7,172.2 58.1,172.6 61.4,181.9 64.8,181.4 68.1,180.1 71.5,178.4 74.9,180.0 78.2,180.1 81.6,179.6 84.9,174.1 88.3,173.2 91.6,172.8 95.0,176.5 98.4,171.9 101.7,175.2 105.1,177.4 108.4,174.6 111.8,176.5 115.1,178.6 118.5,178.6 121.9,176.9 125.2,167.9 128.6,178.1 131.9,177.5 135.3,176.6 138.7,182.1 142.0,181.9 145.4,183.1 148.7,183.2 152.1,183.4 155.4,181.5 158.8,178.9 162.2,181.7 165.5,177.5 168.9,176.2 172.2,180.1 175.6,175.7 178.9,175.8 182.3,177.7 185.7,175.9 189.0,175.9 192.4,173.6 195.7,175.1 199.1,175.1 202.4,175.2 205.8,173.4 209.2,174.8 212.5,168.5 215.9,166.1 219.2,156.9 222.6,151.5 225.9,151.0 229.3,149.5 232.7,151.3 236.0,148.9 239.4,151.0 242.7,153.2 246.1,153.0 249.4,155.7 252.8,149.6 256.2,151.1 259.5,151.9 262.9,153.4 266.2,149.9 269.6,155.9 272.9,148.2 276.3,143.1 279.7,146.8 283.0,149.9 286.4,142.9 289.7,139.7 293.1,142.9 296.4,130.1 299.8,141.1 303.2,128.1 306.5,113.9 309.9,104.9 313.2,98.1 316.6,80.9 320.0,61.9 323.3,82.5 326.7,85.1 330.0,88.7 333.4,103.6 336.7,95.6 340.1,97.4 343.5,100.9 346.8,105.1 350.2,92.6 353.5,95.4 356.9,79.2 360.2,83.0 363.6,92.3 367.0,90.0 370.3,78.3 373.7,85.6 377.0,93.3 380.4,88.9 383.7,89.7 387.1,96.8 390.5,79.4 393.8,63.8 397.2,54.0 400.5,55.4 403.9,56.5 407.2,60.8 410.6,67.9 414.0,77.0 417.3,73.8 420.7,74.7 424.0,78.5 427.4,73.5 430.7,67.9 434.1,67.8 437.5,79.8 440.8,84.5 444.2,85.4 447.5,88.0 450.9,92.1 454.2,83.5 457.6,83.6 461.0,72.6 464.3,74.8 467.7,63.6 471.0,75.5 474.4,81.6 477.8,79.4 481.1,79.4 484.5,85.3 487.8,89.5 491.2,84.9 494.5,82.2 497.9,81.5 501.3,78.5 504.6,81.8 508.0,87.2 511.3,97.5 514.7,99.7 518.0,102.1 521.4,105.6 524.8,106.0 528.1,109.8 531.5,111.6 534.8,113.3 538.2,120.4 541.5,118.1 544.9,115.3 548.3,117.4 551.6,104.9 555.0,88.3 558.3,96.6 561.7,88.9 565.0,88.5 568.4,70.4 571.8,59.0 575.1,37.9 578.5,41.2 581.8,62.8 585.2,76.6 588.5,83.9 591.9,91.4 595.3,95.0 598.6,90.0 602.0,82.8 605.3,98.5 608.7,105.4 612.0,99.5 615.4,103.6 618.8,110.4 622.1,108.1 625.5,105.8 628.8,117.5 632.2,120.1 635.6,116.1 638.9,111.5 642.3,100.5 645.6,99.3 649.0,101.1 652.3,99.0 655.7,95.9 659.1,94.9 662.4,93.0 665.8,89.6 669.1,87.0 672.5,89.7 675.8,75.7 679.2,78.0 682.6,76.9 685.9,74.8 689.3,92.9 692.6,87.1 696.0,86.0 699.3,86.8 702.7,77.9 706.1,76.9 709.4,70.4 712.8,71.8 716.1,57.8 719.5,66.1 722.8,67.9 726.2,72.7 729.6,70.1 732.9,66.3 736.3,68.8 739.6,72.6 743.0,78.7 746.3,62.9 749.7,64.0 753.1,69.4 756.4,65.3 759.8,45.0 763.1,49.3 766.5,55.5 769.8,55.5 773.2,50.2 776.6,57.0 779.9,35.9 783.3,30.4 786.6,24.6 790.0,39.8 793.3,47.2 796.7,45.6 800.1,48.6 803.4,56.7 806.8,53.9 810.1,33.9 813.5,33.5 816.9,55.5 820.2,41.6 823.6,39.8 826.9,62.6 830.3,74.7 833.6,78.3 837.0,81.2 840.4,80.9 843.7,95.1 847.1,90.4 850.4,86.1 853.8,81.7 857.1,85.0 860.5,83.9 863.9,78.4 867.2,75.7 870.6,82.5 873.9,80.5 877.3,87.7 880.6,94.8 884.0,90.6" fill="none" stroke="#18202B" stroke-width="1.8"/><circle cx="884.0" cy="90.6" r="3.5" fill="#18202B"/><polyline points="48.0,190.9 51.4,190.3 54.7,189.7 58.1,189.2 61.4,188.8 64.8,188.3 68.1,187.9 71.5,187.5 74.9,187.1 78.2,186.6 81.6,186.2 84.9,185.7 88.3,185.1 91.6,184.6 95.0,184.1 98.4,183.5 101.7,183.0 105.1,182.5 108.4,182.1 111.8,181.7 115.1,181.3 118.5,180.9 121.9,180.5 125.2,179.9 128.6,179.6 131.9,179.2 135.3,178.8 138.7,178.5 142.0,178.3 145.4,178.2 148.7,178.2 152.1,178.2 155.4,178.1 158.8,178.1 162.2,178.1 165.5,178.1 168.9,178.1 172.2,178.2 175.6,178.1 178.9,178.1 182.3,178.1 185.7,178.1 189.0,178.0 192.4,177.9 195.7,177.8 199.1,177.8 202.4,177.7 205.8,177.6 209.2,177.6 212.5,177.5 215.9,177.3 219.2,176.9 222.6,176.5 225.9,176.0 229.3,175.6 232.7,175.1 236.0,174.5 239.4,174.0 242.7,173.5 246.1,173.0 249.4,172.6 252.8,172.3 256.2,171.9 259.5,171.6 262.9,171.1 266.2,170.6 269.6,170.2 272.9,169.7 276.3,169.1 279.7,168.5 283.0,168.0 286.4,167.5 289.7,166.9 293.1,166.4 296.4,165.7 299.8,165.1 303.2,164.4 306.5,163.3 309.9,162.1 313.2,160.8 316.6,159.2 320.0,157.3 323.3,155.7 326.7,154.3 330.0,152.8 333.4,151.6 336.7,150.2 340.1,148.8 343.5,147.5 346.8,146.2 350.2,144.7 353.5,143.2 356.9,141.5 360.2,139.9 363.6,138.4 367.0,136.9 370.3,135.3 373.7,133.7 377.0,132.4 380.4,130.9 383.7,129.4 387.1,128.1 390.5,126.5 393.8,124.7 397.2,122.7 400.5,120.7 403.9,118.7 407.2,116.8 410.6,115.0 414.0,113.5 417.3,112.0 420.7,110.6 424.0,109.4 427.4,108.1 430.7,106.7 434.1,105.3 437.5,104.2 440.8,103.1 444.2,102.0 447.5,100.9 450.9,99.8 454.2,98.7 457.6,97.6 461.0,96.3 464.3,95.0 467.7,93.5 471.0,92.2 474.4,91.1 477.8,90.0 481.1,88.9 484.5,87.8 487.8,86.9 491.2,86.0 494.5,85.0 497.9,84.2 501.3,83.1 504.6,82.4 508.0,81.9 511.3,81.8 514.7,81.8 518.0,82.2 521.4,82.9 524.8,83.3 528.1,83.7 531.5,84.1 534.8,84.3 538.2,84.7 541.5,85.0 544.9,85.3 548.3,85.5 551.6,85.7 555.0,85.5 558.3,85.8 561.7,85.9 565.0,85.9 568.4,85.5 571.8,85.2 575.1,84.4 578.5,83.6 581.8,83.1 585.2,82.9 588.5,82.7 591.9,82.9 595.3,83.4 598.6,84.0 602.0,84.5 605.3,85.2 608.7,85.9 612.0,86.4 615.4,86.9 618.8,87.5 622.1,88.1 625.5,88.5 628.8,89.2 632.2,90.1 635.6,90.9 638.9,91.4 642.3,91.7 645.6,91.9 649.0,92.2 652.3,92.3 655.7,92.5 659.1,92.7 662.4,93.0 665.8,93.3 669.1,93.6 672.5,93.9 675.8,93.8 679.2,93.8 682.6,93.7 685.9,93.5 689.3,93.6 692.6,93.6 696.0,93.7 699.3,93.8 702.7,93.8 706.1,93.7 709.4,93.4 712.8,93.0 716.1,92.3 719.5,91.7 722.8,91.1 726.2,90.5 729.6,89.8 732.9,89.1 736.3,88.3 739.6,87.6 743.0,86.9 746.3,86.0 749.7,85.1 753.1,84.5 756.4,84.2 759.8,83.3 763.1,82.6 766.5,82.1 769.8,81.8 773.2,81.7 776.6,82.0 779.9,81.9 783.3,81.4 786.6,80.5 790.0,79.8 793.3,79.0 796.7,78.2 800.1,77.5 803.4,77.1 806.8,76.4 810.1,75.2 813.5,74.1 816.9,73.3 820.2,72.1 823.6,71.0 826.9,70.3 830.3,69.5 833.6,68.8 837.0,68.3 840.4,67.8 843.7,67.7 847.1,67.5 850.4,67.3 853.8,67.0 857.1,66.8 860.5,66.6 863.9,66.4 867.2,66.1 870.6,66.1 873.9,65.9 877.3,66.1 880.6,66.4 884.0,66.6" fill="none" stroke="#D88B1F" stroke-width="1.8"/><circle cx="884.0" cy="66.6" r="3.5" fill="#D88B1F"/><polyline points="48.0,201.4 51.4,201.3 54.7,201.2 58.1,201.1 61.4,201.0 64.8,200.9 68.1,200.9 71.5,200.8 74.9,200.7 78.2,200.6 81.6,200.5 84.9,200.4 88.3,200.3 91.6,200.2 95.0,200.1 98.4,200.0 101.7,199.9 105.1,199.8 108.4,199.7 111.8,199.6 115.1,199.5 118.5,199.4 121.9,199.3 125.2,199.2 128.6,199.1 131.9,199.0 135.3,198.9 138.7,198.8 142.0,198.7 145.4,198.6 148.7,198.5 152.1,198.4 155.4,198.3 158.8,198.2 162.2,198.1 165.5,198.0 168.9,197.9 172.2,197.8 175.6,197.7 178.9,197.6 182.3,197.5 185.7,197.3 189.0,197.2 192.4,197.1 195.7,197.0 199.1,196.8 202.4,196.7 205.8,196.6 209.2,196.5 212.5,196.3 215.9,196.2 219.2,196.0 222.6,195.8 225.9,195.6 229.3,195.3 232.7,195.1 236.0,194.9 239.4,194.7 242.7,194.5 246.1,194.3 249.4,194.1 252.8,193.9 256.2,193.7 259.5,193.5 262.9,193.3 266.2,193.1 269.6,192.9 272.9,192.7 276.3,192.5 279.7,192.3 283.0,192.1 286.4,191.9 289.7,191.6 293.1,191.4 296.4,191.1 299.8,190.9 303.2,190.6 306.5,190.3 309.9,189.9 313.2,189.5 316.6,189.0 320.0,188.4 323.3,187.9 326.7,187.5 330.0,187.0 333.4,186.6 336.7,186.2 340.1,185.7 343.5,185.3 346.8,184.9 350.2,184.4 353.5,184.0 356.9,183.5 360.2,183.0 363.6,182.5 367.0,182.1 370.3,181.6 373.7,181.1 377.0,180.6 380.4,180.2 383.7,179.7 387.1,179.3 390.5,178.8 393.8,178.2 397.2,177.6 400.5,177.0 403.9,176.4 407.2,175.9 410.6,175.3 414.0,174.8 417.3,174.3 420.7,173.8 424.0,173.3 427.4,172.7 430.7,172.2 434.1,171.6 437.5,171.1 440.8,170.6 444.2,170.1 447.5,169.6 450.9,169.1 454.2,168.6 457.6,168.1 461.0,167.6 464.3,167.0 467.7,166.4 471.0,165.9 474.4,165.4 477.8,164.9 481.1,164.4 484.5,163.8 487.8,163.4 491.2,162.9 494.5,162.4 497.9,161.9 501.3,161.3 504.6,160.8 508.0,160.4 511.3,159.9 514.7,159.5 518.0,159.1 521.4,158.7 524.8,158.3 528.1,157.9 531.5,157.5 534.8,157.1 538.2,156.7 541.5,156.4 544.9,156.0 548.3,155.6 551.6,155.2 555.0,154.7 558.3,154.3 561.7,153.8 565.0,153.3 568.4,152.8 571.8,152.2 575.1,151.5 578.5,150.9 581.8,150.3 585.2,149.8 588.5,149.3 591.9,148.9 595.3,148.5 598.6,148.0 602.0,147.5 605.3,147.1 608.7,146.7 612.0,146.3 615.4,145.9 618.8,145.5 622.1,145.1 625.5,144.7 628.8,144.4 632.2,144.0 635.6,143.7 638.9,143.3 642.3,142.9 645.6,142.4 649.0,142.0 652.3,141.6 655.7,141.1 659.1,140.7 662.4,140.2 665.8,139.8 669.1,139.3 672.5,138.8 675.8,138.3 679.2,137.8 682.6,137.3 685.9,136.8 689.3,136.3 692.6,135.8 696.0,135.4 699.3,134.9 702.7,134.4 706.1,133.9 709.4,133.3 712.8,132.8 716.1,132.2 719.5,131.6 722.8,131.1 726.2,130.5 729.6,130.0 732.9,129.4 736.3,128.9 739.6,128.4 743.0,127.8 746.3,127.3 749.7,126.7 753.1,126.2 756.4,125.7 759.8,125.1 763.1,124.4 766.5,123.9 769.8,123.3 773.2,122.7 776.6,122.1 779.9,121.5 783.3,120.9 786.6,120.2 790.0,119.6 793.3,119.1 796.7,118.5 800.1,118.0 803.4,117.5 806.8,117.0 810.1,116.5 813.5,115.9 816.9,115.4 820.2,114.9 823.6,114.3 826.9,113.8 830.3,113.4 833.6,113.0 837.0,112.6 840.4,112.2 843.7,111.9 847.1,111.6 850.4,111.2 853.8,110.8 857.1,110.4 860.5,110.1 863.9,109.7 867.2,109.3 870.6,108.9 873.9,108.5 877.3,108.1 880.6,107.7 884.0,107.4" fill="none" stroke="#C8312B" stroke-width="1.8"/><circle cx="884.0" cy="107.4" r="3.5" fill="#C8312B"/></svg><div class="cleg"><span><i style="background:#18202B"></i>收盘价</span><span><i style="background:#D88B1F"></i>60 日线</span><span><i style="background:#C8312B"></i>250 日线</span></div></div></div><div class="nd"><h3 class="h3s">筹码：融资余额和股价是否同向</h3><p class="note">融资余额与股价同向变化只能描述同期现象，不能据此确定交易动机或因果关系；融资账户也不代表全部资金。</p><div class="chartbox"><svg class="chart" viewBox="0 0 900 240" role="img" aria-label="融资余额和股价"><line x1="48" x2="884" y1="212.0" y2="212.0" class="grid"/><text x="42" y="216.0" class="ax" text-anchor="end">77</text><line x1="48" x2="884" y1="162.5" y2="162.5" class="grid"/><text x="42" y="166.5" class="ax" text-anchor="end">91</text><line x1="48" x2="884" y1="113.0" y2="113.0" class="grid"/><text x="42" y="117.0" class="ax" text-anchor="end">106</text><line x1="48" x2="884" y1="63.5" y2="63.5" class="grid"/><text x="42" y="67.5" class="ax" text-anchor="end">120</text><line x1="48" x2="884" y1="14.0" y2="14.0" class="grid"/><text x="42" y="18.0" class="ax" text-anchor="end">134</text><text x="48.0" y="232" class="ax" text-anchor="start">2026-05</text><text x="329.0" y="232" class="ax" text-anchor="middle">2026-07</text><text x="610.0" y="232" class="ax" text-anchor="middle">2026-09</text><text x="884.0" y="232" class="ax" text-anchor="end">2026-11</text><polyline points="48.0,132.1 55.0,134.8 62.1,133.2 69.1,135.6 76.1,130.1 83.1,121.4 90.2,112.7 97.2,104.6 104.2,104.9 111.2,98.4 118.3,99.7 125.3,93.7 132.3,97.5 139.3,99.8 146.4,112.8 153.4,115.0 160.4,133.2 167.4,136.3 174.5,140.8 181.5,151.0 188.5,138.6 195.5,133.7 202.6,91.9 209.6,73.8 216.6,79.9 223.6,97.3 230.7,109.6 237.7,99.6 244.7,107.2 251.7,83.3 258.8,99.2 265.8,104.7 272.8,121.5 279.8,121.4 286.9,107.6 293.9,105.3 300.9,110.4 307.9,113.9 315.0,129.1 322.0,135.7 329.0,136.4 336.0,139.8 343.1,136.1 350.1,131.0 357.1,137.3 364.1,137.5 371.2,127.9 378.2,109.4 385.2,105.1 392.2,99.9 399.3,107.9 406.3,113.1 413.3,117.7 420.3,120.4 427.4,137.4 434.4,130.6 441.4,131.8 448.4,119.5 455.5,117.3 462.5,118.6 469.5,132.6 476.5,154.4 483.6,159.1 490.6,157.6 497.6,159.1 504.6,167.4 511.7,174.3 518.7,139.5 525.7,124.8 532.7,97.0 539.8,87.3 546.8,108.3 553.8,121.1 560.8,157.1 567.9,169.0 574.9,163.0 581.9,159.2 588.9,160.9 596.0,182.2 603.0,174.2 610.0,153.1 617.0,155.1 624.1,189.7 631.1,155.6 638.1,119.1 645.1,115.1 652.2,101.0 659.2,84.2 666.2,125.2 673.2,103.3 680.3,91.4 687.3,67.2 694.3,38.4 701.3,67.2 708.4,82.4 715.4,92.6 722.4,108.1 729.4,78.3 736.5,90.7 743.5,69.6 750.5,103.1 757.5,87.3 764.6,96.9 771.6,94.7 778.6,106.1 785.6,116.9 792.7,113.3 799.7,107.9 806.7,119.3 813.7,116.9 820.8,118.5 827.8,110.9 834.8,114.5 841.8,114.3 848.9,111.0 855.9,120.9 862.9,122.9 869.9,107.4 877.0,99.0 884.0,102.6" fill="none" stroke="#C8312B" stroke-width="1.8"/><circle cx="884.0" cy="102.6" r="3.5" fill="#C8312B"/><polyline points="48.0,132.1 55.0,139.7 62.1,131.3 69.1,126.4 76.1,125.0 83.1,119.5 90.2,125.6 97.2,135.6 104.2,154.6 111.2,158.6 118.3,163.1 125.3,169.6 132.3,170.4 139.3,177.4 146.4,180.8 153.4,183.9 160.4,196.9 167.4,192.8 174.5,187.4 181.5,191.4 188.5,168.2 195.5,137.6 202.6,152.9 209.6,138.7 216.6,137.9 223.6,104.4 230.7,83.3 237.7,44.3 244.7,50.3 251.7,90.4 258.8,115.9 265.8,129.5 272.8,143.2 279.8,149.9 286.9,140.7 293.9,127.3 300.9,156.4 307.9,169.2 315.0,158.4 322.0,170.7 329.0,183.3 336.0,179.2 343.1,174.9 350.1,196.5 357.1,201.4 364.1,193.9 371.2,185.5 378.2,165.1 385.2,162.9 392.2,166.2 399.3,162.3 406.3,156.6 413.3,154.6 420.3,151.1 427.4,144.8 434.4,140.1 441.4,145.0 448.4,119.1 455.5,123.4 462.5,121.4 469.5,117.5 476.5,150.9 483.6,140.3 490.6,138.1 497.6,139.7 504.6,123.2 511.7,121.4 518.7,109.3 525.7,112.0 532.7,86.1 539.8,101.4 546.8,104.8 553.8,113.6 560.8,108.9 567.9,101.8 574.9,106.3 581.9,113.4 588.9,124.8 596.0,95.5 603.0,97.5 610.0,107.5 617.0,99.8 624.1,62.3 631.1,70.4 638.1,81.8 645.1,81.8 652.2,71.9 659.2,84.5 666.2,45.4 673.2,35.4 680.3,24.6 687.3,52.7 694.3,66.4 701.3,63.5 708.4,69.0 715.4,83.9 722.4,78.8 729.4,41.9 736.5,41.1 743.5,81.8 750.5,56.0 757.5,52.7 764.6,94.9 771.6,117.3 778.6,124.0 785.6,129.3 792.7,128.7 799.7,155.0 806.7,148.9 813.7,140.9 820.8,132.8 827.8,138.9 834.8,137.0 841.8,126.8 848.9,121.6 855.9,134.2 862.9,130.7 869.9,143.8 877.0,157.0 884.0,149.3" fill="none" stroke="#18202B" stroke-width="1.8"/><circle cx="884.0" cy="149.3" r="3.5" fill="#18202B"/></svg><div class="cleg"><span><i style="background:#C8312B"></i>融资余额（期初 = 100）</span><span><i style="background:#18202B"></i>股价（期初 = 100）</span></div></div></div></section>
+<section class="block" id="conds"><h2>关注条件</h2><p class="sub">触发只是提醒你去看一眼，不是买卖信号。</p><ul class="conds"><li class="hit"><span class="cs">触发中</span><b>PE-TTM 跌破近 3 年 20% 分位，或升破 80% 分位</b><span class="cn">0% 分位</span></li><li class="hit"><span class="cs">触发中</span><b>近 5 日股价站上或跌破 120 日、250 日线</b><span class="cn">跌破 120 日线</span></li><li class="ok"><span class="cs">未触发</span><b>距近 250 日高点回撤超过 30%</b><span class="cn">-27.3%（高点 22.78，2026-09-21）</span></li><li class="hit"><span class="cs">触发中</span><b>融资余额和股价近 10 个交易日反向</b><span class="cn">融资 +4.0%，股价 -2.5%（截至 11-09）</span></li><li class="ok"><span class="cs">未触发</span><b>成交额超过 20 日均值的 2 倍</b><span class="cn">0.74 倍</span></li><li class="ok"><span class="cs">未触发</span><b>单季利润环比由正转负，或由负转正</b><span class="cn">26Q2 +52% → 26Q3 +20%</span></li><li class="ok"><span class="cs">待数据</span><b>同一目标年度 EPS 预测约 1 个月变化超过 5%</b><span class="cn">缺少同一目标年度的历史采集快照，暂不可判断</span></li><li class="ok"><span class="cs">未触发</span><b>近 5 个交易日有回购、增减持、解禁等公告</b><span class="cn">无</span></li><li class="ok"><span class="cs">未触发</span><b>持仓触发了操作记录里写下的计划条件</b><span class="cn">还没有这只股票的操作记录</span></li></ul></section>
+
+<section class="block" id="trades"><h2>我的操作</h2><p class="note">还没有这只股票的操作记录。实际交易后可在对话中补记。</p></section>
+</main>
+<footer><div class="wrap"><p>数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 2026-11-09 v2，每节的“怎么判的”里有完整规则。</p>
+<p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer></body></html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>半年名单 | A 股框架笔记</title><style>:root{color-scheme:light;
+--paper:#F4F5F7;--surface:#FFFFFF;--ink:#18202B;--ink2:#4B5565;--ink3:#7C8696;--line:#DCE0E6;--line2:#EEF0F3;
+--up:#C8312B;--up-bg:#FBE8E6;--down:#15804E;--down-bg:#E2F2E9;--flat-bg:#ECEEF2;--link:#27408B;--link-bg:#E8ECF7;
+--warn:#8A6D12;--warn-bg:#FFF3C4;
+--serif:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong",serif;
+--sans:-apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.7 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--link);text-decoration:none}
+a:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px}
+.brand{font:600 18px/1 var(--serif);color:var(--ink)}
+header nav{display:flex;gap:2px;font-size:14px;align-items:center}
+header nav a,header nav .soon{padding:5px 10px;border-radius:6px;color:var(--ink2)}
+header nav a[aria-current]{background:var(--link-bg);color:var(--link);font-weight:600}
+header nav .soon{color:#B0B6C0}
+header nav .soon small{font-size:11px;margin-left:3px}
+
+.hero{padding:34px 0 6px}
+.hero .date{margin:0;color:var(--ink3);font-size:14px}
+.hero h1{font:600 34px/1.3 var(--serif);margin:2px 0 10px}
+.hero .sum{font:500 19px/1.6 var(--serif);margin:0;max-width:36em}
+.hero .stamp{font-size:13px;color:var(--ink3);margin:8px 0 0}
+
+.block{padding:34px 0 4px}
+h2{font:600 23px/1.3 var(--serif);margin:0 0 4px}
+.sub{color:var(--ink2);margin:0 0 16px;max-width:44em;font-size:14px}
+.note{color:var(--ink2);font-size:14px;max-width:46em}
+
+.tag{display:inline-block;font-size:12px;line-height:20px;padding:0 8px;border-radius:4px;margin-right:8px;white-space:nowrap;font-weight:600}
+.tag.up{background:var(--up-bg);color:var(--up)}
+.tag.down{background:var(--down-bg);color:var(--down)}
+.tag.flat,.tag.na{background:var(--flat-bg);color:var(--ink2)}
+.tag.alert{background:var(--warn-bg);color:var(--warn)}
+
+.chg-list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.chg-list li{padding:11px 16px;border-top:1px solid var(--line2);font-size:15px}
+.chg-list li:first-child{border-top:0}
+.chg-list li a{font-size:13px;margin-left:6px;white-space:nowrap}
+
+/* 框架图 */
+.fwbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 10px 6px;overflow-x:auto}
+svg.fw{display:block;width:100%;min-width:760px;height:auto}
+.fw .edge{fill:none;stroke:#9AA2AF;stroke-width:1.4}
+.fw .edge.fb{stroke:#D88B1F;stroke-dasharray:5 4}
+.fw .node rect{stroke-width:1.5}
+.fw .node .n{font:600 15px var(--sans);fill:var(--ink)}
+.fw .node .s{font:13px var(--sans);fill:var(--ink2)}
+.fw .node .lc{fill:var(--ink)} .fw .node .lt{font:700 13px var(--sans);fill:#fff}
+.fw .node.up rect{fill:var(--up-bg);stroke:var(--up)} .fw .node.up .s{fill:var(--up)} .fw .node.up .lc{fill:var(--up)}
+.fw .node.down rect{fill:var(--down-bg);stroke:var(--down)} .fw .node.down .s{fill:var(--down)} .fw .node.down .lc{fill:var(--down)}
+.fw .node.flat rect{fill:var(--flat-bg);stroke:#AEB5C1} .fw .node.flat .lc{fill:#7C8696}
+.fw .node.na rect{fill:#fff;stroke:#C3C8D0;stroke-dasharray:4 3} .fw .node.na .lc{fill:#B0B6C0} .fw .node.na .n{fill:var(--ink3)}
+.fw .node.price rect{fill:var(--ink);stroke:var(--ink)} .fw .node.price .n{fill:#fff} .fw .node.price .s{fill:#C9CFD8} .fw .node.price .lc{fill:#fff} .fw .node.price .lt{fill:var(--ink)}
+.fw .node:hover rect{stroke-width:3}
+.chips{display:none}
+
+/* 打分卡 */
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sc{background:var(--surface);padding:13px 16px;color:var(--ink);display:block}
+a.sc:hover{background:#FAFBFC}
+.sc .lbl{display:flex;align-items:baseline;gap:6px;font-weight:600}
+.sc .lbl .v{margin-left:auto;font:700 19px var(--sans)}
+.sc .man{font-size:11px;font-weight:600;color:var(--warn);background:var(--warn-bg);padding:0 5px;border-radius:3px}
+.v.up{color:var(--up)} .v.down{color:var(--down)} .v.flat{color:var(--ink3)}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin:7px 0 6px}
+.scale span{height:7px;border-radius:2px;background:var(--flat-bg)}
+.scale span.mid{background:#C9CED6} .scale span.u{background:var(--up)} .scale span.d{background:var(--down)}
+.sc p{margin:0;font-size:13px;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sc.total{grid-column:1/-1;background:var(--ink);color:#fff}
+.sc.total .v{color:#fff;font-size:26px}
+.sc.total p{color:#C9CFD8;-webkit-line-clamp:unset;margin-top:4px}
+.trend{display:block;width:100%;max-width:480px;height:auto;margin-top:8px}
+.trend .u{fill:#FF8A80} .trend .d{fill:#5BC28A} .trend .z{fill:#7C8696}
+
+/* 节点展开 */
+.nd{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px 16px;margin-bottom:16px;scroll-margin-top:72px}
+.nd:target{box-shadow:0 0 0 3px var(--link-bg);border-color:var(--link)}
+.ndh{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
+.ndh h3{margin:0;font:600 19px/1.35 var(--serif)}
+.ndh .q{margin:2px 0 0;color:var(--ink2);font-size:14px}
+.lc2{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;background:#7C8696}
+.lc2.up{background:var(--up)} .lc2.down{background:var(--down)} .lc2.price{background:var(--ink)} .lc2.na{background:#B0B6C0}
+h4{font-size:14px;margin:18px 0 8px;color:var(--ink2)}
+
+.verdict{border-left:4px solid #AEB5C1;background:#F8F9FB;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px}
+.verdict.up{border-color:var(--up);background:#FDF5F4} .verdict.down{border-color:var(--down);background:#F3FAF6}
+.verdict .vh{display:flex;align-items:center;gap:4px}
+.verdict .vh b{font-size:18px}
+.verdict.up .vh b{color:var(--up)} .verdict.down .vh b{color:var(--down)}
+.verdict .vwhy{margin-left:auto;font-size:12px;color:var(--ink3)}
+.verdict ul{list-style:none;margin:6px 0 0;padding:0}
+.verdict li{display:flex;gap:10px;font-size:14px;padding:3px 0;color:var(--ink)}
+.pt{flex:0 0 40px;text-align:right;font-weight:700;font-size:13px}
+.pt.up{color:var(--up)} .pt.down{color:var(--down)} .pt.flat{color:var(--ink3)}
+.mnote{font-size:13px;color:var(--warn);margin:6px 0 0}
+.verdict.na .mnote{color:var(--ink2)}
+
+.tblwrap{overflow-x:auto}
+table.mt{width:100%;border-collapse:collapse;font-size:14px}
+.mt th,.mt td{padding:9px 10px;border-top:1px solid var(--line2);text-align:left;vertical-align:middle}
+.mt thead th{border-top:0;font-size:12px;color:var(--ink3);font-weight:600;white-space:nowrap}
+.mt tbody th{font-weight:600;min-width:150px}
+.mt .hint{display:block;font-weight:400;font-size:12px;color:var(--ink3);line-height:1.45}
+.mt .v{font-weight:700;white-space:nowrap}
+.mt .chg{white-space:nowrap;font-size:13px}
+.mt .up,.chg.up{color:var(--up)} .mt .down,.chg.down{color:var(--down)} .chg.flat{color:var(--ink3)}
+.mt .dt{font-size:13px;color:var(--ink2);white-space:nowrap}
+.mt .freq{display:block;font-size:11px;color:var(--ink3)}
+.mt .sp{width:130px}
+.spark{display:block}
+.it td,.it th{white-space:nowrap}
+
+.chartbox{margin:14px 0 4px}
+svg.chart{display:block;width:100%;height:auto}
+.chart .grid{stroke:#EEF0F3} .chart .ax{font:11px var(--sans);fill:var(--ink3)}
+.chart .band{stroke:#D88B1F;stroke-dasharray:4 4} .chart .bandlab{font:11px var(--sans);fill:#B07015}
+.cleg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);padding-left:48px}
+.cleg i{display:inline-block;width:14px;height:3px;margin-right:6px;vertical-align:3px;border-radius:2px}
+
+.ev{list-style:none;margin:0;padding:0}
+.ev li{padding:8px 0;border-top:1px solid var(--line2);font-size:14px}
+.ev li:first-child{border-top:0}
+.ev .evd{color:var(--ink3);font-size:12px;margin-left:8px}
+.ev p{margin:2px 0 0;color:var(--ink2)}
+.ev .src{display:block;font-size:12px;color:var(--ink3)}
+
+details.rules{margin-top:12px;font-size:13px;color:var(--ink2);background:#F8F9FB;border-radius:8px;padding:8px 12px}
+details.rules summary{cursor:pointer;color:var(--link);font-weight:600}
+details.rules[open] summary{margin-bottom:6px}
+
+.conds{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.conds li{display:grid;grid-template-columns:96px 1fr;gap:2px 12px;padding:11px 16px;border-top:1px solid var(--line2);font-size:14px}
+.conds li:first-child{border-top:0}
+.conds .cs{grid-row:span 2;font-size:12px;font-weight:600;align-self:start;margin-top:2px;padding:1px 8px;border-radius:4px;text-align:center;background:var(--flat-bg);color:var(--ink3)}
+.conds li.hit .cs{background:var(--warn-bg);color:var(--warn)}
+.conds .cn{color:var(--ink2);font-size:13px}
+
+.empty{background:var(--surface);border:1px dashed #C3C8D0;border-radius:12px;padding:20px 24px}
+.empty h3{margin:0 0 6px;font:600 18px var(--serif)}
+.empty blockquote{margin:10px 0;padding:10px 14px;background:#F8F9FB;border-left:3px solid var(--link);color:var(--ink);border-radius:0 6px 6px 0}
+
+footer{margin-top:44px;padding:20px 0 40px;border-top:1px solid var(--line);font-size:13px;color:var(--ink3)}
+footer p{margin:4px 0}
+
+@media (max-width:760px){
+ .wrap{padding:0 16px}
+ .brand{font-size:16px}
+ header nav .soon{display:none}
+ .hero h1{font-size:26px} .hero .sum{font-size:17px}
+ .fwbox{display:none}
+ .chips{display:grid;gap:8px}
+ .chip{display:grid;grid-template-columns:28px 1fr;gap:0 10px;background:var(--surface);border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:9px 12px;color:var(--ink);font-size:14px;font-weight:600}
+ .chip b{grid-row:span 2;width:26px;height:26px;border-radius:50%;background:#7C8696;color:#fff;display:grid;place-items:center;font-size:13px}
+ .chip span{font-weight:400;font-size:13px;color:var(--ink2)}
+ .chip.up{border-left-color:var(--up)} .chip.up b{background:var(--up)} .chip.up span{color:var(--up)}
+ .chip.down{border-left-color:var(--down)} .chip.down b{background:var(--down)} .chip.down span{color:var(--down)}
+ .chip.price b{background:var(--ink)} .chip.na{border-style:dashed} .chip.na b{background:#B0B6C0}
+ .score{grid-template-columns:1fr 1fr}
+ .nd{padding:16px 14px 12px}
+ .mt .sp{display:none}
+ .mt tbody th{min-width:118px}
+ .conds li{grid-template-columns:1fr}
+ .conds .cs{grid-row:auto;justify-self:start}
+}
+
+/* 个股页 */
+.crumb{font-size:13px;color:var(--ink3);padding-top:22px}
+.crumb a{color:var(--ink2)}
+.shero{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-top:6px}
+.shero h1{margin:0}
+.shero h1 small{font:400 16px var(--sans);color:var(--ink3);margin-left:12px}
+.tags2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tags2 span{font-size:12px;padding:1px 10px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--ink2)}
+.tags2 .drv{background:var(--ink);border-color:var(--ink);color:#fff}
+.tags2 .cand{background:var(--warn-bg);border-color:var(--warn-bg);color:var(--warn)}
+.px{text-align:right}
+.px b{font:700 34px/1 var(--sans);display:block}
+.px span{font-weight:700;margin-right:8px}
+.px small{color:var(--ink3);font-size:12px}
+.up{color:var(--up)} .down{color:var(--down)}
+.tag.up,.tag.down{color:inherit}
+.tag.up{color:var(--up)} .tag.down{color:var(--down)}
+.lay th{width:72px;font-size:15px}
+.lay td:nth-child(2){width:96px}
+.soon2{font-size:12px;color:var(--ink3);margin-left:6px}
+.prior{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--link);border-radius:0 10px 10px 0;padding:12px 16px;margin:0;max-width:52em;font:500 16px/1.7 var(--serif)}
+.prior .src{display:block;font:12px var(--sans);color:var(--ink3);margin-top:4px}
+.fm .why{color:var(--ink2);font-size:13px;min-width:180px}
+.fm .now{font-size:13px;min-width:200px}
+.fm .now.na{color:var(--ink3)} .fm .now.flat{color:var(--ink2)}
+.lv{display:inline-block;font-size:12px;font-weight:700;padding:0 8px;border-radius:4px}
+.lv.hi{background:var(--ink);color:#fff} .lv.mid{background:#C9CED6;color:var(--ink)} .lv.lo{background:var(--flat-bg);color:var(--ink3)}
+.ndlist{margin-top:16px}
+.h3s{margin:0 0 6px;font:600 18px var(--serif)}
+.ann{list-style:none;margin:0;padding:0;font-size:14px}
+.ann li{padding:5px 0;border-top:1px solid var(--line2)}
+.ann li:first-child{border-top:0}
+.ann .evd{display:inline-block;width:92px;color:var(--ink3);font-size:12px}
+/* 个股列表 */
+.slist{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.srow{display:grid;grid-template-columns:1.4fr 1fr .8fr .9fr .9fr 1.6fr;gap:12px;align-items:center;padding:14px 18px;border-top:1px solid var(--line2);color:var(--ink)}
+.srow:first-child{border-top:0}
+.srow:hover{background:#FAFBFC}
+.srow .nm{font-weight:700;font-size:16px}
+.srow .nm small{display:block;font-weight:400;font-size:12px;color:var(--ink3)}
+.srow .px2 b{display:block;font-size:16px}
+.srow .px2 span{font-size:13px;font-weight:600}
+.srow .kv{font-size:12px;color:var(--ink3)} .srow .kv b{display:block;font-size:15px;color:var(--ink)}
+.srow .kv b.up{color:var(--up)} .srow .kv b.down{color:var(--down)}
+.lys{display:flex;gap:4px;flex-wrap:wrap}
+.lys .tag{margin:0}
+/* 报告 */
+.rplist{display:grid;gap:10px}
+.rp{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;color:var(--ink)}
+.rp:hover{border-color:var(--link)}
+.rp b{font:600 17px var(--serif);display:block}
+.rp .rh{display:block;color:var(--ink);font-size:14px;margin-top:2px}
+.rp .rd{display:block;color:var(--ink3);font-size:13px}
+@media (max-width:760px){
+ .srow{grid-template-columns:1fr 1fr;gap:6px 12px}
+ .srow .lys{grid-column:1/-1}
+ .px{text-align:left}
+ .fm .why{min-width:140px}
+}
+.lc2{color:#fff!important}
+@media (max-width:760px){
+ .lay tr{display:grid;grid-template-columns:64px 1fr;padding:8px 0;border-top:1px solid var(--line2)}
+ .lay th,.lay td{border:0;padding:2px 8px}
+ .lay td:last-child{grid-column:1/-1}
+}
+.chip2{display:inline-block;font-size:12px;padding:1px 10px;border-radius:20px;background:var(--link-bg);color:var(--link);margin-right:4px}
+.sum2{font-size:15px;color:var(--ink2);margin:14px 0 0}
+.sum2 b{font-size:18px}
+.brow{grid-template-columns:1.6fr .7fr .9fr .9fr 1fr 1.4fr}
+.sc .sk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--flat-bg);color:var(--ink2);font-size:11px;font-weight:700}
+@media (max-width:760px){.sc.total{grid-column:1/-1!important}}
+@media (max-width:760px){.score .sc:nth-last-child(2):nth-child(odd){grid-column:1/-1}}
+.lls{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:22px}
+.ll{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.ll p{margin:6px 0 0;font-size:14px}
+.llh{display:flex;align-items:center;gap:8px}
+.llh b{font:600 17px var(--serif)}
+.llh .v{margin-left:auto;font:700 18px var(--sans)}
+.star{font-size:11px;font-weight:700;background:var(--link);color:#fff;padding:1px 7px;border-radius:4px}
+.kv2{color:var(--ink3);font-size:12px!important}
+.scr td,.scr th{white-space:nowrap;font-size:13px}
+.scr tr.hl{background:#F7F9FE}
+@media (max-width:760px){.lls{grid-template-columns:1fr}}
+.gh{margin:22px 0 8px;display:flex;align-items:baseline;gap:10px}
+.gh small{font:13px var(--sans);color:var(--ink3)}
+.tags2 .st2{background:var(--link-bg);border-color:var(--link-bg);color:var(--link)}
+
+/* v2 research cards: preserve readable columns, scroll tables on narrow screens. */
+#research{scroll-margin-top:110px}
+#research table{min-width:920px}
+#research th:first-child{min-width:85px}
+#research td{vertical-align:top}
+@media(max-width:600px){
+ header.top .wrap{height:auto;min-height:72px;flex-wrap:wrap;gap:6px;padding-top:10px;padding-bottom:8px}
+ .brand{white-space:nowrap}
+ header nav{width:100%;justify-content:space-between;white-space:nowrap}
+ header nav a{padding:5px 8px}
+}
+
+/* HK market navigation and observation cards */
+.market-switch{display:flex;gap:6px;padding-top:26px;align-items:center}
+.market-switch a{padding:8px 24px;border:1px solid var(--line,#dedbd5);border-radius:5px;text-decoration:none;color:inherit;font-weight:600}
+.market-switch a[aria-current="page"]{background:#293e50;color:#fff;border-color:#293e50}
+.market-switch+.hero{padding-top:30px}
+.hk-scores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #dedbd5;border-radius:6px;overflow:hidden}
+.hk-score{padding:20px;border:1px solid #eeeae4;display:flex;flex-direction:column;gap:9px}
+.hk-score strong{font-size:22px}.hk-score small{color:#777}
+.hk-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.hk-node{border:1px solid #dedbd5;border-left:3px solid currentColor;border-radius:5px;padding:15px;text-decoration:none;display:flex;flex-direction:column;gap:8px;color:#66717c}
+.hk-node b{font:700 22px Georgia,serif}.hk-node span{font-weight:600;color:#293e50}.hk-node small{font-size:11px;color:#777}
+.hk-changes{padding-left:22px;line-height:2.1}.hk-notice{border-left:3px solid #947539;padding:8px 18px;background:#f6f1e5;font-size:13px}
+.hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:#293e50}.hk-diagram .small{font-size:10px;fill:#777}
+@media(min-width:761px){.hk-diagram+.hk-map{display:none}}
+@media(max-width:760px){.hk-scores,.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score{padding:15px}.hk-score strong{font-size:18px}.hk-diagram{display:none}.hk-changes{font-size:14px}.hk-node{padding:12px}.market-switch{padding-top:18px}}
+
+.hk-node.fx,.lc2.fx{color:#3478db;border-color:#4e91ff;background:#eef5ff}
+.lc2.fx{background:#3478db;color:#fff}
+.hk-node.price{background:#172333;color:#fff}.hk-node.price span,.hk-node.price small{color:#fff}
+.hk-scores{grid-template-columns:repeat(4,minmax(0,1fr))}.hk-score strong{font-size:18px}
+@media(max-width:760px){.hk-scores{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score strong{font-size:16px}}
+
+.hk-call{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#f0f3f7;padding:16px;margin-bottom:18px;border-radius:6px}.hk-call small{color:#64748b}.hk-scope{display:block;color:#64748b;font-size:11px;line-height:1.6;margin-top:6px}.hk-evidence p{line-height:1.9}.hk-evidence .mt th:first-child{min-width:100px}.hk-evidence .mt td:last-child{white-space:nowrap}.hk-score{text-decoration:none;color:inherit}.hk-score strong{font-size:16px;line-height:1.6}.hk-score small{line-height:1.5}
+@media(max-width:760px){.hk-evidence .mt{min-width:640px}.hk-evidence .tblwrap{overflow-x:auto}.hk-score strong{font-size:14px}.hk-call{padding:12px}}
+
+.hk-mobilehint{display:none}@media(max-width:760px){.hk-mobilehint{display:block;font-size:12px;color:#64748b}}
+
+/* ---- 半年名单 /picks/ ---- */
+.pkbar{width:100%;height:auto;margin:8px 0 0}
+.pkb{fill:#fff;font:600 13px var(--sans)}
+.pkbl{fill:var(--ink2);font:12px var(--sans)}
+.pklegend{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 0;font-size:13px;color:var(--ink2)}
+.pkleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+table.pk td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.pk td.pkjudge{font-size:13px;color:var(--ink2);min-width:260px}
+.pkh3{font:600 17px/1.4 var(--serif);margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
+.pkh3:first-of-type{margin-top:8px}
+.pkh3 span{font:13px var(--sans);color:var(--ink3)}
+.pkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.pkcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 12px;border-top:3px solid var(--line)}
+.pkcard.tA{border-top-color:var(--link)}
+.pkcard.tB{border-top-color:var(--ink3)}
+.pkcard.tC{border-top-color:var(--up)}
+.pkh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.pkh a{font:600 18px/1.3 var(--serif);color:var(--ink)}
+.pkw{font:700 15px var(--sans);color:var(--link)}
+.pkmeta{margin:2px 0 8px;font-size:12px;color:var(--ink3)}
+.pkmini{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pkmini span{font-size:12px;color:var(--ink2);background:var(--line2);border-radius:6px;padding:2px 8px}
+.pkmini b{color:var(--ink);font-weight:700}
+.pkass{margin:0 0 8px;font-size:13.5px;line-height:1.65;color:var(--ink)}
+.pklab{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--ink);border-radius:4px;padding:0 6px;margin-right:6px}
+.pklab2{display:block;margin:0 0 4px;background:var(--warn-bg);color:var(--warn)}
+.pkfals{margin:0;padding-left:18px;font-size:13px;color:var(--ink2)}
+.pkfals li{margin:2px 0}
+.pknote{margin:8px 0 0;font-size:12px;color:var(--ink3)}
+.pkrules{margin:0;padding-left:22px;font-size:14.5px}
+.pkrules li{margin:6px 0}
+</style></head><body>
+<header class="top"><div class="wrap"><a class="brand" href="../index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="../index.html">大盘</a><a href="../boards/index.html">板块</a><a href="../stocks/index.html">个股</a><a href="../picks/index.html" aria-current="page">半年名单</a><a href="../reports/index.html">报告</a><a href="../trades.html">我的操作</a></nav></div></header>
+<main class="wrap">
+<div class="hero"><p class="date">2026-11 → 2027-05 · 半年名单</p>
+<h1>这半年我打算拿什么，以及什么情况下认错</h1>
+<p class="sum">20 只股票、9 个板块。上游涨价链做主力，科技压到 12%，医药和外需各做一块，现金留 45%。</p>
+<p class="stamp">数字为 2026-11-09 收盘快照，每季报后重算；日度信号请看大盘、板块、个股三页。名单更新时间 2026-11-10。</p></div>
+
+<section class="block" id="structure"><h2>组合结构</h2>
+<p class="sub">总仓位 55%，现金 45%。单只上限 4%，单板块上限 12%，C 档合计上限 14%。</p>
+<svg viewBox="0 0 920 66" class="pkbar" role="img" aria-label="组合结构"><rect x="0.0" y="0" width="246.4" height="40" rx="3" fill="#8A5A2B"/><text x="123.2" y="25.0" text-anchor="middle" class="pkb">27%</text><text x="123.2" y="57" text-anchor="middle" class="pkbl">上游资源</text><rect x="248.4" y="0" width="80.8" height="40" rx="3" fill="#27408B"/><text x="288.8" y="25.0" text-anchor="middle" class="pkb">9%</text><text x="288.8" y="57" text-anchor="middle" class="pkbl">外需</text><rect x="331.2" y="0" width="62.4" height="40" rx="3" fill="#15804E"/><text x="362.4" y="25.0" text-anchor="middle" class="pkb">7%</text><text x="362.4" y="57" text-anchor="middle" class="pkbl">医药</text><rect x="395.6" y="0" width="108.4" height="40" rx="3" fill="#6B3FA0"/><text x="449.8" y="25.0" text-anchor="middle" class="pkb">12%</text><text x="449.8" y="57" text-anchor="middle" class="pkbl">科技</text><rect x="506.0" y="0" width="412.0" height="40" rx="3" fill="#B0B6C0"/><text x="712.0" y="25.0" text-anchor="middle" class="pkb">45%</text><text x="712.0" y="57" text-anchor="middle" class="pkbl">现金</text></svg><p class="pklegend"><span class="pkleg"><i style="background:#8A5A2B"></i>上游资源 27%</span><span class="pkleg"><i style="background:#27408B"></i>外需 9%</span><span class="pkleg"><i style="background:#15804E"></i>医药 7%</span><span class="pkleg"><i style="background:#6B3FA0"></i>科技 12%</span><span class="pkleg"><i style="background:#B0B6C0"></i>现金 45%</span></p></section>
+
+<section class="block" id="boards"><h2>板块记分卡</h2>
+<p class="sub">用三把尺子分别量：成长看 2027E PE 与增速，周期看商品价格位置，红利看股息率减国债利差。“拥挤度”是成交额占全市场的分位，越高越容易被踩踏。</p>
+<div class="tblwrap"><table class="mt pk"><thead><tr><th>板块</th><th>动作</th><th>风格</th><th>单季利润</th><th>板块 PE</th><th>RS60</th><th>拥挤度</th><th>距一年高</th><th>判断</th></tr></thead><tbody><tr><td><a href="../boards/BK1036.html">半导体</a></td><td><span class="tag flat">保留</span></td><td>成长</td><td class="num">+512%</td><td class="num">40.7</td><td class="num down">-9%</td><td class="num">74%</td><td class="num">-44%</td><td class="pkjudge">景气最真、趋势最差。板块利润 +512% 但回撤 -44%，只留现金流过关的封测与存储。</td></tr><tr><td><a href="../boards/BK0735.html">计算机设备</a></td><td><span class="tag flat">保留</span></td><td>成长</td><td class="num">+39%</td><td class="num">31.9</td><td class="num flat">+2%</td><td class="num">12%</td><td class="num">-28%</td><td class="pkjudge">拥挤度最低的科技板块，但亏损面 35%。只保留海康一只。</td></tr><tr><td><a href="../boards/BK0465.html">化学制药</a></td><td><span class="tag flat">保留</span></td><td>成长</td><td class="num">+65%</td><td class="num">42.6</td><td class="num down">+6%</td><td class="num">57%</td><td class="num">-19%</td><td class="pkjudge">与宏观不相关，是组合的独立变量。恒瑞现金流 1.13、百济 1.18，都过关。</td></tr><tr><td><a href="../boards/BK0727.html">医疗服务</a></td><td><span class="tag up">新增</span></td><td>成长</td><td class="num">+77%</td><td class="num">32.6</td><td class="num flat">+12%</td><td class="num">88%</td><td class="num">-11%</td><td class="pkjudge">CXO 订单回暖，回撤只有 -11%。但拥挤度 88%，只放药明康德 2%。</td></tr><tr><td><a href="../boards/BK1287.html">工业金属</a></td><td><span class="tag flat">保留</span></td><td>周期</td><td class="num">+51%</td><td class="num">10.1</td><td class="num flat">-3%</td><td class="num">15%</td><td class="num">-33%</td><td class="pkjudge">PPI +5.7% 最直接受益，拥挤度 15%，板块 PE 10 倍。</td></tr><tr><td><a href="../boards/BK1019.html">化学原料</a></td><td><span class="tag up">新增</span></td><td>周期</td><td class="num">+42%</td><td class="num">21.4</td><td class="num flat">+3%</td><td class="num">2%</td><td class="num">-28%</td><td class="pkjudge">拥挤度 2%，几乎没人在交易。卫星、宝丰现金流都 &gt;1.3。</td></tr><tr><td><a href="../boards/BK0471.html">化学纤维</a></td><td><span class="tag up">新增</span></td><td>周期</td><td class="num">+91%</td><td class="num">27.2</td><td class="num flat">+4%</td><td class="num">16%</td><td class="num">-28%</td><td class="pkjudge">利润弹性最大（+91%），拥挤度低。但 27 家成分里 5 家亏损，只做龙头。</td></tr><tr><td><a href="../boards/BK1250.html">煤炭开采</a></td><td><span class="tag flat">保留</span></td><td>红利/周期</td><td class="num">+27%</td><td class="num">16.7</td><td class="num flat">+11%</td><td class="num">74%</td><td class="num">-13%</td><td class="pkjudge">趋势最强（RS250 +22%），但 PE 已在 3 年 95% 分位、拥挤 74%。只吃股息，不赌价格。</td></tr><tr><td><a href="../boards/BK0450.html">航运港口</a></td><td><span class="tag up">新增</span></td><td>周期</td><td class="num">+66%</td><td class="num">10.8</td><td class="num flat">+14%</td><td class="num">69%</td><td class="num">-13%</td><td class="pkjudge">37 家成分零亏损，回撤仅 -13%。但 SCFI 已结束四连涨，集运转淡季，重心放油运。</td></tr></tbody></table></div></section>
+
+<section class="block" id="holdings"><h2>20 张持有卡</h2>
+<p class="sub">按波动分三档：A 低波（股息率 >3.5%、回撤 &lt;15%）、B 中波（现金流 >1.0）、C 高波（估值最低或成长最快，但趋势已破坏）。每张卡都必须写得出“什么情况下我认错”。</p>
+<h3 class="pkh3">A 低波<span>合计 15%</span></h3><div class="pkgrid"><article class="pkcard tA">
+<div class="pkh"><a href="../stocks/601088.html">中国神华</a>
+<span class="pkw">4%</span></div>
+<p class="pkmeta">煤炭开采 · 红利压舱 · A 低波</p>
+<div class="pkmini"><span>PE <b>19.7</b></span><span>2027E <b>16.8</b></span>
+<span>现金/利润 <b>2.07</b></span><span>股息 <b>6.03%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>长协煤价稳定 + 高分红，本质是债券替代。买它不是为了涨，是为了在成长股杀估值时有个不跌的东西。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>股息率跌破 3.5%（与 1.59% 国债利差 &lt;1.9pp）</li><li>分红比例下调</li><li>煤价跌破长协区间</li></ul><p class="pknote">含一次重叠中期分红，年化约 4.0%</p></article><article class="pkcard tA">
+<div class="pkh"><a href="../stocks/601225.html">陕西煤业</a>
+<span class="pkw">4%</span></div>
+<p class="pkmeta">煤炭开采 · 红利+弹性 · A 低波</p>
+<div class="pkmini"><span>PE <b>12.2</b></span><span>2027E <b>10.9</b></span>
+<span>现金/利润 <b>2.40</b></span><span>股息 <b>3.64%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>陕北低成本动力煤，利润弹性比神华大，分红率也高。现金流含量 2.40，是全名单里最扎实的之一。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>单季利润同比转负</li><li>分红率下调</li><li>煤价跌破近一年低位</li></ul></article><article class="pkcard tA">
+<div class="pkh"><a href="../stocks/002415.html">海康威视</a>
+<span class="pkw">4%</span></div>
+<p class="pkmeta">计算机设备 · 低估值蓝筹 · A 低波</p>
+<div class="pkmini"><span>PE <b>17.9</b></span><span>2027E <b>15.6</b></span>
+<span>现金/利润 <b>0.56</b></span><span>股息 <b>3.75%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>PE 处 3 年 5% 分位、股息率 3.75%、回撤只有 -9%。政府和企业需求弱，但估值已经反映，作为科技里的防守仓。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>单季营收同比转负</li><li>经营现金流/利润 &lt;0.3</li><li>海外业务被进一步限制</li></ul></article><article class="pkcard tA">
+<div class="pkh"><a href="../stocks/601919.html">中远海控</a>
+<span class="pkw">3%</span></div>
+<p class="pkmeta">航运港口 · 高股息+强趋势 · A 低波</p>
+<div class="pkmini"><span>PE <b>7.7</b></span><span>2027E <b>9.3</b></span>
+<span>现金/利润 <b>1.56</b></span><span>股息 <b>5.02%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>运价高位震荡 + 5% 股息。趋势最强、回撤最小，但核心假设正在被削弱。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>SCFI 连续 4 周下跌（已跌 1 周）</li><li>单季利润同比转负</li><li>分红下调</li></ul><p class="pknote">但 2027E 盈利预期 -26%</p></article></div><h3 class="pkh3">B 中波<span>合计 24%</span></h3><div class="pkgrid"><article class="pkcard tB">
+<div class="pkh"><a href="../stocks/000807.html">云铝股份</a>
+<span class="pkw">3%</span></div>
+<p class="pkmeta">工业金属 · 股息+成本改善 · B 中波</p>
+<div class="pkmini"><span>PE <b>6.5</b></span><span>2027E <b>5.6</b></span>
+<span>现金/利润 <b>1.22</b></span><span>股息 <b>5.09%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>利润 +141% 靠的不是铝价（一年 18% 分位），是氧化铝成本崩塌 —— 毛利率从 15.4% 涨到 32.0%。股息率 5.09%、PE 6.5。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>氧化铝价格反弹 30%</li><li>铝价跌破 21,245 元/吨（一年低位）</li><li>枯水期限电减产</li><li>单季毛利率跌破 26%</li></ul></article><article class="pkcard tB">
+<div class="pkh"><a href="../stocks/601899.html">紫金矿业</a>
+<span class="pkw">3%</span></div>
+<p class="pkmeta">工业金属 · 铜金对冲 · B 中波</p>
+<div class="pkmini"><span>PE <b>10.6</b></span><span>2027E <b>8.2</b></span>
+<span>现金/利润 <b>1.47</b></span><span>股息 <b>2.82%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>铜价在 30 年 99% 分位但一年只有 69%，金价从 1,249 跌到 885（一年 10% 分位）。铜在撑、金在拖，所以单季只 +26%。买它是铜金对冲，不是纯铜弹性。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>铜价跌破 85,650 元/吨（一年低位）</li><li>金价再跌 10%</li><li>单季毛利率 &lt;30%</li><li>海外矿山重大停产</li></ul></article><article class="pkcard tB">
+<div class="pkh"><a href="../stocks/600985.html">淮北矿业</a>
+<span class="pkw">3%</span></div>
+<p class="pkmeta">煤炭开采 · 焦煤弹性 · B 中波</p>
+<div class="pkmini"><span>PE <b>15.1</b></span><span>2027E <b>9.5</b></span>
+<span>现金/利润 <b>2.68</b></span><span>股息 <b>1.71%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>华东焦煤龙头，现金流含量 2.68（全名单最高），2027E PE 9.5。焦煤在一年 81% 分位，弹性还在但空间受限。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>焦煤跌破 1,016 元/吨（一年低位）</li><li>单季利润同比转负</li><li>经营现金流/利润 &lt;1.0</li></ul><p class="pknote">股息率仅 1.71%，不是红利股</p></article><article class="pkcard tB">
+<div class="pkh"><a href="../stocks/002648.html">卫星化学</a>
+<span class="pkw">3%</span></div>
+<p class="pkmeta">化学原料 · 轻烃成本优势 · B 中波</p>
+<div class="pkmini"><span>PE <b>7.8</b></span><span>2027E <b>7.1</b></span>
+<span>现金/利润 <b>1.49</b></span><span>股息 <b>2.04%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>美国乙烷为原料，成本比油头低。PE 7.8、回撤 -18%、现金流 1.49，是化工里最稳的一只。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>乙烷-乙烯价差收窄 30%</li><li>新项目投产延期超一个季度</li><li>单季毛利率环比 -5pp</li></ul></article><article class="pkcard tB">
+<div class="pkh"><a href="../stocks/600989.html">宝丰能源</a>
+<span class="pkw">3%</span></div>
+<p class="pkmeta">化学原料 · 煤化工成长 · B 中波</p>
+<div class="pkmini"><span>PE <b>9.4</b></span><span>2027E <b>8.4</b></span>
+<span>现金/利润 <b>1.30</b></span><span>股息 <b>3.94%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>煤制烯烃成本优势 + 内蒙新产能。PE 9.4、股息率 3.94%。回撤 -37% 是名单里较深的，靠现金流和分红兜底。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>单季毛利率 &lt;35%</li><li>经营现金流转负</li><li>新产能投产延期</li></ul></article><article class="pkcard tB">
+<div class="pkh"><a href="../stocks/601872.html">招商轮船</a>
+<span class="pkw">3%</span></div>
+<p class="pkmeta">航运港口 · 油运增长 · B 中波</p>
+<div class="pkmini"><span>PE <b>9.1</b></span><span>2027E <b>4.8</b></span>
+<span>现金/利润 <b>1.15</b></span><span>股息 <b>2.29%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>油运运距拉长 + 干散复苏，2027E PE 4.8、预期增速 +27%。和集运是不同运价周期，算分散。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>VLCC 运价跌破现金成本</li><li>新船交付超预期</li><li>单季利润同比转负</li></ul></article><article class="pkcard tB">
+<div class="pkh"><a href="../stocks/600026.html">中远海能</a>
+<span class="pkw">3%</span></div>
+<p class="pkmeta">航运港口 · 油运纯弹性 · B 中波</p>
+<div class="pkmini"><span>PE <b>11.1</b></span><span>2027E <b>4.7</b></span>
+<span>现金/利润 <b>1.40</b></span><span>股息 <b>3.73%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>国内最大油运公司，2027E PE 4.7、预期 +29%，RS60 +15% 是航运三只里趋势最好的。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>VLCC 运价跌破现金成本</li><li>单季利润同比转负</li></ul></article><article class="pkcard tB">
+<div class="pkh"><a href="../stocks/600276.html">恒瑞医药</a>
+<span class="pkw">3%</span></div>
+<p class="pkmeta">化学制药 · 创新药龙头 · B 中波</p>
+<div class="pkmini"><span>PE <b>36.8</b></span><span>2027E <b>31.0</b></span>
+<span>现金/利润 <b>1.13</b></span><span>股息 <b>0.41%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>创新药放量 + BD 授权。PE 在 3 年 1% 分位、现金流 1.13。注意利润里有 BD 首付款的一次性成分。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>单季利润同比转负</li><li>BD 首付款占利润 &gt;30%</li><li>核心品种集采降价超预期</li></ul></article></div><h3 class="pkh3">C 高波<span>合计 16%</span></h3><div class="pkgrid"><article class="pkcard tC">
+<div class="pkh"><a href="../stocks/603225.html">新凤鸣</a>
+<span class="pkw">2%</span></div>
+<p class="pkmeta">化学纤维 · 涤纶价差修复 · C 高波</p>
+<div class="pkmini"><span>PE <b>10.7</b></span><span>2027E <b>8.1</b></span>
+<span>现金/利润 <b>0.99</b></span><span>股息 <b>1.14%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>涤纶长丝价差修复，单季利润 +631%（低基数）。PE 10.7、现金流 0.99 刚过线。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>长丝价差收窄 30%</li><li>单季利润同比转负</li><li>经营现金流/利润 &lt;0.5</li></ul></article><article class="pkcard tC">
+<div class="pkh"><a href="../stocks/002064.html">华峰化学</a>
+<span class="pkw">2%</span></div>
+<p class="pkmeta">化学纤维 · 氨纶见底 · C 高波</p>
+<div class="pkmini"><span>PE <b>13.2</b></span><span>2027E <b>10.4</b></span>
+<span>现金/利润 <b>0.65</b></span><span>股息 <b>2.66%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>氨纶价差见底回升，PE 在 3 年 3% 分位。但现金流/利润只有 0.65，是名单里最接近门槛的一只。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>氨纶价差再创新低</li><li>经营现金流/利润 &lt;0.5</li></ul></article><article class="pkcard tC">
+<div class="pkh"><a href="../stocks/603259.html">药明康德</a>
+<span class="pkw">2%</span></div>
+<p class="pkmeta">医疗服务 · CXO 订单回暖 · C 高波</p>
+<div class="pkmini"><span>PE <b>17.2</b></span><span>2027E <b>15.8</b></span>
+<span>现金/利润 <b>0.85</b></span><span>股息 <b>1.39%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>CXO 订单回暖，单季利润 +137%，回撤只有 -11%。但股价高于年线 32%，追高风险大，所以只给 2%。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>新签订单同比转负</li><li>美国立法实质限制</li><li>单季利润同比转负</li></ul></article><article class="pkcard tC">
+<div class="pkh"><a href="../stocks/688235.html">百济神州</a>
+<span class="pkw">2%</span></div>
+<p class="pkmeta">化学制药 · 全球化创新药 · C 高波</p>
+<div class="pkmini"><span>PE <b>68.9</b></span><span>2027E <b>52.4</b></span>
+<span>现金/利润 <b>1.18</b></span><span>股息 <b>—</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>泽布替尼海外放量、进入盈利期，2027E 增速 +54%。PE 高但利润在快速兑现，回撤只有 -9%。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>美国销售环比 -10%</li><li>生物安全法案实质推进</li><li>单季转亏</li></ul><p class="pknote">不分红</p></article><article class="pkcard tC">
+<div class="pkh"><a href="../stocks/603986.html">兆易创新</a>
+<span class="pkw">2%</span></div>
+<p class="pkmeta">半导体 · 存储弹性（破例） · C 高波</p>
+<div class="pkmini"><span>PE <b>14.4</b></span><span>2027E <b>10.9</b></span>
+<span>现金/利润 <b>0.91</b></span><span>股息 <b>0.31%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>存储涨价 + 估值打到历史最低（PE 14.4，历史区间 14.4-302.8）。但股价从 840 跌到 238（-72%）、低于年线 31% —— 这是唯一主动违反趋势门的仓，只给 2%。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>DRAM 合约价环比转跌</li><li>单季毛利率环比 -5pp</li><li>单季利润同比转负</li></ul></article><article class="pkcard tC">
+<div class="pkh"><a href="../stocks/002156.html">通富微电</a>
+<span class="pkw">2%</span></div>
+<p class="pkmeta">半导体 · AMD 封测 · C 高波</p>
+<div class="pkmini"><span>PE <b>28.1</b></span><span>2027E <b>28.1</b></span>
+<span>现金/利润 <b>1.74</b></span><span>股息 <b>0.19%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>AMD 订单 + 先进封装，现金流 1.74。但 2027E 增速只有 +6%，估值已经反映了订单。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>大客户订单下滑</li><li>产能利用率下降</li><li>单季利润同比转负</li></ul></article><article class="pkcard tC">
+<div class="pkh"><a href="../stocks/600584.html">长电科技</a>
+<span class="pkw">2%</span></div>
+<p class="pkmeta">半导体 · 先进封装 · C 高波</p>
+<div class="pkmini"><span>PE <b>41.8</b></span><span>2027E <b>32.2</b></span>
+<span>现金/利润 <b>2.67</b></span><span>股息 <b>0.29%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>先进封装（Chiplet、2.5D）国产替代，2027E 增速 +29%、现金流 2.67 最扎实。代价是回撤 -51%。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>单季利润同比转负</li><li>毛利率跌破 14%</li></ul></article><article class="pkcard tC">
+<div class="pkh"><a href="../stocks/688008.html">澜起科技</a>
+<span class="pkw">2%</span></div>
+<p class="pkmeta">半导体 · DDR5 接口 · C 高波</p>
+<div class="pkmini"><span>PE <b>47.6</b></span><span>2027E <b>35.5</b></span>
+<span>现金/利润 <b>0.88</b></span><span>股息 <b>0.39%</b></span></div>
+<p class="pkass"><span class="pklab">假设</span>DDR5 渗透 + AI 服务器内存接口，2027E 增速 +32%。PE 在 3 年 0% 分位，但回撤 -53%、趋势仍向下。</p>
+<p class="pklab pklab2">证伪条件</p><ul class="pkfals"><li>DDR5 渗透放缓</li><li>单季营收同比转负</li><li>大客户流失</li></ul></article></div></section>
+
+<section class="block" id="changes"><h2>变更记录</h2>
+<p class="sub">每次换进换出都留痕。6 个月后回看，先看这些判断对不对，而不是看赚了多少。</p>
+<div class="tblwrap"><table class="mt pk"><thead><tr><th>日期</th><th>动作</th><th>对象</th><th>原因</th></tr></thead><tbody><tr><td>2026-11-10</td><td><span class="tag flat">定稿</span></td><td>20 只 / 9 板块</td><td class="pkjudge">用户确认方向：上游涨价、下游需求弱、杠杆退潮，利润向资源转移；但要求保留科技、名单维持 20 只。</td></tr><tr><td>2026-11-10</td><td><span class="tag flat">新增板块</span></td><td>航运港口、化学原料、化学纤维、医疗服务</td><td class="pkjudge">拥挤度低（化工 2%）、回撤小（航运 -13%）、利润弹性大（化纤 +91%）。</td></tr><tr><td>2026-11-10</td><td><span class="tag flat">删除板块</span></td><td>通信设备、自动化设备</td><td class="pkjudge">通信设备现金流最差（亨通 0.13）；自动化设备 PE 71.7、拥挤度 79%、PEG 1.7。</td></tr><tr><td>2026-11-10</td><td><span class="tag flat">剔除</span></td><td>亨通、中天、晶晨、汇川、大族、绿的谐波、中科曙光、浪潮、中兴、三花、乐凯</td><td class="pkjudge">现金流不达标（浪潮 -1.63、晶晨 -0.59）、趋势破坏（回撤 -45~-66%）、估值无支撑（绿的谐波 2027E PE 186）。</td></tr><tr><td>2026-11-10</td><td><span class="tag flat">降权</span></td><td>中远海控 5% → 3%</td><td class="pkjudge">SCFI 11-06 结束四连涨、美东线跌破 1 万美元，核心假设正在被削弱。</td></tr><tr><td>2026-11-10</td><td><span class="tag flat">降权</span></td><td>云铝股份 4% → 3%</td><td class="pkjudge">利润来自氧化铝成本崩塌（毛利率 +16.6pp），不是铝价景气；氧化铝已跌到成本线附近。</td></tr><tr><td>2026-11-10</td><td><span class="tag flat">剔除</span></td><td>西部矿业</td><td class="pkjudge">股息率仅 0.36%、RS60 -21%，不符合控回撤目标。</td></tr><tr><td>2026-11-10</td><td><span class="tag flat">改角色</span></td><td>淮北矿业</td><td class="pkjudge">原按红利股配置，实测股息率只有 1.71%，实际是焦煤弹性股。</td></tr></tbody></table></div></section>
+
+<section class="block" id="rules"><h2>组合级风控</h2>
+<p class="sub">这些是硬规则，触发就执行，不在盘中重新讨论。</p>
+<ol class="pkrules"><li>总仓位 55%，不满仓。沪深 300 跌破 250 日线 → 降到 40%。</li><li>单只 ≤ 4%，单板块 ≤ 12%，C 档（高波）合计 ≤ 14%。</li><li>单只回撤 -15% 触发复核；-25% 强制减半。</li><li>组合回撤 -10% → 停止加仓，先诊断是哪一层错了。</li><li>PPI 同比连续 2 个月回落 → 资源仓从 26% 降到 15%。</li><li>每月 1 号复核；每季报后 3 日重跑四道门；证伪条件触发当天移出。</li></ol>
+<p class="note">下次复核：12/01、01/04、02/02、03/02、04/01、05/04。任一证伪条件触发，当天移出名单并记进“变更记录”。</p></section>
+
+<section class="block" id="todo"><h2>还没核验完的</h2>
+<p class="sub">没查到就写没查到，不填数。</p>
+<div class="tblwrap"><table class="mt pk"><thead><tr><th>优先级</th><th>事项</th><th>影响</th></tr></thead><tbody><tr><td>P0</td><td>神华、陕煤对应的动力煤现货价与近一年分位</td><td>神华、陕煤</td></tr><tr><td>P1</td><td>DRAM 合约价逐月原始数据（现在只有二手报道）</td><td>兆易</td></tr><tr><td>P1</td><td>恒瑞 BD 首付款占利润比例（三季报附注）</td><td>恒瑞</td></tr><tr><td>P1</td><td>宝丰、卫星新产能投产时间表</td><td>宝丰、卫星</td></tr><tr><td>P2</td><td>逐只补公告原文 + 日期 + 链接</td><td>全部</td></tr></tbody></table></div></section>
+
+<section class="block"><h2>怎么读这一页</h2>
+<p class="note">这一页是<b>决策记录</b>，不是行情页。它回答的是“我为什么买、什么情况下我错了”，所以数字固定在 2026-11-09，只在季报后重算。
+想看今天发生了什么，回<a href="../index.html">大盘页</a>、<a href="../boards/index.html">板块页</a>或<a href="../stocks/index.html">个股页</a>。
+页面只呈现假设与条件，不构成投资建议；仓位是风险预算上限，不是推荐买入。</p></section>
+</main>
+<footer><div class="wrap"><p>数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 2026-11-09 v2，每节的“怎么判的”里有完整规则。</p>
+<p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer></body></html>
