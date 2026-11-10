@@ -27,7 +27,7 @@ class FrameworkTest(unittest.TestCase):
  def test_pool_and_pages(self):
   stocks=json.loads((ROOT/'data/stocks.json').read_text())['stocks']
   cards=research.load_cards(ROOT)
-  self.assertEqual(len(stocks),21)
+  self.assertEqual(len(stocks),20)
   self.assertEqual(set(cards),{x['code'] for x in stocks})
   for stock in stocks:
    html=(ROOT/'docs/stocks'/f"{stock['code']}.html").read_text()

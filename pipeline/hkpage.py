@@ -102,6 +102,11 @@ def build(ctx):
     dates=[r['date'] for r in indices['hsi']];liquidity=read('liquidity',{'rows':[]});liq=[r for r in liquidity['rows'] if r['end_of_date']<=asof]
     sb=read('southbound',{'rows':[]});flows=[r for r in sb['rows'] if r['date']<=asof]
     status=read('status',{});fundscore,delta=funding_score(liq,asof)
+    gfile=root/'data/raw/global.json'
+    gseries=(json.loads(gfile.read_text())['series'] if gfile.exists() else {})
+    def gval(key):
+        rows=[r for r in (gseries.get(key,{}).get('rows') or []) if r['date']<=asof]
+        return rows
     net5=flow_window(flows,dates,5);net20=flow_window(flows,dates,20)
     flowscore=None if net5 is None else (1 if net5>0 else -1 if net5<0 else 0)
     # These are two explicitly bounded proxy signals, never a full-market aggregate score.
@@ -132,7 +137,7 @@ def build(ctx):
                     pe_series = [(NAMES[code], color, [(day, history[code][day]) for day in common]) for code, color in [('hsi', '#B44F46'), ('hscei', '#456B87')]]
                     evidence += chart(pe_series, ylabel='公开日报 PE（倍），同口径短窗历史', fmt='{:.2f}')
 
-            body = evidence + body if key in ('D', 'X', 'G') else evidence
+            body = evidence + body if key in ('D', 'X', 'G', 'A') else evidence
             if key != 'X':
                 state = entry.get('state', 'flat')
         state=state or ('na' if score is None else 'up' if score>0 else 'down' if score<0 else 'flat')
@@ -146,11 +151,41 @@ def build(ctx):
     macro_us = [(date, value) for date, value in D.us10 if date <= asof]
     if macro_us:
         macro.append(['美国 10 年国债收益率', fmt(macro_us[-1][1], '{:.2f}', '%'), macro_us[-1][0]])
-    macro.extend([['美元强弱（DXY）', '待数据', '待接入'], ['全球风险偏好／波动率', '待数据', '待接入']])
-    sec=section('A',titles['A'],'中国基本面与美国流动性／美元环境如何共同作用？',
-        '<p>以中国经营基本面和美国流动性／美元环境作为双重锚。内地需求通过收入与盈利传导，美国利率与全球风险偏好通过融资成本、折现率及资金配置传导。中美贸易和地缘事件按具体业务敞口记录。</p>'+metrics(['宏观背景','最新值','统计期／数据日期'],macro)+
-        verdict(None,'内地宏观按统计期展示。美国利率观测见 D，人民币汇率见 X。全球美元强弱、风险偏好与地缘事件待补证据，综合状态待核验。')+
-        source('https://data.stats.gov.cn/','国家统计局（站内数据经东方财富整理）'))
+    g_rows=[]
+    for key,label,unit in [('usd_broad','广义美元指数',''),('vix','VIX 波动率',' 点'),('us_hy_oas','美国高收益信用利差','%')]:
+        rows=gval(key)
+        if not rows:
+            g_rows.append([label,'待数据','—']);continue
+        last=rows[-1];prev20=rows[-21] if len(rows)>20 else None
+        if prev20 is None:
+            chg=''
+        elif key=='us_hy_oas':
+            chg=f"20 日 {(last['value']-prev20['value'])*100:+.0f}bp"
+        elif key=='vix':
+            chg=f"20 日 {last['value']-prev20['value']:+.2f} 点"
+        elif key=='usd_broad':
+            chg=f"20 日 {(last['value']/prev20['value']-1)*100:+.2f}%"
+        else:
+            chg=f"20 日 {(last['value']-prev20['value'])*100:+.0f}bp"
+        g_rows.append([label, f"{last['value']:.2f}{unit}", f"{last['date']}{('，'+chg) if chg else ''}"])
+    a_body=('<p>以中国经营基本面和美国流动性／美元环境作为双重锚。内地需求通过收入与盈利传导，美国利率与全球风险偏好通过融资成本、折现率及资金配置传导。</p>'
+        +'<h4>全球环境（每日自动读数）</h4>'
+        +'<p class="sub">下面这组与上方「已核验事实」同源，区别是它每天随 hk_fetch 自动刷新，不需要人工重新整理，用来及时发现变化。</p>'
+        +metrics(['风险指标','最新值','数据日期'],[r for r in g_rows])
+        +'<p class="sub">三项来自 FRED 公共序列，同时供 A 股的 A 节点使用，两边口径一致。</p>')
+    vixrows=gval('vix')
+    if len(vixrows)>30:
+        hsi_by={r['date']:r['close'] for r in indices['hsi']}
+        common=[d for d,_ in [(r['date'],r['value']) for r in vixrows] if d in hsi_by]
+        if len(common)>30:
+            base_v=vixrows[0]['value']; base_h=hsi_by[common[0]]
+            vmap={r['date']:r['value'] for r in vixrows}
+            a_body+=chart([('VIX','#B44F46',[(d,vmap[d]) for d in common]),
+                           ('恒生指数（同窗左轴对齐）','#456B87',[(d,hsi_by[d]/base_h*base_v) for d in common])],
+                          ylabel='VIX 与恒生指数（恒指按起点对齐，仅看方向）',fmt='{:.1f}')
+    a_body+='<h4>国内基本面（月度）</h4>'+metrics(['宏观背景','最新值','统计期／数据日期'],macro)
+    a_body+=source('https://data.stats.gov.cn/','国家统计局（站内数据经东方财富整理）')+source('https://fred.stlouisfed.org/','FRED 公共序列（VIX、广义美元、高收益利差、SOFR）')
+    sec=section('A',titles['A'],'中国基本面与美国流动性／美元环境如何共同作用？',a_body,state='flat')
     policy_rows = [
         ['中国内地', '货币、财政、地产与产业监管', '需求、利润率、信用风险 → C。资金与互联互通安排 → G', '待补政策原文、生效日和影响对象'],
         ['美联储', '政策利率、资产负债表及政策预期', '美元融资环境、折现率与风险偏好 → D', '待补带日期的政策及市场预期记录'],
@@ -182,8 +217,15 @@ def build(ctx):
             fundingrows.append([label,fmt(value,'{:.2f}',unit),last['end_of_date']])
     us=[(d,v) for d,v in D.us10 if d<=asof]
     if us:fundingrows.append(['美国 10 年国债收益率',fmt(us[-1][1],'{:.2f}','%'),us[-1][0]])
+    sofr_rows=gval('sofr')
+    if liq and sofr_rows and isinstance(liq[-1].get('hibor_fixing_1m'),(int,float)):
+        hb=liq[-1]['hibor_fixing_1m']; sr=sofr_rows[-1]['value']
+        fundingrows.append(['1 个月 HIBOR − SOFR 利差',
+                            f'{hb-sr:+.2f} 个百分点',
+                            f'{liq[-1]["end_of_date"]}（SOFR {sr:.2f}% 截至 {sofr_rows[-1]["date"]}）'])
     dbody='<p>分开观察无风险利率、信用／融资条件和风险偏好。联系汇率下，美元货币环境影响港元资金条件，HIBOR 同时受本地供求影响。融资成本对地产、成长公司与银行净息差的作用方向需按行业解释。</p>'+metrics(['指标','最新值','数据日期'],fundingrows)
-    dbody += '<p class="sub">港元短端子项 '+fmt(fundscore, '{:+d}')+'。1 个月 HIBOR 较 20 个有效观测前变化 '+fmt(delta, '{:+.1f}', 'bp')+'。</p>'
+    dbody += '<p class="sub">港元短端子项 '+fmt(fundscore, '{:+d}')+'。1 个月 HIBOR 较 20 个有效观测前变化 '+fmt(delta, '{:+.1f}', 'bp')+'。'
+    dbody += '联系汇率下，港元与美元的同期限利差才是资金流向的决定量：利差为负且扩大时，港元资金有外流压力；利差转正时本地资金条件反而收紧。</p>'
     hib=[(r['end_of_date'],r['hibor_fixing_1m']) for r in liq if isinstance(r.get('hibor_fixing_1m'),(int,float))]
     if len(hib)>1:dbody+=chart([('1 个月 HIBOR','#456B87',hib[-60:])],ylabel='1 个月 HIBOR（%）',fmt='{:.2f}')
     dbody+=ctx['rules']('<p>较 20 个有效观测前下降至少 25bp：+1；上升至少 25bp：−1；其余：0。少于 21 条或最新观测落后行情超过 7 个自然日：待数据。仅为可调整的观察阈值，未经收益预测验证；总结余不是港股流入金额。</p>')
@@ -217,6 +259,12 @@ def build(ctx):
     if latest:
         frows=[['南向买入成交',fmt(latest['buy'])+' 亿港元',latest['date']],['南向卖出成交',fmt(latest['sell'])+' 亿港元',latest['date']],['南向净买入',fmt(latest['net'],'{:+.2f}')+' 亿港元',latest['date']]]
     frows += [['近 5 个港股交易日合计',fmt(net5,'{:+.2f}',' 亿港元'),asof],['近 20 个港股交易日合计',fmt(net20,'{:+.2f}',' 亿港元'),asof]]
+    ma = (read('participants',{}) or {}).get('market_activity',{})
+    if ma.get('southbound_month_single_side_share_of_all_market_pct_calculated') is not None:
+        frows.append(['南向成交占全市场月成交', f"{ma['southbound_month_single_side_share_of_all_market_pct_calculated']:.2f}%",
+                      f"{ma.get('period','')}（南向 {ma.get('southbound_trading_days','—')} 日 / 全市场 {ma.get('market_trading_days','—')} 日）"])
+        frows.append(['全市场日均成交', f"{ma.get('turnover_daily_million_hkd',0)/100:.0f} 亿港元",
+                      f"{ma.get('period','')}（环比 {ma.get('turnover_daily_mom_pct','—')}%）"])
     participant_rows = [
         ['南向资金', '沪港通及深港通买卖成交', '已接入成交，持仓和持仓集中度待补'],
         ['境外与本地投资者', '基金申赎、机构配置、经纪及托管持仓', '申赎及可比持仓待接入，持仓身份需核验'],
@@ -225,7 +273,7 @@ def build(ctx):
     ]
     gbody = ''
     gbody += metrics(['沪港通 + 深港通（南向）', '金额', '截至日期'], frows)
-    gbody += '<p class="sub">南向成交子项 '+fmt(flowscore, '{:+d}')+'。持仓、申赎和沽空各用自身统计期观察。</p>'
+    gbody += '<p class="sub">南向成交子项 '+fmt(flowscore, '{:+d}')+'。占比用港交所月度成交口径，净买入方向看每日买入减卖出；持仓、申赎和沽空各用自身统计期观察。</p>'
     if len(flows)>1:
         # Align on actual observed connect dates; no zero fill or forward fill.
         gbody+=chart([('南向每日净买入（亿港元）','#B44F46',[(r['date'],r['net']) for r in flows[-30:]])],ylabel='南向净买入（亿港元）',bands=[(0,'零线')])

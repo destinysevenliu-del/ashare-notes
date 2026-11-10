@@ -111,5 +111,13 @@ if __name__ == "__main__":
         except Exception as e:
             status[name] = "error: " + str(e)[:200]
         print(name, status[name], flush=True)
+    try:  # 全球环境序列（FRED）：失败不影响 A 股其他数据
+        import global_ctx
+        g = global_ctx.fetch(ROOT)
+        status["global"] = "ok" if all(v == "ok" for v in g.values()) else str(g)[:200]
+        print("global", status["global"], flush=True)
+    except Exception as e:
+        status["global"] = "error: " + str(e)[:200]
+        print("global", status["global"], flush=True)
     status["_fetched_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     save("_status", status)

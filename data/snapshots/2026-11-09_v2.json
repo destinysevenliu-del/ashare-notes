@@ -1,19 +1,20 @@
 {
  "date": "2026-11-09",
- "total": -3,
+ "total": -2,
  "scores": {
   "ext": 0,
+  "glob": -1,
   "econ": -2,
   "pol": 0,
-  "liq": 0,
+  "liq": 1,
   "val": 1,
-  "funds": -2
+  "funds": -1
  },
  "nodes": {
   "A": "down",
   "B": "flat",
   "C": "down",
-  "D": "flat",
+  "D": "up",
   "E": "na",
   "F": "up",
   "G": "down",
@@ -49,5 +50,5 @@
    "text": "2026年10月份 PPI 同比：5.7"
   }
  ],
- "rules_version": "2026-11-09 v2"
+ "rules_version": "2026-11-10 v3（新增全球环境、实际利率、杠杆拥挤度、盈利分位）"
 }

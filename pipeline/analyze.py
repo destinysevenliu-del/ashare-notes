@@ -3,7 +3,7 @@
 """
 import json, os, datetime
 
-RULES_VERSION = "2026-11-09 v2"
+RULES_VERSION = "2026-11-10 v3（新增全球环境、实际利率、杠杆拥挤度、盈利分位）"
 
 
 # ---------- 读数据 ----------
@@ -64,6 +64,12 @@ class Data:
         self.m1 = mser("money", "CURRENCY_SAME", 1, 14)
         self.m2 = mser("money", "BASIC_CURRENCY_SAME", 1, 14)
         self.gdp = mser("gdp", "SUM_SAME", 1, 18)
+        gp = os.path.join(raw, "global.json")
+        g = json.load(open(gp, encoding="utf-8")) if os.path.exists(gp) else {"series": {}}
+        self.glob = {k: [(r["date"], r["value"]) for r in v.get("rows", [])] for k, v in g.get("series", {}).items()}
+        self.glob_meta = {k: {"name": v.get("name", k), "unit": v.get("unit", ""), "source": v.get("source", "")}
+                          for k, v in g.get("series", {}).items()}
+        self.glob_at = g.get("observed_at", "")
         self.status = L("_status")
         LATEST["d"] = self.dates[-1]
 
@@ -128,6 +134,37 @@ def dim_econ(D, d):
     return {"score": clip(rnd(sum(h[1] for h in hits))), "hits": hits}
 
 
+def dim_global(D, d):
+    """全球环境：VIX、广义美元、美国高收益信用利差。只在上证/港股共同的外部变量上打分。"""
+    hits = []
+    vix = upto(D.glob.get("vix", []), d)
+    if len(vix) > 20:
+        v = vix[-1][1]
+        ch = (v / back(vix, 20)[1] - 1) * 100
+        if v >= 30: hits.append((f"VIX {v:.1f}，处在恐慌区间，风险偏好在收缩", -1))
+        elif v >= 22: hits.append((f"VIX {v:.1f}，波动偏高，风险偏好承压", -0.5))
+        elif v <= 14: hits.append((f"VIX {v:.1f}，风险偏好较好", 0.5))
+        if ch >= 30: hits.append((f"VIX 20 日上升 {ch:.0f}%", -0.5))
+        elif ch <= -30: hits.append((f"VIX 20 日下降 {abs(ch):.0f}%，波动在回落", 0.5))
+    dxy = upto(D.glob.get("usd_broad", []), d)
+    if len(dxy) > 20:
+        ch = (dxy[-1][1] / back(dxy, 20)[1] - 1) * 100
+        if ch >= 1.5: hits.append((f"广义美元 20 日升值 {ch:+.1f}%，压制新兴市场资金", -0.5))
+        elif ch <= -1.5: hits.append((f"广义美元 20 日贬值 {ch:+.1f}%，外部流动性转松", 0.5))
+    hy = upto(D.glob.get("us_hy_oas", []), d)
+    if len(hy) > 20:
+        v = hy[-1][1]
+        if v >= 5: hits.append((f"美国高收益信用利差 {v:.2f}%，信用环境偏紧", -0.5))
+        ch = (v - back(hy, 20)[1]) * 100
+        if ch >= 50: hits.append((f"信用利差 20 日走阔 {ch:.0f}bp，风险定价上升", -0.5))
+        elif ch <= -50: hits.append((f"信用利差 20 日收窄 {abs(ch):.0f}bp", 0.5))
+    if not hits:
+        hits.append(("VIX、美元、信用利差都没有触发阈值", 0))
+    return {"score": clip(rnd(sum(h[1] for h in hits))), "hits": hits,
+            "vix": vix[-1][1] if vix else None, "dxy": dxy[-1][1] if dxy else None,
+            "hy": hy[-1][1] if hy else None}
+
+
 def dim_liquidity(D, d):
     hits = []
     cn = upto(D.cn10, d); us = upto(D.us10, d); fx = upto(D.cnh, d)
@@ -150,8 +187,28 @@ def dim_liquidity(D, d):
     old = value_at(D.lpr1, d90)
     if old is not None and l[-1][1] < old: hits.append((f"近 3 个月 LPR 下调到 {l[-1][1]}%", 0.5))
     elif old is not None and l[-1][1] > old: hits.append((f"近 3 个月 LPR 上调到 {l[-1][1]}%", -0.5))
+    # 实际利率 = 名义 10 年国债 − PPI 同比；用 3 个月前的同口径比较
+    ppi_now = mupto(D.ppi, d)[-1]["v"]
+    ppi_old_s = mupto(D.ppi, d90)
+    ppi_old = ppi_old_s[-1]["v"] if ppi_old_s else None
+    cn_old = value_at(D.cn10, d90)
+    rr = (cn[-1][1] - ppi_now) if cn else None
+    rr_old = (cn_old - ppi_old) if (cn_old is not None and ppi_old is not None) else None
+    drr = (rr - rr_old) if (rr is not None and rr_old is not None) else None
+    if drr is not None:
+        if drr <= -0.5: hits.append((f"实际利率 {rr:+.1f}%，3 个月下降 {abs(drr):.1f} 个百分点，实际融资在变便宜", 1))
+        elif drr >= 0.5: hits.append((f"实际利率 {rr:+.1f}%，3 个月上升 {drr:.1f} 个百分点，实际融资变贵", -1))
+        else: hits.append((f"实际利率（10 年国债 − PPI）{rr:+.1f}%，3 个月变化 {drr:+.1f} 个百分点", 0))
+    # M1 − M2 剪刀差：资金有没有从定期活化到活期
+    m1s, m2s = mupto(D.m1, d), mupto(D.m2, d)
+    sky = sky_chg = None
+    if len(m1s) >= 4 and len(m2s) >= 4:
+        sky = m1s[-1]["v"] - m2s[-1]["v"]
+        sky_chg = sky - (m1s[-4]["v"] - m2s[-4]["v"])
+        if sky_chg >= 1: hits.append((f"M1−M2 剪刀差 {sky:+.1f} 个点，比 3 个月前扩大 {sky_chg:.1f}，资金在活化", 0.5))
+        elif sky_chg <= -1: hits.append((f"M1−M2 剪刀差 {sky:+.1f} 个点，比 3 个月前收窄 {abs(sky_chg):.1f}", -0.5))
     return {"score": clip(rnd(sum(h[1] for h in hits))), "hits": hits,
-            "c20": c20, "u20": u20, "f20": f20}
+            "c20": c20, "u20": u20, "f20": f20, "rr": rr, "drr": drr, "sky": sky, "sky_chg": sky_chg}
 
 
 def erp_series(D, d):
@@ -177,8 +234,18 @@ def dim_valuation(D, d):
     epct = pct_rank([v for _, v in es], es[-1][1])
     if epct >= 80: hits.append((f"股债性价比 {es[-1][1]:.2f}%，历史 {epct:.0f}% 分位，股票相对债券有吸引力", 0.5))
     elif epct <= 20: hits.append((f"股债性价比 {es[-1][1]:.2f}%，历史 {epct:.0f}% 分位，股票相对债券不划算", -0.5))
+    eps = upto(D.eps_all, d)
+    eps_pct = pct_rank([v for _, v in eps], eps[-1][1])
+    epct = epct  # 保持 ERP 分位原值
+    if pct < 35 and eps_pct > 65: quad = "便宜是因为盈利在高位，典型的周期顶部特征，别当便宜买"
+    elif pct < 35: quad = "估值低且盈利处在低位，属于真便宜"
+    elif pct > 65 and eps_pct > 65: quad = "贵，但有盈利高位支撑，属于成长溢价"
+    elif pct > 65: quad = "贵而盈利在低位，属于杀估值风险"
+    else: quad = "估值和盈利都在中间位置"
+    hits.append((f"盈利分位 {eps_pct:.0f}%（估值分位 {pct:.0f}%）：{quad}", 0))
     return {"score": clip(rnd(sum(h[1] for h in hits))), "hits": hits,
-            "pe": pe, "pct": pct, "erp": es[-1][1], "epct": epct, "pe_date": pes[-1][0]}
+            "pe": pe, "pct": pct, "erp": es[-1][1], "epct": epct, "pe_date": pes[-1][0],
+            "eps_pct": eps_pct, "quad": quad}
 
 
 def dim_funds(D, d):
@@ -190,12 +257,18 @@ def dim_funds(D, d):
     elif m5 <= -2: hits.append((f"两融余额 5 日减少 {abs(m5):.1f}%，杠杆资金在撤", -1))
     if m20 >= 5: hits.append((f"两融余额 20 日增加 {m20:.1f}%", 0.5))
     elif m20 <= -5: hits.append((f"两融余额 20 日减少 {abs(m20):.1f}%，还在去杠杆", -0.5))
+    lev = upto(D.mlev, d)
+    lev_pct = None
+    if len(lev) >= 250:
+        lev_pct = pct_rank([v for _, v in lev[-250:]], lev[-1][1])
+        if lev_pct >= 90: hits.append((f"两融占流通市值 {lev[-1][1]:.2f}%，近一年 {lev_pct:.0f}% 分位，杠杆拥挤", -0.5))
+        elif lev_pct <= 10: hits.append((f"两融占流通市值 {lev[-1][1]:.2f}%，近一年 {lev_pct:.0f}% 分位，杠杆已出清", 0.5))
     to = upto(D.turnover, d)
     r = (sum(v for _, v in to[-5:]) / 5) / (sum(v for _, v in to[-60:]) / 60)
     if r >= 1.2: hits.append((f"近 5 日成交额是 60 日均值的 {r:.2f} 倍，交投放大", 0.5))
     elif r <= 0.8: hits.append((f"近 5 日成交额只有 60 日均值的 {r:.2f} 倍，交投萎缩", -0.5))
     return {"score": clip(rnd(sum(h[1] for h in hits))), "hits": hits, "m5": m5, "m20": m20, "to_ratio": r,
-            "m_date": mb[-1][0]}
+            "m_date": mb[-1][0], "lev_pct": lev_pct}
 
 
 def node_earnings(D, d):
@@ -207,19 +280,29 @@ def node_earnings(D, d):
     elif e60 <= -3: hits.append((f"全 A 滚动盈利近 60 个交易日下降 {abs(e60):.1f}%", -1))
     else: hits.append((f"全 A 滚动盈利近 60 个交易日变化 {e60:+.1f}%，基本持平", 0))
     ppi = mupto(D.ppi, d)[-1]["v"]
-    hits.append((f"PPI 同比 {ppi:+.1f}%；量价与成本对各行业影响不同，不统一加减分", 0))
-    return {"score": clip(rnd(sum(h[1] for h in hits))), "hits": hits, "e60": e60, "e250": e250}
+    cpi = mupto(D.cpi, d)[-1]["v"]
+    split = ppi - cpi
+    d90 = (datetime.date.fromisoformat(d) - datetime.timedelta(days=90)).isoformat()
+    ppi_o = mupto(D.ppi, d90); cpi_o = mupto(D.cpi, d90)
+    split_old = (ppi_o[-1]["v"] - cpi_o[-1]["v"]) if (ppi_o and cpi_o) else None
+    if split >= 1:
+        hits.append((f"PPI−CPI 剪刀差 {split:+.1f} 个点，涨价集中在上游，利润向资源端转移", 0))
+    else:
+        hits.append((f"PPI−CPI 剪刀差 {split:+.1f} 个点，上游涨价不明显", 0))
+    return {"score": clip(rnd(sum(h[1] for h in hits))), "hits": hits, "e60": e60, "e250": e250,
+            "ppi": ppi, "cpi": cpi, "split": split, "split_old": split_old}
 
 
 def auto_dims(D, d):
-    return {"econ": dim_econ(D, d), "liq": dim_liquidity(D, d), "val": dim_valuation(D, d), "funds": dim_funds(D, d)}
+    return {"glob": dim_global(D, d), "econ": dim_econ(D, d), "liq": dim_liquidity(D, d),
+            "val": dim_valuation(D, d), "funds": dim_funds(D, d)}
 
 
 # ---------- 关注条件（大盘层） ----------
 def conditions(D, d, dims_now, dims_5ago):
     out = []
     flips = []
-    names = {"econ": "国内经济", "liq": "利率与流动性", "val": "估值", "funds": "资金"}
+    names = {"glob": "全球环境", "econ": "国内经济", "liq": "利率与流动性", "val": "估值", "funds": "资金"}
     for k in names:
         a, b = dims_5ago[k]["score"], dims_now[k]["score"]
         if (a > 0 and b < 0) or (a < 0 and b > 0) or (a == 0 and b != 0 and abs(b) == 2):
@@ -270,6 +353,8 @@ def analyze(D, manual):
     score_rows = [
         {"key": "ext", "name": "外部环境", "score": ext["score"], "manual": True,
          "hits": [(ext["reason"], ext["score"])], "node": "A"},
+        {"key": "glob", "name": "全球环境", "score": dims["glob"]["score"], "hits": dims["glob"]["hits"], "node": "A",
+         "prev": dims_prev["glob"]["score"]},
         {"key": "econ", "name": "国内经济", "score": dims["econ"]["score"], "hits": dims["econ"]["hits"], "node": "A",
          "prev": dims_prev["econ"]["score"]},
         {"key": "pol", "name": "政策", "score": pol["score"], "manual": True,
@@ -287,7 +372,8 @@ def analyze(D, manual):
         return "up" if x > 0 else ("down" if x < 0 else "flat")
 
     nodes = {
-        "A": {"state": st(ext["score"] + dims["econ"]["score"]), "score": ext["score"] + dims["econ"]["score"]},
+        "A": {"state": st(ext["score"] + dims["glob"]["score"] + dims["econ"]["score"]),
+              "score": ext["score"] + dims["glob"]["score"] + dims["econ"]["score"]},
         "B": {"state": st(pol["score"]), "score": pol["score"]},
         "C": {"state": st(earn["score"]), "score": earn["score"], "hits": earn["hits"]},
         "D": {"state": st(dims["liq"]["score"]), "score": dims["liq"]["score"]},

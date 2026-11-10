@@ -165,8 +165,16 @@ sec["A"] = dict(
     title="全球环境与国内经济",
     q="经济在扩张还是收缩？外部有没有大的冲击？",
     body=verdict(N["A"]["state"], N["A"]["score"],
-                 [("外部：" + manual["external"]["reason"], manual["external"]["score"])] + dims["econ"]["hits"],
-                 "外部这一条是" + manual_flag(manual["external"]))
+                 dims["glob"]["hits"] + [("外部事件：" + manual["external"]["reason"], manual["external"]["score"])]
+                 + dims["econ"]["hits"],
+                 "全球环境（VIX、美元、信用利差）自动判定；外部事件这一条是" + manual_flag(manual["external"]))
+    + '<h4>全球环境</h4><p class="sub">A 股与港股的共同外部变量：美元流动性、全球风险偏好、信用条件。三项都来自 FRED 日频序列。</p>'
+    + table([
+        drow("VIX 波动率", "越高越恐慌，全球风险偏好在收缩", D.glob.get("vix", []), "{:.1f}", "", -1, "pct", 120),
+        drow("广义美元指数", "美元走强通常压制新兴市场资金", D.glob.get("usd_broad", []), "{:.1f}", "", -1, "pct", 120),
+        drow("美国高收益信用利差", "走阔说明信用环境在收紧", D.glob.get("us_hy_oas", []), "{:.2f}", "%", -1, "bp", 120),
+    ])
+    + '<h4>国内基本面</h4>'
     + table([
         mrow("制造业 PMI", "50 以上是扩张，以下是收缩", D.pmi, "", 1),
         mrow("非制造业 PMI", "服务业和建筑业的景气", D.pmi_n, "", 1),
@@ -179,7 +187,8 @@ sec["A"] = dict(
     + events("A")
     + rules("国内经济分：制造业 PMI ≥ 50.5 加 1，50–50.5 加 0.5，49.5–50 减 0.5，低于 49.5 减 1；比上月变动 ±0.5 以上再加减 0.5；"
             "社零同比 ≥ 5% 加 0.5、低于 3% 减 0.5；工业增加值 ≥ 6% 加 0.5、低于 4% 减 0.5；出口 ≥ 5% 加 0.5、负增长减 0.5。合计四舍五入，限定在 −2 到 +2。"
-            "外部环境分由人工判断。A 节点的颜色看两者之和。"),
+            "全球环境分：VIX ≥30 减 1、22–30 减 0.5、≤14 加 0.5，20 日变动 ±30% 再加减 0.5；广义美元 20 日 ±1.5% 减／加 0.5；"
+            "美国高收益信用利差 ≥5% 减 0.5，20 日走阔或收窄 50bp 再加减 0.5。外部事件分由人工判断。A 节点的颜色看三者之和。"),
 )
 
 lp1, lp5 = D.lpr1, D.lpr5
@@ -207,8 +216,17 @@ sec["C"] = dict(
             f"{eps_idx[-1][1]:.1f}", f"近 60 日 {R['earn']['e60']:+.1f}%", cls(R['earn']['e60'], 1),
             spark([v for _, v in eps_idx[-250:]]), short(eps_idx[-1][0]), "每日（随财报跳变）"),
         mrow("PPI 同比", "工业品出厂价格；对利润需结合成本与需求判断", D.ppi, "%", 1),
+        mrow("CPI 同比", "居民端物价，与 PPI 一起看利润分配", D.cpi, "%", 0),
     ])
-    + rules("全 A 滚动盈利近 60 个交易日增长 ≥ 3% 加 1，下降 ≥ 3% 减 1；PPI 仅作价格环境参考，不统一加减分。"
+    + '<h4>利润分配：涨价落在哪个环节</h4><p class="sub">这一项只做结构提示，不进入打分——上游涨价对中下游是成本，正负相抵后没有总和信号，但对选板块最关键。</p>'
+    + table([
+        row("PPI − CPI 剪刀差", "大于 0 表示涨价集中在上游，利润向资源端转移",
+            f"{R['earn']['split']:+.1f}pp",
+            (f"3 个月 {R['earn']['split'] - R['earn']['split_old']:+.1f}pp" if R['earn'].get('split_old') is not None else ""),
+            cls(R['earn']['split'] - (R['earn']['split_old'] if R['earn'].get('split_old') is not None else R['earn']['split']), 1),
+            "", short(TODAY), "每月（随 PPI／CPI）"),
+    ])
+    + rules("全 A 滚动盈利近 60 个交易日增长 ≥ 3% 加 1，下降 ≥ 3% 减 1；PPI 与 CPI 的剪刀差只做结构展示，不进入总分。"
             "注意：盈利数据主要在财报季（4、8、10 月底）跳变，其余时间变化不大。"),
 )
 
@@ -221,12 +239,22 @@ sec["D"] = dict(
         drow("美国 10 年国债收益率", "越高，全球成长股估值压力越大", D.us10, "{:.2f}", "%", -1, "bp"),
         drow("中美利差", "中国减美国，越负外资流出压力越大", spread, "{:.2f}", "%", 1, "bp"),
         drow("离岸人民币", "数字变小代表人民币升值", D.cnh, "{:.4f}", "", -1, "pct"),
+        row("实际利率（10Y − PPI）", "扣掉通胀后的真实融资成本，越低对风险资产越有利",
+            (f"{dims['liq']['rr']:+.1f}%" if dims['liq'].get('rr') is not None else "待数据"),
+            (f"3 个月 {dims['liq']['drr']:+.1f}pp" if dims['liq'].get('drr') is not None else ""),
+            cls(dims['liq'].get('drr') or 0, -1), "", short(TODAY), "每月（随 PPI）"),
         mrow("M1 同比", "企业活期存款，回升代表资金在活跃", D.m1, "%", 1),
         mrow("M2 同比", "广义货币", D.m2, "%", 0),
+        row("M1 − M2 剪刀差", "扩大代表资金从定期活化到活期，是风险偏好的领先指标",
+            (f"{dims['liq']['sky']:+.1f}pp" if dims['liq'].get('sky') is not None else "待数据"),
+            (f"3 个月 {dims['liq']['sky_chg']:+.1f}pp" if dims['liq'].get('sky_chg') is not None else ""),
+            cls(dims['liq'].get('sky_chg') or 0, 1), "", short(TODAY), "每月"),
     ])
     + rules("中国 10 年国债近 20 日下行 ≥ 10bp 加 1，上行 ≥ 10bp 减 1；美国 10 年国债近 20 日回落 ≥ 20bp 加 0.5，上行 ≥ 20bp 减 0.5，"
             "且水平 ≥ 4.5% 再减 0.5；人民币近 20 日升值 ≥ 1% 加 0.5，贬值 ≥ 1% 减 0.5；M1 同比比 3 个月前高 1 个点以上加 0.5，低 1 个点以上减 0.5；"
-            "近 3 个月 LPR 下调加 0.5，上调减 0.5。社融暂未接入（数据源未找到）。"),
+            "近 3 个月 LPR 下调加 0.5，上调减 0.5；"
+            "实际利率（10 年国债 − PPI 同比）3 个月下降 ≥ 0.5 个百分点加 1，上升 ≥ 0.5 个百分点减 1；"
+            "M1−M2 剪刀差比 3 个月前扩大 1 个点以上加 0.5，收窄 1 个点以上减 0.5。社融暂未接入（数据源未找到）。"),
 )
 
 sec["E"] = dict(
@@ -251,16 +279,22 @@ sec["F"] = dict(
         row("全 A 估值分位", "2019 年以来，越低越便宜", f"{pe_pct_hist:.0f}%", "", "flat", "", short(D.pe_all[-1][0]), "每日"),
         row("沪深 300 市盈率", "大盘蓝筹", f"{D.pe_300[-1][1]:.2f} 倍", f"分位 {pe300_pct:.0f}%",
             "flat", spark([v for _, v in D.pe_300[-250:]]), short(D.pe_300[-1][0]), "每日（2016 年以来分位）"),
+        row("全 A 盈利分位", "滚动盈利在 2019 年以来的位置，和估值分位配对看",
+            f"{dims['val']['eps_pct']:.0f}%", f"估值分位 {dims['val']['pct']:.0f}%", "flat",
+            "", short(D.pe_all[-1][0]), "每日"),
         row("股债性价比", "全 A 盈利收益率减中国 10 年国债，越高股票越划算", f"{erp[-1][1]:.2f}%",
             f"分位 {dims['val']['epct']:.0f}%", cls(dims['val']['epct'] - 50, 1),
             spark([v for _, v in erp[-250:]]), short(erp[-1][0]), "每日"),
     ])
+    + f'<p class="note"><b>估值分位与盈利分位要配对读：</b>{E(dims["val"]["quad"])}。盈利分位高说明当前利润处在历史高位，这时 PE 分位低往往意味着「市场认为这个利润不可持续」，不是便宜。</p>'
     + val_chart
     + rules("全 A 市盈率在 2019 年以来的分位：低于 15% 加 2，15–35% 加 1，35–65% 为 0，65–85% 减 1，高于 85% 减 2；"
             "股债性价比分位 ≥ 80% 再加 0.5，≤ 20% 再减 0.5。"),
 )
 
 mb = D.mbal
+lev_pct = dims["funds"].get("lev_pct")
+lev_pct = lev_pct if lev_pct is not None else A.pct_rank([v for _, v in D.mlev[-250:]], D.mlev[-1][1])
 g_chart = line_chart([("两融余额（一年前 = 100）", "#C8312B", [(d, v / mb[-250][1] * 100) for d, v in mb[-250:]]),
                       ("中证全指（一年前 = 100）", "#4B5565",
                        [(d, v / A.value_at(D.all_close, mb[-250][0]) * 100) for d, v in D.all_close if d >= mb[-250][0]])],
@@ -272,13 +306,15 @@ sec["G"] = dict(
     + table([
         drow("两融余额", "杠杆资金的总量", [(d, v / 1e4) for d, v in mb], "{:.3f}", " 万亿", 1, "pct", 250),
         drow("两融单日净买入", "正数是加杠杆，负数是还钱", D.mnet, "{:+.0f}", " 亿", 1, "abs", 60),
-        drow("两融占流通市值", "越高杠杆越重，过高容易踩踏", D.mlev, "{:.2f}", "%", 0, "abs", 250),
+        row("两融占流通市值", "杠杆拥挤度：比例比绝对额更可比，过高容易踩踏",
+            f"{D.mlev[-1][1]:.2f}%", f"一年 {lev_pct:.0f}% 分位", "flat", "", short(D.mlev[-1][0]), "每日（T+1）"),
         drow("全 A 成交额", "交易活跃度", D.turnover, "{:,.0f}", " 亿", 1, "pct", 120),
     ])
     + '<p class="note">图里两条线一起看：两融和指数同向下跌是去杠杆的踩踏；指数涨而两融不涨，说明上涨不是靠杠杆推的。股价反过来也会影响这一环（图中 H 指向 G 的虚线），比如下跌触发平仓，平仓又加剧下跌。</p>'
     + g_chart
     + '<p class="note">两融数据由交易所在收盘后统计公布，比行情晚一个交易日左右。股票 ETF 申赎和新发基金数据暂未接入。</p>'
     + rules("两融余额 5 日变化 ≥ +2% 加 1，≤ −2% 减 1；20 日变化 ≥ +5% 加 0.5，≤ −5% 减 0.5；"
+            "两融占流通市值在近一年 90% 分位以上减 0.5（拥挤），10% 分位以下加 0.5（杠杆已出清）；"
             "近 5 日成交额是 60 日均值的 1.2 倍以上加 0.5，0.8 倍以下减 0.5。"),
 )
 
@@ -388,8 +424,11 @@ def scorecard():
         cells += (f'<a class="sc" href="#node-{r["node"]}"><div class="lbl">{E(r["name"])}{lab}<span class="v {c}">{("待核验" if r.get("manual") and not manual["external" if r["key"] == "ext" else "policy"].get("evidence_verified") else (f"{s:+d}" if s else "0"))}</span></div>'
                   f'{scale(s)}<p>{first}</p></a>')
     t = R["total"]
-    # 30 日自动维度合计走势
-    hs = [sum(h[k] for k in ("econ", "liq", "val", "funds")) for h in R["hist"]]
+    auto_keys = ("glob", "econ", "liq", "val", "funds")
+    n_scored = len(auto_keys) + sum(1 for m in (manual["external"], manual["policy"]) if m.get("evidence_verified"))
+    lim = 2 * n_scored
+    # 30 日自动维度合计走势（与上面同一口径：只含自动维度）
+    hs = [sum(h[k] for k in auto_keys) for h in R["hist"]]
     w, h = 300, 64
     bars = ""
     bw = w / len(hs)
@@ -400,8 +439,8 @@ def scorecard():
         bars += f'<rect x="{i * bw + 1:.1f}" y="{y:.1f}" width="{bw - 2:.1f}" height="{max(hh, 1):.1f}" class="{"u" if v > 0 else "d" if v < 0 else "z"}"/>'
     trend = (f'<svg viewBox="0 0 {w} {h}" class="trend" aria-label="近 30 个交易日自动维度合计">{bars}'
              f'<line x1="0" x2="{w}" y1="{h / 2}" y2="{h / 2}" stroke="#7C8696" stroke-width=".6"/></svg>')
-    return (f'<div class="score">{cells}<div class="sc total"><div class="lbl">六项合计<span class="v">{t:+d}</span></div>'
-            f'<p>人工草稿未核验时暂不计分。下面是近 30 个交易日四个自动维度的合计（{short(R["hist"][0]["date"])}–{short(R["hist"][-1]["date"])}，'
+    return (f'<div class="score">{cells}<div class="sc total"><div class="lbl">合计（{n_scored} 项已计分，满分 ±{lim}）<span class="v">{t:+d}</span></div>'
+            f'<p>人工两项未核验时记为 0，<b>不等于中性</b>，只是没有证据。下面是近 30 个交易日五个自动维度的合计（{short(R["hist"][0]["date"])}–{short(R["hist"][-1]["date"])}，'
             f'从 {hs[0]:+d} 到 {hs[-1]:+d}），人工维度待核验。历史宏观发布日期部分为估计，只供学习观察，不作严格回测。</p>{trend}</div></div>')
 
 
@@ -432,7 +471,9 @@ def summary():
     rows = R["score_rows"]
     neg = [r["name"] for r in sorted(rows, key=lambda r: r["score"]) if r["score"] < 0]
     pos = [r["name"] for r in sorted(rows, key=lambda r: -r["score"]) if r["score"] > 0]
-    s = f"六项合计 {R['total']:+d} 分。"
+    n_auto = sum(1 for r in rows if not r.get("manual"))
+    n_scored = n_auto + sum(1 for m in (manual["external"], manual["policy"]) if m.get("evidence_verified"))
+    s = f"{n_scored} 项已计分，合计 {R['total']:+d} 分（满分 ±{2 * n_scored}）。"
     if neg: s += "拖累来自" + "、".join(neg) + "；"
     if pos: s += "支撑来自" + "、".join(pos) + "。"
     return s.rstrip("；") + ("" if s.endswith("。") else "。")
