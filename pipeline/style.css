@@ -280,3 +280,9 @@ footer p{margin:4px 0}
 .hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:#293e50}.hk-diagram .small{font-size:10px;fill:#777}
 @media(min-width:761px){.hk-diagram+.hk-map{display:none}}
 @media(max-width:760px){.hk-scores,.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score{padding:15px}.hk-score strong{font-size:18px}.hk-diagram{display:none}.hk-changes{font-size:14px}.hk-node{padding:12px}.market-switch{padding-top:18px}}
+
+.hk-node.fx,.lc2.fx{color:#3478db;border-color:#4e91ff;background:#eef5ff}
+.lc2.fx{background:#3478db;color:#fff}
+.hk-node.price{background:#172333;color:#fff}.hk-node.price span,.hk-node.price small{color:#fff}
+.hk-scores{grid-template-columns:repeat(4,minmax(0,1fr))}.hk-score strong{font-size:18px}
+@media(max-width:760px){.hk-scores{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score strong{font-size:16px}}
