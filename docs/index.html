@@ -271,25 +271,21 @@ footer p{margin:4px 0}
 .market-switch a{padding:8px 24px;border:1px solid var(--line,#dedbd5);border-radius:5px;text-decoration:none;color:inherit;font-weight:600}
 .market-switch a[aria-current="page"]{background:#293e50;color:#fff;border-color:#293e50}
 .market-switch+.hero{padding-top:30px}
-.hk-scores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #dedbd5;border-radius:6px;overflow:hidden}
-.hk-score{padding:20px;border:1px solid #eeeae4;display:flex;flex-direction:column;gap:9px}
-.hk-score strong{font-size:22px}.hk-score small{color:#777}
-.hk-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.hk-node{border:1px solid #dedbd5;border-left:3px solid currentColor;border-radius:5px;padding:15px;text-decoration:none;display:flex;flex-direction:column;gap:8px;color:#66717c}
-.hk-node b{font:700 22px Georgia,serif}.hk-node span{font-weight:600;color:#293e50}.hk-node small{font-size:11px;color:#777}
-.hk-changes{padding-left:22px;line-height:2.1}.hk-notice{border-left:3px solid #947539;padding:8px 18px;background:#f6f1e5;font-size:13px}
-.hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:#293e50}.hk-diagram .small{font-size:10px;fill:#777}
+.hk-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.hk-node{border:1px solid var(--line);border-left:3px solid currentColor;border-radius:10px;padding:13px 15px;text-decoration:none;display:flex;flex-direction:column;gap:6px;color:var(--ink3);background:var(--surface)}
+.hk-node b{font:700 20px/1 var(--serif)}.hk-node span{font-weight:600;color:var(--ink);font-size:14px}.hk-node small{font-size:11px;color:var(--ink3)}
+.hk-notice{border-left:3px solid var(--warn);padding:8px 18px;background:var(--warn-bg);font-size:13px;border-radius:0 8px 8px 0}
+.hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:var(--ink2)}.hk-diagram .small{font-size:10px;fill:var(--ink3)}
 @media(min-width:761px){.hk-diagram+.hk-map{display:none}}
-@media(max-width:760px){.hk-scores,.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score{padding:15px}.hk-score strong{font-size:18px}.hk-diagram{display:none}.hk-changes{font-size:14px}.hk-node{padding:12px}.market-switch{padding-top:18px}}
+@media(max-width:760px){.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-diagram{display:none}.hk-node{padding:12px}.market-switch{padding-top:18px}}
 
 .hk-node.fx,.lc2.fx{color:#3478db;border-color:#4e91ff;background:#eef5ff}
 .lc2.fx{background:#3478db;color:#fff}
 .hk-node.price{background:#172333;color:#fff}.hk-node.price span,.hk-node.price small{color:#fff}
-.hk-scores{grid-template-columns:repeat(4,minmax(0,1fr))}.hk-score strong{font-size:18px}
-@media(max-width:760px){.hk-scores{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score strong{font-size:16px}}
+@media(max-width:760px){.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-.hk-call{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#f0f3f7;padding:16px;margin-bottom:18px;border-radius:6px}.hk-call small{color:#64748b}.hk-scope{display:block;color:#64748b;font-size:11px;line-height:1.6;margin-top:6px}.hk-evidence p{line-height:1.9}.hk-evidence .mt th:first-child{min-width:100px}.hk-evidence .mt td:last-child{white-space:nowrap}.hk-score{text-decoration:none;color:inherit}.hk-score strong{font-size:16px;line-height:1.6}.hk-score small{line-height:1.5}
-@media(max-width:760px){.hk-evidence .mt{min-width:640px}.hk-evidence .tblwrap{overflow-x:auto}.hk-score strong{font-size:14px}.hk-call{padding:12px}}
+.hk-call{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#f0f3f7;padding:16px;margin-bottom:18px;border-radius:6px}.hk-call small{color:#64748b}.hk-scope{display:block;color:#64748b;font-size:11px;line-height:1.6;margin-top:6px}.hk-evidence p{line-height:1.9}.hk-evidence .mt th:first-child{min-width:100px}.hk-evidence .mt td:last-child{white-space:nowrap}.hk-score small{line-height:1.5}
+@media(max-width:760px){.hk-evidence .mt{min-width:640px}.hk-evidence .tblwrap{overflow-x:auto}.hk-call{padding:12px}}
 
 .hk-mobilehint{display:none}@media(max-width:760px){.hk-mobilehint{display:block;font-size:12px;color:#64748b}}
 
@@ -324,13 +320,24 @@ table.pk td.pkjudge{font-size:13px;color:var(--ink2);min-width:260px}
 .pknote{margin:8px 0 0;font-size:12px;color:var(--ink3)}
 .pkrules{margin:0;padding-left:22px;font-size:14.5px}
 .pkrules li{margin:6px 0}
+
+/* 今天变了什么：结论先行（A 股与港股共用） */
+.lead{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ink);border-radius:12px;padding:15px 20px 13px;margin:0 0 14px}
+.lead-k{font:700 11px var(--sans);letter-spacing:.14em;color:var(--ink3);margin:0 0 6px}
+.lead-main{font:600 19px/1.62 var(--serif);margin:0 0 9px;max-width:46em}
+.lead-points{margin:0;padding-left:18px;font-size:14px;line-height:1.78;color:var(--ink2)}
+.lead-points li{margin:2px 0}
+.lead-points b{color:var(--ink)}
+@media(max-width:760px){.lead-main{font-size:17px}}
+.v.na{color:var(--ink3)} .v.fx{color:var(--link)} .v.price{color:var(--ink2)}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="index.html" aria-current="page">大盘</a><a href="boards/index.html">板块</a><a href="stocks/index.html">个股</a><a href="picks/index.html">半年名单</a><a href="reports/index.html">报告</a><a href="trades.html">我的操作</a></nav></div></header>
 <main class="wrap"><nav class="market-switch" aria-label="大盘市场"><a href="index.html" aria-current="page">A 股</a><a href="hk/index.html">港股</a></nav>
 <div class="hero"><p class="date">11 月 9 日 周一</p><h1>大盘今天处在什么状态</h1>
 <p class="sum">5 项已计分，合计 -2 分（满分 ±10）。拖累来自国内经济、全球环境、资金；支撑来自利率与流动性、估值。</p><p class="stamp">行情截至 11 月 9 日收盘；两融截至 11 月 6 日；估值截至 11 月 6 日。页面生成于 2026-11-09 17:41。</p></div>
 
-<section class="block" id="today"><h2>今天变了什么</h2><p class="sub">和上一交易日（11 月 6 日）相比。第三期接入个股后，这里会同时列出受影响的个股。</p><ul class="chg-list"><li><span class="tag down">利空</span>两融单日净偿还 236 亿元（11-06） <a href="#node-G">看 G 节点</a></li><li><span class="tag up">利好</span>全 A 估值分位从 59% 变为 54% <a href="#node-F">看 F 节点</a></li><li><span class="tag flat">新数据</span>2026年10月份 CPI 同比：0.7 <a href="#node-A">看 A 节点</a></li><li><span class="tag flat">新数据</span>2026年10月份 PPI 同比：5.7 <a href="#node-C">看 C 节点</a></li></ul></section>
+<section class="block" id="today"><h2>今天变了什么</h2><div class="lead"><p class="lead-k">结论</p><p class="lead-main">合计 -2 分（5 项已计分，满分 ±10）。最弱的是国内经济 -2、全球环境 -1；支撑来自利率与流动性 +1、估值 +1。</p><ul class="lead-points"><li><b>今天有 2 条会改变判断：</b>两融单日净偿还 236 亿元（11-06）；全 A 估值分位从 59% 变为 54%。</li><li>另有 2 条是月度数据公布，不改变分数：2026年10月份 CPI 同比、2026年10月份 PPI 同比。</li><li>关注条件今天没有新增触发。</li><li>最该盯的是 <a href="#node-A">国内经济</a>，它是当前最大的拖累。</li></ul></div>
+<p class="sub">下面是和上一交易日（11 月 6 日）相比的逐条明细。</p><ul class="chg-list"><li><span class="tag down">利空</span>两融单日净偿还 236 亿元（11-06） <a href="#node-G">看 G 节点</a></li><li><span class="tag up">利好</span>全 A 估值分位从 59% 变为 54% <a href="#node-F">看 F 节点</a></li><li><span class="tag flat">新数据</span>2026年10月份 CPI 同比：0.7 <a href="#node-A">看 A 节点</a></li><li><span class="tag flat">新数据</span>2026年10月份 PPI 同比：5.7 <a href="#node-C">看 C 节点</a></li></ul></section>
 
 <section class="block" id="map"><h2>传导图</h2><p class="sub">红色利好，绿色利空，灰色中性。点任意一环跳到下面的展开分析。</p>
 <div class="fwbox"><svg class="fw" viewBox="0 0 1000 410" role="img" aria-label="大盘层传导图，节点颜色表示今日判定"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9AA2AF"/></marker><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D88B1F"/></marker></defs><path d="M110,82 V120" class="edge" marker-end="url(#ar)"/><path d="M460,82 V100 H235 V120" class="edge" marker-end="url(#ar)"/><path d="M530,82 V120" class="edge" marker-end="url(#ar)"/><path d="M125,182 V220" class="edge" marker-end="url(#ar)"/><path d="M480,182 V220" class="edge" marker-end="url(#ar)"/><path d="M140,282 V316 H670 V330" class="edge" marker-end="url(#ar)"/><path d="M520,282 V304 H710 V330" class="edge" marker-end="url(#ar)"/><path d="M770,282 V330" class="edge" marker-end="url(#ar)"/><path d="M800,330 V306 H870 V282" class="edge fb" marker-end="url(#ar2)"/><a href="#node-A" class="node down"><rect x="20" y="20" width="290" height="62" rx="10"/><circle cx="42" cy="51" r="12" class="lc"/><text x="42" y="56" class="lt" text-anchor="middle">A</text><text x="64" y="47" class="n">全球环境与国内经济</text><text x="64" y="68" class="s">利空 -3</text></a><a href="#node-B" class="node flat"><rect x="370" y="20" width="290" height="62" rx="10"/><circle cx="392" cy="51" r="12" class="lc"/><text x="392" y="56" class="lt" text-anchor="middle">B</text><text x="414" y="47" class="n">货币、财政与产业政策</text><text x="414" y="68" class="s">中性 0</text></a><a href="#node-C" class="node down"><rect x="35" y="120" width="290" height="62" rx="10"/><circle cx="57" cy="151" r="12" class="lc"/><text x="57" y="156" class="lt" text-anchor="middle">C</text><text x="79" y="147" class="n">需求、成本与企业盈利</text><text x="79" y="168" class="s">利空 -1</text></a><a href="#node-D" class="node up"><rect x="370" y="120" width="290" height="62" rx="10"/><circle cx="392" cy="151" r="12" class="lc"/><text x="392" y="156" class="lt" text-anchor="middle">D</text><text x="414" y="147" class="n">利率、融资条件与风险偏好</text><text x="414" y="168" class="s">利好 +1</text></a><a href="#node-E" class="node na"><rect x="50" y="220" width="290" height="62" rx="10"/><circle cx="72" cy="251" r="12" class="lc"/><text x="72" y="256" class="lt" text-anchor="middle">E</text><text x="94" y="247" class="n">未来收益预期</text><text x="94" y="268" class="s">暂缺：没有可靠数据源</text></a><a href="#node-F" class="node up"><rect x="370" y="220" width="290" height="62" rx="10"/><circle cx="392" cy="251" r="12" class="lc"/><text x="392" y="256" class="lt" text-anchor="middle">F</text><text x="414" y="247" class="n">投资者愿意支付的估值</text><text x="414" y="268" class="s">利好 +1</text></a><a href="#node-G" class="node down"><rect x="700" y="220" width="290" height="62" rx="10"/><circle cx="722" cy="251" r="12" class="lc"/><text x="722" y="256" class="lt" text-anchor="middle">G</text><text x="744" y="247" class="n">参与者的仓位、申赎与交易约束</text><text x="744" y="268" class="s">利空 -1</text></a><a href="#node-H" class="node price"><rect x="640" y="330" width="330" height="62" rx="10"/><circle cx="662" cy="361" r="12" class="lc"/><text x="662" y="366" class="lt" text-anchor="middle">H</text><text x="684" y="357" class="n">股价与市场走势</text><text x="684" y="378" class="s">沪深 300 今日 +0.05%，年内 -12.4%</text></a></svg></div><div class="chips"><a href="#node-A" class="chip down"><b>A</b>全球环境与国内经济<span>利空 -3</span></a><a href="#node-B" class="chip flat"><b>B</b>货币、财政与产业政策<span>中性 0</span></a><a href="#node-C" class="chip down"><b>C</b>需求、成本与企业盈利<span>利空 -1</span></a><a href="#node-D" class="chip up"><b>D</b>利率、融资条件与风险偏好<span>利好 +1</span></a><a href="#node-E" class="chip na"><b>E</b>未来收益预期<span>暂缺：没有可靠数据源</span></a><a href="#node-F" class="chip up"><b>F</b>投资者愿意支付的估值<span>利好 +1</span></a><a href="#node-G" class="chip down"><b>G</b>参与者的仓位、申赎与交易约束<span>利空 -1</span></a><a href="#node-H" class="chip price"><b>H</b>股价与市场走势<span>沪深 300 今日 +0.05%，年内 -12.4%</span></a></div></section>

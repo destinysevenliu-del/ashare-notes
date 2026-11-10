@@ -467,6 +467,40 @@ def conds_html():
     return f'<ul class="conds">{lis}</ul>'
 
 
+def today_lead():
+    """今天变了什么：先给结论，再展开明细。"""
+    rows = R["score_rows"]
+    valid = [r for r in rows if r["score"] is not None]
+    neg = sorted([r for r in valid if r["score"] < 0], key=lambda r: r["score"])
+    pos = sorted([r for r in valid if r["score"] > 0], key=lambda r: -r["score"])
+    sig = [c for c in R["changes"] if c["dir"] in ("up", "down")]
+    neut = [c for c in R["changes"] if c["dir"] == "flat"]
+    newc = [c for c in R["conds"] if c.get("new")]
+    n = sum(1 for r in rows if not r.get("manual")) + sum(
+        1 for m in (manual["external"], manual["policy"]) if m.get("evidence_verified"))
+    main = f"合计 {R['total']:+d} 分（{n} 项已计分，满分 ±{2 * n}）。"
+    if neg: main += "最弱的是" + "、".join(f"{r['name']} {r['score']:+d}" for r in neg[:2]) + "；"
+    if pos: main += "支撑来自" + "、".join(f"{r['name']} {r['score']:+d}" for r in pos[:2]) + "。"
+    if not neg and not pos: main += "各项都接近中性。"
+    main = main.rstrip("；") if main.endswith("；") else main
+    pts = []
+    if sig:
+        pts.append(f'<li><b>今天有 {len(sig)} 条会改变判断：</b>' + "；".join(E(c["text"]) for c in sig[:3]) + "。</li>")
+    else:
+        pts.append("<li><b>今天没有出现会改变判断的新信号</b>，分数和上一交易日一致。</li>")
+    if neut:
+        pts.append(f'<li>另有 {len(neut)} 条是月度数据公布，不改变分数：'
+                   + "、".join(E(c["text"].split("：")[0]) for c in neut[:4]) + "。</li>")
+    if newc:
+        pts.append("<li><b>新触发关注条件：</b>" + "；".join(E(c["name"]) for c in newc) + "。</li>")
+    else:
+        pts.append("<li>关注条件今天没有新增触发。</li>")
+    if neg:
+        pts.append(f'<li>最该盯的是 <a href="#node-{neg[0]["node"]}">{E(neg[0]["name"])}</a>，它是当前最大的拖累。</li>')
+    return (f'<div class="lead"><p class="lead-k">结论</p><p class="lead-main">{E(main)}</p>'
+            f'<ul class="lead-points">{"".join(pts)}</ul></div>')
+
+
 def summary():
     rows = R["score_rows"]
     neg = [r["name"] for r in sorted(rows, key=lambda r: r["score"]) if r["score"] < 0]
@@ -524,7 +558,8 @@ def index():
 <div class="hero"><p class="date">{cn_date(TODAY, True)}</p><h1>大盘今天处在什么状态</h1>
 <p class="sum">{E(summary())}</p><p class="stamp">{E(stamp)}</p></div>
 
-<section class="block" id="today"><h2>今天变了什么</h2><p class="sub">和上一交易日（{cn_date(R['prev'])}）相比。第三期接入个股后，这里会同时列出受影响的个股。</p>{changes()}</section>
+<section class="block" id="today"><h2>今天变了什么</h2>{today_lead()}
+<p class="sub">下面是和上一交易日（{cn_date(R['prev'])}）相比的逐条明细。</p>{changes()}</section>
 
 <section class="block" id="map"><h2>传导图</h2><p class="sub">红色利好，绿色利空，灰色中性。点任意一环跳到下面的展开分析。</p>
 <div class="fwbox">{diagram()}</div><div class="chips">{chips}</div></section>

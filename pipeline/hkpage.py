@@ -300,15 +300,28 @@ def build(ctx):
         if data['date']<asof:history.append(data)
     previous=max(history,key=lambda d:d['date']) if history else None
     labels = {key: titles[key] for key in 'ABCDEFGX'}
+    STATE_TXT = {'up': '利好', 'down': '利空', 'flat': '分化', 'na': '待数据', 'fx': '路径', 'price': '结果'}
     cards = ''
-    for key, label in labels.items():
+    for key in ('A', 'B', 'C', 'D', 'X', 'E', 'F', 'G', 'H'):
         entry = reviewed.get(key, {})
         detail = entry.get('headline', '查看下方观测')
-        state = entry.get('state', 'flat')
-        cards += f'<a href="#node-{key}" class="hk-score"><span>{key} · {label}</span><strong class="{state}">{E(detail)}</strong><small>定性研究判断 · {research.get("reviewed_at", "")}</small></a>'
+        if key == 'X': state = 'fx'
+        elif key == 'H': state = 'price'
+        else: state = entry.get('state', 'na')
+        cards += (f'<a class="sc" href="#node-{key}"><div class="lbl"><span class="sk">{key}</span>{E(titles[key])}'
+                  f'<span class="v {state}">{STATE_TXT[state]}</span></div><p>{E(detail)}</p></a>')
+    cards += ('<div class="sc total"><div class="lbl">不合成总分<span class="v">—</span></div>'
+              '<p>九个节点里 X 是传导路径、H 是价格结果，其余按定性判断展示；HIBOR 与南向资金保留独立子项。'
+              '缺失值表示待数据，不补零。</p></div>')
     daily=[]
-    for key,rows in indices.items():daily.append(f'<li><b>{NAMES[key]}</b> 收于 {rows[-1]["close"]:,.2f}，较上一交易日 {change(rows,1):+.2f}%。</li>')
-    if latest:daily.append(f'<li><b>南向资金</b> {latest["date"]} 净买入 {latest["net"]:+.2f} 亿港元。</li>')
+    for key,rows in indices.items():
+        ch=change(rows,1); cls='up' if ch>0 else 'down' if ch<0 else 'flat'
+        daily.append(f'<li><span class="tag {cls}">{"上涨" if ch>0 else "下跌" if ch<0 else "持平"}</span>'
+                     f'{NAMES[key]} 收于 {rows[-1]["close"]:,.2f}，较上一交易日 {ch:+.2f}%。 <a href="#node-H">看 H 节点</a></li>')
+    if latest:
+        cls='up' if latest["net"]>0 else 'down' if latest["net"]<0 else 'flat'
+        daily.append(f'<li><span class="tag {cls}">{"净买入" if latest["net"]>0 else "净卖出"}</span>'
+                     f'南向资金 {latest["date"]} 净{"买入" if latest["net"]>0 else "卖出"} {latest["net"]:+.2f} 亿港元。 <a href="#node-G">看 G 节点</a></li>')
     snapshot_note='本版框架首次记录，后续按同版本快照追踪分项变化。'
     if previous:
         changed=[f'{labels[k]}：{previous["scores"].get(k)} → {v}' for k,v in scores.items() if previous['scores'].get(k)!=v]
@@ -335,15 +348,32 @@ def build(ctx):
     if net5 is None or net20 is None:warnings.append('南向合计：部分观察窗口缺日或遇到非互联互通交易日，不补零、不输出完整窗口合计。')
     conditions=[('港元成本明显变动', '已触发' if delta is not None and abs(delta)>=25 else '未触发' if delta is not None else '待数据','1 个月 HIBOR 较 20 个观测前变动至少 25bp。'),('南向短期转为净卖出','已触发' if net5 is not None and net5<0 else '未触发' if net5 is not None else '待数据','最近 5 个港股交易日合计净买入为负。'),('恒生跌破 60 日均线','已触发' if indices['hsi'][-1]['close']<sum(r['close'] for r in indices['hsi'][-60:])/60 else '未触发','只作趋势观察，不作为买卖指令。'),('盈利兑现与估值匹配','持续跟踪','比较权重样本的利润、现金流与预期差，结合三指数月末估值及融资环境复核。')]
     stamp=f'三个指数统一截至 {asof} 收盘；页面生成于 {now.strftime("%Y-%m-%d %H:%M")}（香港 / 北京时间）。当日 17:00 前剔除当日 K 线；各数据源日期见下表。'
-    body=f'<div class="hero"><p class="date">{asof} · 港股观察 · HK v3</p><h1>港股大盘处在什么状态</h1><p class="sum">中国基本面与美国流动性双重锚，叠加三层政策，追踪人民币汇率、企业盈利、估值与参与者行为。</p><p class="stamp">{stamp}</p></div>'
+    verdict_txt=('内地需求与成本变化使盈利分化，美债收益率回落提供折现率支持，但波动率与信用利差抬升。'
+                 '科技权重股的收入增长尚需现金回报验证。资金层同时出现整体成交降温、盈富份额轻微净发行和代表股淡仓变化分化，'
+                 '后续要看盈利、融资与价格是否相互印证。')
+    body=f'<div class="hero"><p class="date">{asof} · 港股</p><h1>港股大盘处在什么状态</h1><p class="sum">{E(verdict_txt)}</p><p class="stamp">{stamp}</p></div>'
     body += '<p class="stamp">研究资料复核截至 '+E(research.get('reviewed_at', ''))+'。月末估值、季度业绩和日行情按各自日期展示，定性判断随新证据复核。</p>'
     if warnings:body+='<div class="hk-notice">'+''.join('<p>'+E(w)+'</p>' for w in warnings)+'</div>'
-    body += '<section class="block" id="current"><h2>当前判断</h2><p>内地需求与成本变化使盈利分化，美债收益率回落提供折现率支持，但波动率与信用利差抬升。科技权重股的收入增长尚需现金回报验证。资金层同时出现整体成交降温、盈富份额轻微净发行和代表股淡仓变化分化，后续要看盈利、融资与价格是否相互印证。</p><p class="sub">这段为截至研究日的综合推断，具体事实、相反证据和验证条件列在 A–G / X 各节。</p></section>'
-    body+='<section class="block" id="today"><h2>今天变了什么</h2><p class="sub">行情比较最近两个完整交易日；资金按自身最新披露日展示。</p><ul class="hk-changes">'+''.join(daily)+'</ul><p class="sub">'+E(snapshot_note)+'</p></section>'
+    d1={k:change(rows,1) for k,rows in indices.items()}
+    same=len({v>0 for v in d1.values()})==1
+    worst=min(d1,key=lambda k:d1[k]); best=max(d1,key=lambda k:d1[k])
+    lead_main=f"三个指数{'同向' if same else '涨跌分化'}：恒生 {d1['hsi']:+.2f}%、国企 {d1['hscei']:+.2f}%、恒生科技 {d1['hstech']:+.2f}%。"
+    if latest: lead_main+=f"南向资金{'净买入' if latest['net']>0 else '净卖出'} {abs(latest['net']):.2f} 亿港元。"
+    pts=[f'<li>跌幅最大的是 {NAMES[worst]}（{d1[worst]:+.2f}%），相对最强的是 {NAMES[best]}（{d1[best]:+.2f}%）。</li>']
+    if net5 is not None:
+        pts.append('<li>南向近 5 个港股交易日合计 '+f'{net5:+.2f} 亿港元'+(f'，20 日 {net20:+.2f} 亿港元。' if net20 is not None else '。')+'</li>')
+    pts.append(f'<li>{E(snapshot_note)}</li>')
+    pts.append('<li>定性判断来自研究资料，具体事实、相反证据与验证条件见 A–G / X 各节。</li>')
+    body+='<section class="block" id="today"><h2>今天变了什么</h2><div class="lead"><p class="lead-k">结论</p><p class="lead-main">'+E(lead_main)+'</p><ul class="lead-points">'+''.join(pts)+'</ul></div>'
+    body+='<p class="sub">行情比较最近两个完整交易日；资金按自身最新披露日展示。</p><ul class="chg-list">'+''.join(daily)+'</ul></section>'
     body+='<section class="block" id="map"><h2>传导图</h2><p class="sub">按参考框架展开 A–H，并增加独立的 X 人民币汇率节点。点击节点查看影响路径、指标和证据状态。</p>'+diagram+'<div class="hk-map">'+nodes+'</div><p class="sub">蓝色节点及箭头标出人民币的盈利折算与资金偏好路径。红／绿边框对应当前正向／负向影响判断，灰框表示因素分化，深色 H 展示价格结果。图中箭头表示待验证的影响路径。</p></section>'
-    body+=f'<section class="block" id="score"><h2>信号观察卡</h2><p class="sub">八个节点均提供已核验事实、当前判断、相反证据与验证条件。观察卡为截至研究日期的定性判断，HIBOR 与南向资金保留独立子项，暂不合成总分。</p><div class="hk-scores">{cards}</div></section>'
+    body+=f'<section class="block" id="score"><h2>信号观察卡</h2><p class="sub">九个节点各自给出状态词，不做加减分。港股缺少完整的盈利预期与估值历史，强行合成总分等于假装精确，所以这里只并列判断、不排名。</p><div class="score">{cards}</div></section>'
     body+='<section class="block" id="nodes"><h2>逐项展开</h2><p class="sub">按 A / B / C / D / X / E / F / G / H 展开，事实、推断和覆盖边界分别展示。日、月、季数据各自标注日期。</p>'+sec+'</section>'
-    body+='<section class="block" id="conds"><h2>港股关注条件</h2><p class="sub">触发仅提示补看证据，阈值可以调整。</p>'+metrics(['关注项','当前状态','判断依据'],conditions)+'</section>'
+    body+='<section class="block" id="conds"><h2>港股关注条件</h2><p class="sub">触发仅提示补看证据，阈值可以调整。</p><ul class="conds">'
+    for name_,state_,basis_ in conditions:
+        body+=(f'<li class="{"hit" if state_=="已触发" else ""}"><span class="cs">{E(state_)}</span>'
+               f'<b>{E(name_)}</b><span class="cn">{E(basis_)}</span></li>')
+    body+='</ul></section>'
     gap_rows = []
     for gap in research.get('gaps', []):
         gap_rows.append([E(gap['item']), E(gap['attempt']), E(gap['result']), E(gap['fallback']) + '<br>' + link(gap['source'], '来源入口')])

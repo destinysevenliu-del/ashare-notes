@@ -271,25 +271,21 @@ footer p{margin:4px 0}
 .market-switch a{padding:8px 24px;border:1px solid var(--line,#dedbd5);border-radius:5px;text-decoration:none;color:inherit;font-weight:600}
 .market-switch a[aria-current="page"]{background:#293e50;color:#fff;border-color:#293e50}
 .market-switch+.hero{padding-top:30px}
-.hk-scores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #dedbd5;border-radius:6px;overflow:hidden}
-.hk-score{padding:20px;border:1px solid #eeeae4;display:flex;flex-direction:column;gap:9px}
-.hk-score strong{font-size:22px}.hk-score small{color:#777}
-.hk-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.hk-node{border:1px solid #dedbd5;border-left:3px solid currentColor;border-radius:5px;padding:15px;text-decoration:none;display:flex;flex-direction:column;gap:8px;color:#66717c}
-.hk-node b{font:700 22px Georgia,serif}.hk-node span{font-weight:600;color:#293e50}.hk-node small{font-size:11px;color:#777}
-.hk-changes{padding-left:22px;line-height:2.1}.hk-notice{border-left:3px solid #947539;padding:8px 18px;background:#f6f1e5;font-size:13px}
-.hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:#293e50}.hk-diagram .small{font-size:10px;fill:#777}
+.hk-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.hk-node{border:1px solid var(--line);border-left:3px solid currentColor;border-radius:10px;padding:13px 15px;text-decoration:none;display:flex;flex-direction:column;gap:6px;color:var(--ink3);background:var(--surface)}
+.hk-node b{font:700 20px/1 var(--serif)}.hk-node span{font-weight:600;color:var(--ink);font-size:14px}.hk-node small{font-size:11px;color:var(--ink3)}
+.hk-notice{border-left:3px solid var(--warn);padding:8px 18px;background:var(--warn-bg);font-size:13px;border-radius:0 8px 8px 0}
+.hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:var(--ink2)}.hk-diagram .small{font-size:10px;fill:var(--ink3)}
 @media(min-width:761px){.hk-diagram+.hk-map{display:none}}
-@media(max-width:760px){.hk-scores,.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score{padding:15px}.hk-score strong{font-size:18px}.hk-diagram{display:none}.hk-changes{font-size:14px}.hk-node{padding:12px}.market-switch{padding-top:18px}}
+@media(max-width:760px){.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-diagram{display:none}.hk-node{padding:12px}.market-switch{padding-top:18px}}
 
 .hk-node.fx,.lc2.fx{color:#3478db;border-color:#4e91ff;background:#eef5ff}
 .lc2.fx{background:#3478db;color:#fff}
 .hk-node.price{background:#172333;color:#fff}.hk-node.price span,.hk-node.price small{color:#fff}
-.hk-scores{grid-template-columns:repeat(4,minmax(0,1fr))}.hk-score strong{font-size:18px}
-@media(max-width:760px){.hk-scores{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-score strong{font-size:16px}}
+@media(max-width:760px){.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-.hk-call{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#f0f3f7;padding:16px;margin-bottom:18px;border-radius:6px}.hk-call small{color:#64748b}.hk-scope{display:block;color:#64748b;font-size:11px;line-height:1.6;margin-top:6px}.hk-evidence p{line-height:1.9}.hk-evidence .mt th:first-child{min-width:100px}.hk-evidence .mt td:last-child{white-space:nowrap}.hk-score{text-decoration:none;color:inherit}.hk-score strong{font-size:16px;line-height:1.6}.hk-score small{line-height:1.5}
-@media(max-width:760px){.hk-evidence .mt{min-width:640px}.hk-evidence .tblwrap{overflow-x:auto}.hk-score strong{font-size:14px}.hk-call{padding:12px}}
+.hk-call{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#f0f3f7;padding:16px;margin-bottom:18px;border-radius:6px}.hk-call small{color:#64748b}.hk-scope{display:block;color:#64748b;font-size:11px;line-height:1.6;margin-top:6px}.hk-evidence p{line-height:1.9}.hk-evidence .mt th:first-child{min-width:100px}.hk-evidence .mt td:last-child{white-space:nowrap}.hk-score small{line-height:1.5}
+@media(max-width:760px){.hk-evidence .mt{min-width:640px}.hk-evidence .tblwrap{overflow-x:auto}.hk-call{padding:12px}}
 
 .hk-mobilehint{display:none}@media(max-width:760px){.hk-mobilehint{display:block;font-size:12px;color:#64748b}}
 
@@ -324,6 +320,16 @@ table.pk td.pkjudge{font-size:13px;color:var(--ink2);min-width:260px}
 .pknote{margin:8px 0 0;font-size:12px;color:var(--ink3)}
 .pkrules{margin:0;padding-left:22px;font-size:14.5px}
 .pkrules li{margin:6px 0}
+
+/* 今天变了什么：结论先行（A 股与港股共用） */
+.lead{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ink);border-radius:12px;padding:15px 20px 13px;margin:0 0 14px}
+.lead-k{font:700 11px var(--sans);letter-spacing:.14em;color:var(--ink3);margin:0 0 6px}
+.lead-main{font:600 19px/1.62 var(--serif);margin:0 0 9px;max-width:46em}
+.lead-points{margin:0;padding-left:18px;font-size:14px;line-height:1.78;color:var(--ink2)}
+.lead-points li{margin:2px 0}
+.lead-points b{color:var(--ink)}
+@media(max-width:760px){.lead-main{font-size:17px}}
+.v.na{color:var(--ink3)} .v.fx{color:var(--link)} .v.price{color:var(--ink2)}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="../index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="../index.html">大盘</a><a href="../boards/index.html" aria-current="page">板块</a><a href="../stocks/index.html">个股</a><a href="../picks/index.html">半年名单</a><a href="../reports/index.html">报告</a><a href="../trades.html">我的操作</a></nav></div></header>
 <main class="wrap"><div class="crumb"><a href="index.html">板块</a> ／ 全市场初筛</div>
