@@ -330,6 +330,21 @@ table.pk td.pkjudge{font-size:13px;color:var(--ink2);min-width:260px}
 .lead-points b{color:var(--ink)}
 @media(max-width:760px){.lead-main{font-size:17px}}
 .v.na{color:var(--ink3)} .v.fx{color:var(--link)} .v.price{color:var(--ink2)}
+
+/* 信号时效分析 */
+.hz-lead{border-left-color:var(--link)}
+.hz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:32px}
+.hz-col{background:var(--surface);padding:18px 20px}
+.hz-head{font:600 16px/1.3 var(--serif);margin:-18px -20px 12px;padding:12px 20px;background:var(--flat-bg);display:flex;align-items:center;gap:6px}
+.hz-head span{font-size:20px}
+.hz-s{border-bottom:3px solid var(--up)} .hz-m{border-bottom:3px solid #D88B1F} .hz-l{border-bottom:3px solid var(--down)}
+.hz-tbl{font-size:13px}
+.hz-tbl td.note{font-size:12px}
+.hz-col > .note{font-size:13px;margin:0 0 10px}
+.hz-col .tblwrap .mt td{padding:7px 8px}
+.chip2{display:inline-block;font-size:11px;font-weight:700;background:var(--flat-bg);color:var(--ink2);padding:1px 6px;border-radius:4px;margin-left:4px;vertical-align:1px}
+.chip2:hover{background:var(--link-bg);color:var(--link)}
+@media(max-width:760px){.hz-grid{grid-template-columns:1fr}}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="index.html">大盘</a><a href="boards/index.html">板块</a><a href="stocks/index.html">个股</a><a href="picks/index.html">半年名单</a><a href="reports/index.html">报告</a><a href="trades.html" aria-current="page">我的操作</a></nav></div></header>
 <main class="wrap"><div class="hero"><h1>我的操作</h1><p class="sum">每一笔买卖都记下当时看到了什么，6 个月后回头检验判断，找出问题出在哪一层。</p>

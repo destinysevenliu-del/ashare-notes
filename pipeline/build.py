@@ -513,6 +513,102 @@ def summary():
     return s.rstrip("；") + ("" if s.endswith("。") else "。")
 
 
+# ---------- 信号时效分析 ----------
+def horizon_section():
+    def _signal_table(signals):
+        rows = ""
+        for text, direction, reason, node in signals:
+            dir_class = "up" if "偏多" in direction else "down" if "偏空" in direction else "flat"
+            rows += f'<tr><td><span class="tag {dir_class}">{E(direction)}</span></td>'
+            rows += f'<td>{E(text)} <a href="#node-{E(node)}" class="chip2">{E(node)}</a></td>'
+            rows += f'<td class="note">{E(reason)}</td></tr>'
+        return (f'<div class="tblwrap"><table class="mt hz-tbl"><thead><tr>'
+                f'<th>方向</th><th>信号 → 节点</th><th>逻辑</th>'
+                f'</tr></thead><tbody>{rows}</tbody></table></div>')
+
+    short = [
+        ("VIX 25.6, 20日 +73%", "偏空", "risk-off 未消退，可因美联储表态／地缘事件快速翻转", "A"),
+        ("两融余额 5 日 −2.6%", "偏空", "杠杆资金撤退，短期卖压", "G"),
+        ("11-12 月中央经济工作会议", "偏多", "政策打破负循环的最大变量，等待细则落地", "B"),
+        ("成交额 1.4 万亿，5/60 日均值 ≈1.0x", "中性", "中等水平，缺乏增量资金", "G"),
+    ]
+    mid = [
+        ("PMI 49.3, 环比 −0.8 → 收缩加速", "偏空", "经济需 1–2 个季度政策传导才可能反转，内需回避", "A"),
+        ("社零同比 1.1%", "偏空", "消费极度疲弱，回避内需消费型板块", "A"),
+        ("PPI 5.7%, PPI−CPI 剪刀差 +5.0pp", "偏多", "利润大规模向上游集中，是核心配置方向", "C"),
+        ("出口同比 36.3%", "偏多", "外需强劲，支撑航运／制造出口链", "A"),
+        ("全 A 盈利近 60 日 −5.1%", "偏空", "盈利下行中，不支持全面牛市", "C"),
+        ("美债 10Y 4.86%, 20 日 −36bp", "偏多", "方向比绝对水平重要，利率敏感成长估值压力减轻", "D"),
+        ("M1−M2 剪刀差 −4.0pp", "中性", "企业存款未活化，等待剪刀差收窄", "D"),
+    ]
+    long = [
+        ("实际利率 −4.1%, 3 个月 −2.3pp", "偏多", "融资成本极度宽松，资源／化工／制造双击", "D"),
+        ("股债性价比 4.50%, 84% 分位", "偏多", "股票相对债券吸引力高，下行有底", "F"),
+        ("两融占流通市值 2.51%, 2% 分位", "偏多", "杠杆出清接近尾声，小盘弹性蓄势", "G"),
+        ("全 A PE 16.44x, 54% 分位", "中性", "不贵不便宜，估值本身不提供方向", "F"),
+    ]
+
+    der_fwd = [
+        ("PPI 5.7%, PPI−CPI +5.0pp", "🟡 中期", "利润向上游集中", "<b>工业金属、化学原料、化学纤维、煤炭</b>"),
+        ("出口 36.3%", "🟡 中期", "外需链有基本面支撑", "<b>航运港口</b>"),
+        ("实际利率 −4.1% 且继续下行", "🟢 长期", "资产密集型行业融资成本双重利好", "<b>资源／化工</b>（与上游重叠，双重确认）"),
+        ("美债 4.86%, 20 日 −36bp", "🟡 中期", "利率敏感型成长估值修复", "<b>半导体封测/存储、创新药</b>"),
+        ("两融 2% 分位（出清）", "🟢 长期", "杠杆回补时小盘弹性最大", "上述板块中的<b>小市值多题材标的</b>"),
+    ]
+    der_bwd = [
+        ("PMI 49.3 + 社零 1.1%", "内需未来 3–6 月不会逆转", "消费（食品饮料／家电／服装）、地产链（建材／家居）、汽车内销部分"),
+        ("PPI−CPI +5.0pp", "下游毛利率被上游挤压", "中下游加工制造、依赖国内定价的加工企业"),
+    ]
+
+    fwd_rows = "".join(
+        f'<tr><td>{E(sig)}</td><td>{E(hz)}</td><td>{E(der)}</td><td>{sec}</td></tr>'
+        for sig, hz, der, sec in der_fwd)
+    bwd_rows = "".join(
+        f'<tr><td>{E(sig)}</td><td>{E(reason)}</td><td>{E(sec)}</td></tr>'
+        for sig, reason, sec in der_bwd)
+
+    return f"""
+<p class="sub">同一个 A-H 框架，把信号按生命周期分成三层。短期判断节奏，中期选择方向，长期决定配置。</p>
+
+<div class="lead hz-lead">
+  <p class="lead-k">三层预判</p>
+  <p class="lead-main">
+    <b>短期偏空</b>（VIX 高、融退、政策待落地）→ <b>中期分化</b>（上游利润扩张 vs 内需收缩）→ <b>长期偏多</b>（实际利率深度负值、杠杆出清、股债性价比高位）。<br>
+    核心矛盾：PPI 5.7% 把利润抽向上游，PMI 49.3 说明内需撑不起中下游 —— 这不是「全面牛」的环境，而是「选对方向牛，选错就熊」。
+  </p>
+</div>
+
+<div class="hz-grid">
+<div class="hz-col">
+  <div class="hz-head hz-s"><span>🔴</span> 短期（1–4 周）</div>
+  <p class="note">用于判断进场节奏，不是选板块的依据。这些因子变化快、影响大，但方向容易翻转。</p>
+  {_signal_table(short)}
+</div>
+<div class="hz-col">
+  <div class="hz-head hz-m"><span>🟡</span> 中期（1–6 月）</div>
+  <p class="note">趋势性信号，决定板块配置方向。每个月的数据都可能修正判断，但不会一天一变。</p>
+  {_signal_table(mid)}
+</div>
+<div class="hz-col">
+  <div class="hz-head hz-l"><span>🟢</span> 长期（6 月以上）</div>
+  <p class="note">结构性信号，决定配置周期和赔率。它们是真正的「锚」——不告诉你何时进场，但在你动摇时提醒你方向没变。</p>
+  {_signal_table(long)}
+</div>
+</div>
+
+<h3 id="sector-derivation">从大盘到板块的推导</h3>
+<p class="sub">如果上面的 A-H 判断成立，下面就是「多配哪些、少配哪些」的逻辑链。具体板块的定量评分见 <a href="boards/index.html">板块初筛</a>，个人持仓见 <a href="picks/index.html">半年名单</a>。</p>
+
+<h4>正向推导 —— 多配</h4>
+<div class="tblwrap"><table class="mt"><thead><tr><th>宏观信号</th><th>时效</th><th>推导</th><th>对应板块</th></tr></thead><tbody>{fwd_rows}</tbody></table></div>
+
+<h4>反向排除 —— 少配或回避</h4>
+<div class="tblwrap"><table class="mt"><thead><tr><th>宏观信号</th><th>原因</th><th>回避板块</th></tr></thead><tbody>{bwd_rows}</tbody></table></div>
+
+<p class="note" style="margin-top:18px">以上推导基于框架的 <b>纯逻辑推演</b>，不对板块做精确定量打分。<br>
+<span style="color:var(--warn)">手动更新</span>：本节含人工判断，不随每日数据自动更新。建议每月至少核对一次，或当 PMI／PPI／美债／两融发生 2σ 以上变动时重审。</p>"""
+
+
 # ---------- 页面骨架 ----------
 CSS = open(os.path.join(ROOT, "pipeline", "style.css"), encoding="utf-8").read()
 
@@ -567,6 +663,8 @@ def index():
 <section class="block" id="score"><h2>信号观察卡</h2><p class="sub">六个维度各打 −2 到 +2 分。分项只作变化提醒，未经收益预测验证；“人工”两项需要你确认。</p>{scorecard()}</section>
 
 <section class="block" id="nodes"><h2>逐项展开</h2><p class="sub">每一环都写清楚看什么指标、现在多少、怎么判的。表格里“较上期”的颜色同样表示利好（红）或利空（绿）。</p>{nodes_html}</section>
+
+<section class="block" id="horizon"><h2>信号时效分析</h2>{horizon_section()}</section>
 
 <section class="block" id="conds"><h2>大盘关注条件</h2><p class="sub">触发只是提醒你去看一眼，不是买卖信号。阈值可以随时改。</p>{conds_html()}</section>
 """
