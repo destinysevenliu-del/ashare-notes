@@ -5,7 +5,7 @@ from pathlib import Path
 
 E = html.escape
 NAMES = dict(zip('ABCDEFGH', ['需求', '政策与地缘', '行业利润与现金流', '利率与风险溢价', '盈利预期修订', '估值', '资金与拥挤度', '价格验证']))
-STYLE = '''<style>#framework,#leaders,.sector-node[id]{scroll-margin-top:110px}.sector-diagram-scroll{overflow-x:auto;max-width:100%;border:1px solid #d9dfe7;background:#fff;border-radius:12px;padding:10px;margin:16px 0}.sector-diagram{display:block;width:100%;min-width:860px;height:auto}.sector-card:has(details[open]){grid-column:1 / -1}.sector-preview{padding:12px 14px;background:#f1f5fa;border-radius:8px;line-height:1.8;font-size:14px}.sector-card summary{cursor:pointer;color:#24476b;font-weight:600;padding:12px 0}.sector-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.sector-card{border:1px solid #d9dfe7;border-radius:12px;padding:22px;background:#fff}.sector-card h3{margin:0 0 12px}.sector-card p{line-height:1.8}.sector-card .stocks{font-size:14px;color:#526072}.sector-verdict{border-left:4px solid #263a50;background:#f5f7fa;padding:20px 24px;font-size:19px;line-height:1.8}.sector-nodes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.sector-node{background:#fff;border:1px solid #d9dfe7;border-radius:10px;padding:20px}.sector-node h3{font-size:17px;margin:0 0 12px}.sector-node p{line-height:1.8;margin:0}.sector-table td{min-width:150px;vertical-align:top;line-height:1.7}.sector-table td:first-child{min-width:110px}.sector-chain{font-size:18px;padding:16px;background:#f3f6f9;border-radius:8px;line-height:2}.sector-evidence li{margin:12px 0;line-height:1.8}.sector-tag{font-size:13px;background:#e9eef4;border-radius:5px;padding:4px 8px;display:inline-block;margin-bottom:12px}@media(max-width:700px){.sector-grid,.sector-nodes{grid-template-columns:1fr}.sector-card{padding:18px}.sector-verdict{padding:16px;font-size:17px}}</style>'''
+STYLE = '''<style>#framework,#leaders,#candidates,.sector-node[id]{scroll-margin-top:110px}.sector-diagram-scroll{overflow-x:auto;max-width:100%;border:1px solid #d9dfe7;background:#fff;border-radius:12px;padding:10px;margin:16px 0}.sector-diagram{display:block;width:100%;min-width:860px;height:auto}.sector-card:has(details[open]){grid-column:1 / -1}.sector-preview{padding:12px 14px;background:#f1f5fa;border-radius:8px;line-height:1.8;font-size:14px}.sector-card summary{cursor:pointer;color:#24476b;font-weight:600;padding:12px 0}.sector-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.sector-card{border:1px solid #d9dfe7;border-radius:12px;padding:22px;background:#fff}.sector-card h3{margin:0 0 12px}.sector-card p{line-height:1.8}.sector-card .stocks{font-size:14px;color:#526072}.sector-verdict{border-left:4px solid #263a50;background:#f5f7fa;padding:20px 24px;font-size:19px;line-height:1.8}.sector-nodes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.sector-node{background:#fff;border:1px solid #d9dfe7;border-radius:10px;padding:20px}.sector-node table{font-size:14px}.sector-node .mt td{white-space:normal;min-width:100px;vertical-align:top}.sector-nodes:has(.node-detail){grid-template-columns:minmax(0,1fr)}.sector-node{min-width:0}.node-detail p{margin:12px 0}.node-detail h4{margin:20px 0 8px}.sector-node h3{font-size:17px;margin:0 0 12px}.sector-node p{line-height:1.8;margin:0}.sector-table td{min-width:150px;vertical-align:top;line-height:1.7}.sector-table td:first-child{min-width:110px}.sector-chain{font-size:18px;padding:16px;background:#f3f6f9;border-radius:8px;line-height:2}.sector-evidence li{margin:12px 0;line-height:1.8}.sector-tag{font-size:13px;background:#e9eef4;border-radius:5px;padding:4px 8px;display:inline-block;margin-bottom:12px}@media(max-width:700px){.sector-grid,.sector-nodes{grid-template-columns:1fr}.sector-card{padding:18px}.sector-verdict{padding:16px;font-size:17px}}</style>'''
 
 
 def switch(market):
@@ -63,7 +63,7 @@ def hub(data, market):
         body += f'<section class="block"><h2>{tier} · {len(group)} 个方向</h2><div class="sector-grid">'
         for s in group:
             names = '；'.join(f'{x["name"]} {x["code"]}' for x in s['stocks'])
-            body += f'<article class="sector-card"><h3><a href="{s["id"]}.html">{E(s["title"])}</a></h3><p><b>{E(s["thesis"])}</b></p><p class="stocks">龙头 / 标杆观察：{E(names)}</p><div class="sector-preview"><b>A/B → C → E/F</b><br>{E(s["diagram"]["A"][0])} → {E(s["diagram"]["C"][0])} → {E(s["diagram"]["F"][0])}</div><p><strong>验证重点：</strong>{E(s["metrics"])}</p><details><summary>展开本板块 A–H 传导框架</summary>{diagram(s, s["id"]+".html", "hub")}<p class="note">颜色区分经营路径、定价约束与市场反馈；不表示利好或利空。手机可横向滑动，点击节点进入详细分析。</p></details><a href="{s["id"]}.html">查看板块分析与龙头动向 →</a></article>'
+            body += f'<article class="sector-card"><h3><a href="{s["id"]}.html">{E(s["title"])}</a></h3><p><b>{E(s["thesis"])}</b></p><p class="stocks">龙头 / 标杆观察：{E(names)}</p><p class="stocks">待选池 {len(s["candidates"])} 只：{E("、".join(x["name"] for x in s["candidates"]))} · <a href="{s["id"]}.html#candidates">查看入池逻辑</a></p><div class="sector-preview"><b>A/B → C → E/F</b><br>{E(s["diagram"]["A"][0])} → {E(s["diagram"]["C"][0])} → {E(s["diagram"]["F"][0])}</div><p><strong>验证重点：</strong>{E(s["metrics"])}</p><details><summary>展开本板块 A–H 传导框架</summary>{diagram(s, s["id"]+".html", "hub")}<p class="note">颜色区分经营路径、定价约束与市场反馈；不表示利好或利空。手机可横向滑动，点击节点进入详细分析。</p></details><a href="{s["id"]}.html">查看详细节点、龙头与待选池 →</a></article>'
         body += '</div></section>'
     body += f'<section class="block"><h2>本轮资料范围</h2><p class="note">{E(data["coverage"])}。E 的完整一致预期、F 的历史估值、G/H 的细分组合数据仍按各节注明的口径处理。</p></section>'
     return body
@@ -72,10 +72,16 @@ def hub(data, market):
 def detail(data, s):
     market = 'A 股' if s['market'] == 'a' else '港股'
     back = 'index.html' if s['market'] == 'a' else 'hk.html'
-    body = STYLE + switch(s['market']) + f'<div class="crumb"><a href="{back}">{market}板块</a> ／ {E(s["title"])}</div><div class="hero"><span class="sector-tag">{market} · {s["tier"]}</span><h1>{E(s["title"])}</h1><p class="stamp">更新 {data["as_of"]} · 判断窗口 {data["window"]}</p><p class="sector-verdict"><b>{E(s["thesis"])}</b></p></div>'
+    body = STYLE + switch(s['market']) + f'<div class="crumb"><a href="{back}">{market}板块</a> ／ {E(s["title"])}</div><nav class="market-switch" aria-label="板块内容"><a href="#framework">传导图与节点</a><a href="#leaders">龙头观察</a><a href="#candidates">待选股票池</a></nav><div class="hero"><span class="sector-tag">{market} · {s["tier"]}</span><h1>{E(s["title"])}</h1><p class="stamp">更新 {data["as_of"]} · 判断窗口 {data["window"]}</p><p class="sector-verdict"><b>{E(s["thesis"])}</b></p></div>'
     body += f'<section class="block" id="framework"><h2>板块 A–H 传导框架</h2><p class="note">每个节点使用本板块具体变量。蓝色为经营传导，浅金色为定价约束，灰色为资金与价格反馈；颜色不代表涨跌评分。点击节点查看下方依据，手机可横向滑动。</p>{diagram(s)}<p class="note">本板块重点链条：{E(s["chain"])}。H → G 是价格对交易行为的反馈；股价上涨不能倒推经营改善，也不能替代 C/E 验证。</p><h3>逐节点分析</h3><div class="sector-nodes">'
     for k, val in s['nodes'].items():
-        body += f'<article class="sector-node" id="node-{k}"><h3>{k} · {NAMES[k]}</h3><p>{E(val)}</p></article>'
+        nd=s['node_detail'][k]
+        body += f'<article class="sector-node node-detail" id="node-{k}"><h3>{k} · {NAMES[k]}</h3><p><b>当前判断：</b>{E(nd["judgment"])}</p><h4>数据与证据</h4><div class="tblwrap"><table class="mt"><thead><tr><th>指标</th><th>数值 / 事实</th><th>日期</th><th>口径 / 来源</th></tr></thead><tbody>'
+        for r in nd['rows']:
+            link=source(data,r['source']) if r['source'] else '研究口径说明'
+            body += f'<tr><td>{E(r["metric"])}</td><td>{E(r["value"])}</td><td>{E(r["date"])}</td><td>{E(r["scope"])}<br>{link}</td></tr>'
+        body += '</tbody></table></div><h4>如何传到本板块</h4>'+''.join('<p>'+E(x)+'</p>' for x in nd['analysis'])
+        body += f'<h4>反证与解释边界</h4><p>{E(nd["counter"])}</p><h4>下一步如何验证并推到个股</h4><p>{E(nd["next"])}</p></article>'
     body += '</div></section><section class="block"><h2>已核到的证据与反证</h2><ul class="sector-evidence">'
     for fact in s['facts']:
         body += f'<li><b>{E(fact["date"])}</b> · {E(fact["text"])} {source(data,fact["source"])}</li>'
@@ -84,6 +90,15 @@ def detail(data, s):
     for stock in s['stocks']:
         observation = stock['observation']
         body += f'<tr><td><b>{E(stock["name"])}</b><br>{market} {stock["code"]}<br><span class="sector-tag">{E(stock["watch_role"])}</span></td><td>{E(stock["watch_reason"])}<p class="note">业务：{E(stock["role"])}</p>{source(data,stock["leader_source"],"业务与行业地位依据")}</td><td><b>对应 {E(stock["watch_nodes"])}</b><br>{E(stock["watch"])}</td><td><b>{E(observation["date"])}</b><br>{E(observation["text"])}<br>{source(data,observation["source"],"查看已核资料")}<p class="note">{E(stock.get("other", ""))}</p></td></tr>'
+    body += '</tbody></table></div></section>'
+    if s.get('cross_market'):
+        body += '<section class="block"><h3>跨市场龙头对照</h3><p class="note">用于比较行业供需，市场标注不同的公司不进入本市场待选池。</p>'
+        for x in s['cross_market']:
+            body += f'<p><b>{E(x["name"])} · {E(x["market"])} {x["code"]}</b>：{E(x["why"])} {source(data,x["source"])}</p>'
+        body += '</section>'
+    body += f'<section class="block" id="candidates"><h2>板块内待选股票池 · {len(s["candidates"])} 只</h2><p>{E(s["pool_note"])}</p><p class="note">研究阶段：业务连接 → C利润与现金流 → E盈利变化 → F估值 → G/H交易验证。龙头也需通过这些条件；待选不等于已选。新增初筛公司的来源入口用于继续核验，不表示已经读完财报。</p><div class="tblwrap"><table class="mt sector-table"><thead><tr><th>股票 / 研究阶段</th><th>如何承接板块逻辑</th><th>优先核什么</th><th>淘汰或退回观察条件</th></tr></thead><tbody>'
+    for x in s['candidates']:
+        body += f'<tr><td><b>{E(x["name"])}</b><br>{market} {x["code"]}<p class="note">{E(x["status"])}</p></td><td><b>{E(x["segment"])}</b><br>{E(x["logic"])}</td><td>{E(x["verify"])}<br>{source(data,x["source"],"资料 / 继续核验入口")}</td><td>{E(x["risk"])}</td></tr>'
     body += '</tbody></table></div></section>'
     body += f'<section class="block"><h2>未来半年如何跟踪</h2><div class="sector-nodes"><article class="sector-node"><h3>保持 / 升级条件</h3><p>{E(s["upgrade"])}</p></article><article class="sector-node"><h3>降级 / 失效条件</h3><p>{E(s["down"])}</p></article></div><p><b>跟踪频率：</b>{E(s["metrics"])}</p></section>'
     refs = list(dict.fromkeys(s['refs']+[f['source'] for f in s['facts']]+[x['source'] for x in s['stocks']]))
