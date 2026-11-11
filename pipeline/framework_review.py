@@ -10,6 +10,12 @@ def render(ctx,market='a'):
  return render_hk(ctx,r)
 
 
+def board_title(ctx, market, name):
+ d=json.loads((Path(ctx["ROOT"])/"data/sector_research.json").read_text())
+ match=next((x for x in d["sectors"] if x["market"]==market and x["outlook_name"]==name),None)
+ prefix="boards/" if market=="a" else "../boards/"
+ return ('<a href="'+prefix+match["id"]+'.html">'+E(name)+"</a>") if match else E(name)
+
 def render_a(ctx,r):
  o=json.loads((Path(ctx['ROOT'])/'data/outlook.json').read_text())
  out='<p class="sub">判断窗口 '+E(r['window'])+'；依据截至2026-11-11的研究及原日期行情。板块方向已作判断，个股与仓位尚未确定。</p>'
@@ -20,7 +26,7 @@ def render_a(ctx,r):
  for tier in o['tiers']:
   out+='<div class="ol-tier"><div class="ol-th"><span class="tag '+E(tier['cls'])+'">'+E(tier['name'])+'</span><span class="ol-desc">'+E(tier['desc'])+'</span></div><div class="ol-grid">'
   for it in tier['items']:
-   out+='<article class="ol-card"><b>'+E(it['name'])+'</b>'
+   out+='<article class="ol-card"><b>'+board_title(ctx,'a',it['name'])+'</b>'
    for key,label in [('why','依据'),('risk','风险'),('falsify','改变判断的条件')]: out+='<p><b>'+label+'</b> '+E(it[key])+'</p>'
    out+='</article>'
   out+='</div></div>'
@@ -57,7 +63,7 @@ def render_hk(ctx,r):
  for tier in o['tiers']:
   out+='<div class="ol-tier"><div class="ol-th"><span class="tag '+E(tier['cls'])+'">'+E(tier['name'])+'</span><span class="ol-desc">'+E(tier['desc'])+'</span></div><div class="ol-grid">'
   for it in tier['items']:
-   out+='<article class="ol-card"><b>'+E(it['name'])+'</b>'
+   out+='<article class="ol-card"><b>'+board_title(ctx,'hk',it['name'])+'</b>'
    for key,label in [('why','依据'),('risk','风险'),('falsify','改变判断的条件')]:out+='<p><b>'+label+'</b> '+E(it[key])+'</p>'
    out+='</article>'
   out+='</div></div>'

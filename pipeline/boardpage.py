@@ -251,7 +251,7 @@ def render(a, ctx, stocks_in):
         reason_html = (f'<section class="block reason-block">'
                        f'<p class="reason-label">大盘推断分档<span class="tag {om["cls"]}" style="margin-left:8px">{E(om["tier"])}</span>{hz_html}</p>'
                        + line("依据", it["why"]) + line("风险", it.get("risk")) + line("证伪 / 触发", it.get("falsify"))
-                       + f'<p class="reason-link"><a href="../index.html#horizon">← 回到大盘推断</a>&emsp;<a href="../picks/index.html">查看半年名单 →</a></p>'
+                       + f'<p class="reason-link"><a href="../index.html#horizon">← 回到大盘推断</a>&emsp;<a href="index.html">查看当前板块研究 →</a></p>'
                        f'</section>')
     body = f"""
 <div class="crumb"><a href="index.html">板块</a> ／ {E(cfg['name'])}</div>
@@ -302,7 +302,7 @@ def build(ctx, stock_cfgs):
         a["hist"] = scorecard.record(root, "boards", cfg["slug"], ctx["TODAY"], {k: v for k, v in a["scores"].items() if k != "D"})
         analyses.append(a)
         res[cfg["secid"]] = a
-        html_ = ctx["page"](f"{cfg['name']} | 板块 | A 股框架笔记", "bk", render(a, ctx, by_board.get(cfg["secid"], [])), "../")
+        html_ = ctx["page"](f"{cfg['name']} | 板块 | A 股框架笔记", "bk", '<p class="hk-notice">旧宽行业统计资料，口径与当前细分方向不同。<a href="index.html">查看当前 A 股板块研究</a> · <a href="hk.html">港股板块研究</a></p>' + render(a, ctx, by_board.get(cfg["secid"], [])), "../")
         open(os.path.join(out, cfg["slug"] + ".html"), "w", encoding="utf-8").write(html_)
     open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(ctx["page"]("板块 | A 股框架笔记", "bk", index(analyses, ctx, by_board), "../"))
     screen_page(ctx)
@@ -341,7 +341,7 @@ def screen_page(ctx):
                  + f'<td class="{st(r["np_yoy"] or 0)}">{f(r["np_yoy"])}</td><td>{f(r["pe"], ".0f", "")}</td><td>{f(r["peg"], ".2f", "")}</td>'
                  f'<td class="{st(r["rs60"])}">{r["rs60"]:+.0f}</td><td class="{st(r["rs250"])}">{r["rs250"]:+.0f}</td><td>{r["sh_pct"]:.0f}%</td></tr>')
     body = f"""<div class="crumb"><a href="index.html">板块</a> ／ 全市场初筛</div>
-<div class="hero"><h1>全市场行业初筛（旧版留档）</h1><p class="mnote">此页沿用 v1 初筛方法，仅保留历史研究过程；不与 v2 分数比较，当前名单以个股页为准。</p><p class="sum">把东方财富 {len(res)} 个行业，全部按行业层的 A、C、E、F、G 五项打分，用来一起挑出未来半年值得追踪的 6 个板块。</p>
+<div class="hero"><h1>全市场行业初筛（旧版留档）</h1><p class="mnote">此页沿用 v1 初筛方法，仅保留历史研究过程；不与 v2 分数比较，当前方向以板块页为准，旧个股名单不是当前方案。</p><p class="sum">把东方财富 {len(res)} 个行业，全部按行业层的 A、C、E、F、G 五项打分，用来一起挑出未来半年值得追踪的 6 个板块。</p>
 <p class="stamp">数据截至 {ll['date']}：利润用 2026 年三季报（单季 = 前三季度 − 上半年），估值为当日市值加权 PE。B（政策）是人工项，这里没有打。</p></div>
 <section class="block"><h2>入围名单</h2><p class="sub">按“攻守平衡”的偏好，从成长、周期、防守三类里各挑出几个。{"标“已选定”的是最终确认的 6 个。" + ll.get("final_note", "") if ll.get("final") else "标“首轮提议”的是我建议的 6 个，等你删改。"}</p>{cards}</section>
 <section class="block"><h2>全部行业</h2><p class="sub">★ 首轮提议，○ 入围。“60 日 / 一年”是相对沪深 300 的超额涨幅（百分点）；拥挤度是近 5 日成交额占全 A 比例在近一年的分位。</p>

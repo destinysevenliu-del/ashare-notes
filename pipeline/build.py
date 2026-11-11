@@ -600,7 +600,7 @@ def page(title, active, body, prefix=""):
     if active == "gg":
         body = '<p class="hk-notice">历史个股资料：当前先按A–H判断半年并选择板块，尚未确定个股或仓位。旧名单不是当前方案。</p>' + body
     nav = [("index.html", "大盘", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg"),
-           ("picks/index.html", "半年板块", "pk"), ("reports/index.html", "报告", "bg"), ("trades.html", "我的操作", "tr")]
+           ("reports/index.html", "报告", "bg"), ("trades.html", "我的操作", "tr")]
     links = ""
     for href, lab, key in nav:
         if not href:
@@ -615,6 +615,8 @@ def page(title, active, body, prefix=""):
                   f'<a href="{prefix}hk/index.html"' + (' aria-current="page"' if active == 'hk' else '') + '>港股</a></nav>')
     sources = ('行情来自东方财富，估值来自恒生指数公司，利率与宏观数据来自金管局、FRED及统计机关，市场及参与者资料来自港交所、证监会和基金／公司官网。规则 HK v3，日期、口径与原始链接见各节。'
                if active == 'hk' else f"数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 {R['rules_version']}，每节的“怎么判的”里有完整规则。")
+    if active == "bk":
+        sources = "当前板块研究依据公司财报、交易所披露及宏观行业资料；每条证据保留报告期和原始链接。旧宽行业页面仅为历史统计资料。"
     return f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>{E(title)}</title><style>{CSS}</style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="{prefix}index.html">A 股框架笔记</a><nav aria-label="主导航">{links}</nav></div></header>
@@ -701,11 +703,11 @@ with open(os.path.join(SITE, "trades.html"), "w", encoding="utf-8") as f:
 import hkpage
 hkpage.build(globals())
 
-import stockpage, reportspage, boardpage, picks  # noqa: E402
+import stockpage, reportspage, boardpage, sectorpage  # noqa: E402
 BOARDS = boardpage.build(globals(), json.load(open(os.path.join(ROOT, "data", "stocks.json"), encoding="utf-8"))["stocks"])
 stock_analyses = stockpage.build(globals())
 reportspage.build(globals())
-picks.build(globals())
+sectorpage.build(globals())
 
 snap = {"date": TODAY, "total": R["total"], "scores": {r["key"]: r["score"] for r in R["score_rows"]},
         "nodes": {k: v["state"] for k, v in N.items()}, "conds": {c["id"]: c["hit"] for c in R["conds"]},
