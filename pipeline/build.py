@@ -370,10 +370,12 @@ def node_sub(k):
     return f"{STATE_TXT[n['state']]} {n['score']:+d}" if n["score"] else STATE_TXT[n["state"]] + " 0"
 
 
-def diagram():
-    o = ['<svg class="fw" viewBox="0 0 1000 410" role="img" aria-label="大盘层传导图，节点颜色表示今日判定">',
-         '<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9AA2AF"/></marker>'
-         '<marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D88B1F"/></marker></defs>']
+def diagram(states=None, subs=None, idp="", label="大盘层传导图，节点颜色表示今日判定"):
+    states = states or {k: N[k]["state"] for k in NODE_POS}
+    subs = subs or {k: node_sub(k) for k in NODE_POS}
+    o = [f'<svg class="fw" viewBox="0 0 1000 410" role="img" aria-label="{E(label)}">',
+         f'<defs><marker id="{idp}ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9AA2AF"/></marker>'
+         f'<marker id="{idp}ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D88B1F"/></marker></defs>']
     P = NODE_POS
     def bx(k): x, y = P[k]; return x, y, x + NW, y + NH
     edges = [
@@ -387,15 +389,15 @@ def diagram():
         f"M{P['G'][0] + 70},{P['G'][1] + NH} V{P['H'][1]}",
     ]
     for e in edges:
-        o.append(f'<path d="{e}" class="edge" marker-end="url(#ar)"/>')
-    o.append(f'<path d="M{P["H"][0] + 160},{P["H"][1]} V{P["H"][1] - 24} H{P["G"][0] + 170} V{P["G"][1] + NH}" class="edge fb" marker-end="url(#ar2)"/>')
+        o.append(f'<path d="{e}" class="edge" marker-end="url(#{idp}ar)"/>')
+    o.append(f'<path d="M{P["H"][0] + 160},{P["H"][1]} V{P["H"][1] - 24} H{P["G"][0] + 170} V{P["G"][1] + NH}" class="edge fb" marker-end="url(#{idp}ar2)"/>')
     for k, (x, y) in P.items():
-        st = N[k]["state"]
+        st = states[k]
         w = NW if k != "H" else 330
         o.append(f'<a href="#node-{k}" class="node {st}"><rect x="{x}" y="{y}" width="{w}" height="{NH}" rx="10"/>'
                  f'<circle cx="{x + 22}" cy="{y + 31}" r="12" class="lc"/><text x="{x + 22}" y="{y + 36}" class="lt" text-anchor="middle">{k}</text>'
                  f'<text x="{x + 44}" y="{y + 27}" class="n">{E(NODE_NAME[k])}</text>'
-                 f'<text x="{x + 44}" y="{y + 48}" class="s">{E(node_sub(k))}</text></a>')
+                 f'<text x="{x + 44}" y="{y + 48}" class="s">{E(subs[k])}</text></a>')
     o.append("</svg>")
     return "".join(o)
 
@@ -543,7 +545,7 @@ def _live():
         "exp6": f"{sum(x['v'] for x in D.exports[-6:]) / 6:.1f}", "cnh": f"{D.cnh[-1][1]:.2f}",
         "m20": f"{fu['m20']:+.1f}", "m5": f"{fu['m5']:+.1f}", "pmi": f"{D.pmi[-1]['v']:g}",
         "retail": f"{D.retail[-1]['v']:g}", "e60": f"{R['earn']['e60']:+.1f}",
-        "pe_all": f"{D.pe_all[-1][1]:.1f}", "pe_pct": f"{val['pct']:.0f}", "lev_pct": g(lev, ".0f"),
+        "pe_all": f"{D.pe_all[-1][1]:.1f}", "hs300_ytd": f"{idx_stats(D.idx['idx_hs300']['rows'])['ytd']:+.1f}", "pe_pct": f"{val['pct']:.0f}", "lev_pct": g(lev, ".0f"),
     }
 
 
@@ -604,10 +606,19 @@ def outlook_section():
                     f'<a href="#node-{E(node)}" class="chip2">{E(node)}</a></td><td class="note">{E(ofill(why))}</td></tr>')
         return f'<div class="tblwrap"><table class="mt hz-tbl"><tbody>{out}</tbody></table></div>'
     S = O["signals"]
-    corr = "".join(f'<tr><td>{E(c["old"])}</td><td>{E(c["new"])}</td></tr>' for c in O["corrections"])
+    nv = O.get("node_view", {})
+    nv_state = {k: nv.get(k, [N[k]["state"], ""])[0] for k in NODE_POS}
+    nv_sub = {k: ofill(nv.get(k, ["", node_sub(k)])[1]) for k in NODE_POS}
+    corr = "".join(f'<tr><td>{E(c.get("date", ""))}</td><td>{E(c["old"])}</td><td>{E(c["new"])}</td></tr>' for c in O["corrections"])
+    corr_html = (f'<div class="tblwrap"><table class="mt"><thead><tr><th>日期</th><th>原来的推导</th><th>修正后</th></tr></thead><tbody>{corr}</tbody></table></div>'
+                 if corr else '<p class="note">暂无修订记录。以后每次复核改动判断时，在这里记一笔：原来怎么推、为什么改。</p>')
     ver = "".join(f"<li>{E(v)}</li>" for v in O["verify"])
     return f"""
 <p class="sub">判断更新于 {E(O['as_of'])}，下次复核：{E(O['next_review'])}。文中数字随每日数据自动更新，判断本身只在复核时修改——数字变了而判断没变，正是需要复核的信号。</p>
+<h3 class="h3s">六个月传导图</h3>
+<p class="sub">这是对未来六个月各节点<b>方向</b>的判断，和下面「今日分析」里当天的读数不是一回事。红色利好，绿色利空，灰色为分化或待核验。</p>
+<div class="fwbox">{diagram(nv_state, nv_sub, "h6", "六个月传导图，节点颜色表示半年方向判断")}</div>
+<h3 class="h3s">结论</h3>
 <div class="lead ol-lead"><p class="lead-k">结论</p><p class="lead-main">{E(O['headline'])}</p><ul class="lead-points">{pts}</ul></div>
 
 <h3 class="h3s">板块分档</h3>
@@ -617,15 +628,14 @@ def outlook_section():
 <h3 class="h3s">三种情景：什么情况下要改结论</h3>
 <div class="ol-scs">{scen}</div>
 
-<h3 class="h3s">支撑结论的信号，按时效分</h3>
+<details class="sub2"><summary>支撑结论的信号，按时效分</summary>
 <div class="hz-grid">
 <div class="hz-col"><div class="hz-head hz-s">短期（1–4 周）</div><p class="note">决定加仓节奏，不决定选什么板块。</p>{sig_table(S['short'])}</div>
 <div class="hz-col"><div class="hz-head hz-m">中期（1–6 月）</div><p class="note">决定板块方向，每月数据可能修正。</p>{sig_table(S['mid'])}</div>
 <div class="hz-col"><div class="hz-head hz-l">结构（6 月以上）</div><p class="note">决定持有什么类型的资产。</p>{sig_table(S['struct'])}</div>
-</div>
+</div></details>
 
-<details class="rules"><summary>这次推导修正了什么（{E(O['as_of'])}）</summary>
-<div class="tblwrap"><table class="mt"><thead><tr><th>原来的推导</th><th>修正后</th></tr></thead><tbody>{corr}</tbody></table></div></details>
+<details class="rules"><summary>推导修订记录</summary>{corr_html}</details>
 <details class="rules"><summary>还没核验完的</summary><ul>{ver}</ul></details>"""
 
 
@@ -674,19 +684,29 @@ def index():
 <div class="hero"><p class="date">{cn_date(TODAY, True)}</p><h1>大盘今天处在什么状态</h1>
 <p class="sum">{E(summary())}</p><p class="stamp">{E(stamp)}</p></div>
 
-<section class="block" id="horizon"><h2>接下来六个月：板块推断</h2>{outlook_section()}</section>
+<nav class="l1nav"><a href="#horizon">六个月的判断</a><a href="#today">今日分析</a><a href="#conds">大盘关注条件</a></nav>
 
-<section class="block" id="today"><h2>今天变了什么</h2>{today_lead()}
-<p class="sub">下面是和上一交易日（{cn_date(R['prev'])}）相比的逐条明细。</p>{changes()}</section>
+<details class="l1" id="horizon" open><summary><h2>六个月的判断</h2><span class="l1hint">传导图 · 结论 · 板块分档</span></summary>
+{outlook_section()}</details>
 
-<section class="block" id="map"><h2>传导图</h2><p class="sub">红色利好，绿色利空，灰色中性。点任意一环跳到下面的展开分析。</p>
-<div class="fwbox">{diagram()}</div><div class="chips">{chips}</div></section>
+<details class="l1" id="today" open><summary><h2>今日分析</h2><span class="l1hint">传导图 · 结论 · 展开分析（{cn_date(TODAY)}）</span></summary>
+<h3 class="h3s" id="map">今日传导图</h3><p class="sub">红色利好，绿色利空，灰色中性。点任意一环跳到下面的展开分析。</p>
+<div class="fwbox">{diagram()}</div><div class="chips">{chips}</div>
+<h3 class="h3s">结论：今天变了什么</h3>{today_lead()}
+<details class="sub2"><summary>和上一交易日（{cn_date(R['prev'])}）相比的逐条明细</summary>{changes()}</details>
+<h3 class="h3s" id="score">展开分析</h3><p class="sub">信号观察卡：六个维度各打 −2 到 +2 分，只作变化提醒；“人工”两项需要你确认。</p>{scorecard()}
+<details class="sub2" id="nodes"><summary>A–H 逐项展开（看什么指标、现在多少、怎么判的）</summary>{nodes_html}</details>
+</details>
 
-<section class="block" id="score"><h2>信号观察卡</h2><p class="sub">六个维度各打 −2 到 +2 分。分项只作变化提醒，未经收益预测验证；“人工”两项需要你确认。</p>{scorecard()}</section>
+<details class="l1" id="conds"><summary><h2>大盘关注条件</h2><span class="l1hint">触发只是提醒你去看一眼，不是买卖信号</span></summary>
+{conds_html()}</details>
 
-<section class="block" id="nodes"><h2>逐项展开</h2><p class="sub">每一环都写清楚看什么指标、现在多少、怎么判的。表格里“较上期”的颜色同样表示利好（红）或利空（绿）。</p>{nodes_html}</section>
-
-<section class="block" id="conds"><h2>大盘关注条件</h2><p class="sub">触发只是提醒你去看一眼，不是买卖信号。阈值可以随时改。</p>{conds_html()}</section>
+<script>
+/* 点站内锚点时自动展开所在的折叠块；没有 JS 时折叠块仍可手动展开 */
+function openTo(id){{var el=document.getElementById(id);for(;el;el=el.parentElement)if(el.tagName==="DETAILS")el.open=true;}}
+document.addEventListener("click",function(e){{var a=e.target.closest&&e.target.closest('a[href^="#"]');if(a)openTo(a.getAttribute("href").slice(1));}});
+if(location.hash)openTo(location.hash.slice(1));
+</script>
 """
     return page("大盘 | A 股框架笔记", "dp", body)
 
