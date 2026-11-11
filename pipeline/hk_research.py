@@ -60,11 +60,12 @@ def render(entry, reviewed_at):
                     + '" target="_blank" rel="noopener noreferrer">原始材料</a></td></tr>')
     body = '<div class="hk-evidence"><div class="hk-call"><span class="tag">研究判断</span><b>'
     body += escape(entry['headline']) + '</b><small>复核于 ' + escape(reviewed_at) + '</small></div>'
-    body += '<p class="hk-mobilehint">表格可左右滑动查看完整日期和原始来源。</p>'
+    body += '<div class="market-node-columns"><div class="market-node-data"><h4 class="column-label">已核验数据</h4><p class="hk-mobilehint">表格可左右滑动查看完整日期和原始来源。</p>'
     body += '<div class="tblwrap"><table class="mt"><thead><tr><th>已核验事实</th><th>数值与口径</th><th>统计期／日期</th><th>来源</th></tr></thead><tbody>'
     body += ''.join(rows) + '</tbody></table></div>'
+    body += '</div><aside class="market-node-reason"><h4 class="column-label">传导与验证</h4>'
     for key, label in [('analysis', '影响分析'), ('counter', '相反证据'), ('monitor', '验证条件'), ('boundary', '覆盖范围')]:
         if entry.get(key):
             body += '<p><b>' + label + '</b>　' + escape(entry[key]) + '</p>'
-    body += '</div>'
+    body += '</aside></div></div>'
     return body

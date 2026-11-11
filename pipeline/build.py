@@ -6,6 +6,7 @@ import json, os, sys, html, datetime
 ROOT = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "pipeline"))
 import analyze as A  # noqa: E402
+import market_layout
 
 RAW = os.path.join(ROOT, "data", "raw")
 SITE = os.path.join(ROOT, "docs")
@@ -597,6 +598,11 @@ CSS = open(os.path.join(ROOT, "pipeline", "style.css"), encoding="utf-8").read()
 
 
 def page(title, active, body, prefix=""):
+    page_css = CSS
+    if active in ('dp', 'hk'):
+        body = market_layout.shell(body, active, prefix)
+        with open(os.path.join(ROOT, 'pipeline', 'market_layout.css'), encoding='utf-8') as layout_file:
+            page_css += layout_file.read()
     if active == "gg":
         body = '<p class="hk-notice">历史个股资料：当前先按A–H判断半年并选择板块，尚未确定个股或仓位。旧名单不是当前方案。</p>' + body
     nav = [("index.html", "大盘", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg"),
@@ -618,7 +624,7 @@ def page(title, active, body, prefix=""):
     if active == "bk":
         sources = "当前板块研究仅使用宏观、行业与市场资料，统计范围和日期见各节点。个股材料在独立股票研究页面。旧宽行业页面仅为历史统计资料。"
     return f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1"><title>{E(title)}</title><style>{CSS}</style></head><body>
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>{E(title)}</title><style>{page_css}</style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="{prefix}index.html">A 股框架笔记</a><nav aria-label="主导航">{links}</nav></div></header>
 <main class="wrap">{switch}{body}</main>
 <footer><div class="wrap"><p>{sources}</p>
@@ -635,7 +641,7 @@ def index():
         s = sec[k]
         state = N[k]["state"]
         nodes_html += (f'<section class="nd" id="node-{k}"><div class="ndh"><span class="lc2 {state}">{k}</span>'
-                       f'<div><h3>{E(s["title"])}</h3><p class="q">{E(s["q"])}</p></div></div>{s["body"]}</section>')
+                       f'<div><h3>{E(s["title"])}</h3><p class="q">{E(s["q"])}</p></div></div>{market_layout.node_columns(s["body"])}</section>')
     chips = "".join(f'<a href="#node-{k}" class="chip {N[k]["state"]}"><b>{k}</b>{E(NODE_NAME[k])}<span>{E(node_sub(k))}</span></a>' for k in "ABCDEFGH")
     body = f"""
 <div class="hero"><p class="date">{cn_date(TODAY, True)}</p><h1>大盘今天处在什么状态</h1>
@@ -647,15 +653,14 @@ def index():
 {outlook_section()}</details>
 
 <details class="l1" id="today" open><summary><h2>今日分析</h2><span class="l1hint">传导图 · 结论 · 展开分析（{cn_date(TODAY)}）</span></summary>
-<h3 class="h3s" id="map">今日传导图</h3><p class="sub">红色利好，绿色利空，灰色中性。点任意一环跳到下面的展开分析。</p>
-<div class="fwbox">{diagram()}</div><div class="chips">{chips}</div>
-<h3 class="h3s">结论：今天变了什么</h3>{today_lead()}
+<div class="market-overview daily-overview"><div class="market-day-verdict"><h3 class="h3s">结论：今天变了什么</h3>{today_lead()}</div><div class="market-day-map"><h3 class="h3s" id="map">今日传导图</h3><p class="sub">红色利好，绿色利空，灰色中性。点任意一环跳到下面的展开分析。</p>
+<div class="fwbox">{market_layout.diagram({k:N[k]["state"] for k in NODE_POS},{k:node_sub(k) for k in NODE_POS},NODE_NAME,"day")}</div><div class="chips">{chips}</div></div></div>
 <details class="sub2"><summary>和上一交易日（{cn_date(R['prev'])}）相比的逐条明细</summary>{changes()}</details>
 <h3 class="h3s" id="score">展开分析</h3><p class="sub">信号观察卡沿用独立日度规则，只作变化提醒；人工综合方向未量化时不计分，不能据总分选择半年板块。</p>{scorecard()}
-<details class="sub2" id="nodes"><summary>A–H 逐项展开（看什么指标、现在多少、怎么判的）</summary>{nodes_html}</details>
+<details class="sub2" id="nodes" open><summary>A–H 逐项展开（看什么指标、现在多少、怎么判的）</summary>{nodes_html}</details>
 </details>
 
-<details class="l1" id="conds"><summary><h2>大盘关注条件</h2><span class="l1hint">触发只是提醒你去看一眼，不是买卖信号</span></summary>
+<details class="l1" id="conds" open><summary><h2>大盘关注条件</h2><span class="l1hint">触发只是提醒你去看一眼，不是买卖信号</span></summary>
 {conds_html()}</details>
 
 <script>

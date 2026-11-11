@@ -14,7 +14,27 @@ def sector_final_notice(ctx,market):
  d=json.loads((Path(ctx['ROOT'])/'data/industry_research.json').read_text())
  if 'market_synthesis' not in d:return ''
  m=d['market_synthesis'][market];url='boards/index.html' if market=='a' else '../boards/hk.html'
- return '<div class="lead" style="margin:18px 0;border-left:3px solid #426581"><p><b>板块二次核验 · 最新综合判断</b></p><p>'+E(m['body'])+'</p><p><b>修订：</b>'+E(m['revision'])+'</p><p><a href="'+url+'">查看各板块最终结论与证据权衡 →</a></p><p class="note">上方保留宏观判断与原推导方向；加入行业利润、估值和价格证据后，板块取舍以本次二次核验为准。</p></div>'
+ return ('<section class="sector-final-notice" id="sector-review"><h3>板块二次核验 · 最新综合判断</h3>'
+         '<div><p>'+E(m['body'])+'</p></div><div><p><b>修订：</b>'+E(m['revision'])+'</p>'
+         '<p><a href="'+url+'">查看各板块最终结论与证据权衡 →</a></p></div>'
+         '<p class="note">上方保留宏观判断与原推导方向；加入行业利润、估值和价格证据后，板块取舍以本次二次核验为准。</p></section>')
+
+
+def horizon_intro(ctx,r,o,market):
+ label='A股' if market=='a' else '港股'
+ diagram=(ctx['market_layout'].diagram({k:v[0] for k,v in o['node_view'].items()},{k:v[1] for k,v in o['node_view'].items()},ctx['NODE_NAME'],'h6')
+          if market=='a' else hk_horizon_diagram(o))
+ keys=[('ppi','价格'),('pmi','需求'),('psl','定向政策'),('fed10','美联储'),('eia','能源情景')] if market=='a' else [('pmi','中国需求'),('fed10','美元政策'),('psl','定向支持'),('eia','能源供给')]
+ sources=' · '.join('<a href="'+E(r['sources'][k],quote=True)+'">'+name+'</a>' for k,name in keys)
+ return ('<section class="market-horizon-head" id="macro-verdict"><h3 class="h3s">未来半年的综合结论</h3>'
+         '<p class="lead-main">'+E(o['headline'])+'</p></section>'
+         '<div class="market-overview horizon-overview"><div class="market-verdict"><h3 class="h3s">判断依据与取舍</h3><div class="lead">'
+         '<ul class="lead-points">'+''.join('<li>'+v+'</li>' for v in o['points'])+'</ul></div>'
+         '<p class="src">结论为基于证据的研究判断。依据：'+sources+'</p></div>'
+         '<div class="market-transmission" id="macro-map"><h3 class="h3s">六个月传导图</h3>'
+         '<div class="fwbox">'+diagram+'</div><p class="sub">红色为支持、绿色为压力、灰色为分化或缺数据。点击节点查看依据。'
+         +('汇率进入C/F/G，不新增框架节点。' if market=='hk' else '')+'</p></div></div>')
+
 
 def board_title(ctx, market, name):
  d=json.loads((Path(ctx["ROOT"])/"data/sector_research.json").read_text())
@@ -25,9 +45,7 @@ def board_title(ctx, market, name):
 def render_a(ctx,r):
  o=json.loads((Path(ctx['ROOT'])/'data/outlook.json').read_text())
  out='<p class="sub">判断窗口 '+E(r['window'])+'；依据截至2026-11-11的研究及原日期行情。板块方向已作判断，个股与仓位尚未确定。</p>'
- out+='<h3 class="h3s">六个月传导图</h3><div class="fwbox">'+ctx['diagram']({k:v[0] for k,v in o['node_view'].items()},{k:v[1] for k,v in o['node_view'].items()},'h6','A–H半年判断传导图')+'</div>'
- out+='<h3 class="h3s">结论</h3><div class="lead"><p class="lead-main">'+E(o['headline'])+'</p><ul class="lead-points">'+''.join('<li>'+x+'</li>' for x in o['points'])+'</ul></div>'
- out+='<p class="src">本轮核验：'+ ' · '.join('<a href="'+E(r['sources'][k],quote=True)+'">'+label+'</a>' for k,label in [('ppi','价格'),('pmi','需求'),('psl','定向政策'),('fed10','美联储'),('eia','能源情景')])+'</p>'
+ out+=horizon_intro(ctx,r,o,'a')
  out+=sector_final_notice(ctx,'a')
  out+='<h3 class="h3s">宏观初筛板块分档（推导起点）</h3>'
  for tier in o['tiers']:
@@ -37,7 +55,7 @@ def render_a(ctx,r):
    for key,label in [('why','依据'),('risk','风险'),('falsify','改变判断的条件')]: out+='<p><b>'+label+'</b> '+E(it[key])+'</p>'
    out+='</article>'
   out+='</div></div>'
- out+='<h3 class="h3s">什么情况下改判断</h3><div class="ol-scs">'
+ out+='<h3 class="h3s" id="macro-scenarios">什么情况下改判断</h3><div class="ol-scs">'
  for x in o['scenarios']:out+='<article class="ol-sc '+E(x['cls'])+'"><b>'+E(x['name'])+'</b><p>'+E(x['trigger'])+'</p><p>'+E(x['result'])+'</p></article>'
  out+='</div><p>'+E(o['next_review'])+'</p><details class="rules"><summary>哪些判断保留，哪些被证据修正</summary>'
  for x in o['corrections']:out+='<p><b>原来：</b>'+E(x['old'])+'<br><b>现在：</b>'+E(x['new'])+'</p>'
@@ -63,9 +81,7 @@ def hk_horizon_diagram(o):
 def render_hk(ctx,r):
  o=json.loads((Path(ctx['ROOT'])/'data/hk_outlook.json').read_text())
  out='<p class="sub">研究复核 '+E(o['as_of'])+' · 判断窗口 '+E(r['window'])+'。这是半年方向判断，日行情仍按其原日期展示。</p>'
- out+='<h3 class="h3s">六个月传导图</h3><p class="sub">红色为支持、绿色为压力、灰色为分化或缺数据。箭头表示传导，点击节点查看依据。汇率进入C/F/G，不新增框架节点；手机上可横向滑动查看全图。</p><div class="fwbox" style="display:block">'+hk_horizon_diagram(o)+'</div>'
- out+='<h3 class="h3s">结论</h3><div class="lead"><p class="lead-main">'+E(o['headline'])+'</p><ul class="lead-points">'+''.join('<li>'+v+'</li>' for v in o['points'])+'</ul></div>'
- out+='<p class="src">结论为基于证据的研究判断。依据：'+ ' · '.join('<a href="'+E(r['sources'][k],quote=True)+'">'+name+'</a>' for k,name in [('pmi','中国需求'),('fed10','美元政策'),('psl','定向支持'),('eia','能源供给')])+'</p>'
+ out+=horizon_intro(ctx,r,o,'hk')
  out+=sector_final_notice(ctx,'hk')
  out+='<h3 class="h3s">宏观初筛板块分档（推导起点）</h3>'
  for tier in o['tiers']:
@@ -75,7 +91,7 @@ def render_hk(ctx,r):
    for key,label in [('why','依据'),('risk','风险'),('falsify','改变判断的条件')]:out+='<p><b>'+label+'</b> '+E(it[key])+'</p>'
    out+='</article>'
   out+='</div></div>'
- out+='<h3 class="h3s">什么情况下改判断</h3><div class="ol-scs">'
+ out+='<h3 class="h3s" id="macro-scenarios">什么情况下改判断</h3><div class="ol-scs">'
  for x in o['scenarios']:out+='<article class="ol-sc '+E(x['cls'])+'"><b>'+E(x['name'])+'</b><p>'+E(x['trigger'])+'</p><p>'+E(x['result'])+'</p></article>'
  out+='</div><p>'+E(o['next_review'])+'</p><details class="sub2"><summary>A–H半年判断依据与边界</summary>'
  for k,title,state,a,hk in r['nodes']:out+='<section id="hk6-'+k+'"><h4>'+k+' · '+E(title)+'</h4><p>'+E(o['node_view'][k][1])+'</p><p>'+E(hk)+'</p></section>'
