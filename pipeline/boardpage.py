@@ -241,15 +241,17 @@ def render(a, ctx, stocks_in):
     card_html = scorecard.card(rows, "板块合计", "合计只作变化提醒，不用于跨行业排名；人工草稿待核验。", a["hist"], ("B",))
     cand = "".join(f'<a class="chip2" href="../stocks/{s["cfg"]["slug"]}.html">{E(s["cfg"]["name"])}</a>' for s in stocks_in)
     tot = a["total"]
-    reason = cfg.get("selection_reason", "")
-    hz = cfg.get("horizon_label", "")
+    om = (ctx.get("OUTLOOK_MAP") or {}).get(cfg["slug"])
     reason_html = ""
-    if reason:
-        hz_cls = "hz-struct" if "结构" in hz else "hz-cycle"
+    if om:
+        it, fill = om["item"], ctx["ofill"]
+        hz = it.get("horizon", "")
+        hz_html = f'<span class="hz-badge {"hz-struct" if "结构" in hz else "hz-cycle"}">{E(hz)}</span>' if hz and hz != "—" else ""
+        line = lambda lab, txt: f'<p class="ol-p"><span class="ol-lab">{lab}</span>{E(fill(txt))}</p>' if txt else ""
         reason_html = (f'<section class="block reason-block">'
-                       f'<p class="reason-label">选入理由<span class="hz-badge {hz_cls}">{E(hz)}</span></p>'
-                       f'<p class="reason-text">{E(reason)}</p>'
-                       f'<p class="reason-link"><a href="../index.html#horizon">← 回到大盘推断</a>&emsp;<a href="../picks/index.html">查看半年名单 →</a></p>'
+                       f'<p class="reason-label">大盘推断分档<span class="tag {om["cls"]}" style="margin-left:8px">{E(om["tier"])}</span>{hz_html}</p>'
+                       + line("依据", it["why"]) + line("风险", it.get("risk")) + line("证伪 / 触发", it.get("falsify"))
+                       + f'<p class="reason-link"><a href="../index.html#horizon">← 回到大盘推断</a>&emsp;<a href="../picks/index.html">查看半年名单 →</a></p>'
                        f'</section>')
     body = f"""
 <div class="crumb"><a href="index.html">板块</a> ／ {E(cfg['name'])}</div>
@@ -269,16 +271,18 @@ def index(analyses, ctx, by_board):
         cfg, t, sc = a["cfg"], a["t"], a["scores"]
         chips = "".join(f'<span class="tag {"na" if sc.get(k) is None else st(sc[k])}" title="{NODE_NAMES[k]}">{k}</span>' for k in "ABCEFG")
         names = "、".join(s["cfg"]["name"] for s in by_board.get(cfg["secid"], []))
-        rows += (f'<a class="srow brow" href="{cfg["slug"]}.html"><span class="nm">{E(cfg["name"])}<small>{E(cfg.get("style", ""))}{"｜" + E(names) if names else ""}</small></span>'
+        om = (ctx.get("OUTLOOK_MAP") or {}).get(cfg["slug"])
+        tier = f'<span class="tag {om["cls"]}">{E(om["tier"])}</span>' if om else ""
+        rows += (f'<a class="srow brow" href="{cfg["slug"]}.html"><span class="nm">{tier}{E(cfg["name"])}<small>{E(cfg.get("style", ""))}{"｜" + E(names) if names else ""}</small></span>'
                  f'<span class="kv">合计 <b class="{st(a["total"])}">{sg(a["total"])}</b></span>'
                  f'<span class="kv">20 日相对 <b class="{st(t["rs20"])}">{t["rs20"]:+.1f}</b></span>'
                  f'<span class="kv">利润同比 <b class="{st(a["m"]["np_yoy"] or 0)}">{("转亏" if a["m"]["turn_loss"] else "亏损" if a["m"]["q_np"] < 0 else "—") if a["m"]["np_yoy"] is None else format(a["m"]["np_yoy"], "+.0f") + "%"}</b></span>'
                  f'<span class="kv">PE / PEG <b>{"亏损" if a["pe_now"] is None else format(a["pe_now"], ".0f")}{"" if a["peg"] is None else " / " + format(a["peg"], ".2f")}</b></span>'
                  f'<span class="lys">{chips}</span></a>')
-    return f"""<div class="hero"><h1>板块</h1><p class="sum">这是 2026 年 11 月 9 日一起定下的未来半年追踪板块：科技 4 个，工业金属 1 个，煤炭红利/周期 1 个，创新药成长 1 个。每个板块用行业层的 A–H 拆开看，合计分不含引用大盘的 D。</p>
+    return f"""<div class="hero"><h1>板块</h1><p class="sum">当前追踪的 {len(analyses)} 个板块。每个板块前面的标签是<a href="../index.html#horizon">大盘半年推断</a>给它的分档（核心配置 / 条件配置 / 观察）；下面用行业层 A–H 拆开看，合计分不含引用大盘的 D。</p>
 <p class="stamp">色块依次是 A 下游需求、B 政策、C 行业利润、E 盈利预期（待数据）、F 估值、G 拥挤度：红色利好，绿色利空，灰色中性。“20 日相对”是板块近 20 日涨幅减去沪深 300，单位是百分点。</p></div>
 <section class="block"><div class="slist">{rows}</div></section>
-<section class="block"><h2>这 6 个板块是怎么选出来的</h2><p class="note">先根据大盘判断，再把全市场约 120 个行业按行业层打分，按攻守平衡挑出入围名单，最后一起讨论定下。过程见 <a href="screen.html">全市场行业初筛</a>。下一步：每个板块挑 3–5 只候选股。</p></section>"""
+<section class="block"><h2>板块从哪里来</h2><p class="note">先在<a href="../index.html#horizon">大盘页</a>从 A–H 推出方向和分档，再用板块自己的利润、估值、拥挤度验证。早期的全市场初筛留档在 <a href="screen.html">全市场行业初筛</a>，已不作为当前依据。</p></section>"""
 
 
 def build(ctx, stock_cfgs):

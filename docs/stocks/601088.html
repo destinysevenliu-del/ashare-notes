@@ -351,12 +351,33 @@ table.pk td.pkjudge{font-size:13px;color:var(--ink2);min-width:260px}
 .hz-badge{display:inline-block;margin-left:8px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;vertical-align:middle}
 .hz-struct{background:#dbeafe;color:#1e40af}
 .hz-cycle{background:#fef3c7;color:#92400e}
-.reason-text{font-size:13.5px;color:var(--ink);line-height:1.6;margin:4px 0 8px}
+
 .reason-link{font-size:11.5px;color:var(--ink2)}
 .reason-link a{color:var(--link)}
 /* 股性卡 */
 .gx-block{background:var(--surface)}
 .gx-char{font-size:13.5px;color:var(--ink);line-height:1.6;margin-bottom:12px;padding:12px 16px;background:white;border-radius:8px;border:1px solid var(--line)}
+
+/* 半年板块推断 */
+.ol-lead{border-left-color:var(--link)}
+.ol-lead .lead-points li{margin-bottom:6px}
+.ol-tier{margin:0 0 22px}
+.ol-th{display:flex;align-items:center;gap:4px;margin:0 0 10px}
+.ol-desc{font-size:13px;color:var(--ink2)}
+.ol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ol-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 16px}
+.ol-ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;font-size:15px}
+.ol-ch a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.ol-hz{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--link-bg);color:var(--link);font-weight:600}
+.ol-new{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-weight:600}
+.ol-stat{font-size:12px;color:var(--ink3);margin:0 0 6px;line-height:1.5}
+.ol-p{font-size:13px;line-height:1.6;margin:4px 0;color:var(--ink)}
+.ol-lab{display:inline-block;font-size:11px;font-weight:700;color:var(--ink2);background:var(--flat-bg);border-radius:4px;padding:0 6px;margin-right:6px}
+.ol-scs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 24px}
+.ol-sc{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--ink3);border-radius:12px;padding:12px 16px;font-size:13px;line-height:1.6}
+.ol-sc.up{border-top-color:var(--up)} .ol-sc.down{border-top-color:var(--down)}
+.ol-sc p{margin:6px 0 0}
+@media(max-width:760px){.ol-scs{grid-template-columns:1fr}}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="../index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="../index.html">大盘</a><a href="../boards/index.html">板块</a><a href="../stocks/index.html" aria-current="page">个股</a><a href="../picks/index.html">半年名单</a><a href="../reports/index.html">报告</a><a href="../trades.html">我的操作</a></nav></div></header>
 <main class="wrap">
@@ -365,7 +386,7 @@ table.pk td.pkjudge{font-size:13px;color:var(--ink2);min-width:260px}
 <div class="tags2"><span class="drv">红利驱动</span><span>煤炭 / 电力</span><span class="st2">追踪中</span></div></div>
 <div class="px"><b>49.57</b><span class="up">+2.12%</span><small>2026-11-09 收盘</small></div></div>
 
-<section class="block gx-block"><h2>股性：这只股对哪些因子最敏感</h2><p class="gx-char">高股息防守型。利润由长协煤价决定，波动小；主要对应大盘 D 节点（国债低利率使高股息吸引力强）。宏观和市场情绪影响小，是当前利率环境下的防守配置。&ensp;<a href="../index.html#node-D" class="chip2">大盘 D 节点</a></p><div class="tblwrap"><table class="mt fm"><thead><tr><th>因素</th><th>影响</th><th>当前逻辑</th></tr></thead><tbody><tr><th scope="row">中国 10 年国债收益率</th><td><span class="lv hi">高</span></td><td class="note">国债越低，6% 股息率越有吸引力 → 是当前持有的核心逻辑</td></tr><tr><th scope="row">动力煤价格</th><td><span class="lv mid">中</span></td><td class="note">长协保护大部分价格，极端低价才会影响分红率</td></tr><tr><th scope="row">能源保供政策</th><td><span class="lv mid">中</span></td><td class="note">托底供给和价格，政策确定性强，不会出现大幅减产</td></tr></tbody></table></div></section><section class="block" id="layers"><h2>四层信号</h2><p class="sub">从大盘到股价，每一层现在是利好、利空还是中性。不加总，也不给买卖结论。</p><div class="tblwrap"><table class="mt lay"><tbody><tr><th scope="row">大盘</th><td><span class="tag down">利空</span></td><td>六项合计 -2。拖累来自国内经济、全球环境、资金；支撑来自利率与流动性、估值。 <a href="../index.html">展开</a></td></tr><tr><th scope="row">板块</th><td><span class="tag up">利好</span></td><td>行业层 A–G 合计 +3（A +1；C +1；F +1）；煤炭开采近 20 日 -6.9%，相对沪深 300 -1.5 个点。 <a href="../boards/BK1250.html">展开</a></td></tr><tr><th scope="row">个股</th><td><span class="tag up">利好</span></td><td>A–G 合计 +3。A +1；C +1；D +1；F -1；G +1 <a href="#nodes">展开</a></td></tr><tr><th scope="row">股价</th><td><span class="tag down">历史分位高</span></td><td>PE 19.7 倍，近 3 年 95% 分位；股价在 120 日线上方、250 日线上方，距一年高点 -5%。 <a href="#price">展开</a></td></tr></tbody></table></div></section>
+<section class="block gx-block"><h2>股性：这只股对哪些因子最敏感</h2><p class="gx-char">高股息防守型。利润由长协煤价决定，波动小；主要对应大盘 D 节点（国债低利率使高股息吸引力强）。宏观和市场情绪影响小，是当前利率环境下的防守配置。&ensp;<a href="../index.html#node-D" class="chip2">大盘 D 节点</a></p><div class="tblwrap"><table class="mt fm"><thead><tr><th>因素</th><th>影响</th><th>当前逻辑</th></tr></thead><tbody><tr><th scope="row">中国 10 年国债收益率</th><td><span class="lv hi">高</span></td><td class="note">年化约 4% 的股息率（近 12 个月实付 6.03% 含一次重叠中期分红）对比约 1.6% 的 10 年国债，利差是持有的核心逻辑；国债上行会削弱它</td></tr><tr><th scope="row">动力煤价格</th><td><span class="lv mid">中</span></td><td class="note">长协保护大部分价格，极端低价才会影响分红率</td></tr><tr><th scope="row">能源保供政策</th><td><span class="lv mid">中</span></td><td class="note">托底供给和价格，政策确定性强，不会出现大幅减产</td></tr></tbody></table></div></section><section class="block" id="layers"><h2>四层信号</h2><p class="sub">从大盘到股价，每一层现在是利好、利空还是中性。不加总，也不给买卖结论。</p><div class="tblwrap"><table class="mt lay"><tbody><tr><th scope="row">大盘</th><td><span class="tag down">利空</span></td><td>六项合计 -2。拖累来自国内经济、全球环境、资金；支撑来自利率与流动性、估值。 <a href="../index.html">展开</a></td></tr><tr><th scope="row">板块</th><td><span class="tag up">利好</span></td><td>行业层 A–G 合计 +3（A +1；C +1；F +1）；煤炭开采近 20 日 -6.9%，相对沪深 300 -1.5 个点。 <a href="../boards/BK1250.html">展开</a></td></tr><tr><th scope="row">个股</th><td><span class="tag up">利好</span></td><td>A–G 合计 +3。A +1；C +1；D +1；F -1；G +1 <a href="#nodes">展开</a></td></tr><tr><th scope="row">股价</th><td><span class="tag down">历史分位高</span></td><td>PE 19.7 倍，近 3 年 95% 分位；股价在 120 日线上方、250 日线上方，距一年高点 -5%。 <a href="#price">展开</a></td></tr></tbody></table></div></section>
 
 <section class="block" id="research"><h2>未来半年验证卡</h2>
 <p class="sub">研究窗口：2026-11 至 2027-05。以下为研究假设，更新于 2026-11-09；尚未完成全部事实核验。</p>
