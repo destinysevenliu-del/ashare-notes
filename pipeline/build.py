@@ -606,7 +606,7 @@ def page(title, active, body, prefix=""):
         if not href:
             links += f'<span class="soon">{lab}<small>{key}</small></span>'
         else:
-            cur = ' aria-current="page"' if key == active or (key == 'dp' and active == 'hk') else ""
+            cur = ' aria-current="page"' if key == active or (key == 'dp' and active == 'hk') or (key == 'gg' and active == 'pool') else ""
             links += f'<a href="{prefix}{href}"{cur}>{lab}</a>'
     switch = ''
     if active in ('dp', 'hk'):
@@ -616,7 +616,7 @@ def page(title, active, body, prefix=""):
     sources = ('行情来自东方财富，估值来自恒生指数公司，利率与宏观数据来自金管局、FRED及统计机关，市场及参与者资料来自港交所、证监会和基金／公司官网。规则 HK v3，日期、口径与原始链接见各节。'
                if active == 'hk' else f"数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 {R['rules_version']}，每节的“怎么判的”里有完整规则。")
     if active == "bk":
-        sources = "当前板块研究依据公司财报、交易所披露及宏观行业资料；每条证据保留报告期和原始链接。旧宽行业页面仅为历史统计资料。"
+        sources = "当前板块研究仅使用宏观、行业与市场资料，统计范围和日期见各节点。个股材料在独立股票研究页面。旧宽行业页面仅为历史统计资料。"
     return f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>{E(title)}</title><style>{CSS}</style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="{prefix}index.html">A 股框架笔记</a><nav aria-label="主导航">{links}</nav></div></header>
