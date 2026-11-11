@@ -8,6 +8,8 @@
       "style": "成长",
       "a_note": "下游是国内互联网大厂和运营商的智算中心（AI 芯片）、消费电子和汽车（模拟、功率、存储）。跟踪大厂资本开支、国产算力采购比例、存储价格。",
       "b_note": "美国芯片出口管制是双刃剑：限制英伟达对华供货利好国产替代，但先进制程和设备受限是供给端风险。国产算力和半导体自主可控政策方向明确偏利好。",
+      "horizon_label": "结构+中期",
+      "selection_reason": "美债利率方向下行，利率敏感成长股估值修复（大盘 D 节点，中期）；国产算力替代是结构性方向，不受经济周期影响（大盘 B 节点，长期）。",
       "b_score": 0,
       "confirmed_by_user": false,
       "evidence_verified": false
@@ -19,6 +21,8 @@
       "style": "成长",
       "a_note": "服务器、IT 硬件和信创终端，下游是互联网大厂和运营商的智算中心、政府和央国企的信创采购。跟踪大厂资本开支、运营商集采和信创招标。",
       "b_note": "国产算力和信创政策偏支持；美国芯片管制影响上游供给（GPU、CPU），可能延缓服务器交付。",
+      "horizon_label": "结构+中期",
+      "selection_reason": "AI 算力国产化是结构性采购方向（大盘 B+A 节点，长期）；大厂资本开支和信创招标决定落地节奏（大盘 A 节点，中期）。",
       "b_score": 0,
       "confirmed_by_user": false,
       "evidence_verified": false
@@ -30,6 +34,8 @@
       "style": "创新药成长",
       "a_note": "两条需求线：国内医院终端放量，以及海外药企对中国创新药的授权（BD）交易。BD 的首付款会让单季利润跳变。",
       "b_note": "国内看医保谈判、集采和创新药支持政策；海外看美国对华医药政策（生物安全法案等）。目前没有整理到 2026 年的重大变化，暂记中性。",
+      "horizon_label": "结构+中期",
+      "selection_reason": "创新药对外授权（BD）是结构性叙事，不依赖经济周期（大盘 B 节点，长期）；美债利率下行减轻成长股估值压力（大盘 D 节点，中期）。",
       "b_score": 0,
       "confirmed_by_user": false,
       "evidence_verified": false
@@ -41,6 +47,8 @@
       "style": "成长",
       "a_note": "CXO 看新签订单与在手订单、海外药企研发投入；医疗服务看门诊量与客单价。跟踪药明康德每季新签订单同比、美国生物安全法案进展。",
       "b_note": "美国生物安全法案类立法是最大不确定性；国内医保支付与集采影响终端价格。2026 年暂无已生效的重大变化，待逐一核验提案状态。",
+      "horizon_label": "中期",
+      "selection_reason": "CXO 新签订单修复驱动收入预期上调（大盘 E 节点，中期）；生物安全法案立法进程是主要压制，需持续跟踪（大盘 B 节点，中期）。",
       "b_score": 0,
       "confirmed_by_user": false,
       "evidence_verified": false
@@ -52,6 +60,8 @@
       "style": "周期",
       "a_note": "铜、铝等工业金属，下游是电网、新能源、建筑和家电。跟踪 LME 和沪铜沪铝价格、国内 PPI，以及全球制造业 PMI。",
       "b_note": "国内电网投资和设备更新政策偏支撑需求；海外关税和全球经济放缓是压制因素。暂记中性。",
+      "horizon_label": "中期",
+      "selection_reason": "PPI−CPI 剪刀差 +5.0pp，利润向上游集中（大盘 C 节点，中期）；实际利率深度负值，资本密集型行业融资成本低（大盘 D 节点，长期）。",
       "b_score": 0,
       "confirmed_by_user": false,
       "evidence_verified": false
@@ -63,6 +73,8 @@
       "style": "周期",
       "a_note": "轻烃裂解看乙烷-乙烯价差与美国乙烷价格；煤化工看煤价与烯烃价差；纯碱/氯碱看地产与光伏需求。跟踪乙烷价格、乙烯价差、新产能投放。",
       "b_note": "能耗指标与新增产能审批决定供给；美国乙烷出口政策影响轻烃路线成本。暂记中性。",
+      "horizon_label": "中期",
+      "selection_reason": "实际利率 −4.1%，资本密集型化工双重受益（大盘 D 节点，长期）；PPI 剪刀差说明利润流向上游原料链（大盘 C 节点，中期）。",
       "b_score": 0,
       "confirmed_by_user": false,
       "evidence_verified": false
@@ -74,6 +86,8 @@
       "style": "周期",
       "a_note": "涤纶长丝看 POY 价差、织造开工率与服装出口；氨纶看价差与库存。上游 PTA、乙二醇成本决定毛利。跟踪长丝价差和开工率。",
       "b_note": "能耗双控与环保限产影响供给；纺织出口受关税与海外需求影响。暂记中性。",
+      "horizon_label": "中期",
+      "selection_reason": "出口同比 36.3% 支撑外需，纺织品出口链受益（大盘 A 节点，中期）；PTA 等上游成本低位，毛利空间扩张（大盘 C 节点，中期）。",
       "b_score": 0,
       "confirmed_by_user": false,
       "evidence_verified": false
@@ -85,6 +99,8 @@
       "style": "红利 / 周期",
       "a_note": "动力煤下游是火电，焦煤下游是钢铁。跟踪秦皇岛港动力煤价、电厂日耗和库存、焦煤价格。",
       "b_note": "能源保供政策、产能核查和进口煤政策决定供给；高分红是这个板块的防守属性来源。暂记中性。",
+      "horizon_label": "长期+中期",
+      "selection_reason": "国债收益率低位，高股息资产吸引力持续（大盘 D 节点，长期）；能源保供政策稳定分红确定性（大盘 B 节点，长期）。",
       "b_score": 0,
       "confirmed_by_user": false,
       "evidence_verified": false
@@ -96,6 +112,8 @@
       "style": "周期",
       "a_note": "集运看 SCFI 与欧美航线运价、旺季淡季切换；油运看 VLCC 运价、OPEC 增产与运距拉长；干散看 BDI 与中国出口。跟踪 SCFI 周度值与新船交付。",
       "b_note": "关税与贸易政策改变航线与运量；新船交付周期决定运力供给。2026-11-06 SCFI 结束四连涨、美东线跌破 1 万美元，旺季转淡季。",
+      "horizon_label": "中期",
+      "selection_reason": "出口同比 36.3% 是外需强劲的直接体现（大盘 A 节点，中期）；SCFI 是核心跟踪变量，旺季转淡季后仓位已下调至 3%。",
       "b_score": 0,
       "confirmed_by_user": false,
       "evidence_verified": false

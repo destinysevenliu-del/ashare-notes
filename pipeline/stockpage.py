@@ -431,7 +431,7 @@ def render(a, ctx):
     tech = ('<div class="tblwrap"><table class="mt"><thead><tr><th>均线</th><th>数值</th><th>股价位置</th><th>均线方向</th></tr></thead><tbody>' + tech_rows + '</tbody></table></div>'
             f'<p class="note">近一年最高 {t["hi250"]:.2f}（{t["hi_date"]}），现价距高点 {t["dd"]:.1f}%；近一年最低 {t["lo250"]:.2f}，现价距低点 {t["from_lo"]:+.1f}%。'
             f'近 20 日区间 {t["lo20"]:.2f}–{t["hi20"]:.2f}，可作为短期支撑和压力参考。今日成交额是 20 日均值的 {t["amt_ratio"]:.2f} 倍。</p>')
-    price_sec = (f'<section class="block" id="price"><h2>股价层：现在这个价格处在什么位置</h2><p class="sub">只呈现位置，不下结论。估值回答“贵不贵”，技术面回答“趋势在哪”，筹码回答“谁在推”。</p>'
+    price_sec = (f'<section class="block" id="price"><h2>股价层：现在这个价格处在什么位置</h2><p class="sub">只呈现位置，不下结论。估值回答"贵不贵"，技术面回答"趋势在哪"，筹码回答"谁在推"。</p>'
                  f'<div class="nd"><h3 class="h3s">估值位置</h3><p class="note">PE-TTM {v["pe"]:.1f} 倍{"，近 3 年 " + format(v["pct"], ".0f") + "% 分位" if v["pct"] is not None else ""}；PB {v["pb"]:.2f} 倍；总市值 {yi(v["mcap"])}'
                  + (f'；按 {e["y2"]} 年预测利润算的前瞻 PE {e["fpe2"]:.1f} 倍' if e and e["fpe2"] else "") + f'（截至 {v["date"]}）。</p>{ch}{pe_chart}</div>'
                  f'<div class="nd"><h3 class="h3s">技术位置</h3>{tech}{price_chart}</div>'
@@ -454,20 +454,39 @@ def render(a, ctx):
               "text": f"{lq['label']} 单季营收 {yi(lq['rev'])}（同比 {pf(lq.get('rev_yoy'))}），单季净利润 {yi(lq['np'])}（同比 {pf(lq['yoy'])}，环比 {pf(lq['qoq'])}）；"
                       f"毛利率 {fmt2(f['gm'], 1)}%，ROE {fmt2(f['roe'], 1)}%。现价 PE-TTM {v['pe']:.1f} 倍，距一年高点 {t['dd']:.0f}%。",
               "source": f"{f['type']}（{f['notice']} 公布），由数据自动生成；这只股票还没有做过深度复盘"}
+    profile = cfg.get("profile")
+    profile_html = ""
+    if profile:
+        top_rows = "".join(
+            f'<tr><th scope="row">{E(fi[0])}</th>'
+            f'<td><span class="lv {"hi" if fi[1] == "高" else "mid" if fi[1] == "中" else "lo"}">{E(fi[1])}</span></td>'
+            f'<td class="note">{E(fi[2])}</td></tr>'
+            for fi in profile["top_factors"]
+        )
+        macro_node = profile.get("macro_node", "")
+        macro_link = f'<a href="../index.html#node-{macro_node}" class="chip2">大盘 {macro_node} 节点</a>' if macro_node else ""
+        profile_html = (
+            f'<section class="block gx-block">'
+            f'<h2>股性：这只股对哪些因子最敏感</h2>'
+            f'<p class="gx-char">{E(profile["character"])}&ensp;{macro_link}</p>'
+            f'<div class="tblwrap"><table class="mt fm"><thead><tr><th>因素</th><th>影响</th><th>当前逻辑</th></tr></thead>'
+            f'<tbody>{top_rows}</tbody></table></div>'
+            f'</section>'
+        )
     body = f"""
 <div class="crumb"><a href="index.html">个股</a> ／ {('<a href="../boards/' + cfg['board']['secid'][3:] + '.html">' + E(cfg['board']['name']) + '</a>') if cfg['board']['secid'] in ctx.get('BOARDS', {}) else E(cfg['board']['name'])} ／ {E(cfg['name'])}</div>
 <div class="hero shero"><div><h1>{E(cfg['name'])}<small>{cfg['code']}</small></h1>
 <div class="tags2"><span class="drv">{E(cfg['driver'])}</span><span>{E(cfg['industry'])}</span>{'<span class="st2">追踪中</span>' if cfg.get('group') == '追踪' else '<span class="cand">观察</span>'}</div></div>
 <div class="px"><b>{t['close']:.2f}</b><span class="{st(t['d1'])}">{t['d1']:+.2f}%</span><small>{t['date']} 收盘</small></div></div>
 
-<section class="block" id="layers"><h2>四层信号</h2><p class="sub">从大盘到股价，每一层现在是利好、利空还是中性。不加总，也不给买卖结论。</p>{layers}</section>
+{profile_html}<section class="block" id="layers"><h2>四层信号</h2><p class="sub">从大盘到股价，每一层现在是利好、利空还是中性。不加总，也不给买卖结论。</p>{layers}</section>
 
 {research.render(a, ctx["ROOT"])}
-<section class="block" id="score"><h2>个股打分卡</h2><p class="sub">个股层 A–G 七个维度各打 −2 到 +2 分，也就是上面“个股”这一层的明细。点任意一项跳到下面的展开分析。</p>{card_html}</section>
-
 <section class="block"><h2>{E(pr.get('label', '历史研究结论（本次未复核）'))}：{E(pr['title'])}</h2><p class="prior">{E(pr['text'])}<span class="src">来源：{E(pr['source'])}</span></p></section>
 
-<section class="block" id="fmap"><h2>因子影响地图</h2><p class="sub">框架里哪些因素对这只股票影响大。“现在的状态”取自大盘页和本页的实时数据。直接证据与代理指标分别标注；缺少公司层证据时不自动推断利好利空。</p>{fmap}</section>
+<section class="block" id="fmap"><h2>完整因子地图</h2><p class="sub">框架里哪些因素对这只股票影响大。"现在的状态"取自大盘页和本页的实时数据。直接证据与代理指标分别标注；缺少公司层证据时不自动推断利好利空。</p>{fmap}</section>
+
+<section class="block" id="score"><h2>个股打分卡</h2><p class="sub">个股层 A–G 七个维度各打 −2 到 +2 分，也就是上面"个股"这一层的明细。点任意一项跳到下面的展开分析。</p>{card_html}</section>
 
 <section class="block" id="nodes"><h2>个股层传导图</h2><p class="sub">和大盘页同一套 A–H 骨架，换成了这只股票自己的变量。</p>{diagram}<div class="ndlist">{nodes_html}</div></section>
 {price_sec}
@@ -505,7 +524,7 @@ def stock_index(analyses, ctx):
                 f'<div class="slist">{"".join(row(a) for a in obs)}</div></section>') if obs else ""
     n = sum(1 for a in analyses if a["cfg"].get("group") == "追踪")
     return f"""<div class="hero"><h1>个股</h1><p class="sum">2026 年 11 月 9 日一起选定的 {n} 只追踪股，按板块分组。</p>
-<p class="stamp">四个色块依次是大盘、板块、个股、股价四层的状态：红色利好，绿色利空，灰色中性。“分项合计”是个股打分卡 A–G 的合计。</p></div>
+<p class="stamp">四个色块依次是大盘、板块、个股、股价四层的状态：红色利好，绿色利空，灰色中性。"分项合计"是个股打分卡 A–G 的合计。</p></div>
 {research.exposure_html(analyses, ctx["ROOT"])}<section class="block">{secs}</section>{obs_html}"""
 
 

@@ -241,12 +241,22 @@ def render(a, ctx, stocks_in):
     card_html = scorecard.card(rows, "板块合计", "合计只作变化提醒，不用于跨行业排名；人工草稿待核验。", a["hist"], ("B",))
     cand = "".join(f'<a class="chip2" href="../stocks/{s["cfg"]["slug"]}.html">{E(s["cfg"]["name"])}</a>' for s in stocks_in)
     tot = a["total"]
+    reason = cfg.get("selection_reason", "")
+    hz = cfg.get("horizon_label", "")
+    reason_html = ""
+    if reason:
+        hz_cls = "hz-struct" if "结构" in hz else "hz-cycle"
+        reason_html = (f'<section class="block reason-block">'
+                       f'<p class="reason-label">选入理由<span class="hz-badge {hz_cls}">{E(hz)}</span></p>'
+                       f'<p class="reason-text">{E(reason)}</p>'
+                       f'<p class="reason-link"><a href="../index.html#horizon">← 回到大盘推断</a>&emsp;<a href="../picks/index.html">查看半年名单 →</a></p>'
+                       f'</section>')
     body = f"""
 <div class="crumb"><a href="index.html">板块</a> ／ {E(cfg['name'])}</div>
 <div class="hero shero"><div><h1>{E(cfg['name'])}<small>{cfg['slug']}</small></h1>
 <div class="tags2"><span>{a['m']['n']} 家成分股</span><span>追踪股：</span>{cand}</div></div>
 <div class="px"><b>{t['close']:.2f}</b><span class="{st(t['d1'])}">{t['d1']:+.2f}%</span><small>板块指数</small></div></div>
-<section class="block" id="score"><h2>板块打分卡</h2><p class="sub">行业层六个维度各打 −2 到 +2 分，点任意一项跳到下面的展开分析。D（利率与风险偏好）直接引用大盘页，不计入板块合计。</p>{card_html}</section>
+{reason_html}<section class="block" id="score"><h2>板块打分卡</h2><p class="sub">行业层六个维度各打 −2 到 +2 分，点任意一项跳到下面的展开分析。D（利率与风险偏好）直接引用大盘页，不计入板块合计。</p>{card_html}</section>
 <section class="block" id="nodes"><h2>行业层传导图</h2><p class="sub">和大盘页、个股页同一套 A–H 骨架，换成了行业的变量。</p>
 <div class="fwbox">{"".join(o)}</div><div class="chips">{chips}</div><div class="ndlist">{nodes_html}</div></section>
 <section class="block"><h2>主要成分股</h2><p class="sub">按总市值排前 15。带链接的是追踪股。</p>{ctab}</section>"""
