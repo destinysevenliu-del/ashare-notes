@@ -142,7 +142,7 @@ def events(layer):
     ev = [e for e in manual["events"] if e["layer"] == layer]
     if not ev:
         return ""
-    lis = "".join(f'<li><span class="tag {"up" if e["dir"] == "up" else "flat"}">{"利好" if e["dir"] == "up" else "待核验"}</span>'
+    lis = "".join(f'<li><span class="tag {"up" if e["dir"] == "up" else "flat"}">{E(e.get("status", "利好" if e["dir"] == "up" else "待核验"))}</span>'
                   f'<b>{E(e["title"])}</b><span class="evd">{E(e["date"])}</span><p>{E(e["note"])}<span class="src">来源：{E(e["source"])}</span></p></li>'
                   for e in ev)
     return f'<h4>相关事件</h4><ul class="ev">{lis}</ul>'
@@ -588,55 +588,8 @@ def outlook_card(it, prefix=""):
 
 
 def outlook_section():
-    O = OUTLOOK
-    pts = "".join(f"<li>{ofill(p)}</li>" for p in O["points"])
-    tiers = ""
-    for t in O["tiers"]:
-        tiers += (f'<div class="ol-tier"><div class="ol-th"><span class="tag {t["cls"]}">{E(t["name"])}</span>'
-                  f'<span class="ol-desc">{E(t["desc"])}</span></div>'
-                  f'<div class="ol-grid">{"".join(outlook_card(it) for it in t["items"])}</div></div>')
-    scen = "".join(f'<div class="ol-sc {s["cls"]}"><b>{E(s["name"])}</b><p><span class="ol-lab">触发</span>{E(s["trigger"])}</p>'
-                   f'<p><span class="ol-lab">结果</span>{E(s["result"])}</p></div>' for s in O["scenarios"])
-
-    def sig_table(rows):
-        out = ""
-        for text, d, why, node in rows:
-            c = "up" if "多" in d else "down" if "空" in d else "flat"
-            out += (f'<tr><td><span class="tag {c}">{E(d)}</span></td><td>{E(ofill(text))} '
-                    f'<a href="#node-{E(node)}" class="chip2">{E(node)}</a></td><td class="note">{E(ofill(why))}</td></tr>')
-        return f'<div class="tblwrap"><table class="mt hz-tbl"><tbody>{out}</tbody></table></div>'
-    S = O["signals"]
-    nv = O.get("node_view", {})
-    nv_state = {k: nv.get(k, [N[k]["state"], ""])[0] for k in NODE_POS}
-    nv_sub = {k: ofill(nv.get(k, ["", node_sub(k)])[1]) for k in NODE_POS}
-    corr = "".join(f'<tr><td>{E(c.get("date", ""))}</td><td>{E(c["old"])}</td><td>{E(c["new"])}</td></tr>' for c in O["corrections"])
-    corr_html = (f'<div class="tblwrap"><table class="mt"><thead><tr><th>日期</th><th>原来的推导</th><th>修正后</th></tr></thead><tbody>{corr}</tbody></table></div>'
-                 if corr else '<p class="note">暂无修订记录。以后每次复核改动判断时，在这里记一笔：原来怎么推、为什么改。</p>')
-    ver = "".join(f"<li>{E(v)}</li>" for v in O["verify"])
-    return f"""
-<p class="sub">判断更新于 {E(O['as_of'])}，下次复核：{E(O['next_review'])}。文中数字随每日数据自动更新，判断本身只在复核时修改——数字变了而判断没变，正是需要复核的信号。</p>
-<h3 class="h3s">六个月传导图</h3>
-<p class="sub">这是对未来六个月各节点<b>方向</b>的判断，和下面「今日分析」里当天的读数不是一回事。红色利好，绿色利空，灰色为分化或待核验。</p>
-<div class="fwbox">{diagram(nv_state, nv_sub, "h6", "六个月传导图，节点颜色表示半年方向判断")}</div>
-<h3 class="h3s">结论</h3>
-<div class="lead ol-lead"><p class="lead-k">结论</p><p class="lead-main">{E(O['headline'])}</p><ul class="lead-points">{pts}</ul></div>
-
-<h3 class="h3s">板块分档</h3>
-<p class="sub">每个板块都写清楚：从哪个节点推出来、板块自己的数据是否支持、什么情况下认错。板块统计为三季报口径。点板块名进入板块页。</p>
-{tiers}
-
-<h3 class="h3s">三种情景：什么情况下要改结论</h3>
-<div class="ol-scs">{scen}</div>
-
-<details class="sub2"><summary>支撑结论的信号，按时效分</summary>
-<div class="hz-grid">
-<div class="hz-col"><div class="hz-head hz-s">短期（1–4 周）</div><p class="note">决定加仓节奏，不决定选什么板块。</p>{sig_table(S['short'])}</div>
-<div class="hz-col"><div class="hz-head hz-m">中期（1–6 月）</div><p class="note">决定板块方向，每月数据可能修正。</p>{sig_table(S['mid'])}</div>
-<div class="hz-col"><div class="hz-head hz-l">结构（6 月以上）</div><p class="note">决定持有什么类型的资产。</p>{sig_table(S['struct'])}</div>
-</div></details>
-
-<details class="rules"><summary>推导修订记录</summary>{corr_html}</details>
-<details class="rules"><summary>还没核验完的</summary><ul>{ver}</ul></details>"""
+    import framework_review
+    return framework_review.render(globals(), 'a')
 
 
 # ---------- 页面骨架 ----------
@@ -644,8 +597,10 @@ CSS = open(os.path.join(ROOT, "pipeline", "style.css"), encoding="utf-8").read()
 
 
 def page(title, active, body, prefix=""):
+    if active == "gg":
+        body = '<p class="hk-notice">历史个股资料：当前先按A–H判断半年并选择板块，尚未确定个股或仓位。旧名单不是当前方案。</p>' + body
     nav = [("index.html", "大盘", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg"),
-           ("picks/index.html", "半年名单", "pk"), ("reports/index.html", "报告", "bg"), ("trades.html", "我的操作", "tr")]
+           ("picks/index.html", "半年板块", "pk"), ("reports/index.html", "报告", "bg"), ("trades.html", "我的操作", "tr")]
     links = ""
     for href, lab, key in nav:
         if not href:
@@ -694,7 +649,7 @@ def index():
 <div class="fwbox">{diagram()}</div><div class="chips">{chips}</div>
 <h3 class="h3s">结论：今天变了什么</h3>{today_lead()}
 <details class="sub2"><summary>和上一交易日（{cn_date(R['prev'])}）相比的逐条明细</summary>{changes()}</details>
-<h3 class="h3s" id="score">展开分析</h3><p class="sub">信号观察卡：六个维度各打 −2 到 +2 分，只作变化提醒；“人工”两项需要你确认。</p>{scorecard()}
+<h3 class="h3s" id="score">展开分析</h3><p class="sub">信号观察卡沿用独立日度规则，只作变化提醒；人工综合方向未量化时不计分，不能据总分选择半年板块。</p>{scorecard()}
 <details class="sub2" id="nodes"><summary>A–H 逐项展开（看什么指标、现在多少、怎么判的）</summary>{nodes_html}</details>
 </details>
 

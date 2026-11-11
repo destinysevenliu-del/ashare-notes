@@ -4,6 +4,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 from hk_fetch import completed_rows
 import hk_research
+import framework_review
 
 NAMES={'hsi':'恒生指数','hscei':'恒生中国企业指数','hstech':'恒生科技指数'}
 VERSION='HK v3 · 2026-11-10'
@@ -359,21 +360,24 @@ def build(ctx):
     worst=min(d1,key=lambda k:d1[k]); best=max(d1,key=lambda k:d1[k])
     lead_main=f"三个指数{'同向' if same else '涨跌分化'}：恒生 {d1['hsi']:+.2f}%、国企 {d1['hscei']:+.2f}%、恒生科技 {d1['hstech']:+.2f}%。"
     if latest: lead_main+=f"南向资金{'净买入' if latest['net']>0 else '净卖出'} {abs(latest['net']):.2f} 亿港元。"
-    pts=[f'<li>跌幅最大的是 {NAMES[worst]}（{d1[worst]:+.2f}%），相对最强的是 {NAMES[best]}（{d1[best]:+.2f}%）。</li>']
+    pts=[f'<li>当日相对最弱的是 {NAMES[worst]}（{d1[worst]:+.2f}%），相对最强的是 {NAMES[best]}（{d1[best]:+.2f}%）。</li>']
     if net5 is not None:
         pts.append('<li>南向近 5 个港股交易日合计 '+f'{net5:+.2f} 亿港元'+(f'，20 日 {net20:+.2f} 亿港元。' if net20 is not None else '。')+'</li>')
     pts.append(f'<li>{E(snapshot_note)}</li>')
     pts.append('<li>定性判断来自研究资料，具体事实、相反证据与验证条件见 A–G / X 各节。</li>')
-    body+='<section class="block" id="today"><h2>今天变了什么</h2><div class="lead"><p class="lead-k">结论</p><p class="lead-main">'+E(lead_main)+'</p><ul class="lead-points">'+''.join(pts)+'</ul></div>'
-    body+='<p class="sub">行情比较最近两个完整交易日；资金按自身最新披露日展示。</p><ul class="chg-list">'+''.join(daily)+'</ul></section>'
-    body+='<section class="block" id="map"><h2>传导图</h2><p class="sub">按参考框架展开 A–H，并增加独立的 X 人民币汇率节点。点击节点查看影响路径、指标和证据状态。</p>'+diagram+'<div class="hk-map">'+nodes+'</div><p class="sub">蓝色节点及箭头标出人民币的盈利折算与资金偏好路径。红／绿边框对应当前正向／负向影响判断，灰框表示因素分化，深色 H 展示价格结果。图中箭头表示待验证的影响路径。</p></section>'
-    body+=f'<section class="block" id="score"><h2>信号观察卡</h2><p class="sub">九个节点各自给出状态词，不做加减分。港股缺少完整的盈利预期与估值历史，强行合成总分等于假装精确，所以这里只并列判断、不排名。</p><div class="score">{cards}</div></section>'
-    body+='<section class="block" id="nodes"><h2>逐项展开</h2><p class="sub">按 A / B / C / D / X / E / F / G / H 展开，事实、推断和覆盖边界分别展示。日、月、季数据各自标注日期。</p>'+sec+'</section>'
-    body+='<section class="block" id="conds"><h2>港股关注条件</h2><p class="sub">触发仅提示补看证据，阈值可以调整。</p><ul class="conds">'
+    body += '<nav class="l1nav"><a href="#horizon">六个月的判断</a><a href="#today">今日分析</a><a href="#conds">大盘关注条件</a></nav>'
+    body += '<details class="l1" id="horizon" open><summary><h2>六个月的判断</h2><span class="l1hint">传导图 · 结论 · 板块分档</span></summary>'+framework_review.render(ctx,'hk')+'</details>'
+    body += '<details class="l1" id="today" open><summary><h2>今日分析</h2><span class="l1hint">行情截至 '+asof+'</span></summary>'
+    body += '<h3 class="h3s" id="map">今日传导图</h3><p class="sub">沿用A–H；X仅为人民币跨节点传导桥，不增加半年选板块因子。</p>'+diagram+'<div class="hk-map">'+nodes+'</div>'
+    body += '<h3 class="h3s">结论：今天变了什么</h3><div class="lead"><p class="lead-main">'+E(lead_main)+'</p><ul class="lead-points">'+''.join(pts)+'</ul></div>'
+    body += '<details class="sub2"><summary>与上一完整交易日相比的逐条明细</summary><ul class="chg-list">'+''.join(daily)+'</ul></details>'
+    body += '<h3 class="h3s" id="score">展开分析</h3><p class="sub">A–H信号并列展示，X为汇率传导桥；缺失不补零，不合成总分。</p><div class="score">'+cards+'</div>'
+    body += '<details class="sub2" id="nodes"><summary>A–H逐项展开（含汇率传导桥）</summary>'+sec+'</details></details>'
+    body += '<details class="l1" id="conds"><summary><h2>大盘关注条件</h2><span class="l1hint">触发仅提示补看证据</span></summary><ul class="conds">'
     for name_,state_,basis_ in conditions:
-        body+=(f'<li class="{"hit" if state_=="已触发" else ""}"><span class="cs">{E(state_)}</span>'
-               f'<b>{E(name_)}</b><span class="cn">{E(basis_)}</span></li>')
-    body+='</ul></section>'
+        body += '<li><span class="cs">'+E(state_)+'</span><b>'+E(name_)+'</b><span class="cn">'+E(basis_)+'</span></li>'
+    body += '</ul></details>'
+    body += '''<script>function openTo(id){var el=document.getElementById(id);for(;el;el=el.parentElement)if(el.tagName==="DETAILS")el.open=true;}document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(a)openTo(a.getAttribute("href").slice(1));});if(location.hash)openTo(location.hash.slice(1));</script>'''
     gap_rows = []
     for gap in research.get('gaps', []):
         gap_rows.append([E(gap['item']), E(gap['attempt']), E(gap['result']), E(gap['fallback']) + '<br>' + link(gap['source'], '来源入口')])

@@ -196,9 +196,9 @@ def dim_liquidity(D, d):
     rr_old = (cn_old - ppi_old) if (cn_old is not None and ppi_old is not None) else None
     drr = (rr - rr_old) if (rr is not None and rr_old is not None) else None
     if drr is not None:
-        if drr <= -0.5: hits.append((f"实际利率 {rr:+.1f}%，3 个月下降 {abs(drr):.1f} 个百分点，实际融资在变便宜", 1))
-        elif drr >= 0.5: hits.append((f"实际利率 {rr:+.1f}%，3 个月上升 {drr:.1f} 个百分点，实际融资变贵", -1))
-        else: hits.append((f"实际利率（10 年国债 − PPI）{rr:+.1f}%，3 个月变化 {drr:+.1f} 个百分点", 0))
+        if drr <= -0.5: hits.append((f"国债−PPI代理 {rr:+.1f}%，3 个月下降 {abs(drr):.1f} 个百分点，不等同企业融资变便宜", 1))
+        elif drr >= 0.5: hits.append((f"国债−PPI代理 {rr:+.1f}%，3 个月上升 {drr:.1f} 个百分点，不等同企业融资变贵", -1))
+        else: hits.append((f"国债−PPI事后代理{rr:+.1f}%，3 个月变化 {drr:+.1f} 个百分点", 0))
     # M1 − M2 剪刀差：资金有没有从定期活化到活期
     m1s, m2s = mupto(D.m1, d), mupto(D.m2, d)
     sky = sky_chg = None

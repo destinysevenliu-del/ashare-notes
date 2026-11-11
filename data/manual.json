@@ -1,51 +1,82 @@
 {
   "_说明": "人工维护的判断和事件。外部环境、政策两项没有可靠的自动数据，由 Claude 整理、你确认。每次修改请更新 updated 日期。",
   "external": {
-    "score": -2,
-    "updated": "2026-11-09",
-    "reason": "美联储转向加息，美国 10 年期国债收益率在 4.8% 以上；美伊冲突仍在持续；美国限制中国光模块出口。三件事都直接压制成长股估值。",
+    "score": 0,
+    "updated": "2026-11-11",
+    "reason": "部分事件原文已核实，详见半年研究证据表；综合方向未量化，暂不计分。已核实不等于中性。",
     "confirmed_by_user": false,
     "evidence_verified": false
   },
   "policy": {
-    "score": 1,
-    "updated": "2026-11-09",
-    "reason": "11 月 2 日出台稳定市场一揽子政策，方向明确偏托底；但实际力度和后续落地还要观察，所以暂给 +1 而不是 +2。",
+    "score": 0,
+    "updated": "2026-11-11",
+    "reason": "部分事件原文已核实，详见半年研究证据表；综合方向未量化，暂不计分。已核实不等于中性。",
     "confirmed_by_user": false,
     "evidence_verified": false
   },
   "events": [
     {
-      "date": "2026-11-02",
+      "date": "2026-09-16 / 2026-10-28",
+      "layer": "A",
+      "dir": "flat",
+      "title": "美联储加息与当前政策",
+      "status": "已核实",
+      "note": "9月16日加息25bp至3.75%–4.00%；10月28日维持该区间。 不能写成连续加息，也不能预设未来半年降息；D→F的压力取决于后续通胀与利率。",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm"
+    },
+    {
+      "date": "2026-11-04",
       "layer": "B",
       "dir": "flat",
-      "title": "待核验：稳定市场一揽子政策出台",
-      "note": "历史草稿，缺少可直接追溯原文，不能视为已确认事实。政策方向转为托底，市场开始讨论“政策底”。",
-      "source": "此前复盘报告（东方财富、21 世纪经济报道）"
+      "title": "11月稳市场措施",
+      "status": "已核实并纠正",
+      "note": "11月2日为座谈会；11月4日起回购增持再贷款利率下降25bp至1%，银行申请额度超过2000亿元。来源为新华社转载央行原文。 申请额度不是实际投放或已回购金额；支持B→D/G，不直接证明C盈利修复。",
+      "source": "https://www3.xinhuanet.com/fortune/20261104/8e18ecc73f2941ffbd5be19db122b24f/c.html"
     },
     {
-      "date": "2026-09",
-      "layer": "A",
+      "date": "2026-09-30转载",
+      "layer": "B",
       "dir": "flat",
-      "title": "待核验：美联储转向加息",
-      "note": "历史草稿，缺少可直接追溯原文，不能视为已确认事实。美债收益率上行，全球成长股估值承压。",
-      "source": "此前复盘报告（公开报道）"
+      "title": "电网、算力与设备更新政策",
+      "status": "已核实",
+      "note": "PSL一年期利率从1.75%降至1.50%，支持领域纳入六张网；科技创新和技改再贷款增加2000亿元至1.4万亿元。 形成板块候选依据；要以中标、交付与回款验证C，不能从额度跳到E盈利上修。",
+      "source": "https://jrj.sh.gov.cn/ZXYW178/20260930/e4c5f21586fe40d8a67381313ba37801.html"
     },
     {
-      "date": "2026 下半年",
+      "date": "2026-10，11-09发布",
       "layer": "A",
       "dir": "flat",
-      "title": "待核验：美国限制中国光模块",
-      "note": "历史草稿，缺少可直接追溯原文，不能视为已确认事实。直接影响 AI 算力链，科创、创业板受冲击最大。",
-      "source": "此前复盘报告（公开报道）"
+      "title": "PPI环比缺口",
+      "status": "已补数",
+      "note": "10月PPI同比+5.7%、环比+0.7%；CPI同比+0.7%，两者同比差5.0个百分点。 价差只提示上下游分化，不是实际毛利率；基数抬高不意味着价格必跌，也不设3月机械退出。",
+      "source": "https://www.stats.gov.cn/sj/zxfb/202611/t20261109_1965794.html"
     },
     {
-      "date": "2026",
+      "date": "2026-10，10-31发布",
       "layer": "A",
       "dir": "flat",
-      "title": "待核验：美伊冲突",
-      "note": "历史草稿，缺少可直接追溯原文，不能视为已确认事实。地缘风险推高避险情绪和油价。",
-      "source": "此前复盘报告（公开报道）"
+      "title": "总需求与结构需求",
+      "status": "已核实",
+      "note": "10月制造业PMI49.3、新订单49.4；计算机通信电子设备、铁路船舶航空航天设备生产及新订单均在53及以上，有色冶炼产需偏弱。 保留科技及设备的结构性候选；不能从总PMI或PPI直接断言所有科技、金属同向。",
+      "source": "https://www.stats.gov.cn/sj/sjjd/202610/t20261031_1965719.html"
+    },
+    {
+      "date": "2026-11-10发布，11-05预测完成",
+      "layer": "A",
+      "dir": "flat",
+      "title": "美伊冲突与布油半年路径",
+      "status": "已核实事实及机构预测",
+      "note": "EIA 11月报告认为运输受限、库存偏低；预测年底布油约100美元/桶，并假设除伊朗外中东产量到2027年中恢复战前水平。 这是机构条件预测，非现价和确定结果。能源与油运有支持也有供给恢复风险，不能把高价外推半年。",
+      "source": "https://www.eia.gov/outlooks/steo/report/"
+    },
+    {
+      "date": "2026-08-04报道；11-11复核",
+      "layer": "A",
+      "dir": "flat",
+      "title": "光模块限制",
+      "status": "部分核验",
+      "note": "查到8月媒体转述拟议的美国进口限制；本轮FCC/BIS检索未取得可确认全面生效的最终规则。 修正原“美国限制中国光模块出口”为拟议进口限制线索；不计作已生效事实，不由此否定整个科技板块。",
+      "source": "https://www.tomshardware.com/tech-industry/data-centers/us-mulling-ban-on-key-chinese-networking-tech-in-data-center-component-crackdown-white-house-wants-to-impose-restrictions-in-2026-china-says-it-will-respond-if-necessary"
     }
   ]
 }
