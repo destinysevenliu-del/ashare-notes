@@ -29,7 +29,7 @@ def evidence_overview(data,s):
         for r in nd['rows'][:2]:
             out+=f'<p><b>{E(r["metric"])}：</b>{E(r["value"])}<br><small>{E(r["date"])} · {E(r["scope"])}</small></p>'
         out+=f'<a href="#node-{k}">看数据来源与完整传导 ↓</a></article>'
-    out+='</div>'
+    out+='</div><div class="evidence-grid">'
     v=s['valuation']
     out+=f'<div class="conclusion-body"><h3>F · 当前贵不贵：{E(v["name"])}</h3><p class="stamp">估值日期：{E(v["date"])}</p><div class="tblwrap"><table class="mt"><thead><tr><th>指标</th><th>当前数值</th><th>历史位置 / 窗口</th></tr></thead><tbody>'
     for i in v['items']:
@@ -48,7 +48,7 @@ def evidence_overview(data,s):
         for key,label in [('d20','20日'),('d60','60日'),('rs60','60日相对沪深300'),('drawdown','距250日最高收盘')]:
             if pos.get(key) is not None:out+=f' <b>{label}：{pos[key]:+.2f}{"个百分点" if key=="rs60" else "%"}</b>；'
         out+=f'</p><p class="note">{E(pos["scope"])} 价格回撤与估值分位是不同指标。{source(data,pos["source"])}</p></article>'
-    return out+'</section>'
+    return out+'</div></section>'
 
 
 
@@ -85,47 +85,98 @@ def diagram(s, prefix='', context='detail'):
         out += '</a>'
     return out+'</svg></div>'
 
-def hub(data, market):
-    items = [s for s in data['sectors'] if s['market'] == market]
-    name = 'A 股' if market == 'a' else '港股'
-    outlook = '../index.html#horizon' if market == 'a' else '../hk/index.html#horizon'
-    summary = ('主要方向是煤炭现金回报和油运盈利；半导体、计算机设备、创新药、化学原料、铜和电网设备条件看好，重点验证订单、价差、利润及现金兑现。'
-               if market == 'a' else '主要方向是电信现金回报、能源生产和油运；互联网与半导体、算力硬件条件看好，盈利兑现与美元利率、港元流动性共同决定估值空间。')
-    body = STYLE + switch(market) + f'<div class="hero"><h1>{name}板块研究</h1><p class="sum">{E(summary)}</p><p class="stamp">研究更新 {data["as_of"]} · 判断窗口 {data["window"]} · <a href="{outlook}">回看大盘六个月判断</a></p></div>'
-    body += '<p class="note">板块分档继承大盘 A–H 判断。本页研究行业需求、供给、政策、利润、估值与资金的传导；每个板块均可展开完整框架。</p>'
-    for tier in ['主要方向','条件看好']:
-        group = [s for s in items if s['tier'] == tier]
-        body += f'<section class="block"><h2>{tier} · {len(group)} 个方向</h2><div class="sector-grid">'
-        for s in group:
-            body += f'<article class="sector-card"><h3><a href="{s["id"]}.html">{E(s["title"])}</a></h3><p><b>{E(s["summary_takeaway"])}</b></p><p><strong>为什么这样判断：</strong>{E(s["conclusion"]["reason"])}</p><p><strong>板块内如何取舍：</strong>{E(s["conclusion"]["priority"])}</p><p class="sector-preview"><b>估值核验：</b>{E(s["valuation"]["interpretation"])}</p><div class="sector-preview"><b>A/B → C → E/F</b><br>{E(s["diagram"]["A"][0])} → {E(s["diagram"]["C"][0])} → {E(s["diagram"]["F"][0])}</div><p><strong>验证重点：</strong>{E(s["metrics"])}</p><details><summary>展开本板块 A–H 传导框架</summary>{diagram(s, s["id"]+".html", "hub")}<p class="note">颜色区分经营路径、定价约束与市场反馈；不表示利好或利空。手机可横向滑动，点击节点进入详细分析。</p></details><a href="{s["id"]}.html">查看行业因子与完整分析 →</a></article>'
-        body += '</div></section>'
-    body += f'<section class="block"><h2>本轮资料范围</h2><p class="note">{E(data["coverage"])}。估值分位已区分历史窗口与行业口径；未核齐的细分资料在详情中明确标示。</p></section>'
-    return body
+# Desktop-first research layout, scoped to industry pages only.
+DESKTOP_STYLE='''<style>
+.wrap:has(.sector-research){max-width:1760px;padding:0 32px}
+header.top:has(+main .sector-research) .wrap{max-width:1760px}
+.sector-research{display:grid;grid-template-columns:174px minmax(0,1fr);gap:28px;align-items:start;padding-top:24px}
+.research-rail{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow:auto;padding:5px 12px 20px 0;font-size:13px}
+.research-rail .rail-title{font-size:12px;color:#768295;letter-spacing:.08em;margin:15px 0 7px}
+.research-rail a{display:block;color:#536275;padding:6px 9px;border-radius:5px;line-height:1.4}
+.research-rail a:hover,.research-rail a.active{background:#e7edf3;color:#213d58;font-weight:600}
+.research-rail .factor-links{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.research-content{min-width:0}.framework-grid>div,.node-columns>div,.decision-grid>div,.takeaway-grid>div{min-width:0}.sector-research .hero{padding:10px 0 18px;display:flex;justify-content:space-between;gap:25px;align-items:flex-start}.sector-research .hero h1{font-size:32px}.sector-research .hero .stamp{margin-top:6px}.hero-meta{text-align:right;max-width:360px;font-size:13px;color:#667589;line-height:1.7}
+.sector-research .block{padding-top:28px}.sector-research .note{max-width:none}.sector-research h2{font-size:22px;margin-bottom:14px}.sector-research h3{font-size:16px}.sector-research .market-switch{margin:0 0 10px}
+.final-panel{border:1px solid #ced9e3;background:#fff;border-radius:12px;padding:24px;margin:0 0 20px}.final-panel h2{font-family:var(--sans);font-size:14px;color:#64758a;margin:0 0 13px}.final-panel .final-headline{font:600 24px/1.6 var(--serif);margin:0 0 15px;color:#162c40}.verdict-badge{display:inline-block;border-radius:5px;background:#eaf1f7;color:#25455e;padding:5px 9px;font-size:13px;font-weight:600}.verdict-badge.watch{background:#f3ede2;color:#795d29}.revision-note{font-size:13px;color:#6b7787;margin-left:12px}.decision-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:28px}.decision-copy{font-size:16px;line-height:1.9}.decision-copy p{margin:0 0 12px}.decision-net{padding:12px 15px;border-left:3px solid #426581;background:#f2f6fa;font-size:15px;line-height:1.8}.decisive-list{border-left:1px solid #e0e6ed;padding-left:24px}.decisive-item{padding:0 0 12px;margin:0 0 12px;border-bottom:1px solid #edf0f4}.decisive-item:last-child{border:0;margin:0}.decisive-item strong{display:block;font-size:15px}.decisive-item p{font-size:14px;line-height:1.7;color:#4d5d6d;margin:4px 0}.decisive-item .src{font-size:12px;line-height:1.5}
+.takeaway-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:20px;border-top:1px solid #e0e6ed;padding-top:18px}.takeaway-grid h3{margin:0 0 6px}.takeaway-grid p{margin:0;font-size:14px;line-height:1.8}
+.factor-balance{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:20px 0}.factor-cell{display:block;padding:11px 13px;background:#f3f6f9;border:1px solid #e0e6ed;border-radius:7px;color:#25384b}.factor-cell strong{font-size:13px}.factor-cell span{float:right;font-size:12px;color:#6a7989}.factor-cell small{display:block;line-height:1.6;color:#5e6b7c;margin-top:4px}.factor-cell[data-state="约束"]{border-left:3px solid #af8a50}.factor-cell[data-state="支撑"]{border-left:3px solid #557b71}
+.evidence-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}.evidence-grid>.conclusion-body{margin:0}.evidence-grid>.sector-card{margin:0}.sector-research .sector-card{padding:19px}.sector-research .conclusion-body{padding:20px}.sector-research .conclusion-body p{font-size:14px;line-height:1.8}.sector-research .conclusion-body h3{margin-top:0}.sector-research #evidence>.sector-grid{margin-bottom:18px}.sector-research #evidence .sector-card p{font-size:14px;line-height:1.7;margin:10px 0}.sector-research #evidence .mt td{white-space:normal}
+.framework-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:20px;align-items:start}.framework-grid .sector-diagram{min-width:0}.framework-aside{padding:18px;background:#edf2f7;border-radius:8px;font-size:14px;line-height:1.8}.framework-aside h3{margin:0 0 8px}.framework-aside p{margin:8px 0}.sector-research .sector-diagram-scroll{margin:0}
+.sector-research .sector-nodes:has(.node-detail){display:block}.sector-research .node-detail{margin:18px 0;padding:22px}.node-heading{display:grid;grid-template-columns:220px minmax(0,1fr);gap:20px;align-items:start;border-bottom:1px solid #e1e7ee;padding-bottom:14px;margin-bottom:16px}.node-heading h3{margin:0;font-size:18px}.node-heading p{font-size:15px;line-height:1.75}.node-columns{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.2fr);gap:26px;align-items:start}.node-columns h4{margin:0 0 10px;font-size:13px;color:#667589}.node-columns p{font-size:14px;line-height:1.85;margin:0 0 12px}.node-columns .mt{font-size:13px}.sector-research .node-columns .mt td{min-width:0;white-space:normal;padding:10px 8px}.node-columns .mt td:first-child{width:26%}.node-columns .mt td:nth-child(2){width:34%}.node-limit{background:#f5f7fa;padding:13px 15px;margin-top:15px;border-radius:6px}.node-limit p:last-child{margin-bottom:0}.sector-research .node-limit h4{margin:8px 0 4px}
+.market-verdict{display:grid;grid-template-columns:1.4fr 1fr;gap:30px}.market-verdict .market-copy{font-size:16px;line-height:1.9;margin:0}.market-actions{display:grid;gap:15px}.market-actions p{margin:4px 0 0;font-size:14px;line-height:1.8}.review-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:14px;background:#fff}.review-table th{background:#eef3f7;color:#53677a;font-size:12px;text-align:left;padding:12px}.review-table td{padding:16px 12px;border-top:1px solid #e0e6ec;vertical-align:top;line-height:1.75}.review-table th:nth-child(1){width:13%}.review-table th:nth-child(2){width:15%}.review-table th:nth-child(3){width:29%}.review-table th:nth-child(4){width:24%}.review-table th:nth-child(5){width:19%}.review-table small{display:block;color:#6e7c8d;font-size:12px;margin-top:7px;line-height:1.6}.table-shell{border:1px solid #d5dfe8;border-radius:10px;overflow:hidden}.overview-graphs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.overview-graphs details{padding:15px 18px;background:#fff;border:1px solid #d9e1e9;border-radius:9px;min-width:0}.overview-graphs summary{cursor:pointer;font-weight:600}.overview-graphs details[open]{grid-column:1/-1}.overview-graphs details[open] .sector-diagram{max-width:1000px;margin:auto}.overview-graphs p{font-size:14px;line-height:1.8}.sector-research .scenario-table td{min-width:0}.refs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;font-size:13px}
+@media(min-width:1600px){.decision-grid{gap:36px}.node-columns{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}}
+@media(max-width:1200px){.sector-research{grid-template-columns:150px minmax(0,1fr);gap:20px}.wrap:has(.sector-research){padding:0 20px}.framework-grid{grid-template-columns:1fr}.framework-aside{display:none}.evidence-grid{grid-template-columns:1fr}.node-columns{grid-template-columns:1fr 1.1fr}.final-panel .final-headline{font-size:22px}.decision-grid{gap:18px}.decisive-list{padding-left:18px}}
+@media(max-width:900px){.sector-research{display:block}.research-rail{position:static;max-height:none;display:flex;gap:5px;flex-wrap:wrap;border-bottom:1px solid #d9e0e7;padding:0 0 12px;margin-bottom:15px}.research-rail .rail-title,.research-rail .rail-sectors,.research-rail .factor-links{display:none}.research-rail a{display:inline-block}.decision-grid,.market-verdict,.node-columns{grid-template-columns:1fr}.decisive-list{border-left:0;border-top:1px solid #e0e6ed;padding:16px 0 0}.takeaway-grid{grid-template-columns:1fr}.factor-balance{grid-template-columns:repeat(2,minmax(0,1fr))}.node-heading{grid-template-columns:1fr;gap:6px}.sector-research .hero{display:block}.hero-meta{text-align:left;max-width:none}.review-table{min-width:920px}.table-shell{overflow-x:auto}.overview-graphs{grid-template-columns:1fr}.refs-grid{grid-template-columns:1fr}.revision-note{display:block;margin:8px 0}.final-panel{padding:20px}.sector-research .sector-diagram{min-width:760px}.overview-graphs details[open]{grid-column:auto}}
+</style>'''
 
 
-def detail(data, s):
-    market = 'A 股' if s['market'] == 'a' else '港股'
-    back = 'index.html' if s['market'] == 'a' else 'hk.html'
-    body = STYLE + switch(s['market']) + f'<div class="crumb"><a href="{back}">{market}板块</a> ／ {E(s["title"])}</div><nav class="market-switch" aria-label="板块内容"><a href="#conclusion">半年结论</a><a href="#evidence">数据与估值</a><a href="#framework">A–H传导</a><a href="#scenarios">改判条件</a></nav><div class="hero"><span class="sector-tag">{market} · {s["tier"]}</span><h1>{E(s["title"])}</h1><p class="stamp">更新 {data["as_of"]} · 判断窗口 {data["window"]}</p></div>'
-    c=s['conclusion']
-    body += f'<section class="conclusion-body" id="conclusion"><h2>未来半年的研究结论</h2><p class="conclusion-base">{E(c["base"])}</p><h3>证据支持什么判断</h3><p>{E(c["reason"])}</p><h3>板块内部先研究什么</h3><p>{E(c["priority"])}</p><h3>为什么还不能作更强判断</h3><p>{E(c["boundary"])}</p><h3>什么变化会让我改判</h3><p><b>支持保持 / 升级：</b>{E(c["upgrade"])}</p><p><b>触发下调：</b>{E(c["downgrade"])}</p><p class="note">以上为基于已列资料的研究推断，研究顺序不代表收益排名。报告期和数据日期见下方节点表；证据缺口保留。</p><p class="src">结论对应资料：'+ ' · '.join(source(data,k,f'证据 {i+1}') for i,k in enumerate(c['evidence_sources']))+'</p></section>'
-    body += evidence_overview(data,s)
-    body += f'<section class="block" id="framework"><h2>板块 A–H 传导框架</h2><p class="note">每个节点使用本板块具体变量。蓝色为经营传导，浅金色为定价约束，灰色为资金与价格反馈；颜色不代表涨跌评分。点击节点查看下方依据，手机可横向滑动。</p>{diagram(s)}<p class="note">本板块重点链条：{E(s["chain"])}。H → G 是价格对交易行为的反馈；股价上涨不能倒推经营改善，也不能替代 C/E 验证。</p><h3>逐节点分析</h3><div class="sector-nodes">'
-    for k, val in s['nodes'].items():
-        nd=s['node_detail'][k]
-        body += f'<article class="sector-node node-detail" id="node-{k}"><h3>{k} · {NAMES[k]}</h3><p><b>当前判断：</b>{E(nd["judgment"])}</p><h4>数据与证据</h4><div class="tblwrap"><table class="mt"><thead><tr><th>指标</th><th>数值 / 事实</th><th>日期</th><th>口径 / 来源</th></tr></thead><tbody>'
-        for r in nd['rows']:
+def shell(data,market,content,current=None):
+    back='index.html' if market=='a' else 'hk.html'
+    rail='<aside class="research-rail" aria-label="研究目录"><div class="rail-title">板块研究</div><a href="index.html"'+(' class="active"' if market=='a' else '')+'>A 股总览</a><a href="hk.html"'+(' class="active"' if market=='hk' else '')+'>港股总览</a>'
+    if current:
+        rail+='<div class="rail-title">本页内容</div>'+''.join(f'<a href="#{a}">{t}</a>' for a,t in [('conclusion','最终结论'),('evidence','数据 · 估值 · 位置'),('framework','传导框架'),('scenarios','升级与降级条件')])
+        rail+='<div class="factor-links">'+''.join(f'<a href="#node-{k}">{k} {dict(zip('ABCDEFGH',['需求','政策','利润','利率','预期','估值','资金','价格']))[k]}</a>' for k in 'ABCDEFGH')+'</div>'
+    rail+='<div class="rail-sectors"><div class="rail-title">同市场板块</div>'
+    for s in data['sectors']:
+        if s['market']==market:rail+=f'<a href="{s["id"]}.html"'+(' class="active"' if s['id']==current else '')+f'>{E(s["title"])}</a>'
+    rail+='</div></aside>'
+    return STYLE+DESKTOP_STYLE+'<div class="sector-research">'+rail+'<div class="research-content">'+content+'</div></div>'
+
+
+def verdict_badge(v):
+    return '<span class="verdict-badge'+(' watch' if '观察' in v['group'] else '')+'">'+E(v['group'])+'</span>'
+
+
+def final_verdict(data,s):
+    v=s['review']
+    out='<section class="final-panel" id="conclusion"><h2>综合 A–H 后的最终结论</h2>'+verdict_badge(v)+f'<span class="revision-note">{E(v["change"])}</span><p class="final-headline">{E(v["headline"])}</p><div class="decision-grid"><div class="decision-copy"><p>{E(v["synthesis"])}</p><div class="decision-net"><b>证据权衡：</b>{E(v["net"])}</div></div><div class="decisive-list"><h3>决定这个结论的三条证据</h3>'
+    for x in v['decisive']:
+        out+=f'<div class="decisive-item"><strong>{x["factor"]} · {E(x["fact"])}</strong><p>{E(x["implication"])}</p><div class="src">{source(data,x["source"])}</div></div>'
+    out+='</div></div><div class="takeaway-grid">'
+    for title,text in [('看好的范围',v['positive']),('不成立的延伸',v['exclude']),('这次如何改判',v['change']+'。'+v['net'])]:
+        out+=f'<div><h3>{title}</h3><p>{E(text)}</p></div>'
+    out+='</div><p class="note">以上是基于本页数据的研究判断。下方区分支持、约束与待验证因素；不将缺失数据当作利空，也不自动抵消已经成立的证据。</p><div class="factor-balance">'
+    for k,x in v['factors'].items():
+        out+=f'<a class="factor-cell" href="#node-{k}" data-state="{x["status"]}"><strong>{k} · {NAMES[k]}</strong><span>{x["status"]}</span><small>{E(x["reason"])}</small></a>'
+    return out+'</div></section>'
+
+
+def hub(data,market):
+    items=[s for s in data['sectors'] if s['market']==market];m=data['market_synthesis'][market];name='A 股' if market=='a' else '港股'
+    outlook='../index.html#horizon' if market=='a' else '../hk/index.html#horizon'
+    body=f'<div class="hero"><div><h1>{name}板块 · 半年判断</h1><p class="stamp">研究更新 {data["as_of"]} · {data["window"]}</p></div><div class="hero-meta">大盘给出初筛方向，板块证据决定最终判断。<br><a href="{outlook}">查看大盘 A–H 初筛依据 →</a></div></div>'
+    body+=f'<section class="final-panel" id="conclusion"><h2>研究汇总</h2><p class="final-headline">{E(m["headline"])}</p><div class="market-verdict"><p class="market-copy">{E(m["body"])}</p><div class="market-actions"><div><b>当前研究重心</b><p>{E(m["focus"])}</p></div><div><b>相较上一轮的变化</b><p>{E(m["revision"])}</p></div></div></div></section>'
+    body+='<section class="block"><h2>各板块最终结论 · 横向对照</h2><p class="note">“结构性看好”指特定细分已有需求依据；“条件看好”仍有关键兑现条件；观察类暂不列为优先主线。分类表示研究判断强度，不是收益排序。</p><div class="table-shell"><table class="review-table"><thead><tr><th>板块</th><th>最终判断 / 变化</th><th>未来半年怎样看</th><th>决定性证据</th><th>什么会改变结论</th></tr></thead><tbody>'
+    order={'结构性看好':0,'条件看好':1,'防御观察':2,'周期观察':3,'细分观察':4}
+    items=sorted(items,key=lambda s:order[s['review']['group']])
+    for s in items:
+        v=s['review'];facts=v['decisive']
+        body+=f'<tr data-sector="{s["id"]}"><td><a href="{s["id"]}.html"><b>{E(s["title"])}</b></a><small>宏观初筛：{E(s["macro_tier"])}</small></td><td>{verdict_badge(v)}<small>{E(v["change"])}</small></td><td>{E(v["headline"])}</td><td>'+''.join(f'<p style="margin:0 0 7px"><b>{x["factor"]}</b> {E(x["fact"])}</p>' for x in [facts[0],facts[-1]])+f'<a href="{s["id"]}.html#conclusion">查看完整权衡 →</a></td><td>{E(v["upgrade"])}</td></tr>'
+    body+='</tbody></table></div></section><section class="block" id="framework"><h2>按板块展开传导框架</h2><div class="overview-graphs">'
+    for s in items:
+        body+=f'<details><summary>{E(s["title"])} · {E(s["review"]["group"])}</summary><p>{E(s["review"]["net"])}</p>{diagram(s,s["id"]+".html","hub")}<p><a href="{s["id"]}.html#framework">查看逐节点数据与解释 →</a></p></details>'
+    body+=f'</div></section><section class="block"><p class="note">{E(data["coverage"])}。各资料有独立日期，本轮对既有证据重新综合判断；原始数据未统一刷新为当日值。</p></section>'
+    return shell(data,market,body)
+
+
+def detail(data,s):
+    market='A 股' if s['market']=='a' else '港股';back='index.html' if s['market']=='a' else 'hk.html';v=s['review']
+    body=f'<div class="crumb"><a href="{back}">{market}板块</a> ／ {E(s["title"])}</div><div class="hero"><div><h1>{E(s["title"])}</h1><p class="stamp">{market} · 研究更新 {data["as_of"]}</p></div><div class="hero-meta">判断窗口 {data["window"]}<br>宏观初筛：{E(s["macro_tier"])} → 板块核验：{E(v["group"])}</div></div>'
+    body+=final_verdict(data,s)+evidence_overview(data,s)
+    body+=f'<section class="block" id="framework"><h2>板块 A–H 传导框架</h2><div class="framework-grid"><div>{diagram(s)}</div><aside class="framework-aside"><h3>这条链怎样得出结论</h3><p>{E(v["net"])}</p><h3>影响半年判断的关键</h3><p>{E(v["upgrade"])}</p><p class="note">A/B影响C，再影响E；D约束F/G，E/F/G共同接受H验证。点击节点查看依据。</p></aside></div></section><section class="block"><h2>逐节点分析 · 数据与解释并排</h2><div class="sector-nodes">'
+    for k in 'ABCDEFGH':
+        n=s['node_detail'][k]
+        body+=f'<article class="sector-node node-detail" id="node-{k}"><div class="node-heading"><h3>{k} · {NAMES[k]}</h3><p><b>{E(n["judgment"])}</b></p></div><div class="node-columns"><div><h4>数据与证据</h4><div class="tblwrap"><table class="mt"><thead><tr><th>指标</th><th>数值 / 事实</th><th>日期 · 口径 · 来源</th></tr></thead><tbody>'
+        for r in n['rows']:
             link=source(data,r['source']) if r['source'] else '研究口径说明'
-            body += f'<tr><td>{E(r["metric"])}</td><td>{E(r["value"])}</td><td>{E(r["date"])}</td><td>{E(r["scope"])}<br>{link}</td></tr>'
-        body += '</tbody></table></div><h4>如何传到本板块</h4>'+''.join('<p>'+E(x)+'</p>' for x in nd['analysis'])
-        body += f'<h4>反证与解释边界</h4><p>{E(nd["counter"])}</p><h4>下一步如何验证行业判断</h4><p>{E(nd["next"])}</p></article>'
-    body += '</div></section>'
-    body += '<section class="block" id="scenarios"><h2>未来半年：基准与改判情景</h2><p class="note">以下是研究判断条件，不是概率预测或收益承诺。</p><div class="tblwrap"><table class="mt scenario-table"><thead><tr><th>情景</th><th>条件与判断</th><th>研究应如何调整</th></tr></thead><tbody>'+''.join('<tr><td>'+E(x['name'])+'</td><td>'+E(x['condition'])+'</td><td>'+E(x['action'])+'</td></tr>' for x in s['scenarios'])+'</tbody></table></div></section>'
-    body += f'<section class="block"><h2>未来半年如何跟踪</h2><div class="sector-nodes"><article class="sector-node"><h3>保持 / 升级条件</h3><p>{E(s["upgrade"])}</p></article><article class="sector-node"><h3>降级 / 失效条件</h3><p>{E(s["down"])}</p></article></div><p><b>跟踪频率：</b>{E(s["metrics"])}</p></section>'
-    refs = list(dict.fromkeys(s['refs']))
-    body += '<section class="block"><h2>关联资料</h2><p>'+' · '.join(source(data,k,f'资料 {i+1}') for i,k in enumerate(refs))+'</p><p class="note">'+E(data['coverage'])+'。</p></section>'
-    body += f'<section class="block"><p><a href="../stocks/pool-{s["id"]}.html">进入独立股票研究页 →</a></p></section>'
-    return body
+            body+=f'<tr><td>{E(r["metric"])}</td><td>{E(r["value"])}</td><td><b>{E(r["date"])}</b><br>{E(r["scope"])}<br>{link}</td></tr>'
+        body+='</tbody></table></div></div><div><h4>怎样影响本板块</h4>'+''.join('<p>'+E(x)+'</p>' for x in n['analysis'])
+        body+=f'<div class="node-limit"><h4>反证与解释边界</h4><p>{E(n["counter"])}</p><h4>下一步验证</h4><p>{E(n["next"])}</p></div></div></div></article>'
+    body+='</div></section><section class="block" id="scenarios"><h2>最终判断如何升级或失效</h2><div class="tblwrap"><table class="mt scenario-table"><thead><tr><th style="width:12%">情景</th><th style="width:53%">判断与条件</th><th>研究如何调整</th></tr></thead><tbody>'
+    for x in s['scenarios']:body+=f'<tr><td>{E(x["name"])}</td><td>{E(x["condition"])}</td><td>{E(x["action"])}</td></tr>'
+    body+=f'</tbody></table></div><p class="note">{E(s["metrics"])}</p></section><section class="block"><h2>关联资料</h2><div class="refs-grid">'+''.join(source(data,k,f'资料 {i+1}') for i,k in enumerate(s['refs']))+'</div></section>'
+    body+=f'<section class="block"><p><a href="../stocks/pool-{s["id"]}.html">进入独立股票研究页 →</a></p></section>'
+    return shell(data,s['market'],body,s['id'])
 
 
 def build(ctx):

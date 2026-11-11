@@ -10,6 +10,12 @@ def render(ctx,market='a'):
  return render_hk(ctx,r)
 
 
+def sector_final_notice(ctx,market):
+ d=json.loads((Path(ctx['ROOT'])/'data/industry_research.json').read_text())
+ if 'market_synthesis' not in d:return ''
+ m=d['market_synthesis'][market];url='boards/index.html' if market=='a' else '../boards/hk.html'
+ return '<div class="lead" style="margin:18px 0;border-left:3px solid #426581"><p><b>板块二次核验 · 最新综合判断</b></p><p>'+E(m['body'])+'</p><p><b>修订：</b>'+E(m['revision'])+'</p><p><a href="'+url+'">查看各板块最终结论与证据权衡 →</a></p><p class="note">上方保留宏观判断与原推导方向；加入行业利润、估值和价格证据后，板块取舍以本次二次核验为准。</p></div>'
+
 def board_title(ctx, market, name):
  d=json.loads((Path(ctx["ROOT"])/"data/sector_research.json").read_text())
  match=next((x for x in d["sectors"] if x["market"]==market and x["outlook_name"]==name),None)
@@ -22,7 +28,8 @@ def render_a(ctx,r):
  out+='<h3 class="h3s">六个月传导图</h3><div class="fwbox">'+ctx['diagram']({k:v[0] for k,v in o['node_view'].items()},{k:v[1] for k,v in o['node_view'].items()},'h6','A–H半年判断传导图')+'</div>'
  out+='<h3 class="h3s">结论</h3><div class="lead"><p class="lead-main">'+E(o['headline'])+'</p><ul class="lead-points">'+''.join('<li>'+x+'</li>' for x in o['points'])+'</ul></div>'
  out+='<p class="src">本轮核验：'+ ' · '.join('<a href="'+E(r['sources'][k],quote=True)+'">'+label+'</a>' for k,label in [('ppi','价格'),('pmi','需求'),('psl','定向政策'),('fed10','美联储'),('eia','能源情景')])+'</p>'
- out+='<h3 class="h3s">板块分档</h3>'
+ out+=sector_final_notice(ctx,'a')
+ out+='<h3 class="h3s">宏观初筛板块分档（推导起点）</h3>'
  for tier in o['tiers']:
   out+='<div class="ol-tier"><div class="ol-th"><span class="tag '+E(tier['cls'])+'">'+E(tier['name'])+'</span><span class="ol-desc">'+E(tier['desc'])+'</span></div><div class="ol-grid">'
   for it in tier['items']:
@@ -59,7 +66,8 @@ def render_hk(ctx,r):
  out+='<h3 class="h3s">六个月传导图</h3><p class="sub">红色为支持、绿色为压力、灰色为分化或缺数据。箭头表示传导，点击节点查看依据。汇率进入C/F/G，不新增框架节点；手机上可横向滑动查看全图。</p><div class="fwbox" style="display:block">'+hk_horizon_diagram(o)+'</div>'
  out+='<h3 class="h3s">结论</h3><div class="lead"><p class="lead-main">'+E(o['headline'])+'</p><ul class="lead-points">'+''.join('<li>'+v+'</li>' for v in o['points'])+'</ul></div>'
  out+='<p class="src">结论为基于证据的研究判断。依据：'+ ' · '.join('<a href="'+E(r['sources'][k],quote=True)+'">'+name+'</a>' for k,name in [('pmi','中国需求'),('fed10','美元政策'),('psl','定向支持'),('eia','能源供给')])+'</p>'
- out+='<h3 class="h3s">板块分档</h3>'
+ out+=sector_final_notice(ctx,'hk')
+ out+='<h3 class="h3s">宏观初筛板块分档（推导起点）</h3>'
  for tier in o['tiers']:
   out+='<div class="ol-tier"><div class="ol-th"><span class="tag '+E(tier['cls'])+'">'+E(tier['name'])+'</span><span class="ol-desc">'+E(tier['desc'])+'</span></div><div class="ol-grid">'
   for it in tier['items']:

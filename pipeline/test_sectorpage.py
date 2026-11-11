@@ -13,6 +13,19 @@ class SectorPageTest(unittest.TestCase):
   for market,file in [('a','outlook.json'),('hk','hk_outlook.json')]:
    o=json.loads((ROOT/'data'/file).read_text());expected={(t['name'],s['name']) for t in o['tiers'] if t['name'] in ['主要方向','条件看好'] for s in t['items']}
    self.assertEqual(expected,{(s['tier'],s['outlook_name']) for s in DATA['sectors'] if s['market']==market})
+ def test_final_judgment_is_not_inherited_macro_tier(self):
+  for s in DATA['sectors']:
+   v=s['review'];self.assertEqual(s['summary_takeaway'],v['headline']);self.assertEqual(s['conclusion']['base'],v['headline'])
+   self.assertEqual(set(v['factors']),set('ABCDEFGH'));self.assertEqual(len(v['decisive']),3)
+   body=sectorpage.detail(DATA,s);self.assertIn(v['synthesis'],body);self.assertIn(v['change'],body)
+   for x in v['decisive']:self.assertIn(x['source'],DATA['sources'])
+  coal=next(s for s in DATA['sectors'] if s['id']=='a-coal')
+  self.assertEqual(coal['macro_tier'],'主要方向');self.assertEqual(coal['review']['group'],'防御观察')
+ def test_market_summary_and_final_rows(self):
+  for market in ['a','hk']:
+   body=sectorpage.hub(DATA,market);self.assertIn(DATA['market_synthesis'][market]['body'],body)
+   for s in DATA['sectors']:
+    if s['market']==market:self.assertIn('data-sector="'+s['id']+'"',body);self.assertIn(s['review']['headline'],body)
  def test_no_company_material(self):
   names={x['name'] for s in STOCKS['sectors'] for x in s['stocks']+s['candidates']}|{'澜起','长电','兆易','腾讯','阿里','许继','南瑞','联想','中芯','华虹','Frontline'}
   bodies=[sectorpage.detail(DATA,s) for s in DATA['sectors']]+[sectorpage.hub(DATA,m) for m in ['a','hk']]
