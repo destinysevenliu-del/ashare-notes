@@ -11,8 +11,8 @@ class Text(HTMLParser):
 class SectorPageTest(unittest.TestCase):
  def test_scope(self):
   for market,file in [('a','outlook.json'),('hk','hk_outlook.json')]:
-   o=json.loads((ROOT/'data'/file).read_text());expected={(t['name'],s['name']) for t in o['tiers'] if t['name'] in ['主要方向','条件看好'] for s in t['items']}
-   self.assertEqual(expected,{(s['tier'],s['outlook_name']) for s in DATA['sectors'] if s['market']==market})
+   o=json.loads((ROOT/'data'/file).read_text());expected={(t['name'],s['name']) for t in o['tiers'] for s in t['items']}
+   self.assertEqual(expected,{(s['review']['group'],s['title']) for s in DATA['sectors'] if s['market']==market})
  def test_final_judgment_is_not_inherited_macro_tier(self):
   for s in DATA['sectors']:
    v=s['review'];self.assertEqual(s['summary_takeaway'],v['headline']);self.assertEqual(s['conclusion']['base'],v['headline'])

@@ -352,7 +352,7 @@ def build(ctx):
     verdict_txt=('内地需求与成本变化使盈利分化，美债收益率回落提供折现率支持，但波动率与信用利差抬升。'
                  '科技权重股的收入增长尚需现金回报验证。资金层同时出现整体成交降温、盈富份额轻微净发行和代表股淡仓变化分化，'
                  '后续要看盈利、融资与价格是否相互印证。')
-    body=f'<div class="hero"><p class="date">{asof} · 港股</p><h1>港股大盘处在什么状态</h1><p class="sum">{E(verdict_txt)}</p><p class="stamp">{stamp}</p></div>'
+    body=f'<div class="hero"><p class="date">研究复核 2026年11月12日 · 行情截至 {asof}</p><h1>港股：从大盘到板块</h1><p class="sum">分别验证经营现金与港元估值，形成未来半年的板块取舍。研究复核：2026-11-12；下方日度数据保留原日期。</p><p class="stamp">{stamp}</p></div>'
     body += '<p class="stamp">研究资料复核截至 '+E(research.get('reviewed_at', ''))+'。月末估值、季度业绩和日行情按各自日期展示，定性判断随新证据复核。</p>'
     if warnings:body+='<div class="hk-notice">'+''.join('<p>'+E(w)+'</p>' for w in warnings)+'</div>'
     d1={k:change(rows,1) for k,rows in indices.items()}

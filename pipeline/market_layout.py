@@ -99,8 +99,8 @@ def node_columns(body):
 def shell(body, market, prefix):
     label = 'A股大盘' if market == 'dp' else '港股大盘'
     links = [('horizon', '六个月判断'), ('macro-verdict', '综合结论'),
-             ('macro-map', '半年传导图'), ('sector-review', '板块最新判断'),
-             ('macro-scenarios', '改判条件'), ('today', '当日分析'),
+             ('macro-map', '半年传导图'), ('sector-review', '板块取舍与比较'),
+             ('thesis-nodes', '半年证据与反证'), ('macro-scenarios', '改判与时间表'), ('today', '当日分析'),
              ('score', '信号总览'), ('nodes', '逐节点数据'), ('conds', '大盘关注条件')]
     rail = '<aside class="market-rail"><nav aria-label="大盘研究目录"><b>' + label + '</b>'
     rail += ''.join('<a href="#' + anchor + '">' + title + '</a>' for anchor, title in links)

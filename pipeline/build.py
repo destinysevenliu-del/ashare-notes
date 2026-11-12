@@ -635,7 +635,7 @@ def index():
     st = D.status
     mdate = D.mbal[-1][0]; pdate = D.pe_all[-1][0]
     stamp = (f"行情截至 {cn_date(TODAY)}收盘；两融截至 {cn_date(mdate)}；估值截至 {cn_date(pdate)}。"
-             f"页面生成于 {st.get('_fetched_at', '')}。")
+             f"日度数据采集于 {st.get('_fetched_at', '')}。")
     nodes_html = ""
     for k in "ABCDEFGH":
         s = sec[k]
@@ -644,8 +644,8 @@ def index():
                        f'<div><h3>{E(s["title"])}</h3><p class="q">{E(s["q"])}</p></div></div>{market_layout.node_columns(s["body"])}</section>')
     chips = "".join(f'<a href="#node-{k}" class="chip {N[k]["state"]}"><b>{k}</b>{E(NODE_NAME[k])}<span>{E(node_sub(k))}</span></a>' for k in "ABCDEFGH")
     body = f"""
-<div class="hero"><p class="date">{cn_date(TODAY, True)}</p><h1>大盘今天处在什么状态</h1>
-<p class="sum">{E(summary())}</p><p class="stamp">{E(stamp)}</p></div>
+<div class="hero"><p class="date">研究复核 2026年11月12日 · 行情截至{cn_date(TODAY, True)}</p><h1>A股：从大盘到板块</h1>
+<p class="sum">先判断未来半年的需求、利润与估值，再比较板块。研究复核：2026-11-12；下方日度数据保留原日期。</p><p class="stamp">{E(stamp)}</p></div>
 
 <nav class="l1nav"><a href="#horizon">六个月的判断</a><a href="#today">今日分析</a><a href="#conds">大盘关注条件</a></nav>
 

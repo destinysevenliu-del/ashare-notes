@@ -144,14 +144,14 @@ def final_verdict(data,s):
 def hub(data,market):
     items=[s for s in data['sectors'] if s['market']==market];m=data['market_synthesis'][market];name='A 股' if market=='a' else '港股'
     outlook='../index.html#horizon' if market=='a' else '../hk/index.html#horizon'
-    body=f'<div class="hero"><div><h1>{name}板块 · 半年判断</h1><p class="stamp">研究更新 {data["as_of"]} · {data["window"]}</p></div><div class="hero-meta">大盘给出初筛方向，板块证据决定最终判断。<br><a href="{outlook}">查看大盘 A–H 初筛依据 →</a></div></div>'
+    body=f'<div class="hero"><div><h1>{name}板块 · 半年判断</h1><p class="stamp">明细更新 {data["as_of"]} · 总结复核 {data.get("market_synthesis_reviewed_at",data["as_of"])} · {data["window"]}</p></div><div class="hero-meta">首页与板块使用同一组最终判断；保留历史初筛作修订对照。<br><a href="{outlook}">查看大盘 A–H 综合依据 →</a></div></div>'
     body+=f'<section class="final-panel" id="conclusion"><h2>研究汇总</h2><p class="final-headline">{E(m["headline"])}</p><div class="market-verdict"><p class="market-copy">{E(m["body"])}</p><div class="market-actions"><div><b>当前研究重心</b><p>{E(m["focus"])}</p></div><div><b>相较上一轮的变化</b><p>{E(m["revision"])}</p></div></div></div></section>'
     body+='<section class="block"><h2>各板块最终结论 · 横向对照</h2><p class="note">“结构性看好”指特定细分已有需求依据；“条件看好”仍有关键兑现条件；观察类暂不列为优先主线。分类表示研究判断强度，不是收益排序。</p><div class="table-shell"><table class="review-table"><thead><tr><th>板块</th><th>最终判断 / 变化</th><th>未来半年怎样看</th><th>决定性证据</th><th>什么会改变结论</th></tr></thead><tbody>'
     order={'结构性看好':0,'条件看好':1,'防御观察':2,'周期观察':3,'细分观察':4}
     items=sorted(items,key=lambda s:order[s['review']['group']])
     for s in items:
         v=s['review'];facts=v['decisive']
-        body+=f'<tr data-sector="{s["id"]}"><td><a href="{s["id"]}.html"><b>{E(s["title"])}</b></a><small>宏观初筛：{E(s["macro_tier"])}</small></td><td>{verdict_badge(v)}<small>{E(v["change"])}</small></td><td>{E(v["headline"])}</td><td>'+''.join(f'<p style="margin:0 0 7px"><b>{x["factor"]}</b> {E(x["fact"])}</p>' for x in [facts[0],facts[-1]])+f'<a href="{s["id"]}.html#conclusion">查看完整权衡 →</a></td><td>{E(v["upgrade"])}</td></tr>'
+        body+=f'<tr data-sector="{s["id"]}"><td><a href="{s["id"]}.html"><b>{E(s["title"])}</b></a><small>11月11日初筛（历史）：{E(s["macro_tier"])}</small></td><td>{verdict_badge(v)}<small>{E(v["change"])}</small></td><td>{E(v["headline"])}</td><td>'+''.join(f'<p style="margin:0 0 7px"><b>{x["factor"]}</b> {E(x["fact"])}</p>' for x in [facts[0],facts[-1]])+f'<a href="{s["id"]}.html#conclusion">查看完整权衡 →</a></td><td>{E(v["upgrade"])}</td></tr>'
     body+='</tbody></table></div></section><section class="block" id="framework"><h2>按板块展开传导框架</h2><div class="overview-graphs">'
     for s in items:
         body+=f'<details><summary>{E(s["title"])} · {E(s["review"]["group"])}</summary><p>{E(s["review"]["net"])}</p>{diagram(s,s["id"]+".html","hub")}<p><a href="{s["id"]}.html#framework">查看逐节点数据与解释 →</a></p></details>'
@@ -161,7 +161,7 @@ def hub(data,market):
 
 def detail(data,s):
     market='A 股' if s['market']=='a' else '港股';back='index.html' if s['market']=='a' else 'hk.html';v=s['review']
-    body=f'<div class="crumb"><a href="{back}">{market}板块</a> ／ {E(s["title"])}</div><div class="hero"><div><h1>{E(s["title"])}</h1><p class="stamp">{market} · 研究更新 {data["as_of"]}</p></div><div class="hero-meta">判断窗口 {data["window"]}<br>宏观初筛：{E(s["macro_tier"])} → 板块核验：{E(v["group"])}</div></div>'
+    body=f'<div class="crumb"><a href="{back}">{market}板块</a> ／ {E(s["title"])}</div><div class="hero"><div><h1>{E(s["title"])}</h1><p class="stamp">{market} · 研究更新 {data["as_of"]}</p></div><div class="hero-meta">判断窗口 {data["window"]}<br>11月11日初筛（历史）：{E(s["macro_tier"])} → 板块核验：{E(v["group"])}</div></div>'
     body+=final_verdict(data,s)+evidence_overview(data,s)
     body+=f'<section class="block" id="framework"><h2>板块 A–H 传导框架</h2><div class="framework-grid"><div>{diagram(s)}</div><aside class="framework-aside"><h3>这条链怎样得出结论</h3><p>{E(v["net"])}</p><h3>影响半年判断的关键</h3><p>{E(v["upgrade"])}</p><p class="note">A/B影响C，再影响E；D约束F/G，E/F/G共同接受H验证。点击节点查看依据。</p></aside></div></section><section class="block"><h2>逐节点分析 · 数据与解释并排</h2><div class="sector-nodes">'
     for k in 'ABCDEFGH':
