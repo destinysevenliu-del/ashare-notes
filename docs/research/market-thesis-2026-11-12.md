@@ -282,7 +282,7 @@
 
 10月消费品制造业PMI48.8、建筑活动48.0；前三季度房地产投资-20.6%、到位资金-21.6%，不支持把融资政策直接推为销售复苏。但9月剔除汽车零售+3.9%是反证：不应统一否定服务消费和所有可选消费。升级需销量、回款和正常利润持续改善。
 
-[国家统计局：10月PMI解读](https://www.stats.gov.cn/xxgk/jd/sjjd2020/202610/t20261031_1965719.html)；[国家统计局：10月PMI原表](https://www.stats.gov.cn/sj/zxfbhjd/202610/t20261031_1965718.html)；[国家统计局：前三季度国民经济](https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965618.html)；[国家统计局：9月社会消费品零售](https://www.stats.gov.cn/xxgk/sjfb/zxfb2020/202610/t20261019_1965614.html)
+[国家统计局：10月PMI解读](https://www.stats.gov.cn/xxgk/jd/sjjd2020/202610/t20261031_1965719.html)；[国家统计局：10月PMI原表](https://www.stats.gov.cn/sj/zxfbhjd/202610/t20261031_1965718.html)；[国家统计局：前三季度国民经济](https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965618.html)；[国家统计局：9月社会消费品零售](https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965614.html)
 
 ### 金融及其他大权重：尚不能代替完整指数盈利模型
 
@@ -446,7 +446,7 @@ AI采购延后、订单不能交付，或应收/库存恶化、毛利下降；�
 
 下一步：月度跟踪消费及服务订单，季度跟踪港股行业同口径收入、补贴成本、资本开支与现金；不以单家公司动向替代行业数据。
 
-[国家统计局：9月社会消费品零售](https://www.stats.gov.cn/xxgk/sjfb/zxfb2020/202610/t20261019_1965614.html)；[国家统计局：10月PMI原表](https://www.stats.gov.cn/sj/zxfbhjd/202610/t20261031_1965718.html)；[IDC｜全球服务器市场，10月9日更新](https://www.idc.com/promo/servers/)
+[国家统计局：9月社会消费品零售](https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965614.html)；[国家统计局：10月PMI原表](https://www.stats.gov.cn/sj/zxfbhjd/202610/t20261031_1965718.html)；[IDC｜全球服务器市场，10月9日更新](https://www.idc.com/promo/servers/)
 
 #### B · 政策与地缘
 
@@ -550,7 +550,7 @@ AI采购延后、订单不能交付，或应收/库存恶化、毛利下降；�
 
 10月消费品制造业PMI48.8、建筑活动48.0；前三季度房地产投资-20.6%、到位资金-21.6%，不支持把融资政策直接推为销售复苏。但9月剔除汽车零售+3.9%是反证：不应统一否定服务消费和所有可选消费。升级需销量、回款和正常利润持续改善。
 
-[国家统计局：10月PMI解读](https://www.stats.gov.cn/xxgk/jd/sjjd2020/202610/t20261031_1965719.html)；[国家统计局：10月PMI原表](https://www.stats.gov.cn/sj/zxfbhjd/202610/t20261031_1965718.html)；[国家统计局：前三季度国民经济](https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965618.html)；[国家统计局：9月社会消费品零售](https://www.stats.gov.cn/xxgk/sjfb/zxfb2020/202610/t20261019_1965614.html)
+[国家统计局：10月PMI解读](https://www.stats.gov.cn/xxgk/jd/sjjd2020/202610/t20261031_1965719.html)；[国家统计局：10月PMI原表](https://www.stats.gov.cn/sj/zxfbhjd/202610/t20261031_1965718.html)；[国家统计局：前三季度国民经济](https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965618.html)；[国家统计局：9月社会消费品零售](https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965614.html)
 
 ### 金融及其他大权重：尚不能代替完整指数盈利模型
 
@@ -602,7 +602,7 @@ AI采购延后、订单不能交付，或应收/库存恶化、毛利下降；�
 
 - [国家统计局：1—9月工业企业利润](https://www.stats.gov.cn/sj/zxfb/202610/t20261027_1965697.html) · 2026-10-27。规模以上工业企业，累计同比；与上市行业指数口径不同。
 
-- [国家统计局：9月社会消费品零售](https://www.stats.gov.cn/xxgk/sjfb/zxfb2020/202610/t20261019_1965614.html) · 2026-10-19。9月及前三季度；不覆盖全部服务消费。
+- [国家统计局：9月社会消费品零售](https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965614.html) · 2026-10-19。9月及前三季度；不覆盖全部服务消费。
 
 - [国家统计局：前三季度国民经济](https://www.stats.gov.cn/sj/zxfb/202610/t20261019_1965618.html) · 2026-10-19。前三季度累计统计；不能等同未来增速。
 
@@ -657,3 +657,11 @@ AI采购延后、订单不能交付，或应收/库存恶化、毛利下降；�
 - [恒生国企指数估值 · 2026-11-09](https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhscei%2Fidx_9Nov26.csv) · 2026-11-09。恒生指数公司日度PE与股息率；保留数据原日，不外推多年分位。
 
 - [恒生科技指数估值 · 2026-10-30](https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=/public-website/webapp/factsheets/en-hk/hstech.pdf) · 2026-10-30。恒生指数公司月末官方资料
+
+- [央行三季度货币政策报告 · 11月11日](https://n3.sinaimg.cn/finance/a0479a1f/20261111/2026111116285395566.pdf) · 2026-11-11。中国人民银行原报告的公开PDF镜像；第II页及第1—4页。政策目标、利率及实际贷款分别使用。
+
+- [中国货币网 · 10月LPR](https://www.chinamoney.com.cn/chinese/rdgz/20261020/3433485.html) · 2026-10-20。一年期3.0%、五年以上3.5%；不把存量低利率说成新降息。
+
+- [市场留档重算 · 日期与原始样本](../data/market-verdict-evidence.json) · 2026-11-09。11月13日重算；行情、估值、两融与资金样本仍为各自原数据日。包含计算所用的完整分位样本及窗口数据。
+
+- [金管局 · 联系汇率传导](https://www.hkma.gov.hk/eng/key-functions/money/linked-exchange-rate-system/) · 2026-11-12。美元与港元利率相关，但本地流动性使短期水平及路径不同。

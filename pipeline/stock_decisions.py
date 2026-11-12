@@ -303,8 +303,8 @@ def portfolio(root,model):
     for market,m in d['markets'].items():
         out+='<article class="sd-panel"><h2>'+m['label']+' · 组合环境</h2><p class="sd-note">研究复核 '+d['as_of']+'；各原始数据日期见大盘资料。</p>'
         for k in 'DG':
-            n=next(n for n in m['nodes'] if n['key']==k)
-            out+='<h3>'+k+' · '+E(n['title'])+'</h3><p>'+E(n['note'])+'</p><p>'+E(n['judgment'])+'</p>'
+            n=next(n for n in m['macro_nodes'] if n['key']==k)
+            out+='<h3>'+k+' · '+E(n['title'])+'</h3><p>'+E(n['fact'])+'</p><p>'+E(n['limit'])+'</p>'
         out+='<p><b>当前节奏：</b>'+E(m['macro_overview']['constraint']['title'])+'。'+E(m['macro_overview']['constraint']['text'])+'</p><a href="'+('../index.html' if market=='a' else '../hk/index.html')+'#thesis-D">查看市场证据与来源 →</a></article>'
     out+='</div><section class="sd-panel"><h2>集中度与容量</h2><p>最多10家发行人；同一公司A/H经营证据共用，不能算两个独立风险。另检查不同子池是否共同暴露于AI资本开支、油价或同一政策；共同标签仅作组合风险提示，不回流到个股分数。</p><p>研究席位不是仓位权重，未用席位不强制补满。涉及同一发行人跨池时，须明确唯一主子池后才能占用席位。</p></section>'
     return out+end()

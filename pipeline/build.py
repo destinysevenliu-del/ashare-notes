@@ -651,8 +651,8 @@ def index():
                        f'<div><h3>{E(s["title"])}</h3><p class="q">{E(s["q"])}</p></div></div>{market_layout.node_columns(s["body"])}</section>')
     chips = "".join(f'<a href="#node-{k}" class="chip {N[k]["state"]}"><b>{k}</b>{E(NODE_NAME[k])}<span>{E(node_sub(k))}</span></a>' for k in "ABCDEFGH")
     body = f"""
-<div class="hero"><p class="date">研究复核 2026年11月12日 · 行情截至{cn_date(TODAY, True)}</p><h1>A股总览</h1>
-<p class="sum">先看盈利与估值，再进入板块和公司。版式更新：2026-11-13；研究复核：2026-11-12。</p><p class="stamp">{E(stamp)}</p></div>
+<div class="hero"><p class="date">结论复核 2026年11月13日 · 行情截至{cn_date(TODAY, True)}</p><h1>A股总览</h1>
+<p class="sum">先看盈利与估值，再进入板块和公司。结论复核：2026-11-13；数据保留各自原日期。</p><p class="stamp">{E(stamp)}</p></div>
 
 <nav class="l1nav"><a href="#horizon">六个月的判断</a><a href="#today">今日分析</a><a href="#conds">大盘关注条件</a></nav>
 
