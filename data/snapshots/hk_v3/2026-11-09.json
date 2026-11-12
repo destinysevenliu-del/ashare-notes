@@ -1,6 +1,6 @@
 {
   "date": "2026-11-09",
-  "observed_at": "2026-11-11T16:59:45.120465+08:00",
+  "observed_at": "2026-11-12T22:02:26.510252+08:00",
   "rules_version": "HK v3 · 2026-11-10",
   "scores": {
     "A": null,
@@ -21,7 +21,7 @@
     "A": "down",
     "B": "flat",
     "C": "flat",
-    "E": "flat",
+    "E": "na",
     "F": "flat",
     "D": "flat",
     "G": "flat",
