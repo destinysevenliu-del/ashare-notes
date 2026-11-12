@@ -353,8 +353,8 @@ def build(ctx):
                  '科技权重股的收入增长尚需现金回报验证。资金层同时出现整体成交降温、盈富份额轻微净发行和代表股淡仓变化分化，'
                  '后续要看盈利、融资与价格是否相互印证。')
     body=f'<div class="hero"><p class="date">研究复核 2026年11月12日 · 行情截至 {asof}</p><h1>港股总览</h1><p class="sum">先看盈利与港元估值，再进入板块和公司。版式更新：2026-11-13；研究复核：2026-11-12。</p><p class="stamp">{stamp}</p></div>'
-    body += '<p class="stamp">研究资料复核截至 '+E(research.get('reviewed_at', ''))+'。月末估值、季度业绩和日行情按各自日期展示，定性判断随新证据复核。</p>'
-    if warnings:body+='<div class="hk-notice">'+''.join('<p>'+E(w)+'</p>' for w in warnings)+'</div>'
+    daily_notes = '<p class="stamp">日度资料留档复核截至 '+E(research.get('reviewed_at', ''))+'。月末估值、季度业绩和日行情按各自日期展示，定性判断随新证据复核。</p>'
+    if warnings:daily_notes+='<div class="hk-notice">'+''.join('<p>'+E(w)+'</p>' for w in warnings)+'</div>'
     d1={k:change(rows,1) for k,rows in indices.items()}
     same=len({v>0 for v in d1.values()})==1
     worst=min(d1,key=lambda k:d1[k]); best=max(d1,key=lambda k:d1[k])
@@ -368,6 +368,7 @@ def build(ctx):
     body += '<nav class="l1nav"><a href="#horizon">六个月的判断</a><a href="#today">今日分析</a><a href="#conds">大盘关注条件</a></nav>'
     body += '<details class="l1" id="horizon" open><summary><h2>六个月的判断</h2><span class="l1hint">结论 · 依据 · 改判条件</span></summary>'+framework_review.render(ctx,'hk')+'</details>'
     body += '<details class="l1" id="today"><summary><h2>日度数据与历史规则</h2><span class="l1hint">行情截至 '+asof+'</span></summary>'
+    body += daily_notes
     body += '<div class="market-overview daily-overview"><div class="market-day-map"><h3 class="h3s" id="map">今日传导图</h3><p class="sub">沿用A–H；X仅为人民币跨节点传导桥，不增加半年选板块因子。</p>'+'<div class="fwbox">'+diagram+'</div><div class="hk-map">'+nodes+'</div></div>'
     body += '<div class="market-day-verdict"><h3 class="h3s">结论：今天变了什么</h3><div class="lead"><p class="lead-main">'+E(lead_main)+'</p><ul class="lead-points">'+''.join(pts)+'</ul></div></div></div>'
     body += '<details class="sub2"><summary>与上一完整交易日相比的逐条明细</summary><ul class="chg-list">'+''.join(daily)+'</ul></details>'

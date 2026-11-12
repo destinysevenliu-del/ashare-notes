@@ -651,3 +651,9 @@ AI采购延后、订单不能交付，或应收/库存恶化、毛利下降；�
 - [国信证券｜港股市场速览，11月8日（研报摘要）](https://reportify.cn/reports/1316836832868175872) · 2026-11-08。沿用11月11日研究留档；本轮未取得更新的同口径历史序列。
 
 - [站内行业数据留档与复算](../data/industry_evidence.json) · 2026-11-11。行情主要截至11月9日；港股综合行业截至11月11日。保留宽行业代理限制。
+
+- [恒生指数估值 · 2026-11-09](https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhsi%2Fidx_9Nov26.csv) · 2026-11-09。恒生指数公司日度PE与股息率；保留数据原日，不外推多年分位。
+
+- [恒生国企指数估值 · 2026-11-09](https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhscei%2Fidx_9Nov26.csv) · 2026-11-09。恒生指数公司日度PE与股息率；保留数据原日，不外推多年分位。
+
+- [恒生科技指数估值 · 2026-10-30](https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=/public-website/webapp/factsheets/en-hk/hstech.pdf) · 2026-10-30。恒生指数公司月末官方资料
