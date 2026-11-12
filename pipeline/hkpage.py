@@ -352,7 +352,7 @@ def build(ctx):
     verdict_txt=('内地需求与成本变化使盈利分化，美债收益率回落提供折现率支持，但波动率与信用利差抬升。'
                  '科技权重股的收入增长尚需现金回报验证。资金层同时出现整体成交降温、盈富份额轻微净发行和代表股淡仓变化分化，'
                  '后续要看盈利、融资与价格是否相互印证。')
-    body=f'<div class="hero"><p class="date">研究复核 2026年11月12日 · 行情截至 {asof}</p><h1>港股：从大盘到板块</h1><p class="sum">分别验证经营现金与港元估值，形成未来半年的板块取舍。研究复核：2026-11-12；下方日度数据保留原日期。</p><p class="stamp">{stamp}</p></div>'
+    body=f'<div class="hero"><p class="date">研究复核 2026年11月12日 · 行情截至 {asof}</p><h1>港股总览</h1><p class="sum">先看盈利与港元估值，再进入板块和公司。版式更新：2026-11-13；研究复核：2026-11-12。</p><p class="stamp">{stamp}</p></div>'
     body += '<p class="stamp">研究资料复核截至 '+E(research.get('reviewed_at', ''))+'。月末估值、季度业绩和日行情按各自日期展示，定性判断随新证据复核。</p>'
     if warnings:body+='<div class="hk-notice">'+''.join('<p>'+E(w)+'</p>' for w in warnings)+'</div>'
     d1={k:change(rows,1) for k,rows in indices.items()}
@@ -366,14 +366,14 @@ def build(ctx):
     pts.append(f'<li>{E(snapshot_note)}</li>')
     pts.append('<li>定性判断来自研究资料，具体事实、相反证据与验证条件见 A–G / X 各节。</li>')
     body += '<nav class="l1nav"><a href="#horizon">六个月的判断</a><a href="#today">今日分析</a><a href="#conds">大盘关注条件</a></nav>'
-    body += '<details class="l1" id="horizon" open><summary><h2>六个月的判断</h2><span class="l1hint">传导图 · 结论 · 板块分档</span></summary>'+framework_review.render(ctx,'hk')+'</details>'
-    body += '<details class="l1" id="today" open><summary><h2>今日分析</h2><span class="l1hint">行情截至 '+asof+'</span></summary>'
+    body += '<details class="l1" id="horizon" open><summary><h2>六个月的判断</h2><span class="l1hint">结论 · 依据 · 改判条件</span></summary>'+framework_review.render(ctx,'hk')+'</details>'
+    body += '<details class="l1" id="today"><summary><h2>日度数据与历史规则</h2><span class="l1hint">行情截至 '+asof+'</span></summary>'
     body += '<div class="market-overview daily-overview"><div class="market-day-map"><h3 class="h3s" id="map">今日传导图</h3><p class="sub">沿用A–H；X仅为人民币跨节点传导桥，不增加半年选板块因子。</p>'+'<div class="fwbox">'+diagram+'</div><div class="hk-map">'+nodes+'</div></div>'
     body += '<div class="market-day-verdict"><h3 class="h3s">结论：今天变了什么</h3><div class="lead"><p class="lead-main">'+E(lead_main)+'</p><ul class="lead-points">'+''.join(pts)+'</ul></div></div></div>'
     body += '<details class="sub2"><summary>与上一完整交易日相比的逐条明细</summary><ul class="chg-list">'+''.join(daily)+'</ul></details>'
     body += '<h3 class="h3s" id="score">展开分析</h3><p class="sub">A–H信号并列展示，X为汇率传导桥；缺失不补零，不合成总分。</p><div class="score">'+cards+'</div>'
-    body += '<details class="sub2" id="nodes" open><summary>A–H逐项展开（含汇率传导桥）</summary>'+sec+'</details></details>'
-    body += '<details class="l1" id="conds" open><summary><h2>大盘关注条件</h2><span class="l1hint">触发仅提示补看证据</span></summary><ul class="conds">'
+    body += '<details class="sub2" id="nodes"><summary>A–H逐项展开（含汇率传导桥）</summary>'+sec+'</details></details>'
+    body += '<details class="l1" id="conds"><summary><h2>大盘关注条件</h2><span class="l1hint">触发仅提示补看证据</span></summary><ul class="conds">'
     for name_,state_,basis_ in conditions:
         body += '<li><span class="cs">'+E(state_)+'</span><b>'+E(name_)+'</b><span class="cn">'+E(basis_)+'</span></li>'
     body += '</ul></details>'
@@ -382,7 +382,7 @@ def build(ctx):
     for gap in research.get('gaps', []):
         gap_rows.append([E(gap['item']), E(gap['attempt']), E(gap['result']), E(gap['fallback']) + '<br>' + link(gap['source'], '来源入口')])
     if gap_rows:
-        body += '<section class="block" id="coverage"><h2>资料覆盖与真实缺口</h2><p class="sub">以下项目已查找原始来源，记录可用结果和替代观测。每日行情与专题研究采用各自的更新日期。</p>' + metrics(['项目', '已查来源', '取得结果与限制', '当前观察方式'], gap_rows) + '</section>'
+        body += '<details class="block" id="coverage"><summary>资料覆盖与真实缺口</summary><p class="sub">以下项目已查找原始来源，记录可用结果和替代观测。每日行情与专题研究采用各自的更新日期。</p>' + metrics(['项目', '已查来源', '取得结果与限制', '当前观察方式'], gap_rows) + '</details>'
     (out/'index.html').write_text(page('港股大盘 | A 股框架笔记','hk',body,'../'),encoding='utf-8')
     snapshot={'date':asof,'observed_at':now.isoformat(),'rules_version':VERSION,'scores':scores,'proxy_signals':proxy_signals,'research_reviewed_at':research.get('reviewed_at'),'qualitative_states':{key:entry.get('state') for key,entry in reviewed.items()},'net5':net5,'net20':net20,'hibor_20obs_bp':delta,'sources':{k:rows[-1]['date'] for k,rows in indices.items()}}
     (snapdir/(asof+'.json')).write_text(json.dumps(snapshot,ensure_ascii=False,indent=2))

@@ -1,0 +1,7 @@
+{
+  "version": "stock-decision-reviews-2026-11-13",
+  "as_of": "2026-11-13",
+  "issuers": {},
+  "securities": {},
+  "note": "旧候选身份不等于新入池门已审核；缺字段不补分，不把公告入口当成验证结果。参见pipeline/stock_decisions.py的数据约定。"
+}

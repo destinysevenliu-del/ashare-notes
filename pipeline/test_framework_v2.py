@@ -31,7 +31,9 @@ class FrameworkTest(unittest.TestCase):
   self.assertEqual(set(cards),{x['code'] for x in stocks})
   for stock in stocks:
    html=(ROOT/'docs/stocks'/f"{stock['code']}.html").read_text()
-   self.assertIn('未来半年验证卡',html)
+   self.assertIn('赛道归属',html)
+   self.assertIn('兑现质量',html)
+   self.assertIn('价格反映',html)
    self.assertNotIn('二阶导向上',html)
    self.assertNotIn('订单旺盛',html)
    self.assertIn('不据此给目标价',html)
@@ -39,9 +41,9 @@ class FrameworkTest(unittest.TestCase):
   sys.argv=['build.py',str(ROOT)]
   with contextlib.redirect_stdout(io.StringIO()): ctx=runpy.run_path(str(ROOT/'pipeline/build.py'))
   for a in ctx['stock_analyses']:
-   self.assertIsNone(a['scores']['B'])
-   if a['revision'] is None: self.assertIsNone(a['scores']['E'])
-   self.assertTrue(all(score==0 for txt,score in a['nodes']['C'] if '环比' in txt))
+   self.assertNotIn('scores',a)
+   self.assertIn(a['gate']['status'],['yes','no','pending'])
+   if a['gate']['status']!='yes':self.assertIsNone(a['quality']['rank'])
   for a in ctx['BOARDS'].values():
    self.assertIsNone(a['scores']['B']);self.assertIsNone(a['scores']['E'])
   self.assertEqual(ctx['R']['score_rows'][0]['score'],0)

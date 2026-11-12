@@ -97,17 +97,4 @@ def node_columns(body):
 
 
 def shell(body, market, prefix):
-    label = 'A股大盘' if market == 'dp' else '港股大盘'
-    links = [('horizon', '六个月判断'), ('macro-verdict', '综合结论'),
-             ('macro-map', '半年传导图'), ('sector-review', '板块取舍与比较'),
-             ('thesis-nodes', '半年证据与反证'), ('macro-scenarios', '改判与时间表'), ('today', '当日分析'),
-             ('score', '信号总览'), ('nodes', '逐节点数据'), ('conds', '大盘关注条件')]
-    rail = '<aside class="market-rail"><nav aria-label="大盘研究目录"><b>' + label + '</b>'
-    rail += ''.join('<a href="#' + anchor + '">' + title + '</a>' for anchor, title in links)
-    rail += '<span class="rail-label">A–H 数据与依据</span>'
-    labels = dict(zip('ABCDEFGH', ['需求', '政策', '利润', '利率', '预期', '估值', '资金', '价格']))
-    rail += '<div class="rail-factors">' + ''.join('<a href="#node-' + k + '">' + k + ' · ' + v + '</a>' for k, v in labels.items()) + '</div>'
-    if market == 'hk':
-        rail += '<a href="#node-X">人民币传导桥</a>'
-    rail += '<a class="rail-sector" href="' + prefix + ('boards/index.html' if market == 'dp' else 'boards/hk.html') + '">进入板块研究 →</a></nav></aside>'
-    return '<div class="market-research">' + rail + '<div class="market-content">' + body + '</div></div>'
+    return '<div class="market-research"><div class="market-content">'+body+'</div></div>'

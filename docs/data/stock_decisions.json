@@ -1,0 +1,3546 @@
+{
+  "policy": {
+    "version": "stock-decisions-v3-2026-11-13",
+    "as_of": "2026-11-13",
+    "window": "2026-11-11 至 2027-05-11",
+    "dimensions": [
+      "赛道归属",
+      "兑现质量",
+      "价格反映"
+    ],
+    "node_roles": [
+      {
+        "node": "A",
+        "role": "赛道归属 · 入池门",
+        "text": "仅判断真实需求与本公司业务是否匹配；不按收入增速打分。"
+      },
+      {
+        "node": "B",
+        "role": "赛道归属 · 入池门",
+        "text": "核政策适用、准入或限制；有补贴/政策标签不加分。"
+      },
+      {
+        "node": "C",
+        "role": "入池门 / 兑现质量 · 分工",
+        "text": "入池只核业务和订单事实；利润、现金、毛利、应收库存只归兑现质量，同一事实不得重复使用。"
+      },
+      {
+        "node": "D",
+        "role": "组合层 · 仓位与节奏",
+        "text": "利率和风险溢价集中评估，不进入个股排序或价格评分。"
+      },
+      {
+        "node": "E",
+        "role": "兑现质量 · 排序验证",
+        "text": "固定目标年盈利修订用于验证或降级，不与已实现利润重复加分。"
+      },
+      {
+        "node": "F",
+        "role": "价格反映 · 时机",
+        "text": "唯一主估值指标决定追/等/不追；辅助估值只能否决或降级。"
+      },
+      {
+        "node": "G",
+        "role": "组合层 · 仓位与节奏",
+        "text": "资金与拥挤度集中评估，不对每只股票分别加减分。"
+      },
+      {
+        "node": "H",
+        "role": "价格反映 · 执行验证",
+        "text": "只验证触发/失效；上涨不能反向证明入池、也不增加兑现排名。"
+      }
+    ],
+    "subpools": [
+      {
+        "id": "a-coal",
+        "market": "a",
+        "title": "煤炭开采",
+        "reason": "正常化现金兑现",
+        "admission": "正常煤价下经营和资本开支可核验，支持持续现金回报；只因低PB或国资身份不入池。",
+        "primary_rank": "normalized_fcf_growth",
+        "primary_rank_label": "正常化自由现金流TTM同比",
+        "primary_valuation": "PB",
+        "slots": 0,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "防御观察",
+        "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+        "secondary_valuation": "PS"
+      },
+      {
+        "id": "a-tanker",
+        "market": "a",
+        "title": "航运港口（偏油运）",
+        "reason": "正常化现金兑现",
+        "admission": "原油油轮业务及实现租金可核验；化学品、内贸运输或宽航运标签不自动适用。",
+        "primary_rank": "normalized_fcf_growth",
+        "primary_rank_label": "正常化自由现金流TTM同比",
+        "primary_valuation": "PB",
+        "slots": 0,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "周期观察",
+        "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+        "secondary_valuation": "PS"
+      },
+      {
+        "id": "a-semiconductor",
+        "market": "a",
+        "title": "半导体",
+        "reason": "AI订单兑现",
+        "admission": "AI服务器相关存储、互联或先进封装已有可核实业务/订单；概念标签和低估值均不能单独入池。",
+        "primary_rank": "normalized_profit_growth",
+        "primary_rank_label": "正常化归母利润TTM同比",
+        "primary_valuation": "PS",
+        "slots": 2,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "结构性看好",
+        "valuation_note": "总市值/同币种同范围TTM营业收入；收入不可比或分母缺失则等。",
+        "secondary_valuation": "PB"
+      },
+      {
+        "id": "a-computing",
+        "market": "a",
+        "title": "计算机设备",
+        "reason": "服务器交付兑现",
+        "admission": "服务器或算力配套的实际交付业务；通用软件、安全服务不能仅凭算力标签进入。",
+        "primary_rank": "normalized_profit_growth",
+        "primary_rank_label": "正常化归母利润TTM同比",
+        "primary_valuation": "正常化PE",
+        "slots": 1,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "条件看好",
+        "valuation_note": "总市值/经逐项调整的正常化TTM归母利润；不得回退为报告PE。",
+        "secondary_valuation": "PB"
+      },
+      {
+        "id": "a-pharma",
+        "market": "a",
+        "title": "化学制药（创新药）",
+        "reason": "商业化兑现",
+        "admission": "已有药品商业化或可重复授权收益；单次首付款、研发概念不能作为排序理由。",
+        "primary_rank": "normalized_profit_growth",
+        "primary_rank_label": "正常化归母利润TTM同比",
+        "primary_valuation": "PS",
+        "slots": 1,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "条件看好",
+        "valuation_note": "总市值/同币种同范围TTM营业收入；收入不可比或分母缺失则等。",
+        "secondary_valuation": "PB"
+      },
+      {
+        "id": "a-chemical",
+        "market": "a",
+        "title": "化学原料",
+        "reason": "产品价差兑现",
+        "admission": "具体产品、工艺路线、销量和价差可对应到公司；PPI上涨或低PB不能单独入池。",
+        "primary_rank": "normalized_profit_growth",
+        "primary_rank_label": "正常化归母利润TTM同比",
+        "primary_valuation": "PB",
+        "slots": 0,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "细分观察",
+        "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+        "secondary_valuation": "PS"
+      },
+      {
+        "id": "a-copper",
+        "market": "a",
+        "title": "工业金属（偏铜）",
+        "reason": "矿端现金兑现",
+        "admission": "铜矿资源、产量和成本对应到公司；冶炼业务须另建理由子池，不能混排。",
+        "primary_rank": "normalized_fcf_growth",
+        "primary_rank_label": "正常化自由现金流TTM同比",
+        "primary_valuation": "PB",
+        "slots": 0,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "细分观察",
+        "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+        "secondary_valuation": "PS"
+      },
+      {
+        "id": "a-grid",
+        "market": "a",
+        "title": "电网设备",
+        "reason": "电网订单兑现",
+        "admission": "特高压、主网或电表采购落实到本公司可核实业务/订单；不接纳泛电力概念。",
+        "primary_rank": "normalized_profit_growth",
+        "primary_rank_label": "正常化归母利润TTM同比",
+        "primary_valuation": "正常化PE",
+        "slots": 2,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "结构性看好",
+        "valuation_note": "总市值/经逐项调整的正常化TTM归母利润；不得回退为报告PE。",
+        "secondary_valuation": "PB"
+      },
+      {
+        "id": "hk-telecom",
+        "market": "hk",
+        "title": "电信等现金流型业务",
+        "reason": "可分配现金兑现",
+        "admission": "运营服务现金能覆盖必要资本开支；流量增长和预测股息率不能单独入池。",
+        "primary_rank": "normalized_fcf_growth",
+        "primary_rank_label": "正常化自由现金流TTM同比",
+        "primary_valuation": "正常化PE",
+        "slots": 0,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "防御观察",
+        "valuation_note": "总市值/经逐项调整的正常化TTM归母利润；不得回退为报告PE。",
+        "secondary_valuation": "PB"
+      },
+      {
+        "id": "hk-energy",
+        "market": "hk",
+        "title": "能源生产",
+        "reason": "正常化现金兑现",
+        "admission": "石油天然气上游在正常油价下的现金回报；煤炭和炼化应另立理由子池。",
+        "primary_rank": "normalized_fcf_growth",
+        "primary_rank_label": "正常化自由现金流TTM同比",
+        "primary_valuation": "PB",
+        "slots": 1,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "条件看好",
+        "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+        "secondary_valuation": "PS"
+      },
+      {
+        "id": "hk-tanker",
+        "market": "hk",
+        "title": "油运",
+        "reason": "正常化现金兑现",
+        "admission": "可核实原油油轮业务，独立检查港元定价；不套用A股或宽行业结论。",
+        "primary_rank": "normalized_fcf_growth",
+        "primary_rank_label": "正常化自由现金流TTM同比",
+        "primary_valuation": "PB",
+        "slots": 0,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "周期观察",
+        "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+        "secondary_valuation": "PS"
+      },
+      {
+        "id": "hk-internet",
+        "market": "hk",
+        "title": "互联网平台与软件服务",
+        "reason": "成熟业务兑现",
+        "admission": "成熟广告、游戏、交易服务有可核实业务；AI投入不能直接当作集团盈利。",
+        "primary_rank": "normalized_profit_growth",
+        "primary_rank_label": "正常化归母利润TTM同比",
+        "primary_valuation": "正常化PE",
+        "slots": 2,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "条件看好",
+        "valuation_note": "总市值/经逐项调整的正常化TTM归母利润；不得回退为报告PE。",
+        "secondary_valuation": "PB"
+      },
+      {
+        "id": "hk-hardware",
+        "market": "hk",
+        "title": "半导体及算力相关硬件",
+        "reason": "本地订单兑现",
+        "admission": "全球AI采购能对应港股公司的实际订单与产品份额；仅有产能扩张不入池。",
+        "primary_rank": "normalized_profit_growth",
+        "primary_rank_label": "正常化归母利润TTM同比",
+        "primary_valuation": "PS",
+        "slots": 0,
+        "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+        "peer_period": "2026-09-30",
+        "quality_requirements": [
+          "现金覆盖",
+          "毛利变化",
+          "应收周转",
+          "库存周转"
+        ],
+        "group": "细分观察",
+        "valuation_note": "总市值/同币种同范围TTM营业收入；收入不可比或分母缺失则等。",
+        "secondary_valuation": "PB"
+      }
+    ],
+    "convergence": {
+      "max_issuers": 10,
+      "reserved_slots": 1,
+      "description": "默认研究席位：A股半导体2、电网2、服务器1、创新药1；港股互联网2、能源1；机动1。此为可调整的研究容量，不是持仓比例。未用席位保留，不自动转给其他理由。",
+      "rules": [
+        "先固定子池允许的唯一理由；理由不符则不入池，证据不足列入待核区。",
+        "池内只比较同一报告口径、期间和唯一主财务指标；现金/毛利/应收/库存及E只验证或降级，不相加。",
+        "同一理由、同一子池内按兑现质量排序；不同子池不生成合计分或全站名次。",
+        "主指标并列且涉及最后一个席位时暂留空，补证据后裁决；不拿估值或涨幅破同分。",
+        "先按子池研究席位形成短名单，再做发行人去重；A/H同一公司经营证据只保留一套，价格分别判断。",
+        "全站最多10家发行人；达不到门槛不凑数，机动席位只在显式调整预算后使用。"
+      ]
+    },
+    "valuation": {
+      "secondary_percentile_limit": 95,
+      "min_observations": 250,
+      "rule_note": "辅助估值高于其同口径有效历史样本95%分位时降一级至不追；这是初始研究否决规则，并非经回测证明的买卖阈值。正PE只统计正盈利样本，不参与排序。缺历史样本不视为通过。",
+      "bands_note": "追/等/不追区间必须按唯一主指标预先登记依据、日期和上下限；未标定时统一为等，不按历史低分位自动追。"
+    },
+    "evidence_rule": "每条事实使用唯一evidence_id并指定一个职能；来源可重复，事实不可跨职能重复使用。同一公司只有一个financial_pack，A/H复用。",
+    "logic2": "国资/小市值/箱体属于另一理由类型，当前不因标签自动入池；须另建入池合同和排序规则，禁止混入需求兑现表。"
+  },
+  "records": [
+    {
+      "key": "a:601088",
+      "issuer_id": "cn:601088",
+      "code": "601088",
+      "name": "中国神华",
+      "market": "a",
+      "pool_id": "a-coal",
+      "legacy": false,
+      "business": "煤炭生产与电力、铁路港航一体化；并非纯煤价敞口",
+      "hypothesis": "用一体化经营观察煤价波动能否转化为稳定现金与分红。",
+      "verify": "同口径自产煤销量、成本、资本开支与分红覆盖",
+      "risk": "实现售价和销量共同下降或分红需持续举债支撑，则降级。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-29/1225531759.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "中国神华报告披露收购及新增煤电资产，分析同比须检查并表范围变化。",
+        "source": "shenhua"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:601225",
+      "issuer_id": "cn:601225",
+      "code": "601225",
+      "name": "陕西煤业",
+      "market": "a",
+      "pool_id": "a-coal",
+      "legacy": false,
+      "business": "煤炭开采及电力业务，偏动力煤经营",
+      "hypothesis": "用煤炭生产和销售观察量、价、成本的直接变化。",
+      "verify": "销售均价、长协比例、单位成本和现金流",
+      "risk": "实现售价和销量共同下降或分红需持续举债支撑，则降级。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-28/1225516359.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "陕西煤业煤炭产量同比+4.32%，销量同比−2.44%；生产增长并不等于销售增长。",
+        "source": "shaanxi"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:601898",
+      "issuer_id": "cn:601898",
+      "code": "601898",
+      "name": "中煤能源",
+      "market": "a",
+      "pool_id": "a-coal",
+      "legacy": false,
+      "business": "煤炭与煤化工标杆",
+      "hypothesis": "观察自产煤售价、单位成本、煤化工利润和现金覆盖，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "自产煤售价、单位成本、煤化工利润和现金覆盖",
+      "risk": "实现售价和销量共同下降或分红需持续举债支撑，则降级。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-22/1225488914.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "归母净利81.49亿元，同比增长5.8%；经营现金流98.64亿元，同比增长28.6%。",
+        "source": "extra_601898"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600188",
+      "issuer_id": "cn:600188",
+      "code": "600188",
+      "name": "兖矿能源",
+      "market": "a",
+      "pool_id": "a-coal",
+      "legacy": false,
+      "business": "跨境煤炭龙头",
+      "hypothesis": "观察境内外煤价、汇兑、矿山成本和分红兑现，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "境内外煤价、汇兑、矿山成本和分红兑现",
+      "risk": "实现售价和销量共同下降或分红需持续举债支撑，则降级。",
+      "source": "https://www.yanzhoucoal.com.cn/451722/",
+      "observation": {
+        "date": "2026H1报告目录",
+        "text": "境内与澳洲业务需分开核量价成本，不能只以国内煤价解释集团利润。",
+        "source": "extra_600188"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600985",
+      "issuer_id": "cn:600985",
+      "code": "600985",
+      "name": "淮北矿业",
+      "market": "a",
+      "pool_id": "a-coal",
+      "legacy": false,
+      "business": "焦煤与煤化工",
+      "hypothesis": "电力耗煤、煤炭库存 → 焦煤与煤化工 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "焦煤价差及项目现金流",
+      "risk": "动力煤假设不适用；须单独核焦煤供需",
+      "source": "https://data.eastmoney.com/notices/stock/600985.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:601699",
+      "issuer_id": "cn:601699",
+      "code": "601699",
+      "name": "潞安环能",
+      "market": "a",
+      "pool_id": "a-coal",
+      "legacy": false,
+      "business": "喷吹煤与煤炭开采",
+      "hypothesis": "电力耗煤、煤炭库存 → 喷吹煤与煤炭开采 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "煤种售价、长协与成本",
+      "risk": "煤种差异及资本开支侵蚀分红",
+      "source": "https://data.eastmoney.com/notices/stock/601699.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600026",
+      "issuer_id": "cn:600026",
+      "code": "600026",
+      "name": "中远海能",
+      "market": "a",
+      "pool_id": "a-tanker",
+      "legacy": false,
+      "business": "原油、成品油及LNG运输；直接油运映射",
+      "hypothesis": "油轮业务直接连接吨海里、有效运力、运价和分部盈利。",
+      "verify": "航线TCE、可运营船天、运输量与保险成本",
+      "risk": "连续4周同航线运价走弱并伴随实际营运收益下降；航路长期无法运行也降级。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-29/1225525952.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "中远海能披露海峡受阻与原油贸易收缩风险，支持区分运价上涨和可实现利润。",
+        "source": "cosco"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:601872",
+      "issuer_id": "cn:601872",
+      "code": "601872",
+      "name": "招商轮船",
+      "market": "a",
+      "pool_id": "a-tanker",
+      "legacy": false,
+      "business": "油轮、散货、LNG等多船型；非纯油运",
+      "hypothesis": "与油运龙头交叉观察航线收益；集团其他船型需要单独拆分。",
+      "verify": "油轮分部利润与其他船队贡献分开",
+      "risk": "连续4周同航线运价走弱并伴随实际营运收益下降；航路长期无法运行也降级。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-31/1225535203.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "招商轮船船队结构表列有油轮60艘；公司还经营其他船型，集团利润不能全归于油运。",
+        "source": "cmship"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:601975",
+      "issuer_id": "cn:601975",
+      "code": "601975",
+      "name": "招商南油",
+      "market": "a",
+      "pool_id": "a-tanker",
+      "legacy": false,
+      "business": "成品油运输标杆",
+      "hypothesis": "观察成品油航线TCE、营运船天及现金回款，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "成品油航线TCE、营运船天及现金回款",
+      "risk": "连续4周同航线运价走弱并伴随实际营运收益下降；航路长期无法运行也降级。",
+      "source": "https://vip.stock.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12664880&stockid=601975",
+      "observation": {
+        "date": "2026Q3",
+        "text": "报告指出前三季度国际成品油运价同比上涨，但区域分化、波动较大。",
+        "source": "extra_601975"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:603209",
+      "issuer_id": "cn:603209",
+      "code": "603209",
+      "name": "兴通股份",
+      "market": "a",
+      "pool_id": "a-tanker",
+      "legacy": false,
+      "business": "沿海液体化学品运输",
+      "hypothesis": "原油货量、绕航吨海里 → 沿海液体化学品运输 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "船队利用率和新船投放",
+      "risk": "相邻细分；不能套用VLCC运价",
+      "source": "https://data.eastmoney.com/notices/stock/603209.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:001205",
+      "issuer_id": "cn:001205",
+      "code": "001205",
+      "name": "盛航股份",
+      "market": "a",
+      "pool_id": "a-tanker",
+      "legacy": false,
+      "business": "液体化学品及成品油运输",
+      "hypothesis": "原油货量、绕航吨海里 → 液体化学品及成品油运输 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "新增运力、客户合同、负债",
+      "risk": "相邻细分；规模扩张不等于每股收益提升",
+      "source": "https://data.eastmoney.com/notices/stock/001205.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:688008",
+      "issuer_id": "cn:688008",
+      "code": "688008",
+      "name": "澜起科技",
+      "market": "a",
+      "pool_id": "a-semiconductor",
+      "legacy": false,
+      "business": "内存接口及互连芯片，映射服务器内存升级",
+      "hypothesis": "观察内存代际升级、配套芯片结构与大客户需求。",
+      "verify": "DDR5产品结构、客户集中度及毛利率",
+      "risk": "订单和毛利持续走弱，或扩产折旧快于收入贡献。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-29/1225530486.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "澜起科技报告区分互连芯片业务，并提示主要DRAM客户集中风险。",
+        "source": "montage"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600584",
+      "issuer_id": "cn:600584",
+      "code": "600584",
+      "name": "长电科技",
+      "market": "a",
+      "pool_id": "a-semiconductor",
+      "legacy": false,
+      "business": "芯片封装测试，映射封测产能利用和产品升级",
+      "hypothesis": "观察先进封装需求、产能利用率与扩产折旧的兑现。",
+      "verify": "先进封装收入、稼动率、资本开支回报",
+      "risk": "订单和毛利持续走弱，或扩产折旧快于收入贡献。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-21/1225487900.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "长电科技营收同比+4.96%、归母净利润+79.41%；利润增速显著高于收入，不能全部解释成新增订单。",
+        "source": "jcet"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:603986",
+      "issuer_id": "cn:603986",
+      "code": "603986",
+      "name": "兆易创新",
+      "market": "a",
+      "pool_id": "a-semiconductor",
+      "legacy": false,
+      "business": "存储芯片细分龙头",
+      "hypothesis": "观察存储量价、MCU需求、扣非与归母差异，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "存储量价、MCU需求、扣非与归母差异",
+      "risk": "订单和毛利持续走弱，或扩产折旧快于收入贡献。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-19/1225480384.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "存储收入同比增长245.44%，MCU增长49.07%；产品结构和供给缺口分别验证。",
+        "source": "extra_603986"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:002156",
+      "issuer_id": "cn:002156",
+      "code": "002156",
+      "name": "通富微电",
+      "market": "a",
+      "pool_id": "a-semiconductor",
+      "legacy": false,
+      "business": "封装测试",
+      "hypothesis": "服务器内存升级与出货 → 封装测试 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "先进封装订单、客户集中与折旧",
+      "risk": "客户订单增长未转为毛利则退回观察",
+      "source": "https://data.eastmoney.com/notices/stock/002156.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:002185",
+      "issuer_id": "cn:002185",
+      "code": "002185",
+      "name": "华天科技",
+      "market": "a",
+      "pool_id": "a-semiconductor",
+      "legacy": false,
+      "business": "封装测试",
+      "hypothesis": "服务器内存升级与出货 → 封装测试 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "产能利用率、产品结构及现金流",
+      "risk": "传统封装恢复可能慢于先进封装",
+      "source": "https://data.eastmoney.com/notices/stock/002185.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:000977",
+      "issuer_id": "cn:000977",
+      "code": "000977",
+      "name": "浪潮信息",
+      "market": "a",
+      "pool_id": "a-computing",
+      "legacy": false,
+      "business": "服务器整机及计算基础设施",
+      "hypothesis": "观察云和AI采购如何转成服务器交付、毛利与现金回款。",
+      "verify": "订单转收入、毛利、应收和库存周转",
+      "risk": "收入增长但毛利、回款持续恶化，或客户推迟验收/削减采购。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-29/1225530925.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "浪潮信息半年报用于核服务器业务、供应链和财务结构。",
+        "source": "inspur"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:000938",
+      "issuer_id": "cn:000938",
+      "code": "000938",
+      "name": "紫光股份",
+      "market": "a",
+      "pool_id": "a-computing",
+      "legacy": false,
+      "business": "新华三等提供服务器、网络及数字基础设施",
+      "hypothesis": "从网络设备、服务器及项目业务交叉观察客户投资节奏。",
+      "verify": "业务结构、项目交付和回款",
+      "risk": "收入增长但毛利、回款持续恶化，或客户推迟验收/削减采购。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-29/1225524307.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "紫光股份披露政务云、智算专区、金融等项目，具体交付与回款仍须跟踪。",
+        "source": "unis"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:601138",
+      "issuer_id": "cn:601138",
+      "code": "601138",
+      "name": "工业富联",
+      "market": "a",
+      "pool_id": "a-computing",
+      "legacy": false,
+      "business": "服务器制造标杆",
+      "hypothesis": "观察云计算分部、AI服务器交付、毛利及客户集中度，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "云计算分部、AI服务器交付、毛利及客户集中度",
+      "risk": "收入增长但毛利、回款持续恶化，或客户推迟验收/削减采购。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-12/1225468066.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "公司半年度报告可核云计算及制造业务；集团营收不能全计入AI服务器。",
+        "source": "extra_601138"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:603019",
+      "issuer_id": "cn:603019",
+      "code": "603019",
+      "name": "中科曙光",
+      "market": "a",
+      "pool_id": "a-computing",
+      "legacy": false,
+      "business": "计算基础设施",
+      "hypothesis": "云厂商、运营商、政企 → 计算基础设施 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "项目交付、毛利与回款",
+      "risk": "合同及上市主体变化需先核，不能凭主题入选",
+      "source": "https://data.eastmoney.com/notices/stock/603019.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:002439",
+      "issuer_id": "cn:002439",
+      "code": "002439",
+      "name": "启明星辰",
+      "market": "a",
+      "pool_id": "a-computing",
+      "legacy": false,
+      "business": "网络安全",
+      "hypothesis": "云厂商、运营商、政企 → 网络安全 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "算力建设相关安全订单及现金回款",
+      "risk": "相邻配套；纯算力采购不必然带动安全预算",
+      "source": "https://data.eastmoney.com/notices/stock/002439.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600276",
+      "issuer_id": "cn:600276",
+      "code": "600276",
+      "name": "恒瑞医药",
+      "market": "a",
+      "pool_id": "a-pharma",
+      "legacy": false,
+      "business": "创新药商业化和对外许可；也有其他药品业务",
+      "hypothesis": "观察商业化销售、临床进展、对外许可和研发投入。",
+      "verify": "创新药销售、许可收入与一次性款项分开",
+      "risk": "关键试验失败、销售低于成本预期，或利润增长依赖一次性收益而经常利润走弱。",
+      "source": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12665396&stockid=600276",
+      "observation": {
+        "date": "2026Q3",
+        "text": "恒瑞三季报披露新药/适应症进展和对外许可，证明事件存在，不证明未来全部收入已经实现。",
+        "source": "hengrui"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:002422",
+      "issuer_id": "cn:002422",
+      "code": "002422",
+      "name": "科伦药业",
+      "market": "a",
+      "pool_id": "a-pharma",
+      "legacy": false,
+      "business": "输液、原料药及通过子公司开展创新药业务",
+      "hypothesis": "跟踪创新药许可和商业化，同时拆分成熟业务及归母权益。",
+      "verify": "归母与扣非差异、创新药收入实际归属",
+      "risk": "关键试验失败、销售低于成本预期，或利润增长依赖一次性收益而经常利润走弱。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-27/1225512871.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "科伦归母净利同比+12.71%，扣非净利−29.03%；这是不能只看表面利润增长的反向证据。",
+        "source": "kelun"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600196",
+      "issuer_id": "cn:600196",
+      "code": "600196",
+      "name": "复星医药",
+      "market": "a",
+      "pool_id": "a-pharma",
+      "legacy": false,
+      "business": "综合制药与创新药标杆",
+      "hypothesis": "观察创新药收入、研发授权、处置收益及债务，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "创新药收入、研发授权、处置收益及债务",
+      "risk": "关键试验失败、销售低于成本预期，或利润增长依赖一次性收益而经常利润走弱。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-26/1225505529.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "报告提示利润同比受到上年处置非核心资产基数影响，需核经常性利润。",
+        "source": "extra_600196"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:688235",
+      "issuer_id": "cn:688235",
+      "code": "688235",
+      "name": "百济神州",
+      "market": "a",
+      "pool_id": "a-pharma",
+      "legacy": false,
+      "business": "创新肿瘤药",
+      "hypothesis": "患者、适应症与可及性 → 创新肿瘤药 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "商业化收入、费用率与现金消耗",
+      "risk": "核最新证券简称和财报归属，管线失败退出",
+      "source": "https://data.eastmoney.com/notices/stock/688235.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:688180",
+      "issuer_id": "cn:688180",
+      "code": "688180",
+      "name": "君实生物",
+      "market": "a",
+      "pool_id": "a-pharma",
+      "legacy": false,
+      "business": "创新生物药",
+      "hypothesis": "患者、适应症与可及性 → 创新生物药 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "核心产品放量、海外授权与现金储备",
+      "risk": "亏损企业不能套成熟药企PE",
+      "source": "https://data.eastmoney.com/notices/stock/688180.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:002648",
+      "issuer_id": "cn:002648",
+      "code": "002648",
+      "name": "卫星化学",
+      "market": "a",
+      "pool_id": "a-chemical",
+      "legacy": false,
+      "business": "轻烃原料的C2/C3产业链",
+      "hypothesis": "观察轻烃到岸成本、产品价差与新增产能现金回报。",
+      "verify": "乙烷等原料到岸成本与下游产品价差",
+      "risk": "价差持续收窄或扩产只能增加库存及债务，则不升级。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225474290.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "卫星化学营收同比+30.92%、归母净利+126.94%，经营现金流同比+90.59%。",
+        "source": "satellite"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600989",
+      "issuer_id": "cn:600989",
+      "code": "600989",
+      "name": "宝丰能源",
+      "market": "a",
+      "pool_id": "a-chemical",
+      "legacy": false,
+      "business": "煤制烯烃等业务，和轻烃路线成本结构不同",
+      "hypothesis": "与轻烃路线对照，观察煤化工成本优势及产能爬坡。",
+      "verify": "煤价、聚烯烃价差、新项目爬坡与负债",
+      "risk": "价差持续收窄或扩产只能增加库存及债务，则不升级。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-13/1225470229.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "宝丰能源营收同比+32.33%、归母净利+70.14%；两家样本改善不代表整个化工行业。",
+        "source": "baofeng"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600426",
+      "issuer_id": "cn:600426",
+      "code": "600426",
+      "name": "华鲁恒升",
+      "market": "a",
+      "pool_id": "a-chemical",
+      "legacy": false,
+      "business": "煤化工柔性联产标杆",
+      "hypothesis": "观察产品组合价差、荆州项目及经营现金流，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "产品组合价差、荆州项目及经营现金流",
+      "risk": "价差持续收窄或扩产只能增加库存及债务，则不升级。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-20/1225481561.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "营收171.62亿元、同比+8.87%；归母净利23.53亿元、+49.98%；经营现金流26.92亿元、+15.46%。",
+        "source": "extra_600426"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600309",
+      "issuer_id": "cn:600309",
+      "code": "600309",
+      "name": "万华化学",
+      "market": "a",
+      "pool_id": "a-chemical",
+      "legacy": false,
+      "business": "聚氨酯与石化",
+      "hypothesis": "聚烯烃需求、下游开工 → 聚氨酯与石化 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "MDI及石化产品价差、扩产回报",
+      "risk": "相邻产品路线，非所有油价上涨均受益",
+      "source": "https://data.eastmoney.com/notices/stock/600309.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600409",
+      "issuer_id": "cn:600409",
+      "code": "600409",
+      "name": "三友化工",
+      "market": "a",
+      "pool_id": "a-chemical",
+      "legacy": false,
+      "business": "纯碱与粘胶",
+      "hypothesis": "聚烯烃需求、下游开工 → 纯碱与粘胶 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "两类产品价差、库存及能源成本",
+      "risk": "必须分别证实纯碱与粘胶需求",
+      "source": "https://data.eastmoney.com/notices/stock/600409.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:601899",
+      "issuer_id": "cn:601899",
+      "code": "601899",
+      "name": "紫金矿业",
+      "market": "a",
+      "pool_id": "a-copper",
+      "legacy": false,
+      "business": "铜、金、锂等多矿种；不能当纯铜标的",
+      "hypothesis": "观察矿产铜产量、项目扰动与扩产成本；金等业务另拆。",
+      "verify": "矿产铜量、矿山成本、资本开支及其他金属贡献",
+      "risk": "铜价与销量共同走弱、重大矿山停产或资本开支持续超支。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-10-24/1225620996.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "紫金披露矿产铜53.4万吨，并说明部分项目扰动，铜价上涨不能替代产量核验。",
+        "source": "zijinh1"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:603993",
+      "issuer_id": "cn:603993",
+      "code": "603993",
+      "name": "洛阳钼业",
+      "market": "a",
+      "pool_id": "a-copper",
+      "legacy": false,
+      "business": "铜钴等资源及贸易业务",
+      "hypothesis": "观察铜钴产量、资源国政策与经营现金；贸易业务另拆。",
+      "verify": "矿产铜量、钴政策、单位成本与贸易利润",
+      "risk": "铜价与销量共同走弱、重大矿山停产或资本开支持续超支。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-20/1225482739.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "洛阳钼业归母利润同比+86.27%，经营现金流+36.02%，仍需拆铜钴及贸易贡献。",
+        "source": "cmoc"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:000878",
+      "issuer_id": "cn:000878",
+      "code": "000878",
+      "name": "云南铜业",
+      "market": "a",
+      "pool_id": "a-copper",
+      "legacy": false,
+      "business": "矿冶一体化标杆",
+      "hypothesis": "观察矿产铜、冶炼加工费、并表变化和现金利息覆盖，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "矿产铜、冶炼加工费、并表变化和现金利息覆盖",
+      "risk": "铜价与销量共同走弱、重大矿山停产或资本开支持续超支。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-28/1225521734.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "资产负债率62.82%；现金利息保障倍数−7.13，利润增长仍需现金与债务验证。",
+        "source": "extra_000878"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600362",
+      "issuer_id": "cn:600362",
+      "code": "600362",
+      "name": "江西铜业",
+      "market": "a",
+      "pool_id": "a-copper",
+      "legacy": false,
+      "business": "铜矿与冶炼",
+      "hypothesis": "电网等终端需求与库存 → 铜矿与冶炼 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "自产铜占比、加工费与副产品",
+      "risk": "铜价上涨而冶炼加工费下降可抵消收益",
+      "source": "https://data.eastmoney.com/notices/stock/600362.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:000630",
+      "issuer_id": "cn:000630",
+      "code": "000630",
+      "name": "铜陵有色",
+      "market": "a",
+      "pool_id": "a-copper",
+      "legacy": false,
+      "business": "铜矿与冶炼",
+      "hypothesis": "电网等终端需求与库存 → 铜矿与冶炼 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "矿山产量、加工费和负债",
+      "risk": "矿山权益及集团并表需核",
+      "source": "https://data.eastmoney.com/notices/stock/000630.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600406",
+      "issuer_id": "cn:600406",
+      "code": "600406",
+      "name": "国电南瑞",
+      "market": "a",
+      "pool_id": "a-grid",
+      "legacy": false,
+      "business": "电网自动化、继保及输电相关设备技术",
+      "hypothesis": "观察电网招标向自动化、保护等设备交付和回款传导。",
+      "verify": "电网项目中标、验收、应收及信用减值",
+      "risk": "连续两期收入增长而利润/回款恶化，或项目延迟，则下调。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-10-29/1225635689.PDF",
+      "observation": {
+        "date": "2026Q3",
+        "text": "国电南瑞三季报是核收入、利润及减值的当前资料；政策受益并非利润已经全面兑现。",
+        "source": "nari"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:000400",
+      "issuer_id": "cn:000400",
+      "code": "000400",
+      "name": "许继电气",
+      "market": "a",
+      "pool_id": "a-grid",
+      "legacy": false,
+      "business": "输配电、保护控制及直流输电相关设备",
+      "hypothesis": "观察直流输电等项目节奏，交叉验证电网投资的利润兑现。",
+      "verify": "项目结构、毛利、交付与经营现金流",
+      "risk": "连续两期收入增长而利润/回款恶化，或项目延迟，则下调。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-20/1225483623.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "许继营收同比+1.21%、归母利润−34.40%、经营现金流为−3.11亿元，提示盈利与现金仍需验证。",
+        "source": "xj"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:600312",
+      "issuer_id": "cn:600312",
+      "code": "600312",
+      "name": "平高电气",
+      "market": "a",
+      "pool_id": "a-grid",
+      "legacy": false,
+      "business": "高压开关设备标杆",
+      "hypothesis": "观察开关设备中标、交付、毛利和回款，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "开关设备中标、交付、毛利和回款",
+      "risk": "连续两期收入增长而利润/回款恶化，或项目延迟，则下调。",
+      "source": "https://www.pinggao.com/Investment/list.html",
+      "observation": {
+        "date": "2026Q3资料目录",
+        "text": "公司披露三季报及中标公告；与自动化、直流输电业务分开跟踪。",
+        "source": "extra_600312"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:601179",
+      "issuer_id": "cn:601179",
+      "code": "601179",
+      "name": "中国西电",
+      "market": "a",
+      "pool_id": "a-grid",
+      "legacy": false,
+      "business": "输变电设备",
+      "hypothesis": "电网招标、项目开工 → 输变电设备 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "特高压中标、交付和毛利",
+      "risk": "大订单未回款不能升级",
+      "source": "https://data.eastmoney.com/notices/stock/601179.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:002028",
+      "issuer_id": "cn:002028",
+      "code": "002028",
+      "name": "思源电气",
+      "market": "a",
+      "pool_id": "a-grid",
+      "legacy": false,
+      "business": "输配电设备",
+      "hypothesis": "电网招标、项目开工 → 输配电设备 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "国内外订单、毛利、应收",
+      "risk": "海外回款汇率及订单质量需核",
+      "source": "https://data.eastmoney.com/notices/stock/002028.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:00941",
+      "issuer_id": "hk:00941",
+      "code": "00941",
+      "name": "中国移动",
+      "market": "hk",
+      "pool_id": "hk-telecom",
+      "legacy": false,
+      "business": "移动、宽带和算力服务；以经营现金回报验证防守逻辑",
+      "hypothesis": "用户与服务业务提供需求样本，资本开支和现金流检验分红。",
+      "verify": "服务收入、资本开支、自由现金流与分红",
+      "risk": "分红持续依赖负债/现金消耗，或服务盈利继续下降，则降级。",
+      "source": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/1020/2026102000963.pdf",
+      "observation": {
+        "date": "2026前三季度",
+        "text": "中国移动收入7803亿元，同比−1.8%；归母利润1062亿元，同比−7.9%。",
+        "source": "mobile"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:00728",
+      "issuer_id": "hk:00728",
+      "code": "00728",
+      "name": "中国电信",
+      "market": "hk",
+      "pool_id": "hk-telecom",
+      "legacy": false,
+      "business": "通信、云及产业数字化服务",
+      "hypothesis": "从云网服务、资本开支与分红交叉验证运营商现金回报。",
+      "verify": "分红率、云业务盈利与现金流",
+      "risk": "分红持续依赖负债/现金消耗，或服务盈利继续下降，则降级。",
+      "source": "https://www.chinatelecom-h.com/en/ir/report/interim2026.pdf",
+      "observation": {
+        "date": "2026H1",
+        "text": "中国电信中期分红总额约146.96亿元，相当于归母利润75%；派息比例不是现金覆盖率。",
+        "source": "telecom"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:00762",
+      "issuer_id": "hk:00762",
+      "code": "00762",
+      "name": "中国联通",
+      "market": "hk",
+      "pool_id": "hk-telecom",
+      "legacy": false,
+      "business": "电信运营商龙头",
+      "hypothesis": "观察主营收入、算力投资及资本开支效率，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "主营收入、算力投资及资本开支效率",
+      "risk": "分红持续依赖负债/现金消耗，或服务盈利继续下降，则降级。",
+      "source": "https://wap.sasac.gov.cn/n2588025/n2588124/c35791449/content.html",
+      "observation": {
+        "date": "2026H1",
+        "text": "收入2014亿元；资本开支241亿元，算力投资占比37%，同比增加超过80%。",
+        "source": "extra_00762"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:00788",
+      "issuer_id": "hk:00788",
+      "code": "00788",
+      "name": "中国铁塔",
+      "market": "hk",
+      "pool_id": "hk-telecom",
+      "legacy": false,
+      "business": "通信基础设施",
+      "hypothesis": "通信服务、用户与ARPU → 通信基础设施 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "运营商资本开支到租赁收入",
+      "risk": "相邻配套；须另核折旧与客户议价",
+      "source": "https://www1.hkexnews.hk/search/titlesearch.xhtml?lang=zh",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:00883",
+      "issuer_id": "hk:00883",
+      "code": "00883",
+      "name": "中国海洋石油",
+      "market": "hk",
+      "pool_id": "hk-energy",
+      "legacy": false,
+      "business": "油气勘探开发，上游油价与产量敞口",
+      "hypothesis": "直接观察油气产量、实现价、桶油成本与开发资本开支。",
+      "verify": "实现油价、产量、桶油成本及资本开支",
+      "risk": "价格下行叠加成本/资本开支上升导致现金回报明显恶化时下调。",
+      "source": "https://www.cnoocltd.com/english/investorrelations/resultspresentations/results/202610/P020261030603688585622.pdf",
+      "observation": {
+        "date": "2026前三季度",
+        "text": "中海油净产量同比+2.7%、油气销售收入+19.5%、归母利润+16.8%；收入增幅高于产量，体现价格贡献。",
+        "source": "cnooc"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:01088",
+      "issuer_id": "cn:601088",
+      "code": "01088",
+      "name": "中国神华",
+      "market": "hk",
+      "pool_id": "hk-energy",
+      "legacy": false,
+      "business": "煤电运一体化的H股市场映射",
+      "hypothesis": "用一体化经营观察煤价波动能否转化为稳定现金与分红。",
+      "verify": "同一经营数据、港元价格、汇率与股息口径",
+      "risk": "价格下行叠加成本/资本开支上升导致现金回报明显恶化时下调。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-29/1225531759.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "中国神华具有煤电运一体化及并表变化，H股与A股经营依据相同，价格和股息率需分别计算。",
+        "source": "shenhua"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:00857",
+      "issuer_id": "hk:00857",
+      "code": "00857",
+      "name": "中国石油股份",
+      "market": "hk",
+      "pool_id": "hk-energy",
+      "legacy": false,
+      "business": "一体化油气龙头",
+      "hypothesis": "观察上游油气与炼化利润分拆、资本开支及派息，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "上游油气与炼化利润分拆、资本开支及派息",
+      "risk": "价格下行叠加成本/资本开支上升导致现金回报明显恶化时下调。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-31/1225534441.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "中期每股股息人民币0.26元，总派息约475.85亿元；须进一步核自由现金流覆盖。",
+        "source": "extra_00857"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:01898",
+      "issuer_id": "cn:601898",
+      "code": "01898",
+      "name": "中煤能源",
+      "market": "hk",
+      "pool_id": "hk-energy",
+      "legacy": false,
+      "business": "煤炭与煤化工",
+      "hypothesis": "油气供需、煤炭需求 → 煤炭与煤化工 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "现金流及分红、H股估值",
+      "risk": "煤价与油价逻辑分开",
+      "source": "https://www1.hkexnews.hk/search/titlesearch.xhtml?lang=zh",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:01171",
+      "issuer_id": "cn:600188",
+      "code": "01171",
+      "name": "兖矿能源",
+      "market": "hk",
+      "pool_id": "hk-energy",
+      "legacy": false,
+      "business": "境内外煤炭",
+      "hypothesis": "油气供需、煤炭需求 → 境内外煤炭 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "分地区价格、成本及股息",
+      "risk": "汇率及海外矿山风险",
+      "source": "https://www1.hkexnews.hk/search/titlesearch.xhtml?lang=zh",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:01138",
+      "issuer_id": "cn:600026",
+      "code": "01138",
+      "name": "中远海能",
+      "market": "hk",
+      "pool_id": "hk-tanker",
+      "legacy": false,
+      "business": "油运及LNG运输的H股市场映射",
+      "hypothesis": "油轮业务直接连接吨海里、有效运力、运价和分部盈利。",
+      "verify": "运价、有效船天；再分别看港股估值和流动性",
+      "risk": "运价连续走弱、船舶无法营运或成本吞噬增益时降级。",
+      "source": "https://static.cninfo.com.cn/finalpage/2026-08-29/1225525952.PDF",
+      "observation": {
+        "date": "2026H1",
+        "text": "中远海能报告同时覆盖原油、成品油和LNG，需拆分盈利。",
+        "source": "cosco"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:00700",
+      "issuer_id": "hk:00700",
+      "code": "00700",
+      "name": "腾讯控股",
+      "market": "hk",
+      "pool_id": "hk-internet",
+      "legacy": false,
+      "business": "游戏、广告、金融科技与企业服务",
+      "hypothesis": "用游戏、广告及企业服务利润检验投入是否形成现金回报。",
+      "verify": "分业务盈利、资本开支和自由现金流",
+      "risk": "收入增但利润与自由现金流持续转差，竞争投入吞噬增长时降级。",
+      "source": "https://www.tencent.com/wp-content/uploads/2026/08/Tencent-Announces-2026-Second-Quarter-Results.pdf",
+      "observation": {
+        "date": "2026Q2",
+        "text": "腾讯官方业绩材料提供分业务及现金流口径；代表公司样本不等于整个港股互联网行业。",
+        "source": "tencent"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:09988",
+      "issuer_id": "hk:09988",
+      "code": "09988",
+      "name": "阿里巴巴",
+      "market": "hk",
+      "pool_id": "hk-internet",
+      "legacy": false,
+      "business": "电商、云及其他业务，云增长不等于集团利润",
+      "hypothesis": "观察云需求、电商竞争、资本开支和分部利润的取舍。",
+      "verify": "云增长、竞争投入、利润和现金回报",
+      "risk": "收入增但利润与自由现金流持续转差，竞争投入吞噬增长时降级。",
+      "source": "https://www.alibabagroup.com/en-US/ir-financial-reports-financial-results",
+      "observation": {
+        "date": "当前资料入口",
+        "text": "阿里官方财报入口按财年披露，不能将FY2027Q1误标为2027自然年数据。",
+        "source": "alibaba"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:09999",
+      "issuer_id": "hk:09999",
+      "code": "09999",
+      "name": "网易",
+      "market": "hk",
+      "pool_id": "hk-internet",
+      "legacy": false,
+      "business": "游戏内容龙头",
+      "hypothesis": "观察游戏新品流水、递延收入、营销和研发，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "游戏新品流水、递延收入、营销和研发",
+      "risk": "收入增但利润与自由现金流持续转差，竞争投入吞噬增长时降级。",
+      "source": "https://ir.netease.com/news-releases/news-release-details/netease-announces-second-quarter-and-interim-2026-unaudited",
+      "observation": {
+        "date": "2026Q2",
+        "text": "已发布二季度业绩；游戏与音乐等业务分拆观察，不把游戏周期等同云计算需求。",
+        "source": "extra_09999"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:09618",
+      "issuer_id": "hk:09618",
+      "code": "09618",
+      "name": "京东集团",
+      "market": "hk",
+      "pool_id": "hk-internet",
+      "legacy": false,
+      "business": "电商及供应链龙头",
+      "hypothesis": "观察零售经营利润、履约费用及新业务投入，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "零售经营利润、履约费用及新业务投入",
+      "risk": "收入增但利润与自由现金流持续转差，竞争投入吞噬增长时降级。",
+      "source": "https://ir.jd.com/static-files/2f8b0fa8-16a5-4d19-a07c-ee6d656223e8",
+      "observation": {
+        "date": "2026Q2",
+        "text": "京东零售经营利润135亿元，去年同期139亿元；集团与零售分部利润需分开。",
+        "source": "extra_09618"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:09888",
+      "issuer_id": "hk:09888",
+      "code": "09888",
+      "name": "百度集团",
+      "market": "hk",
+      "pool_id": "hk-internet",
+      "legacy": false,
+      "business": "搜索广告与智能云",
+      "hypothesis": "广告、游戏、电商、云 → 搜索广告与智能云 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "广告现金流、云毛利与AI投入",
+      "risk": "广告下滑可能抵消云增长",
+      "source": "https://www1.hkexnews.hk/search/titlesearch.xhtml?lang=zh",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:03690",
+      "issuer_id": "hk:03690",
+      "code": "03690",
+      "name": "美团",
+      "market": "hk",
+      "pool_id": "hk-internet",
+      "legacy": false,
+      "business": "本地生活平台",
+      "hypothesis": "广告、游戏、电商、云 → 本地生活平台 → 收入/利润与现金回报；需以业务占比确认实际敞口。",
+      "verify": "订单、补贴、履约与经营现金流",
+      "risk": "相邻平台；竞争投入侵蚀利润则不升级",
+      "source": "https://www1.hkexnews.hk/search/titlesearch.xhtml?lang=zh",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:00981",
+      "issuer_id": "cn:688981",
+      "code": "00981",
+      "name": "中芯国际",
+      "market": "hk",
+      "pool_id": "hk-hardware",
+      "legacy": false,
+      "business": "晶圆制造；并非内存接口芯片或封测",
+      "hypothesis": "观察代工需求、利用率、售价与扩产折旧的共同变化。",
+      "verify": "利用率、平均售价、折旧和毛利率",
+      "risk": "出货增长被折旧和成本抵消，或库存应收明显恶化时降级。",
+      "source": "https://english.sse.com.cn/news/newsrelease/voice/c/c_20260818_10829265.shtml",
+      "observation": {
+        "date": "2026Q2",
+        "text": "交易所转载报道指出中芯二季度增长，但本轮未据此使用其尚未逐项核实的三季报数值。",
+        "source": "smic"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:01347",
+      "issuer_id": "hk:01347",
+      "code": "01347",
+      "name": "华虹半导体／HUA HONG GRACE",
+      "market": "hk",
+      "pool_id": "hk-hardware",
+      "legacy": false,
+      "business": "特色工艺晶圆代工",
+      "hypothesis": "与中芯交叉观察成熟及特色工艺需求和产能利用率。",
+      "verify": "产能爬坡、售价、利用率和折旧",
+      "risk": "出货增长被折旧和成本抵消，或库存应收明显恶化时降级。",
+      "source": "https://www1.hkexnews.hk/search/titlesearch.xhtml?category=0&market=SEHK&stockId=112822",
+      "observation": {
+        "date": "2026Q2",
+        "text": "华虹官方披露目录列有二季度业绩，当前按特色工艺代工业务映射。",
+        "source": "huahong"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:00992",
+      "issuer_id": "hk:00992",
+      "code": "00992",
+      "name": "联想集团",
+      "market": "hk",
+      "pool_id": "hk-hardware",
+      "legacy": false,
+      "business": "个人电脑、基础设施和方案服务；非纯AI服务器",
+      "hypothesis": "基础设施业务用于观察服务器盈利；PC业务分开处理。",
+      "verify": "ISG分部利润、应收与集团业务组合",
+      "risk": "出货增长被折旧和成本抵消，或库存应收明显恶化时降级。",
+      "source": "https://investor.lenovo.com/en/financial/results/press_2627_q1.pdf",
+      "observation": {
+        "date": "FY2026/27 Q1",
+        "text": "联想集团收入同比+43%、调整后净利润+176%；属集团、非HKFRS调整后口径，不等于纯算力业务增速。",
+        "source": "lenovo"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "hk:00522",
+      "issuer_id": "hk:00522",
+      "code": "00522",
+      "name": "ASMPT",
+      "market": "hk",
+      "pool_id": "hk-hardware",
+      "legacy": false,
+      "business": "半导体封装设备标杆",
+      "hypothesis": "观察订单、先进封装设备交付和SEMI/SMT分部利润，与现有龙头交叉核对板块传导是否普遍成立。",
+      "verify": "订单、先进封装设备交付和SEMI/SMT分部利润",
+      "risk": "出货增长被折旧和成本抵消，或库存应收明显恶化时降级。",
+      "source": "https://www.hkexnews.hk/listedco/listconews/sehk/2026/1028/2026102800024_c.pdf",
+      "observation": {
+        "date": "2026Q3",
+        "text": "持续经营业务销售收入52.5亿港元，环比+6.3%、同比+48.7%；设备业务不同于晶圆代工。",
+        "source": "extra_00522"
+      },
+      "leader": true,
+      "gate": {
+        "status": "pending",
+        "label": "待核 · 尚未入池",
+        "why": "旧候选身份、龙头身份和资料入口不视为A/B/C通过；补齐公司层证据后只判是或否。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "wait",
+        "label": "等",
+        "main_value": null,
+        "why": "先核入池与兑现；历史价格不构成现在追的依据。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:000807",
+      "issuer_id": "cn:000807",
+      "code": "000807",
+      "name": "云铝股份",
+      "market": "a",
+      "pool_id": null,
+      "legacy": true,
+      "business": "电解铝",
+      "hypothesis": "云南水电铝，利润由铝价、电价（枯水期限电）和氧化铝成本决定。",
+      "verify": "先核对是否符合当前半年的理由合同。",
+      "risk": "历史名单不自动进入新研究池。",
+      "source": "https://data.eastmoney.com/stockdata/000807.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "no",
+        "label": "否 · 未匹配当前理由",
+        "why": "历史资料保留；须先指定当前半年接受的方向与唯一入池理由。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "avoid",
+        "label": "不追",
+        "main_value": null,
+        "why": "入池门未通过；估值低不能抵消理由不匹配。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:002415",
+      "issuer_id": "cn:002415",
+      "code": "002415",
+      "name": "海康威视",
+      "market": "a",
+      "pool_id": null,
+      "legacy": true,
+      "business": "安防 / AIoT",
+      "hypothesis": "视频监控和 AIoT 设备，国内收入以政府、企业项目为主，海外约三成收入；创新业务包括机器人、汽车电子等。",
+      "verify": "先核对是否符合当前半年的理由合同。",
+      "risk": "历史名单不自动进入新研究池。",
+      "source": "https://data.eastmoney.com/stockdata/002415.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "no",
+        "label": "否 · 未匹配当前理由",
+        "why": "历史资料保留；须先指定当前半年接受的方向与唯一入池理由。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "avoid",
+        "label": "不追",
+        "main_value": null,
+        "why": "入池门未通过；估值低不能抵消理由不匹配。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:601919",
+      "issuer_id": "cn:601919",
+      "code": "601919",
+      "name": "中远海控",
+      "market": "a",
+      "pool_id": null,
+      "legacy": true,
+      "business": "集装箱航运",
+      "hypothesis": "全球第四大集运公司，收入由欧美航线运价和货量决定。2026-11-06 SCFI 报 3633.45 点，周跌 1.46%，结束四连涨。",
+      "verify": "先核对是否符合当前半年的理由合同。",
+      "risk": "历史名单不自动进入新研究池。",
+      "source": "https://data.eastmoney.com/stockdata/601919.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "no",
+        "label": "否 · 未匹配当前理由",
+        "why": "历史资料保留；须先指定当前半年接受的方向与唯一入池理由。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "avoid",
+        "label": "不追",
+        "main_value": null,
+        "why": "入池门未通过；估值低不能抵消理由不匹配。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:603225",
+      "issuer_id": "cn:603225",
+      "code": "603225",
+      "name": "新凤鸣",
+      "market": "a",
+      "pool_id": null,
+      "legacy": true,
+      "business": "涤纶长丝",
+      "hypothesis": "涤纶长丝（POY/FDY/DTY），下游是织造和服装出口；利润由 POY 价差和开工率决定。",
+      "verify": "先核对是否符合当前半年的理由合同。",
+      "risk": "历史名单不自动进入新研究池。",
+      "source": "https://data.eastmoney.com/stockdata/603225.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "no",
+        "label": "否 · 未匹配当前理由",
+        "why": "历史资料保留；须先指定当前半年接受的方向与唯一入池理由。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "avoid",
+        "label": "不追",
+        "main_value": null,
+        "why": "入池门未通过；估值低不能抵消理由不匹配。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:002064",
+      "issuer_id": "cn:002064",
+      "code": "002064",
+      "name": "华峰化学",
+      "market": "a",
+      "pool_id": null,
+      "legacy": true,
+      "business": "氨纶 / 聚氨酯",
+      "hypothesis": "氨纶和聚氨酯原液，下游是纺织服装和鞋材；氨纶价差决定利润。",
+      "verify": "先核对是否符合当前半年的理由合同。",
+      "risk": "历史名单不自动进入新研究池。",
+      "source": "https://data.eastmoney.com/stockdata/002064.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "no",
+        "label": "否 · 未匹配当前理由",
+        "why": "历史资料保留；须先指定当前半年接受的方向与唯一入池理由。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "avoid",
+        "label": "不追",
+        "main_value": null,
+        "why": "入池门未通过；估值低不能抵消理由不匹配。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    },
+    {
+      "key": "a:603259",
+      "issuer_id": "cn:603259",
+      "code": "603259",
+      "name": "药明康德",
+      "market": "a",
+      "pool_id": null,
+      "legacy": true,
+      "business": "CXO / 医药外包",
+      "hypothesis": "全球领先的医药研发生产外包（CXO），客户是海外大药厂和生物科技公司，收入跟新签订单和海外研发投入走。",
+      "verify": "先核对是否符合当前半年的理由合同。",
+      "risk": "历史名单不自动进入新研究池。",
+      "source": "https://data.eastmoney.com/stockdata/603259.html",
+      "observation": null,
+      "leader": false,
+      "gate": {
+        "status": "no",
+        "label": "否 · 未匹配当前理由",
+        "why": "历史资料保留；须先指定当前半年接受的方向与唯一入池理由。"
+      },
+      "quality": {
+        "status": "pending",
+        "label": "未进入排序",
+        "value": null,
+        "rank": null,
+        "why": "先通过赛道归属；已有财务仅作留档，不可绕过入池门。",
+        "checks": []
+      },
+      "price": {
+        "status": "avoid",
+        "label": "不追",
+        "main_value": null,
+        "why": "入池门未通过；估值低不能抵消理由不匹配。",
+        "vetoes": []
+      },
+      "shortlisted": false
+    }
+  ],
+  "financial_packs": {
+    "cn:601088": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-24",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 296031000000,
+        "profit": 44403000000,
+        "reported_profit_yoy": 3.793828892005613,
+        "gross_margin": 34.9872141769,
+        "cash_per_share": 4.273970390408,
+        "value_date": "2026-11-09",
+        "pb": 2.41839908,
+        "price": 49.57,
+        "source": "https://data.eastmoney.com/stockdata/601088.html"
+      }
+    },
+    "cn:601225": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-28",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 122766308786.34,
+        "profit": 17065044169.32,
+        "reported_profit_yoy": 34.23298063559446,
+        "gross_margin": 35.247371653,
+        "cash_per_share": 4.221078015883,
+        "value_date": "2026-11-09",
+        "pb": 2.39457227,
+        "price": 26.54,
+        "source": "https://data.eastmoney.com/stockdata/601225.html"
+      }
+    },
+    "cn:601898": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:600188": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:600985": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-29",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 35080019654.05,
+        "profit": 2146106287.89,
+        "reported_profit_yoy": 100.50749917815773,
+        "gross_margin": 20.7594432605,
+        "cash_per_share": 2.145574944516,
+        "value_date": "2026-11-10",
+        "pb": 0.90430056,
+        "price": 14.52,
+        "source": "https://data.eastmoney.com/stockdata/600985.html"
+      }
+    },
+    "cn:601699": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:600026": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-29",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 25243452067.79,
+        "profit": 7389106985.99,
+        "reported_profit_yoy": 171.89764970884198,
+        "gross_margin": 40.7620438836,
+        "cash_per_share": 1.894958531869,
+        "value_date": "2026-11-09",
+        "pb": 1.90737158,
+        "price": 17.7,
+        "source": "https://data.eastmoney.com/stockdata/600026.html"
+      }
+    },
+    "cn:601872": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-29",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 32421964211.82,
+        "profit": 11983398378.97,
+        "reported_profit_yoy": 263.1456044166387,
+        "gross_margin": 44.7281451058,
+        "cash_per_share": 1.695292566427,
+        "value_date": "2026-11-09",
+        "pb": 2.65520802,
+        "price": 16.56,
+        "source": "https://data.eastmoney.com/stockdata/601872.html"
+      }
+    },
+    "cn:601975": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:603209": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:001205": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:688008": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-30",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 5414416191.47,
+        "profit": 3237117611.82,
+        "reported_profit_yoy": 98.31828528144506,
+        "gross_margin": 66.1749122059,
+        "cash_per_share": 2.374622506823,
+        "value_date": "2026-11-09",
+        "pb": 8.24723433,
+        "price": 149.67,
+        "source": "https://data.eastmoney.com/stockdata/688008.html"
+      }
+    },
+    "cn:600584": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-23",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 30952329578.85,
+        "profit": 1617336151.27,
+        "reported_profit_yoy": 69.57679758447355,
+        "gross_margin": 16.0081419369,
+        "cash_per_share": 2.40297987335,
+        "value_date": "2026-11-09",
+        "pb": 3.15226345,
+        "price": 52.03,
+        "source": "https://data.eastmoney.com/stockdata/600584.html"
+      }
+    },
+    "cn:603986": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-30",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 20297371376.5,
+        "profit": 11065687391.96,
+        "reported_profit_yoy": 921.5475059182728,
+        "gross_margin": 66.2247227842,
+        "cash_per_share": 14.381368107544,
+        "value_date": "2026-11-09",
+        "pb": 2.18452463,
+        "price": 238.41,
+        "source": "https://data.eastmoney.com/stockdata/603986.html"
+      }
+    },
+    "cn:002156": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-30",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 24885174987.36,
+        "profit": 3060606155.58,
+        "reported_profit_yoy": 255.68133445616033,
+        "gross_margin": 15.8894172968,
+        "cash_per_share": 3.480141203146,
+        "value_date": "2026-11-09",
+        "pb": 3.08741588,
+        "price": 43.21,
+        "source": "https://data.eastmoney.com/stockdata/002156.html"
+      }
+    },
+    "cn:002185": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:000977": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-29",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 129328997859.78,
+        "profit": 3932120372.78,
+        "reported_profit_yoy": 165.31689036741633,
+        "gross_margin": 8.6100159829,
+        "cash_per_share": -4.358681824608,
+        "value_date": "2026-11-09",
+        "pb": 3.20041058,
+        "price": 55.54,
+        "source": "https://data.eastmoney.com/stockdata/000977.html"
+      }
+    },
+    "cn:000938": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:601138": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:603019": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-28",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 12238490171.34,
+        "profit": 1724564904.98,
+        "reported_profit_yoy": 78.50540153448766,
+        "gross_margin": 27.2560296013,
+        "cash_per_share": 0.181857781079,
+        "value_date": "2026-11-09",
+        "pb": 4.83998686,
+        "price": 78.75,
+        "source": "https://data.eastmoney.com/stockdata/603019.html"
+      }
+    },
+    "cn:002439": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:600276": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-28",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 24408762724.19,
+        "profit": 6923404216.25,
+        "reported_profit_yoy": 20.38254429687687,
+        "gross_margin": 86.7842820954,
+        "cash_per_share": 1.181770969432,
+        "value_date": "2026-11-09",
+        "pb": 4.89040234,
+        "price": 49.23,
+        "source": "https://data.eastmoney.com/stockdata/600276.html"
+      }
+    },
+    "cn:002422": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:600196": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:688235": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-11-10",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 34993317000,
+        "profit": 6055116000,
+        "reported_profit_yoy": 431.80548675737487,
+        "gross_margin": 89.5866973685,
+        "cash_per_share": 4.908665461657,
+        "value_date": "2026-11-09",
+        "pb": 11.13163389,
+        "price": 285,
+        "source": "https://data.eastmoney.com/stockdata/688235.html"
+      }
+    },
+    "cn:688180": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:002648": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-17",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 46413580273.39,
+        "profit": 9058652412.66,
+        "reported_profit_yoy": 141.24022258340298,
+        "gross_margin": 27.9902418628,
+        "cash_per_share": 4.003432569597,
+        "value_date": "2026-11-09",
+        "pb": 2.02158159,
+        "price": 24.47,
+        "source": "https://data.eastmoney.com/stockdata/002648.html"
+      }
+    },
+    "cn:600989": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-22",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 47087860645.48,
+        "profit": 14316756859.87,
+        "reported_profit_yoy": 59.9657829280807,
+        "gross_margin": 42.8323293167,
+        "cash_per_share": 2.563689712337,
+        "value_date": "2026-11-09",
+        "pb": 2.75673992,
+        "price": 21.33,
+        "source": "https://data.eastmoney.com/stockdata/600989.html"
+      }
+    },
+    "cn:600426": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:600309": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:600409": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:601899": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-24",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 283452745522,
+        "profit": 57525672087,
+        "reported_profit_yoy": 51.928607479198675,
+        "gross_margin": 38.4356817675,
+        "cash_per_share": 3.169379136397,
+        "value_date": "2026-11-09",
+        "pb": 3.62193455,
+        "price": 28.41,
+        "source": "https://data.eastmoney.com/stockdata/601899.html"
+      }
+    },
+    "cn:603993": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:000878": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:600362": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:000630": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:600406": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:000400": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:600312": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:601179": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:002028": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:00941": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:00728": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:00762": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:00788": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:00883": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:00857": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:00700": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:09988": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:09999": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:09618": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:09888": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:03690": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:688981": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:01347": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:00992": {
+      "review": {},
+      "archive": {}
+    },
+    "hk:00522": {
+      "review": {},
+      "archive": {}
+    },
+    "cn:000807": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-30",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 52616131765.73,
+        "profit": 11611603111.18,
+        "reported_profit_yoy": 164.009740983264,
+        "gross_margin": 32.0375305475,
+        "cash_per_share": 4.074598408356,
+        "value_date": "2026-11-09",
+        "pb": 2.0489192,
+        "price": 24.87,
+        "source": "https://data.eastmoney.com/stockdata/000807.html"
+      }
+    },
+    "cn:002415": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-17",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 74044332688.88,
+        "profit": 12911386245.87,
+        "reported_profit_yoy": 38.547198605591795,
+        "gross_margin": 49.6295557431,
+        "cash_per_share": 0.787071838651,
+        "value_date": "2026-11-09",
+        "pb": 3.77035656,
+        "price": 34.67,
+        "source": "https://data.eastmoney.com/stockdata/002415.html"
+      }
+    },
+    "cn:601919": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-30",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 187613535812.15,
+        "profit": 30648933177.57,
+        "reported_profit_yoy": 13.222746524460959,
+        "gross_margin": 23.4306429728,
+        "cash_per_share": 3.137810001325,
+        "value_date": "2026-11-09",
+        "pb": 1.08802792,
+        "price": 17.33,
+        "source": "https://data.eastmoney.com/stockdata/601919.html"
+      }
+    },
+    "cn:603225": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-29",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 64927141194.23,
+        "profit": 2612186404.69,
+        "reported_profit_yoy": 200.65295529910907,
+        "gross_margin": 8.3442247109,
+        "cash_per_share": 1.606094660604,
+        "value_date": "2026-11-09",
+        "pb": 1.28282109,
+        "price": 17.55,
+        "source": "https://data.eastmoney.com/stockdata/603225.html"
+      }
+    },
+    "cn:002064": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-27",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 21787882210.92,
+        "profit": 3101844680.15,
+        "reported_profit_yoy": 112.23512893249588,
+        "gross_margin": 21.6853338163,
+        "cash_per_share": 0.409082588355,
+        "value_date": "2026-11-10",
+        "pb": 1.58659641,
+        "price": 9.32,
+        "source": "https://data.eastmoney.com/stockdata/002064.html"
+      }
+    },
+    "cn:603259": {
+      "review": {},
+      "archive": {
+        "period": "2026-09-30",
+        "notice": "2026-10-27",
+        "basis": "合并累计报告值；接口留档，未经正常化审核，不进入排序",
+        "revenue": 45537430834.54,
+        "profit": 19398304296.86,
+        "reported_profit_yoy": 60.64165858679815,
+        "gross_margin": 54.1987161791,
+        "cash_per_share": 5.665139770283,
+        "value_date": "2026-11-09",
+        "pb": 4.70973782,
+        "price": 150.29,
+        "source": "https://data.eastmoney.com/stockdata/603259.html"
+      }
+    }
+  },
+  "selected": [],
+  "issuer_conflicts": []
+}

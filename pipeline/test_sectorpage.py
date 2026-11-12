@@ -3,7 +3,7 @@ import json,sys,unittest,re
 from pathlib import Path
 from html.parser import HTMLParser
 ROOT=Path(sys.argv[1]);sys.argv=sys.argv[:1];sys.path.insert(0,str(ROOT/'pipeline'))
-import sectorpage
+import sectorpage, stock_decisions
 DATA=json.loads((ROOT/'data/industry_research.json').read_text());STOCKS=json.loads((ROOT/'data/sector_research.json').read_text())
 class Text(HTMLParser):
  def __init__(self,s):super().__init__();self.parts=[];self.feed(s)
@@ -41,8 +41,10 @@ class SectorPageTest(unittest.TestCase):
    self.assertEqual(body.count('<svg class="sector-diagram"'),1)
    for k in 'ABCDEFGH':self.assertIn('id="node-'+k+'"',body)
  def test_stock_pools_retained_separately(self):
+  model=stock_decisions.prepare(ROOT)
+  pools={p['id']:p for p in model['policy']['subpools']}
   for s in STOCKS['sectors']:
-   body=sectorpage.stock_pool(STOCKS,s)
+   body=stock_decisions.pool_page(model,pools[s['id']])
    self.assertIn('id="leaders"',body);self.assertIn('id="candidates"',body)
    for x in s['stocks']:self.assertIn(x['code'],body)
 if __name__=='__main__':unittest.main()

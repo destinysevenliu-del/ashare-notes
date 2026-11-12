@@ -394,8 +394,22 @@ details.l1[open]>summary{border-bottom:1px solid var(--line2);margin-bottom:12px
 details.sub2{margin:14px 0;border:1px solid var(--line2);border-radius:10px;padding:8px 14px;background:#FAFBFC}
 details.sub2>summary{cursor:pointer;font-weight:600;color:var(--link);font-size:14px}
 details.sub2[open]>summary{margin-bottom:10px}
+.secondary-nav{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:16px;font-size:13px}.secondary-nav a{color:#536b82}
+body:has(.market-research) .wrap{max-width:1500px}.market-research{display:block!important}.market-rail{display:none}.market-content .l1nav{display:none!important}
+.market-content details.l1{margin-bottom:16px}.market-content .hero{padding:18px 0}.market-content .hero h1{font-size:30px}
+.overview-decisions,.overview-evidence{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin:15px 0 22px}
+.overview-decisions article{border:1px solid #c8d8e7;border-top:3px solid #3d5c77;border-radius:8px;background:#f3f7fb;padding:20px;min-width:0}
+.overview-decisions span{font-size:12px;color:#60758b}.overview-decisions h3{font:600 19px/1.55 var(--sans);margin:10px 0}.overview-decisions p{font-size:14px;line-height:1.9;margin:10px 0 0}
+.overview-change{font-size:13px!important;color:#5d7185;border-bottom:1px solid #dce4ed;padding-bottom:16px}
+.overview-evidence article{padding:0 18px 0 0;border-right:1px solid #e0e6ed;min-width:0}.overview-evidence article:last-child{border:0}.overview-evidence h4{font:600 16px/1.6 var(--sans);margin:0 0 10px}.overview-evidence p{font-size:14px;line-height:1.85}.overview-evidence .src{font-size:11px;line-height:1.6}
+.overview-conditions{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:18px 20px;background:#f7f8fa;border-radius:7px;margin:22px 0}.overview-conditions b{font-size:14px}.overview-conditions p{font-size:14px;line-height:1.8;margin:8px 0 0}
+.next-step{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:20px 0;border-top:1px solid #dce4ed}.next-step p{font-size:13px;margin:6px 0}.next-step>a{white-space:nowrap;font-size:14px;padding:10px 18px;border-radius:6px;background:#26455f;color:white}
+.deep-research{border:1px solid #d4dfea;border-radius:8px;padding:16px 20px;margin:18px 0;background:#fff}.deep-research>summary{font:600 15px/1.8 var(--sans);cursor:pointer;color:#395872}.deep-research[open]>summary{border-bottom:1px solid #e0e7ef;padding-bottom:12px;margin-bottom:18px}
+.macro-flow{display:block;width:100%;max-width:1000px;margin:auto}.macro-flow-wrap{overflow-x:auto}.sector-factor-notes{border-top:1px solid #dce4ed;margin-top:18px;padding-top:15px}.sector-factor-notes summary{cursor:pointer;font-size:14px;color:#4a647b}
+.research-rail .factor-links{display:none}.research-content .takeaway-grid{display:none}.research-content .final-panel .factor-balance{margin-bottom:0}.research-content .hero-meta{font-size:12px}.sd-nav{position:static!important;justify-content:space-between}.sd-nav details{font-size:13px;color:#536b82}.sd-nav details a{background:transparent;padding:6px 8px;font-size:12px}.sd-summary-line{font-size:13px;color:#596e84;padding:12px 0;border-bottom:1px solid #dbe3ec}
+@media(max-width:900px){.overview-decisions,.overview-evidence,.overview-conditions{grid-template-columns:1fr}.overview-evidence article{border-right:0;border-bottom:1px solid #e0e6ed;padding-bottom:12px}.next-step{align-items:start;flex-direction:column}.macro-flow{min-width:760px}}
 </style></head><body>
-<header class="top"><div class="wrap"><a class="brand" href="index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="index.html">大盘</a><a href="boards/index.html">板块</a><a href="stocks/index.html">个股</a><a href="reports/index.html">报告</a><a href="trades.html" aria-current="page">我的操作</a></nav></div></header>
+<header class="top"><div class="wrap"><a class="brand" href="index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="index.html">总览</a><a href="boards/index.html">板块</a><a href="stocks/index.html">个股</a></nav></div></header>
 <main class="wrap"><div class="hero"><h1>我的操作</h1><p class="sum">每一笔买卖都记下当时看到了什么，6 个月后回头检验判断，找出问题出在哪一层。</p>
 <p class="stamp">仓位只记占总资金的比例。本页公开可见。</p></div>
 <section class="block"><div class="empty"><h3>还没有记录</h3><p>在和 Claude 的对话里说一句就行，例如：</p><blockquote>今天 450 元买入中际旭创，仓位加到 20%。理由：估值到了近 3 年 20% 分位，融资余额止跌。计划：跌破 400 元离场。</blockquote><p>Claude 会整理成一条记录，自动附上当天大盘、板块、个股、股价四层的信号快照，并在 1、3、6 个月后补上回看。</p></div></section>
@@ -407,5 +421,9 @@ details.sub2[open]>summary{margin-bottom:10px}
 <tr><th scope="row">当时四层信号</th><td>自动</td><td>记录当天大盘、板块、个股、股价的状态</td></tr>
 <tr><th scope="row">事后回看</th><td>自动</td><td>1、3、6 个月后的涨跌，对比沪深 300 和所属板块</td></tr>
 </tbody></table></div></section></main>
-<footer><div class="wrap"><p>数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 2026-11-10 v3（新增全球环境、实际利率、杠杆拥挤度、盈利分位），每节的“怎么判的”里有完整规则。</p>
-<p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer></body></html>
+<footer><div class="wrap"><nav class="secondary-nav" aria-label="资料与记录"><a href="reports/index.html">研究报告</a><a href="trades.html">操作记录</a><a href="stocks/selection-rules.html">筛选规则</a><a href="stocks/portfolio.html">组合约束详情</a></nav><p>数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 2026-11-10 v3（新增全球环境、实际利率、杠杆拥挤度、盈利分位），每节的“怎么判的”里有完整规则。</p>
+<p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer><script>
+function revealAnchor(){var id=decodeURIComponent(location.hash.slice(1)),el=document.getElementById(id);if(!el)return;for(var p=el;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;requestAnimationFrame(function(){el.scrollIntoView();});}
+window.addEventListener('hashchange',revealAnchor);if(location.hash)revealAnchor();
+document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(a){var el=document.getElementById(a.getAttribute('href').slice(1));for(;el;el=el.parentElement)if(el.tagName==='DETAILS')el.open=true;}});
+</script></body></html>

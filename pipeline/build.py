@@ -604,9 +604,9 @@ def page(title, active, body, prefix=""):
         with open(os.path.join(ROOT, 'pipeline', 'market_layout.css'), encoding='utf-8') as layout_file:
             page_css += layout_file.read()
     if active == "gg":
-        body = '<p class="hk-notice">历史个股资料：当前先按A–H判断半年并选择板块，尚未确定个股或仓位。旧名单不是当前方案。</p>' + body
-    nav = [("index.html", "大盘", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg"),
-           ("reports/index.html", "报告", "bg"), ("trades.html", "我的操作", "tr")]
+        with open(os.path.join(ROOT, 'pipeline', 'stock_decisions.css'), encoding='utf-8') as style_file:
+            page_css += style_file.read()
+    nav = [("index.html", "总览", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg")]
     links = ""
     for href, lab, key in nav:
         if not href:
@@ -621,14 +621,21 @@ def page(title, active, body, prefix=""):
                   f'<a href="{prefix}hk/index.html"' + (' aria-current="page"' if active == 'hk' else '') + '>港股</a></nav>')
     sources = ('行情来自东方财富，估值来自恒生指数公司，利率与宏观数据来自金管局、FRED及统计机关，市场及参与者资料来自港交所、证监会和基金／公司官网。规则 HK v3，日期、口径与原始链接见各节。'
                if active == 'hk' else f"数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 {R['rules_version']}，每节的“怎么判的”里有完整规则。")
+    if active == "gg":
+        sources = "个股研究仅使用赛道归属、兑现质量、价格反映三个决策维度；D/G归组合层。资料与规则日期分别标注，旧候选身份不代表已入池，研究短名单不是交易指令。"
     if active == "bk":
         sources = "当前板块研究仅使用宏观、行业与市场资料，统计范围和日期见各节点。个股材料在独立股票研究页面。旧宽行业页面仅为历史统计资料。"
+    page_css += open(os.path.join(ROOT,"pipeline","simple_site.css"),encoding="utf-8").read()
     return f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>{E(title)}</title><style>{page_css}</style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="{prefix}index.html">A 股框架笔记</a><nav aria-label="主导航">{links}</nav></div></header>
 <main class="wrap">{switch}{body}</main>
-<footer><div class="wrap"><p>{sources}</p>
-<p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer></body></html>"""
+<footer><div class="wrap"><nav class="secondary-nav" aria-label="资料与记录"><a href="{prefix}reports/index.html">研究报告</a><a href="{prefix}trades.html">操作记录</a><a href="{prefix}stocks/selection-rules.html">筛选规则</a><a href="{prefix}stocks/portfolio.html">组合约束详情</a></nav><p>{sources}</p>
+<p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer><script>
+function revealAnchor(){{var id=decodeURIComponent(location.hash.slice(1)),el=document.getElementById(id);if(!el)return;for(var p=el;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;requestAnimationFrame(function(){{el.scrollIntoView();}});}}
+window.addEventListener('hashchange',revealAnchor);if(location.hash)revealAnchor();
+document.addEventListener('click',function(e){{var a=e.target.closest('a[href^="#"]');if(a){{var el=document.getElementById(a.getAttribute('href').slice(1));for(;el;el=el.parentElement)if(el.tagName==='DETAILS')el.open=true;}}}});
+</script></body></html>"""
 
 
 def index():
@@ -644,23 +651,23 @@ def index():
                        f'<div><h3>{E(s["title"])}</h3><p class="q">{E(s["q"])}</p></div></div>{market_layout.node_columns(s["body"])}</section>')
     chips = "".join(f'<a href="#node-{k}" class="chip {N[k]["state"]}"><b>{k}</b>{E(NODE_NAME[k])}<span>{E(node_sub(k))}</span></a>' for k in "ABCDEFGH")
     body = f"""
-<div class="hero"><p class="date">研究复核 2026年11月12日 · 行情截至{cn_date(TODAY, True)}</p><h1>A股：从大盘到板块</h1>
-<p class="sum">先判断未来半年的需求、利润与估值，再比较板块。研究复核：2026-11-12；下方日度数据保留原日期。</p><p class="stamp">{E(stamp)}</p></div>
+<div class="hero"><p class="date">研究复核 2026年11月12日 · 行情截至{cn_date(TODAY, True)}</p><h1>A股总览</h1>
+<p class="sum">先看盈利与估值，再进入板块和公司。版式更新：2026-11-13；研究复核：2026-11-12。</p><p class="stamp">{E(stamp)}</p></div>
 
 <nav class="l1nav"><a href="#horizon">六个月的判断</a><a href="#today">今日分析</a><a href="#conds">大盘关注条件</a></nav>
 
-<details class="l1" id="horizon" open><summary><h2>六个月的判断</h2><span class="l1hint">传导图 · 结论 · 板块分档</span></summary>
+<details class="l1" id="horizon" open><summary><h2>未来半年判断</h2><span class="l1hint">结论 · 依据 · 改判条件</span></summary>
 {outlook_section()}</details>
 
-<details class="l1" id="today" open><summary><h2>今日分析</h2><span class="l1hint">传导图 · 结论 · 展开分析（{cn_date(TODAY)}）</span></summary>
+<details class="l1" id="today"><summary><h2>日度数据与历史规则</h2><span class="l1hint">传导图 · 结论 · 展开分析（{cn_date(TODAY)}）</span></summary>
 <div class="market-overview daily-overview"><div class="market-day-verdict"><h3 class="h3s">结论：今天变了什么</h3>{today_lead()}</div><div class="market-day-map"><h3 class="h3s" id="map">今日传导图</h3><p class="sub">红色利好，绿色利空，灰色中性。点任意一环跳到下面的展开分析。</p>
 <div class="fwbox">{market_layout.diagram({k:N[k]["state"] for k in NODE_POS},{k:node_sub(k) for k in NODE_POS},NODE_NAME,"day")}</div><div class="chips">{chips}</div></div></div>
 <details class="sub2"><summary>和上一交易日（{cn_date(R['prev'])}）相比的逐条明细</summary>{changes()}</details>
 <h3 class="h3s" id="score">展开分析</h3><p class="sub">信号观察卡沿用独立日度规则，只作变化提醒；人工综合方向未量化时不计分，不能据总分选择半年板块。</p>{scorecard()}
-<details class="sub2" id="nodes" open><summary>A–H 逐项展开（看什么指标、现在多少、怎么判的）</summary>{nodes_html}</details>
+<details class="sub2" id="nodes"><summary>A–H 逐项展开（看什么指标、现在多少、怎么判的）</summary>{nodes_html}</details>
 </details>
 
-<details class="l1" id="conds" open><summary><h2>大盘关注条件</h2><span class="l1hint">触发只是提醒你去看一眼，不是买卖信号</span></summary>
+<details class="l1" id="conds"><summary><h2>大盘关注条件</h2><span class="l1hint">触发只是提醒你去看一眼，不是买卖信号</span></summary>
 {conds_html()}</details>
 
 <script>

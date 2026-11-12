@@ -1,0 +1,361 @@
+{
+  "version": "stock-decisions-v3-2026-11-13",
+  "as_of": "2026-11-13",
+  "window": "2026-11-11 至 2027-05-11",
+  "dimensions": [
+    "赛道归属",
+    "兑现质量",
+    "价格反映"
+  ],
+  "node_roles": [
+    {
+      "node": "A",
+      "role": "赛道归属 · 入池门",
+      "text": "仅判断真实需求与本公司业务是否匹配；不按收入增速打分。"
+    },
+    {
+      "node": "B",
+      "role": "赛道归属 · 入池门",
+      "text": "核政策适用、准入或限制；有补贴/政策标签不加分。"
+    },
+    {
+      "node": "C",
+      "role": "入池门 / 兑现质量 · 分工",
+      "text": "入池只核业务和订单事实；利润、现金、毛利、应收库存只归兑现质量，同一事实不得重复使用。"
+    },
+    {
+      "node": "D",
+      "role": "组合层 · 仓位与节奏",
+      "text": "利率和风险溢价集中评估，不进入个股排序或价格评分。"
+    },
+    {
+      "node": "E",
+      "role": "兑现质量 · 排序验证",
+      "text": "固定目标年盈利修订用于验证或降级，不与已实现利润重复加分。"
+    },
+    {
+      "node": "F",
+      "role": "价格反映 · 时机",
+      "text": "唯一主估值指标决定追/等/不追；辅助估值只能否决或降级。"
+    },
+    {
+      "node": "G",
+      "role": "组合层 · 仓位与节奏",
+      "text": "资金与拥挤度集中评估，不对每只股票分别加减分。"
+    },
+    {
+      "node": "H",
+      "role": "价格反映 · 执行验证",
+      "text": "只验证触发/失效；上涨不能反向证明入池、也不增加兑现排名。"
+    }
+  ],
+  "subpools": [
+    {
+      "id": "a-coal",
+      "market": "a",
+      "title": "煤炭开采",
+      "reason": "正常化现金兑现",
+      "admission": "正常煤价下经营和资本开支可核验，支持持续现金回报；只因低PB或国资身份不入池。",
+      "primary_rank": "normalized_fcf_growth",
+      "primary_rank_label": "正常化自由现金流TTM同比",
+      "primary_valuation": "PB",
+      "slots": 0,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "防御观察",
+      "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+      "secondary_valuation": "PS"
+    },
+    {
+      "id": "a-tanker",
+      "market": "a",
+      "title": "航运港口（偏油运）",
+      "reason": "正常化现金兑现",
+      "admission": "原油油轮业务及实现租金可核验；化学品、内贸运输或宽航运标签不自动适用。",
+      "primary_rank": "normalized_fcf_growth",
+      "primary_rank_label": "正常化自由现金流TTM同比",
+      "primary_valuation": "PB",
+      "slots": 0,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "周期观察",
+      "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+      "secondary_valuation": "PS"
+    },
+    {
+      "id": "a-semiconductor",
+      "market": "a",
+      "title": "半导体",
+      "reason": "AI订单兑现",
+      "admission": "AI服务器相关存储、互联或先进封装已有可核实业务/订单；概念标签和低估值均不能单独入池。",
+      "primary_rank": "normalized_profit_growth",
+      "primary_rank_label": "正常化归母利润TTM同比",
+      "primary_valuation": "PS",
+      "slots": 2,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "结构性看好",
+      "valuation_note": "总市值/同币种同范围TTM营业收入；收入不可比或分母缺失则等。",
+      "secondary_valuation": "PB"
+    },
+    {
+      "id": "a-computing",
+      "market": "a",
+      "title": "计算机设备",
+      "reason": "服务器交付兑现",
+      "admission": "服务器或算力配套的实际交付业务；通用软件、安全服务不能仅凭算力标签进入。",
+      "primary_rank": "normalized_profit_growth",
+      "primary_rank_label": "正常化归母利润TTM同比",
+      "primary_valuation": "正常化PE",
+      "slots": 1,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "条件看好",
+      "valuation_note": "总市值/经逐项调整的正常化TTM归母利润；不得回退为报告PE。",
+      "secondary_valuation": "PB"
+    },
+    {
+      "id": "a-pharma",
+      "market": "a",
+      "title": "化学制药（创新药）",
+      "reason": "商业化兑现",
+      "admission": "已有药品商业化或可重复授权收益；单次首付款、研发概念不能作为排序理由。",
+      "primary_rank": "normalized_profit_growth",
+      "primary_rank_label": "正常化归母利润TTM同比",
+      "primary_valuation": "PS",
+      "slots": 1,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "条件看好",
+      "valuation_note": "总市值/同币种同范围TTM营业收入；收入不可比或分母缺失则等。",
+      "secondary_valuation": "PB"
+    },
+    {
+      "id": "a-chemical",
+      "market": "a",
+      "title": "化学原料",
+      "reason": "产品价差兑现",
+      "admission": "具体产品、工艺路线、销量和价差可对应到公司；PPI上涨或低PB不能单独入池。",
+      "primary_rank": "normalized_profit_growth",
+      "primary_rank_label": "正常化归母利润TTM同比",
+      "primary_valuation": "PB",
+      "slots": 0,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "细分观察",
+      "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+      "secondary_valuation": "PS"
+    },
+    {
+      "id": "a-copper",
+      "market": "a",
+      "title": "工业金属（偏铜）",
+      "reason": "矿端现金兑现",
+      "admission": "铜矿资源、产量和成本对应到公司；冶炼业务须另建理由子池，不能混排。",
+      "primary_rank": "normalized_fcf_growth",
+      "primary_rank_label": "正常化自由现金流TTM同比",
+      "primary_valuation": "PB",
+      "slots": 0,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "细分观察",
+      "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+      "secondary_valuation": "PS"
+    },
+    {
+      "id": "a-grid",
+      "market": "a",
+      "title": "电网设备",
+      "reason": "电网订单兑现",
+      "admission": "特高压、主网或电表采购落实到本公司可核实业务/订单；不接纳泛电力概念。",
+      "primary_rank": "normalized_profit_growth",
+      "primary_rank_label": "正常化归母利润TTM同比",
+      "primary_valuation": "正常化PE",
+      "slots": 2,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "结构性看好",
+      "valuation_note": "总市值/经逐项调整的正常化TTM归母利润；不得回退为报告PE。",
+      "secondary_valuation": "PB"
+    },
+    {
+      "id": "hk-telecom",
+      "market": "hk",
+      "title": "电信等现金流型业务",
+      "reason": "可分配现金兑现",
+      "admission": "运营服务现金能覆盖必要资本开支；流量增长和预测股息率不能单独入池。",
+      "primary_rank": "normalized_fcf_growth",
+      "primary_rank_label": "正常化自由现金流TTM同比",
+      "primary_valuation": "正常化PE",
+      "slots": 0,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "防御观察",
+      "valuation_note": "总市值/经逐项调整的正常化TTM归母利润；不得回退为报告PE。",
+      "secondary_valuation": "PB"
+    },
+    {
+      "id": "hk-energy",
+      "market": "hk",
+      "title": "能源生产",
+      "reason": "正常化现金兑现",
+      "admission": "石油天然气上游在正常油价下的现金回报；煤炭和炼化应另立理由子池。",
+      "primary_rank": "normalized_fcf_growth",
+      "primary_rank_label": "正常化自由现金流TTM同比",
+      "primary_valuation": "PB",
+      "slots": 1,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "条件看好",
+      "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+      "secondary_valuation": "PS"
+    },
+    {
+      "id": "hk-tanker",
+      "market": "hk",
+      "title": "油运",
+      "reason": "正常化现金兑现",
+      "admission": "可核实原油油轮业务，独立检查港元定价；不套用A股或宽行业结论。",
+      "primary_rank": "normalized_fcf_growth",
+      "primary_rank_label": "正常化自由现金流TTM同比",
+      "primary_valuation": "PB",
+      "slots": 0,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "周期观察",
+      "valuation_note": "总市值/归属母公司净资产；负净资产直接不追。",
+      "secondary_valuation": "PS"
+    },
+    {
+      "id": "hk-internet",
+      "market": "hk",
+      "title": "互联网平台与软件服务",
+      "reason": "成熟业务兑现",
+      "admission": "成熟广告、游戏、交易服务有可核实业务；AI投入不能直接当作集团盈利。",
+      "primary_rank": "normalized_profit_growth",
+      "primary_rank_label": "正常化归母利润TTM同比",
+      "primary_valuation": "正常化PE",
+      "slots": 2,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "条件看好",
+      "valuation_note": "总市值/经逐项调整的正常化TTM归母利润；不得回退为报告PE。",
+      "secondary_valuation": "PB"
+    },
+    {
+      "id": "hk-hardware",
+      "market": "hk",
+      "title": "半导体及算力相关硬件",
+      "reason": "本地订单兑现",
+      "admission": "全球AI采购能对应港股公司的实际订单与产品份额；仅有产能扩张不入池。",
+      "primary_rank": "normalized_profit_growth",
+      "primary_rank_label": "正常化归母利润TTM同比",
+      "primary_valuation": "PS",
+      "slots": 0,
+      "financial_basis": "合并报表；TTM截至2026-09-30；自然年区间；报告币种；正常化调整逐项留证",
+      "peer_period": "2026-09-30",
+      "quality_requirements": [
+        "现金覆盖",
+        "毛利变化",
+        "应收周转",
+        "库存周转"
+      ],
+      "group": "细分观察",
+      "valuation_note": "总市值/同币种同范围TTM营业收入；收入不可比或分母缺失则等。",
+      "secondary_valuation": "PB"
+    }
+  ],
+  "convergence": {
+    "max_issuers": 10,
+    "reserved_slots": 1,
+    "description": "默认研究席位：A股半导体2、电网2、服务器1、创新药1；港股互联网2、能源1；机动1。此为可调整的研究容量，不是持仓比例。未用席位保留，不自动转给其他理由。",
+    "rules": [
+      "先固定子池允许的唯一理由；理由不符则不入池，证据不足列入待核区。",
+      "池内只比较同一报告口径、期间和唯一主财务指标；现金/毛利/应收/库存及E只验证或降级，不相加。",
+      "同一理由、同一子池内按兑现质量排序；不同子池不生成合计分或全站名次。",
+      "主指标并列且涉及最后一个席位时暂留空，补证据后裁决；不拿估值或涨幅破同分。",
+      "先按子池研究席位形成短名单，再做发行人去重；A/H同一公司经营证据只保留一套，价格分别判断。",
+      "全站最多10家发行人；达不到门槛不凑数，机动席位只在显式调整预算后使用。"
+    ]
+  },
+  "valuation": {
+    "secondary_percentile_limit": 95,
+    "min_observations": 250,
+    "rule_note": "辅助估值高于其同口径有效历史样本95%分位时降一级至不追；这是初始研究否决规则，并非经回测证明的买卖阈值。正PE只统计正盈利样本，不参与排序。缺历史样本不视为通过。",
+    "bands_note": "追/等/不追区间必须按唯一主指标预先登记依据、日期和上下限；未标定时统一为等，不按历史低分位自动追。"
+  },
+  "evidence_rule": "每条事实使用唯一evidence_id并指定一个职能；来源可重复，事实不可跨职能重复使用。同一公司只有一个financial_pack，A/H复用。",
+  "logic2": "国资/小市值/箱体属于另一理由类型，当前不因标签自动入池；须另建入池合同和排序规则，禁止混入需求兑现表。"
+}

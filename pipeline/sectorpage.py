@@ -115,7 +115,6 @@ def shell(data,market,content,current=None):
     rail='<aside class="research-rail" aria-label="研究目录"><div class="rail-title">板块研究</div><a href="index.html"'+(' class="active"' if market=='a' else '')+'>A 股总览</a><a href="hk.html"'+(' class="active"' if market=='hk' else '')+'>港股总览</a>'
     if current:
         rail+='<div class="rail-title">本页内容</div>'+''.join(f'<a href="#{a}">{t}</a>' for a,t in [('conclusion','最终结论'),('evidence','数据 · 估值 · 位置'),('framework','传导框架'),('scenarios','升级与降级条件')])
-        rail+='<div class="factor-links">'+''.join(f'<a href="#node-{k}">{k} {dict(zip('ABCDEFGH',['需求','政策','利润','利率','预期','估值','资金','价格']))[k]}</a>' for k in 'ABCDEFGH')+'</div>'
     rail+='<div class="rail-sectors"><div class="rail-title">同市场板块</div>'
     for s in data['sectors']:
         if s['market']==market:rail+=f'<a href="{s["id"]}.html"'+(' class="active"' if s['id']==current else '')+f'>{E(s["title"])}</a>'
@@ -135,34 +134,34 @@ def final_verdict(data,s):
     out+='</div></div><div class="takeaway-grid">'
     for title,text in [('看好的范围',v['positive']),('不成立的延伸',v['exclude']),('这次如何改判',v['change']+'。'+v['net'])]:
         out+=f'<div><h3>{title}</h3><p>{E(text)}</p></div>'
-    out+='</div><p class="note">以上是基于本页数据的研究判断。下方区分支持、约束与待验证因素；不将缺失数据当作利空，也不自动抵消已经成立的证据。</p><div class="factor-balance">'
+    out+='</div><details class="sector-factor-notes"><summary>查看A–H证据分工</summary><p class="note">以上是基于本页数据的研究判断。下方区分支持、约束与待验证因素；不将缺失数据当作利空，也不自动抵消已经成立的证据。</p><div class="factor-balance">'
     for k,x in v['factors'].items():
         out+=f'<a class="factor-cell" href="#node-{k}" data-state="{x["status"]}"><strong>{k} · {NAMES[k]}</strong><span>{x["status"]}</span><small>{E(x["reason"])}</small></a>'
-    return out+'</div></section>'
+    return out+'</div></details></section>'
 
 
 def hub(data,market):
     items=[s for s in data['sectors'] if s['market']==market];m=data['market_synthesis'][market];name='A 股' if market=='a' else '港股'
     outlook='../index.html#horizon' if market=='a' else '../hk/index.html#horizon'
-    body=f'<div class="hero"><div><h1>{name}板块 · 半年判断</h1><p class="stamp">明细更新 {data["as_of"]} · 总结复核 {data.get("market_synthesis_reviewed_at",data["as_of"])} · {data["window"]}</p></div><div class="hero-meta">首页与板块使用同一组最终判断；保留历史初筛作修订对照。<br><a href="{outlook}">查看大盘 A–H 综合依据 →</a></div></div>'
+    body=f'<div class="hero"><div><h1>{name}板块 · 半年判断</h1><p class="stamp">明细更新 {data["as_of"]} · 总结复核 {data.get("market_synthesis_reviewed_at",data["as_of"])} · {data["window"]}</p></div><div class="hero-meta">板块结论统一维护在此，点击进入公司筛选。<br><a href="{outlook}">查看大盘 A–H 综合依据 →</a></div></div>'
     body+=f'<section class="final-panel" id="conclusion"><h2>研究汇总</h2><p class="final-headline">{E(m["headline"])}</p><div class="market-verdict"><p class="market-copy">{E(m["body"])}</p><div class="market-actions"><div><b>当前研究重心</b><p>{E(m["focus"])}</p></div><div><b>相较上一轮的变化</b><p>{E(m["revision"])}</p></div></div></div></section>'
     body+='<section class="block"><h2>各板块最终结论 · 横向对照</h2><p class="note">“结构性看好”指特定细分已有需求依据；“条件看好”仍有关键兑现条件；观察类暂不列为优先主线。分类表示研究判断强度，不是收益排序。</p><div class="table-shell"><table class="review-table"><thead><tr><th>板块</th><th>最终判断 / 变化</th><th>未来半年怎样看</th><th>决定性证据</th><th>什么会改变结论</th></tr></thead><tbody>'
     order={'结构性看好':0,'条件看好':1,'防御观察':2,'周期观察':3,'细分观察':4}
     items=sorted(items,key=lambda s:order[s['review']['group']])
     for s in items:
         v=s['review'];facts=v['decisive']
-        body+=f'<tr data-sector="{s["id"]}"><td><a href="{s["id"]}.html"><b>{E(s["title"])}</b></a><small>11月11日初筛（历史）：{E(s["macro_tier"])}</small></td><td>{verdict_badge(v)}<small>{E(v["change"])}</small></td><td>{E(v["headline"])}</td><td>'+''.join(f'<p style="margin:0 0 7px"><b>{x["factor"]}</b> {E(x["fact"])}</p>' for x in [facts[0],facts[-1]])+f'<a href="{s["id"]}.html#conclusion">查看完整权衡 →</a></td><td>{E(v["upgrade"])}</td></tr>'
-    body+='</tbody></table></div></section><section class="block" id="framework"><h2>按板块展开传导框架</h2><div class="overview-graphs">'
+        body+=f'<tr data-sector="{s["id"]}"><td><a href="{s["id"]}.html"><b>{E(s["title"])}</b></a></td><td>{verdict_badge(v)}<small>{E(v["change"])}</small></td><td>{E(v["headline"])}</td><td>'+''.join(f'<p style="margin:0 0 7px"><b>{x["factor"]}</b> {E(x["fact"])}</p>' for x in [facts[0],facts[-1]])+f'<a href="{s["id"]}.html#conclusion">查看完整权衡 →</a></td><td>{E(v["upgrade"])}</td></tr>'
+    body+='</tbody></table></div></section><details class="deep-research" id="framework"><summary>展开各板块传导框架</summary><div class="overview-graphs">'
     for s in items:
         body+=f'<details><summary>{E(s["title"])} · {E(s["review"]["group"])}</summary><p>{E(s["review"]["net"])}</p>{diagram(s,s["id"]+".html","hub")}<p><a href="{s["id"]}.html#framework">查看逐节点数据与解释 →</a></p></details>'
-    body+=f'</div></section><section class="block"><p class="note">{E(data["coverage"])}。各资料有独立日期，本轮对既有证据重新综合判断；原始数据未统一刷新为当日值。</p></section>'
+    body+=f'</div></details><section class="block"><p class="note">{E(data["coverage"])}。各资料有独立日期，本轮对既有证据重新综合判断；原始数据未统一刷新为当日值。</p></section>'
     return shell(data,market,body)
 
 
 def detail(data,s):
     market='A 股' if s['market']=='a' else '港股';back='index.html' if s['market']=='a' else 'hk.html';v=s['review']
     body=f'<div class="crumb"><a href="{back}">{market}板块</a> ／ {E(s["title"])}</div><div class="hero"><div><h1>{E(s["title"])}</h1><p class="stamp">{market} · 研究更新 {data["as_of"]}</p></div><div class="hero-meta">判断窗口 {data["window"]}<br>11月11日初筛（历史）：{E(s["macro_tier"])} → 板块核验：{E(v["group"])}</div></div>'
-    body+=final_verdict(data,s)+evidence_overview(data,s)
+    body+=final_verdict(data,s)+'<details class="deep-research" id="full-evidence"><summary>展开完整研究：估值、传导图、A–H数据与反证</summary>'+evidence_overview(data,s)
     body+=f'<section class="block" id="framework"><h2>板块 A–H 传导框架</h2><div class="framework-grid"><div>{diagram(s)}</div><aside class="framework-aside"><h3>这条链怎样得出结论</h3><p>{E(v["net"])}</p><h3>影响半年判断的关键</h3><p>{E(v["upgrade"])}</p><p class="note">A/B影响C，再影响E；D约束F/G，E/F/G共同接受H验证。点击节点查看依据。</p></aside></div></section><section class="block"><h2>逐节点分析 · 数据与解释并排</h2><div class="sector-nodes">'
     for k in 'ABCDEFGH':
         n=s['node_detail'][k]
@@ -175,6 +174,7 @@ def detail(data,s):
     body+='</div></section><section class="block" id="scenarios"><h2>最终判断如何升级或失效</h2><div class="tblwrap"><table class="mt scenario-table"><thead><tr><th style="width:12%">情景</th><th style="width:53%">判断与条件</th><th>研究如何调整</th></tr></thead><tbody>'
     for x in s['scenarios']:body+=f'<tr><td>{E(x["name"])}</td><td>{E(x["condition"])}</td><td>{E(x["action"])}</td></tr>'
     body+=f'</tbody></table></div><p class="note">{E(s["metrics"])}</p></section><section class="block"><h2>关联资料</h2><div class="refs-grid">'+''.join(source(data,k,f'资料 {i+1}') for i,k in enumerate(s['refs']))+'</div></section>'
+    body+='</details>'
     body+=f'<section class="block"><p><a href="../stocks/pool-{s["id"]}.html">进入独立股票研究页 →</a></p></section>'
     return shell(data,s['market'],body,s['id'])
 
@@ -184,41 +184,6 @@ def build(ctx):
     out = Path(ctx['SITE'])/'boards'
     for market, file in [('a','index.html'),('hk','hk.html')]:
         (out/file).write_text(ctx['page'](('A 股' if market=='a' else '港股')+'板块研究','bk',hub(data,market),'../'))
-    build_stock_pools(ctx)
     for s in data['sectors']:
         (out/(s['id']+'.html')).write_text(ctx['page'](s['title']+' | '+('A 股' if s['market']=='a' else '港股')+'板块','bk',detail(data,s),'../'))
 
-
-def stock_pool(data, s):
-    market = 'A 股' if s['market']=='a' else '港股'
-    body = STYLE + f'<div class="crumb"><a href="sector-pools.html">股票研究入口</a> ／ {market} · {E(s["title"])}</div><div class="hero"><h1>{E(s["title"])} · 股票研究</h1><p class="sum">此页保留龙头观察与待选记录，尚未确定买入个股。行业判断请返回<a href="../boards/{s["id"]}.html">独立板块分析</a>。</p></div>'
-    body += '<section class="block" id="leaders"><h2>龙头与细分标杆观察</h2><p class="note">先观察行业龙头，再筛选合适个股。观察身份按主营业务和行业代表性确定，不作市值或市占率排名；最终可以选择龙头，也可以选择其他公司。A/H 同一发行人的经营证据复用，估值和交易信号分别处理。</p><div class="tblwrap"><table class="mt sector-table"><thead><tr><th>观察公司 / 市场代码</th><th>为什么观察它</th><th>重点跟踪哪些动向</th><th>已核资料与日期</th></tr></thead><tbody>'
-    for stock in s['stocks']:
-        observation = stock['observation']
-        body += f'<tr><td><b>{E(stock["name"])}</b><br>{market} {stock["code"]}<br><span class="sector-tag">{E(stock["watch_role"])}</span></td><td>{E(stock["watch_reason"])}<p class="note">业务：{E(stock["role"])}</p>{source(data,stock["leader_source"],"业务与行业地位依据")}</td><td><b>对应 {E(stock["watch_nodes"])}</b><br>{E(stock["watch"])}</td><td><b>{E(observation["date"])}</b><br>{E(observation["text"])}<br>{source(data,observation["source"],"查看已核资料")}<p class="note">{E(stock.get("other", ""))}</p></td></tr>'
-    body += '</tbody></table></div></section>'
-    if s.get('cross_market'):
-        body += '<section class="block"><h3>跨市场龙头对照</h3><p class="note">用于比较行业供需，市场标注不同的公司不进入本市场待选池。</p>'
-        for x in s['cross_market']:
-            body += f'<p><b>{E(x["name"])} · {E(x["market"])} {x["code"]}</b>：{E(x["why"])} {source(data,x["source"])}</p>'
-        body += '</section>'
-    body += f'<section class="block" id="candidates"><h2>板块内待选股票池 · {len(s["candidates"])} 只</h2><p>{E(s["pool_note"])}</p><p class="note">研究阶段：业务连接 → C利润与现金流 → E盈利变化 → F估值 → G/H交易验证。龙头也需通过这些条件；待选不等于已选。新增初筛公司的来源入口用于继续核验，不表示已经读完财报。</p><div class="tblwrap"><table class="mt sector-table"><thead><tr><th>股票 / 研究阶段</th><th>如何承接板块逻辑</th><th>优先核什么</th><th>淘汰或退回观察条件</th></tr></thead><tbody>'
-    for x in s['candidates']:
-        body += f'<tr><td><b>{E(x["name"])}</b><br>{market} {x["code"]}<p class="note">{E(x["status"])}</p></td><td><b>{E(x["segment"])}</b><br>{E(x["logic"])}</td><td>{E(x["verify"])}<br>{source(data,x["source"],"资料 / 继续核验入口")}</td><td>{E(x["risk"])}</td></tr>'
-    body += '</tbody></table></div></section>'
-    return body
-
-
-def build_stock_pools(ctx):
-    data=json.loads((Path(ctx['ROOT'])/'data/sector_research.json').read_text())
-    out=Path(ctx['SITE'])/'stocks';out.mkdir(exist_ok=True)
-    body=STYLE+'<div class="hero"><h1>按板块进入股票研究</h1><p class="sum">行业逻辑在板块页独立分析；此处保留龙头观察、业务映射与待选池。</p></div>'
-    for market,label in [('a','A 股'),('hk','港股')]:
-        body+=f'<section class="block"><h2>{label}</h2><div class="sector-grid">'
-        for s in data['sectors']:
-            if s['market']!=market:continue
-            file='pool-'+s['id']+'.html'
-            (out/file).write_text(ctx['page'](s['title']+' | 股票研究','pool',stock_pool(data,s),'../'))
-            body+=f'<article class="sector-card"><h3><a href="{file}">{E(s["title"])}</a></h3><p>龙头与标杆观察 {len(s["stocks"])} 条 · 待选记录 {len(s["candidates"])} 条</p></article>'
-        body+='</div></section>'
-    (out/'sector-pools.html').write_text(ctx['page']('股票研究入口','pool',body,'../'))
