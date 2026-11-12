@@ -189,105 +189,10 @@ def build(ctx):
         (out/(s['id']+'.html')).write_text(ctx['page'](s['title']+' | '+('A 股' if s['market']=='a' else '港股')+'板块','bk',detail(data,s),'../'))
 
 
-NODE_ROLES = [
-    ('A', '需求', '入池门', '只回答"业务连接是否成立"，是/否判定，不打分'),
-    ('B', '政策与地缘', '入池门', '只回答"政策或事件是否支持这条业务连接"，不打分'),
-    ('C', '行业利润与现金流', '入池门 + 兑现质量', '入池时核验业务连接；池内排序时与 E 共用同一套财务口径'),
-    ('D', '利率与风险溢价', '组合层', '决定整体仓位上限与折现假设，不对个股单独加减分'),
-    ('E', '盈利预期修订', '兑现质量', '作为 C 口径的修正提醒，不与 C 重复加权'),
-    ('F', '估值', '时机', '一个主估值指标决定现在追 / 等 / 不追，其余指标只作否决'),
-    ('G', '资金与拥挤度', '组合层', '决定加仓节奏与拥挤度预警，不对个股单独加减分'),
-    ('H', '价格验证', '时机', '价格是否确认逻辑，与 F 同属时机维度'),
-]
-
-
-def node_role_table():
-    rows = ''.join(f'<tr><td><b>{k} · {E(n)}</b></td><td><b>{E(role)}</b></td><td>{E(duty)}</td></tr>' for k, n, role, duty in NODE_ROLES)
-    return ('<div class="tblwrap"><table class="mt"><thead><tr><th>框架节点</th><th>在个股筛选层的职能</th><th>职能边界（不做什么）</th></tr></thead><tbody>'
-            + rows + '</tbody></table></div>')
-
-
-def _pool_candidate(scr, x):
-    """候选所属子池与理由类型是否与板块接受理由一致。"""
-    for pool in scr.get('sub_pools', []):
-        if x['code'] in pool['codes']:
-            return pool
-    return None
-
-
 def stock_pool(data, s):
     market = 'A 股' if s['market']=='a' else '港股'
-    scr = s.get('screen') or {}
-    sub_pools = scr.get('sub_pools', [])
-    n_main = sum(len(p['codes']) for p in sub_pools if p.get('key') == 'main')
-    n_alt = len(s['candidates']) - n_main
-    body = STYLE + f'<div class="crumb"><a href="sector-pools.html">股票研究入口</a> ／ {market} · {E(s["title"])}</div><div class="hero"><h1>{E(s["title"])} · 股票研究</h1><p class="sum">此页按三个决策维度组织待选池：赛道归属（入池门）→ 兑现质量（池内排序）→ 价格反映（时机）；利率与资金约束上移到组合层。尚未确定买入个股。行业判断请返回<a href="../boards/{s["id"]}.html">独立板块分析</a>。</p></div>'
-    # 筛选规则与节点职能分工
-    body += ('<section class="block" id="screen"><h2>本池筛选规则：节点先分工，再筛选</h2>'
-             '<p><b>收敛规则一 · 职能分离：</b>A/B/C 只回答"是否入池"，不打分；C→E 用同一套财务口径决定池内优先级；F 只保留一个主估值指标决定时机；D、G 属于组合层，约束仓位与节奏，不在本页对个股加减分。</p>'
-             '<p><b>收敛规则二 · 理由唯一：</b>入池必须先回答"当前半年这个方向只接受哪一类理由"；理由类型不同的公司分入不同子池，<b>不合并排序</b>。</p>'
-             '<p><b>收敛规则三 · 不重复加权：</b>同一份营收、同一份现金流、同一份估值分位，不在多个节点重复计分。</p>'
-             '<h3>A–H 节点在个股筛选层的职能</h3>' + node_role_table() + '</section>')
-    # 维度一：赛道归属（入池门）
-    gate = scr.get('gate', '入池只核验业务连接：A 需求、B 政策、C 利润与现金流是否支持这条业务链。是/否判定，不打分。')
-    body += (f'<section class="block" id="candidates"><h2>维度一 · 赛道归属：入池门（A/B/C 是/否判定）</h2>'
-             f'<p class="sub">当前半年（{E(data.get("window", ""))}）本板块只接受一类入池理由：</p>'
-             f'<p class="sector-verdict">{E(scr.get("accept_reason", "见板块结论"))}</p>'
-             f'<p>{E(scr.get("accept_basis", "依据见板块页结论。"))}</p>'
-             f'<p class="note"><b>入池门规则：</b>{E(gate)}</p>'
-             f'<p class="note">下表只做是/否判定：业务连接成立且已核 → <b>是</b>；连接 plausible 但业务占比未核验 → <b>待核</b>；触发淘汰条件 → 退回观察或出池。待选不等于已选。</p>'
-             '<div class="tblwrap"><table class="mt sector-table"><thead><tr><th>股票 / 研究阶段</th><th>业务连接（承接板块逻辑）</th><th>入池判定</th><th>淘汰或退回观察条件</th></tr></thead><tbody>')
-    for x in s['candidates']:
-        pool = _pool_candidate(scr, x)
-        pool_lab = f'<span class="sector-tag">{E(pool["label"])}</span><br>' if pool else ''
-        if pool and pool.get('key') == 'main':
-            verdict = '是' if '待核' not in x['status'] else '待核'
-            match = '理由类型与板块接受理由一致'
-        else:
-            verdict = '是' if '待核' not in x['status'] else '待核'
-            match = '业务连接成立，但理由类型不同，分入副池'
-        body += (f'<tr><td><b>{E(x["name"])}</b><br>{market} {x["code"]}<p class="note">{E(x["status"])}</p></td>'
-                 f'<td><b>{E(x["segment"])}</b><br>{E(x["logic"])}</td>'
-                 f'<td>{pool_lab}<b>{verdict}</b><br>{E(match)}</td>'
-                 f'<td>{E(x["risk"])}</td></tr>')
-    body += '</tbody></table></div></section>'
-    # 维度二：兑现质量（池内排序）
-    cand = {x['code']: x for x in s['candidates']}
-    delivery = scr.get('delivery', '池内排序只用一套财务口径：C 利润与现金流 → E 盈利修订（同口径修正）。')
-    body += (f'<section class="block" id="delivery"><h2>维度二 · 兑现质量：池内排序（C→E 一套财务口径）</h2>'
-             f'<p>{E(delivery)}</p>'
-             '<p class="note">排序依据与 A/B 入池判定不叠加；E 盈利修订是 C 口径的修正，不再单独加权。各子池只在池内排序，跨池不合并名次。</p>')
-    for pool in sub_pools:
-        is_main = pool.get('key') == 'main'
-        body += (f'<h3>{E(pool["label"])} · {len(pool["codes"])} 只</h3>'
-                 f'<p><b>池内理由：</b>{E(pool["reason"])}</p>'
-                 f'<p class="note"><b>排序口径：</b>{E(pool.get("sort", pool.get("metric", "")))}{"" if is_main else "　·　此池理由类型与主池不同，不与主池合并排序"}</p>')
-        body += '<div class="tblwrap"><table class="mt sector-table"><thead><tr><th>股票 / 研究阶段</th><th>排序口径下优先核什么</th><th>口径提醒</th></tr></thead><tbody>'
-        for code in pool['codes']:
-            x = cand.get(code)
-            if not x:
-                continue
-            body += (f'<tr><td><b>{E(x["name"])}</b><br>{market} {x["code"]}<p class="note">{E(x["status"])}</p></td>'
-                     f'<td>{E(x["verify"])}<br>{source(data,x["source"],"资料 / 继续核验入口")}</td>'
-                     f'<td>{E(pool.get("note", x["segment"]))}</td></tr>')
-        body += '</tbody></table></div>'
-    body += '</section>'
-    # 维度三：价格反映（时机）
-    vetoes = scr.get('veto', [])
-    veto_html = ''.join(f'<li>{E(v)}</li>' for v in vetoes) or '<li>见板块页估值结论。</li>'
-    body += (f'<section class="block" id="timing"><h2>维度三 · 价格反映：时机（F 主指标 + 否决条件）</h2>'
-             f'<p><b>本板块唯一主估值指标：</b>{E(scr.get("primary_metric", "见板块页估值结论"))}</p>'
-             f'<p class="note">{E(scr.get("primary_metric_note", ""))}</p>'
-             '<p>其余估值指标一律降为否决条件，<b>不参与排序</b>，只在触发阈值时把候选降级：</p><ul class="sector-evidence">'
-             + veto_html + '</ul>'
-             f'<p>{E(scr.get("timing", "主指标在可接受区间且未触发否决 → 分批；被上涨压薄或触顶 → 等待；触发否决 → 不追。"))}</p>'
-             '<p class="note">估值分位与价格位置数据见各板块页「数据现状与估值位置」；个股的 PE/PB 与价格通道在个股页「股价层」，两处数据同源，不在本页重复计分。H 价格验证与 F 同属时机维度：价格没有确认逻辑之前，排序靠前也不构成买入理由。</p></section>')
-    # 组合层声明
-    body += ('<section class="block" id="portfolio"><h2>组合层约束：D 利率与 G 资金不在本页计分</h2>'
-             '<p class="sector-verdict">D（利率与风险溢价）与 G（资金与拥挤度）已上移到组合层：D 决定整体仓位上限与折现假设，G 决定加仓节奏与拥挤度预警。它们约束"买多少、多快买"，<b>不对任何个股单独加减分</b>，也不与本页三个维度并列排序。</p>'
-             '<p class="note">个股页保留的融资余额、股东户数等数据仅作组合层参考的展示，不进入个股合计分。</p></section>')
-    # 龙头观察（附录）
-    body += '<section class="block" id="leaders"><h2>龙头与细分标杆观察（行业动向参考，不参与排序）</h2><p class="note">先观察行业龙头，再筛选合适个股。观察身份按主营业务和行业代表性确定，不作市值或市占率排名；最终可以选择龙头，也可以选择其他公司。龙头观察只提供 A/B/C 入池门与行业动向的对标素材，不因其龙头身份在维度二、三获得任何加分。A/H 同一发行人的经营证据复用，估值和交易信号分别处理。</p><div class="tblwrap"><table class="mt sector-table"><thead><tr><th>观察公司 / 市场代码</th><th>为什么观察它</th><th>重点跟踪哪些动向</th><th>已核资料与日期</th></tr></thead><tbody>'
+    body = STYLE + f'<div class="crumb"><a href="sector-pools.html">股票研究入口</a> ／ {market} · {E(s["title"])}</div><div class="hero"><h1>{E(s["title"])} · 股票研究</h1><p class="sum">此页保留龙头观察与待选记录，尚未确定买入个股。行业判断请返回<a href="../boards/{s["id"]}.html">独立板块分析</a>。</p></div>'
+    body += '<section class="block" id="leaders"><h2>龙头与细分标杆观察</h2><p class="note">先观察行业龙头，再筛选合适个股。观察身份按主营业务和行业代表性确定，不作市值或市占率排名；最终可以选择龙头，也可以选择其他公司。A/H 同一发行人的经营证据复用，估值和交易信号分别处理。</p><div class="tblwrap"><table class="mt sector-table"><thead><tr><th>观察公司 / 市场代码</th><th>为什么观察它</th><th>重点跟踪哪些动向</th><th>已核资料与日期</th></tr></thead><tbody>'
     for stock in s['stocks']:
         observation = stock['observation']
         body += f'<tr><td><b>{E(stock["name"])}</b><br>{market} {stock["code"]}<br><span class="sector-tag">{E(stock["watch_role"])}</span></td><td>{E(stock["watch_reason"])}<p class="note">业务：{E(stock["role"])}</p>{source(data,stock["leader_source"],"业务与行业地位依据")}</td><td><b>对应 {E(stock["watch_nodes"])}</b><br>{E(stock["watch"])}</td><td><b>{E(observation["date"])}</b><br>{E(observation["text"])}<br>{source(data,observation["source"],"查看已核资料")}<p class="note">{E(stock.get("other", ""))}</p></td></tr>'
@@ -297,35 +202,23 @@ def stock_pool(data, s):
         for x in s['cross_market']:
             body += f'<p><b>{E(x["name"])} · {E(x["market"])} {x["code"]}</b>：{E(x["why"])} {source(data,x["source"])}</p>'
         body += '</section>'
+    body += f'<section class="block" id="candidates"><h2>板块内待选股票池 · {len(s["candidates"])} 只</h2><p>{E(s["pool_note"])}</p><p class="note">研究阶段：业务连接 → C利润与现金流 → E盈利变化 → F估值 → G/H交易验证。龙头也需通过这些条件；待选不等于已选。新增初筛公司的来源入口用于继续核验，不表示已经读完财报。</p><div class="tblwrap"><table class="mt sector-table"><thead><tr><th>股票 / 研究阶段</th><th>如何承接板块逻辑</th><th>优先核什么</th><th>淘汰或退回观察条件</th></tr></thead><tbody>'
+    for x in s['candidates']:
+        body += f'<tr><td><b>{E(x["name"])}</b><br>{market} {x["code"]}<p class="note">{E(x["status"])}</p></td><td><b>{E(x["segment"])}</b><br>{E(x["logic"])}</td><td>{E(x["verify"])}<br>{source(data,x["source"],"资料 / 继续核验入口")}</td><td>{E(x["risk"])}</td></tr>'
+    body += '</tbody></table></div></section>'
     return body
 
 
 def build_stock_pools(ctx):
     data=json.loads((Path(ctx['ROOT'])/'data/sector_research.json').read_text())
     out=Path(ctx['SITE'])/'stocks';out.mkdir(exist_ok=True)
-    body=STYLE+'<div class="hero"><h1>按板块进入股票研究</h1><p class="sum">行业逻辑在板块页独立分析；此处把每个板块的待选池按三个决策维度组织：赛道归属（入池门）→ 兑现质量（池内排序）→ 价格反映（时机）。利率与资金约束在组合层，不在个股层计分。</p></div>'
-    body+=('<section class="block" id="convergence"><h2>从板块池收敛到 10 只的规则</h2>'
-           '<p class="sector-verdict">每个板块先声明"当前半年只接受哪一类入池理由"（维度一）；入池候选用同一套财务口径在池内排序（维度二）；排序靠前且未触发估值否决的，再由唯一主估值指标决定追 / 等 / 不追（维度三）。每池只保留排序靠前、理由与池一致、未触发否决的少数标的，全市场合计约 10 只。</p>'
-           '<ul class="sector-evidence">'
-           '<li><b>主排序理由只能有一个</b>：同一只股票不能既因"需求清晰"又因"低估值"参与排序；"低估值"属于维度三的时机，不进入维度二的排序。</li>'
-           '<li><b>理由类型不同 → 分池</b>：副池与主池不合并排序；理由类型改变的候选改判子池，而不是折中名次。</li>'
-           '<li><b>同一数据不重复加权</b>：同一份营收、现金流、估值分位只在职能所属的一个维度出现。</li>'
-           '</ul>'
-           '<h3>A–H 节点在个股筛选层的职能</h3>'+node_role_table()+'</section>')
+    body=STYLE+'<div class="hero"><h1>按板块进入股票研究</h1><p class="sum">行业逻辑在板块页独立分析；此处保留龙头观察、业务映射与待选池。</p></div>'
     for market,label in [('a','A 股'),('hk','港股')]:
         body+=f'<section class="block"><h2>{label}</h2><div class="sector-grid">'
         for s in data['sectors']:
             if s['market']!=market:continue
             file='pool-'+s['id']+'.html'
             (out/file).write_text(ctx['page'](s['title']+' | 股票研究','pool',stock_pool(data,s),'../'))
-            scr=s.get('screen') or {}
-            sub_pools=scr.get('sub_pools',[])
-            n_main=sum(len(p['codes']) for p in sub_pools if p.get('key')=='main')
-            n_alt=len(s['candidates'])-n_main
-            accept=f'<p class="stamp">当前半年只接受：{E(scr.get("accept_reason","见板块页"))}</p>' if scr else ''
-            metric=f'<p class="note">主估值指标：{E(scr.get("primary_metric","见板块页"))}</p>' if scr else ''
-            body+=(f'<article class="sector-card"><h3><a href="{file}">{E(s["title"])}</a></h3>{accept}'
-                   f'<p>主池 {n_main} 只 · 副池 {n_alt} 只 · 龙头与标杆观察 {len(s["stocks"])} 条</p>{metric}'
-                   f'<p class="note">{E(scr.get("delivery",""))[:120]}{"…" if len(scr.get("delivery",""))>120 else ""}</p></article>')
+            body+=f'<article class="sector-card"><h3><a href="{file}">{E(s["title"])}</a></h3><p>龙头与标杆观察 {len(s["stocks"])} 条 · 待选记录 {len(s["candidates"])} 条</p></article>'
         body+='</div></section>'
     (out/'sector-pools.html').write_text(ctx['page']('股票研究入口','pool',body,'../'))

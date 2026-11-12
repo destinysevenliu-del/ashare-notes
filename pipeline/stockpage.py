@@ -151,16 +151,12 @@ def analyze_stock(cfg, raw, ctx):
     nodes = {}
     lq = qs[-1]
     h = []
-    # A 归维度一·入池门：只做是/否判定，不打分（2026-11-12 起个股层职能分离）
     ry = lq.get("rev_yoy")
     if ry is not None:
-        if ry >= 30: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，已实现收入增长；新增订单待核验（入池门：是）", 0))
-        elif ry >= 10: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，收入增长成立（入池门：是）", 0))
-        elif ry < 0: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，已实现收入下降，原因待核验（入池门：否，退回观察）", 0))
-        else: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，增长平缓（入池门：是）", 0))
-    else:
-        h.append((f"{lq['label']} 营收同比数据缺失（入池门：待核）", 0))
-    a_gate = "是" if (ry is not None and ry >= 0) else ("否" if ry is not None else "待核")
+        if ry >= 30: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，已实现收入增长；新增订单待核验", 1))
+        elif ry >= 10: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%", 0.5))
+        elif ry < 0: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，已实现收入下降；原因待核验", -1))
+        else: h.append((f"{lq['label']} 单季营收同比 {ry:+.0f}%，增长平缓", 0))
     nodes["A"] = h
     h = []
     if pos_n or neg_n:
@@ -207,24 +203,21 @@ def analyze_stock(cfg, raw, ctx):
         elif v["pct"] > 80: h.append((f"PE-TTM {pe_now:.1f} 倍，近 3 年 {v['pct']:.0f}% 分位，历史相对位置高", -1))
         else: h.append((f"PE-TTM {pe_now:.1f} 倍，近 3 年 {v['pct']:.0f}% 分位，中间位置", 0))
     nodes["F"] = h
-    # G 归组合层：融资与拥挤度只约束仓位与节奏，不对个股单独加减分（2026-11-12 起职能分离）
     h = []
-    if m["m10"] >= 5: h.append((f"融资余额 10 日增加 {m['m10']:.1f}%（股价同期 {m['p10']:+.1f}%）；组合层参考：拥挤度上升提示", 0))
-    elif m["m10"] <= -5: h.append((f"融资余额 10 日减少 {abs(m['m10']):.1f}%（股价同期 {m['p10']:+.1f}%），杠杆资金在撤；组合层参考：节奏提示", 0))
-    else: h.append((f"融资余额 10 日变化 {m['m10']:+.1f}%，基本稳定；组合层参考，不计分", 0))
-    if m["lev"] >= 4: h.append((f"融资余额占流通市值 {m['lev']:.2f}%，杠杆偏重；组合层拥挤度预警，不参与个股排序", 0))
+    if m["m10"] >= 5: h.append((f"融资余额 10 日增加 {m['m10']:.1f}%（股价同期 {m['p10']:+.1f}%）", 0.5))
+    elif m["m10"] <= -5: h.append((f"融资余额 10 日减少 {abs(m['m10']):.1f}%（股价同期 {m['p10']:+.1f}%），杠杆资金在撤", -0.5))
+    else: h.append((f"融资余额 10 日变化 {m['m10']:+.1f}%，基本稳定", 0))
+    if m["lev"] >= 4: h.append((f"融资余额占流通市值 {m['lev']:.2f}%，杠杆偏重", -0.5))
     nodes["G"] = h
     scores = {k2: clip(rnd(sum(p for _, p in hh))) if hh else None for k2, hh in nodes.items()}
-    scores["B"] = None  # 入池门·事件待核：公告标题仅用于提醒，证据未核验不计分。
-    scores["A"] = None  # 维度一·入池门：是/否判定，不打分。
-    scores["G"] = None  # 组合层：仓位与节奏约束，不对个股单独加减分。
+    scores["B"] = None  # 标题仅用于提醒，证据未核验不计分。
 
-    # ---- 四层汇总：个股层只合计兑现质量（C/D/E）与时机（F）；A 是入池门、G 归组合层 ----
+    # ---- 四层汇总 ----
     stock_sum = sum(s for s in scores.values() if s is not None)
     layers = [
         {"name": "大盘", "state": st(R["total"]), "text": f"六项合计 {R['total']:+d}。" + ctx["summary"]().split("。", 1)[1], "link": "../index.html"},
         board_layer(cfg, bd, ctx),
-        {"name": "个股", "state": st(stock_sum), "text": f"C–F 合计 {stock_sum:+d}（兑现质量 C/D/E + 时机 F）；入池门 A：{a_gate}。" + "；".join(
+        {"name": "个股", "state": st(stock_sum), "text": f"A–G 合计 {stock_sum:+d}。" + "；".join(
             f"{k2} {s:+d}" for k2, s in scores.items() if s), "link": "#nodes"},
     ]
     vtxt = (f"PE {pe_now:.1f} 倍，近 3 年 {v['pct']:.0f}% 分位" if v["pct"] is not None else f"PE {pe_now:.1f} 倍（无法计算分位）")
@@ -251,7 +244,7 @@ def analyze_stock(cfg, raw, ctx):
     conds.append(("持仓触发了操作记录里写下的计划条件", False, "还没有这只股票的操作记录"))
 
     return {"cfg": cfg, "t": t, "v": v, "f": f, "e": e, "m": m, "hd": hd, "bd": bd, "nodes": nodes, "scores": scores,
-            "a_gate": a_gate, "revision": rev, "layers": layers, "conds": conds, "key_notices": key, "notices": raw["notices"], "dates": dts, "closes": c}
+            "revision": rev, "layers": layers, "conds": conds, "key_notices": key, "notices": raw["notices"], "dates": dts, "closes": c}
 
 
 def board_layer(cfg, bd, ctx):
@@ -294,9 +287,8 @@ def factor_now(name, ctx, a):
 
 
 # ---------------- 渲染 ----------------
-NODE_NAMES = {"A": "收入与需求验证（入池门）", "B": "公司事件（入池门·待核）", "C": "营收 × 毛利率 → 净利润（兑现质量）",
-              "D": "利润质量：现金流与毛利率（兑现质量）", "E": "盈利预测修订（兑现质量）", "F": "个股估值（时机）",
-              "G": "筹码：融资 / 股东（组合层）", "H": "股价（时机）"}
+NODE_NAMES = {"A": "收入与需求验证", "B": "公司事件：减持 / 回购 / 解禁", "C": "营收 × 毛利率 → 净利润", "D": "利润质量：现金流与毛利率",
+              "E": "盈利预测修订", "F": "个股估值（PE）", "G": "筹码：融资 / 股东", "H": "股价"}
 
 
 def render(a, ctx):
@@ -335,9 +327,6 @@ def render(a, ctx):
 
     def sub(k):
         if k == "H": return f"{t['close']:.2f}，今日 {t['d1']:+.2f}%，距一年高点 {t['dd']:.0f}%"
-        if k == "A": return "入池门：" + a["a_gate"]
-        if k == "B": return "事件待核，不计分"
-        if k == "G": return "组合层参考，不计分"
         s = sc.get(k)
         if s is None: return "暂缺"
         return {"up": "利好", "down": "利空", "flat": "中性"}[st(s)] + (f" {s:+d}" if s else " 0")
@@ -376,30 +365,12 @@ def render(a, ctx):
               f'<tbody>{qrows}</tbody></table></div>')
     np_spark = spark([q["np"] for q in qs], 160, 36)
 
-    SEC_ROLES = {"A": "维度一 · 入池门：是/否，不打分", "B": "维度一 · 入池门：事件待核", "C": "维度二 · 兑现质量：排序",
-                 "D": "维度二 · 兑现质量：排序", "E": "维度二 · 兑现质量：排序", "F": "维度三 · 时机：主估值指标",
-                 "G": "组合层：仓位与节奏约束，不计分", "H": "维度三 · 时机：价格验证"}
-
     def sec(k, title, q, body):
         hits = a["nodes"].get(k) or []
         s = sc.get(k)
-        if k in ("A", "B", "G"):
-            # 职能分离后的判定头：A 显示是/否/待核，B 显示待核，G 显示组合层
-            if k == "A":
-                g = a["a_gate"]
-                state2 = "up" if g == "是" else ("down" if g == "否" else "na")
-                tag = g
-            elif k == "B":
-                state2, tag = "na", "待核"
-            else:
-                state2, tag = "flat", "组合层"
-            lis = "".join(f"<li>{E(t)}</li>" for t, p in hits)
-            vd = (f'<div class="verdict {state2}"><div class="vh"><span class="tag {state2}">{tag}</span>'
-                  f'<span class="vwhy">判定依据（不计分）</span></div><ul>{lis}</ul></div>')
-        else:
-            vd = verdict(node_state(k), s, hits) if hits else '<div class="verdict na"><div class="vh"><span class="tag na">暂缺</span></div></div>'
+        vd = verdict(node_state(k), s, hits) if hits else '<div class="verdict na"><div class="vh"><span class="tag na">暂缺</span></div></div>'
         return (f'<section class="nd" id="n-{k}"><div class="ndh"><span class="lc2 {node_state(k)}">{k}</span><div><h3>{E(title)}</h3>'
-                f'<p class="q">{E(q)} <span class="tag flat">{E(SEC_ROLES[k])}</span></p></div></div>{vd}{body}</section>')
+                f'<p class="q">{E(q)}</p></div></div>{vd}{body}</section>')
 
     ann = "".join(f'<li><span class="evd">{n["date"]}</span><a href="https://data.eastmoney.com/notices/detail/{cfg["code"]}/{n["art"]}.html" rel="noopener">{E(n["title"].split(":", 1)[-1])}</a></li>'
                   for n in a["notices"][:10])
@@ -415,7 +386,7 @@ def render(a, ctx):
 
     nodes_html = (
         sec("A", "收入与需求验证", "谁在买它的产品，买得多不多？", f'<p class="note">{E(cfg["customer_note"])}</p>'
-            + rules("入池门规则：单季营收同比 ≥ 0 判「是」，负增长判「否」并退回观察。只做是/否判定，不打分（2026-11-12 起职能分离）。订单和客户的具体变化需要人工跟踪；入池后的优先级由 C/D/E（兑现质量）决定。"))
+            + rules("单季营收同比 ≥ 30% 加 1，10–30% 加 0.5，0–10% 为 0，负增长减 1。订单和客户的具体变化需要人工跟踪。"))
         + sec("B", "公司事件", "最近有没有回购、增减持、解禁、监管问询？", f'<h4>最近公告</h4><ul class="ann">{ann}</ul>'
               + rules("公告标题仅触发待核验提醒，不自动加减分。核验正文、金额占比、用途与执行进度后再判断影响。"))
         + sec("C", "营收 × 毛利率 → 净利润", "公司还在多赚钱吗？增速在加快还是放缓？", qtable
@@ -427,12 +398,11 @@ def render(a, ctx):
               + rules("亏损且经营现金流为负减 1；每股经营现金流 ÷ 每股收益 ≥ 0.9 加 0.5，< 0.5 减 1；毛利率比去年同期高 2 个点以上加 0.5，低 2 个点以上减 0.5。"))
         + sec("E", "盈利预测修订", "同一目标年度的盈利预测是否被上调或下调？", estr
               + rules("同一目标年度 EPS 与 30–45 天前采集值相比，上调 ≥ 5% 加 1，下调 ≥ 5% 减 1。没有带采集时间的可比历史不计分；跨年度增长单独展示。机构样本变化也会影响一致预期。"))
-        + sec("F", "个股估值", "市场现在愿意给它多少倍市盈率？",
-              '<p class="note">估值的细节在下面的「股价层」。主估值指标按所属板块池的筛选规则确定（周期类 PB、成长类正常化 PE 或 PS）；本页 PE-TTM 分位与板块池主指标同源，不重复加权。</p>'
+        + sec("F", "个股估值", "市场现在愿意给它多少倍市盈率？", '<p class="note">估值的细节在下面的「股价层」。</p>'
               + rules("PE-TTM 在近 3 年分位低于 20% 加 1，高于 80% 减 1。亏损或 PE 为负时不判定。"))
         + sec("G", "筹码", "谁在买、谁在卖？杠杆资金在进还是在出？",
               f'<p class="note">融资余额 {yi(m["rz"])}，占流通市值 {m["lev"]:.2f}%（截至 {m["date"]}）。</p>{hdtxt}'
-              + rules("组合层参考，不对个股单独加减分（2026-11-12 起归组合层）：融资余额 10 日变化与占流通市值比例用于判断整体仓位与节奏（拥挤度预警），不参与个股排序。"))
+              + rules("融资余额 10 日增加 ≥ 5% 加 0.5，减少 ≥ 5% 减 0.5；融资余额占流通市值 ≥ 4% 减 0.5。"))
     )
 
     # 股价层
@@ -474,11 +444,8 @@ def render(a, ctx):
                "<ul class='ev'>" + "".join(f"<li><b>{E(x['date'])} {E(x['side'])} {E(str(x['price']))}</b><p>{E(x.get('reason', ''))}</p></li>" for x in trades) + "</ul>")
 
     SC_NAMES = {"A": "收入与需求验证", "B": "公司事件", "C": "净利润", "D": "利润质量", "E": "盈利预测", "F": "估值", "G": "筹码"}
-    NA_TXT = {"A": "入池门：是/否判定，不打分（判定见 A 节）", "B": "事件待核，不计分", "G": "组合层参考，不对个股加减分"}
     card_html = scorecard.card([{"key": k2, "name": SC_NAMES[k2], "score": sc.get(k2), "hits": a["nodes"].get(k2) or [],
-                                 "na_text": NA_TXT.get(k2), "href": f"#n-{k2}"} for k2 in "ABCDEFG"], "分项合计",
-                               "计分维度为 C/D/E（兑现质量）+ F（时机）；A 入池门、B 事件待核、G 组合层均不计分。分项存在相关性；合计只作变化提醒，不能跨公司排名或推导仓位。2026-11-12 起口径调整：A/G 不再计分，此前历史合计含 A/G 分，不可直接比较（走势已剔除 A/G 保持同口径）。",
-                               a["hist"], ("E",), drop_trend=("A", "G"))
+                                 "href": f"#n-{k2}"} for k2 in "ABCDEFG"], "分项合计", "分项存在相关性；合计只作变化提醒，不能跨公司排名或推导仓位。", a["hist"], ("E",))
     pr = cfg.get("prior")
     if not pr:
         lq = f["qs"][-1]
@@ -519,7 +486,7 @@ def render(a, ctx):
 
 <section class="block" id="fmap"><h2>完整因子地图</h2><p class="sub">框架里哪些因素对这只股票影响大。"现在的状态"取自大盘页和本页的实时数据。直接证据与代理指标分别标注；缺少公司层证据时不自动推断利好利空。</p>{fmap}</section>
 
-<section class="block" id="score"><h2>个股打分卡</h2><p class="sub">计分维度：C/D/E（兑现质量）+ F（时机），各 −2 到 +2 分，即上面"个股"这一层的明细。A 是入池门（是/否）、B 是事件待核提醒、G 归组合层（仓位与节奏），三者不打分。点任意一项跳到下面的展开分析。</p>{card_html}</section>
+<section class="block" id="score"><h2>个股打分卡</h2><p class="sub">个股层 A–G 七个维度各打 −2 到 +2 分，也就是上面"个股"这一层的明细。点任意一项跳到下面的展开分析。</p>{card_html}</section>
 
 <section class="block" id="nodes"><h2>个股层传导图</h2><p class="sub">和大盘页同一套 A–H 骨架，换成了这只股票自己的变量。</p>{diagram}<div class="ndlist">{nodes_html}</div></section>
 {price_sec}
@@ -557,7 +524,7 @@ def stock_index(analyses, ctx):
                 f'<div class="slist">{"".join(row(a) for a in obs)}</div></section>') if obs else ""
     n = sum(1 for a in analyses if a["cfg"].get("group") == "追踪")
     return f"""<section class="block"><h2><a href="sector-pools.html">当前：按板块进入股票研究 →</a></h2><p>龙头观察与待选池已独立放在股票研究页；以下保留历史个股资料。</p></section><div class="hero"><h1>历史个股资料</h1><p class="sum">2026 年 11 月 9 日一起选定的 {n} 只追踪股，按板块分组。</p>
-<p class="stamp">四个色块依次是大盘、板块、个股、股价四层的状态：红色利好，绿色利空，灰色中性。"分项合计"为个股打分卡 C/D/E/F 的合计（A 入池门、G 组合层不计分）；2026-11-12 前的历史记录含 A/G 分，口径不同，不可直接比较。</p></div>
+<p class="stamp">四个色块依次是大盘、板块、个股、股价四层的状态：红色利好，绿色利空，灰色中性。"分项合计"是个股打分卡 A–G 的合计。</p></div>
 {research.exposure_html(analyses, ctx["ROOT"])}<section class="block">{secs}</section>{obs_html}"""
 
 

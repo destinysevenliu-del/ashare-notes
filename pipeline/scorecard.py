@@ -42,15 +42,14 @@ def _trend(hist, keys, excluded=""):
             f'<svg viewBox="0 0 {w} {h}" class="trend">{bars}<line x1="0" x2="{w}" y1="{h / 2}" y2="{h / 2}" stroke="#7C8696" stroke-width=".6"/></svg>')
 
 
-def card(rows, total_label, note, hist, no_hist=(), drop_trend=()):
-    """rows: [{"key","name","score"(None=暂缺/不计分),"hits":[(text,pt)],"na_text","manual":bool,"href"}]
-    drop_trend: 职能分离后不再计分的节点（历史走势剔除，保持前后同口径）。"""
+def card(rows, total_label, note, hist, no_hist=()):
+    """rows: [{"key","name","score"(None=暂缺),"hits":[(text,pt)],"manual":bool,"href"}]"""
     cells = ""
     for r in rows:
         s = r["score"]
         c = "flat" if not s else ("up" if s > 0 else "down")
         if s is None:
-            txt, val = r.get("na_text") or "待核验或缺少可比数据，不参与合计", "—"
+            txt, val = "待核验或缺少可比数据，不参与合计", "—"
         else:
             txt = "；".join(E(h[0]) for h in r["hits"][:2]) or "没有触发加减分"
             val = f"{s:+d}" if s else "0"
@@ -63,4 +62,4 @@ def card(rows, total_label, note, hist, no_hist=(), drop_trend=()):
     span = 3 - n % 3 if n % 3 else 3
     return (f'<div class="score">{cells}<div class="sc total" style="grid-column:span {span}"><div class="lbl">{E(total_label)}'
             f'<span class="v">{(f"{t:+d}" if t else "0")}</span></div><p>满分 ±{2 * len(valid)}（{len(valid)} 项有数据）。{E(note)}</p>'
-            f'{_trend(hist, {r["key"] for r in rows if r["key"] not in no_hist and r["key"] not in drop_trend}, ("、".join(no_hist) + " 没有历史数据，从今天开始记录。") if no_hist else "")}</div></div>')
+            f'{_trend(hist, {r["key"] for r in rows if r["key"] not in no_hist}, ("、".join(no_hist) + " 没有历史数据，从今天开始记录。") if no_hist else "")}</div></div>')
