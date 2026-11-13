@@ -37,6 +37,20 @@ class VerdictTests(unittest.TestCase):
   self.assertIn('2026年',next(n for n in self.data['markets']['hk']['macro_nodes'] if n['key']=='E')['fact'])
   self.assertIn('不是恒指EPS',next(n for n in self.data['markets']['hk']['macro_nodes'] if n['key']=='E')['limit'])
   self.assertIn('HIBOR',self.data['markets']['hk']['macro_overview']['valuation']['text'])
+ def test_contribution_uses_one_sample_and_reconciles(self):
+  c=self.data['earnings_decomposition']
+  self.assertEqual(c['source'],'cicc_q3')
+  self.assertAlmostEqual(c['financial_base_share']+c['nonfinancial_base_share'],1)
+  self.assertAlmostEqual(c['financial_contribution_pp']+c['nonfinancial_contribution_pp'],c['total_pct'])
+  self.assertAlmostEqual(c['financial_base_share']*c['financial_pct'],c['financial_contribution_pp'])
+ def test_horizon_roles_are_separate(self):
+  for m in self.data['markets'].values():
+   for n in m['macro_nodes']:
+    self.assertEqual(n['horizon'],'execution' if n['key'] in 'GH' else 'six_month')
+   v=m['macro_overview']
+   for text in [v['verdict'],v['synthesis'],v['profit']['text'],v['valuation']['text']]+[e['text'] for e in v['evidence']]:
+    for phrase in ['两融','南向','近20个','近5日','不能','不构成投资建议']:self.assertNotIn(phrase,text)
+   self.assertEqual(set(v['signals']),{'up','down','status'})
  def test_portfolio_reads_current_nodes(self):
   page=(ROOT/'docs/stocks/portfolio.html').read_text()
   for m in self.data['markets'].values():

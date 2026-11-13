@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 from hk_fetch import completed_rows
 import hk_research
 import framework_review
+import overview_page
 
 NAMES={'hsi':'恒生指数','hscei':'恒生中国企业指数','hstech':'恒生科技指数'}
 VERSION='HK v3 · 2026-11-10'
@@ -367,6 +368,7 @@ def build(ctx):
     pts.append('<li>定性判断来自研究资料，具体事实、相反证据与验证条件见 A–G / X 各节。</li>')
     body += '<nav class="l1nav"><a href="#horizon">六个月的判断</a><a href="#today">今日分析</a><a href="#conds">大盘关注条件</a></nav>'
     body += '<details class="l1" id="horizon" open><summary><h2>六个月的判断</h2><span class="l1hint">结论 · 依据 · 改判条件</span></summary>'+framework_review.render(ctx,'hk')+'</details>'
+    body += overview_page.render_execution(ctx,'hk')
     body += '<details class="l1" id="today"><summary><h2>日度数据与历史规则</h2><span class="l1hint">行情截至 '+asof+'</span></summary>'
     body += daily_notes
     body += '<div class="market-overview daily-overview"><div class="market-day-map"><h3 class="h3s" id="map">今日传导图</h3><p class="sub">沿用A–H；X仅为人民币跨节点传导桥，不增加半年选板块因子。</p>'+'<div class="fwbox">'+diagram+'</div><div class="hk-map">'+nodes+'</div></div>'

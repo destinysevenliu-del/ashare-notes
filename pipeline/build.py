@@ -7,6 +7,7 @@ ROOT = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.dirname(os.
 sys.path.insert(0, os.path.join(ROOT, "pipeline"))
 import analyze as A  # noqa: E402
 import market_layout
+import overview_page
 
 RAW = os.path.join(ROOT, "data", "raw")
 SITE = os.path.join(ROOT, "docs")
@@ -658,6 +659,7 @@ def index():
 
 <details class="l1" id="horizon" open><summary><h2>未来半年判断</h2><span class="l1hint">结论 · 依据 · 改判条件</span></summary>
 {outlook_section()}</details>
+{overview_page.render_execution(globals(), "a")}
 
 <details class="l1" id="today"><summary><h2>日度数据与历史规则</h2><span class="l1hint">传导图 · 结论 · 展开分析（{cn_date(TODAY)}）</span></summary>
 <div class="market-overview daily-overview"><div class="market-day-verdict"><h3 class="h3s">结论：今天变了什么</h3>{today_lead()}</div><div class="market-day-map"><h3 class="h3s" id="map">今日传导图</h3><p class="sub">红色利好，绿色利空，灰色中性。点任意一环跳到下面的展开分析。</p>
