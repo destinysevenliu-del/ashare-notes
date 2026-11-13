@@ -36,6 +36,10 @@ def export(root):
     out+=['','## 估值敏感性（演示，不是预测）','','同一正盈利、固定成分和口径下，价格变化=(1+盈利变化)×(1+PE变化)−1。盈利+20%、PE−15%时价格+2%；盈利+10%、PE−15%时价格−6.5%。PE下降10%/15%，分别需要约11.1%/17.6%的盈利增长抵消。未计股息、汇率及股本变化。','','## 来源与口径']
     for k,s in d['sources'].items():out+=['',f"- {cite([k])} · {s['date']}。{s['scope']}"]
     dest=root/'docs/research';dest.mkdir(exist_ok=True)
-    (dest/'market-thesis-2026-11-12.md').write_text('\n'.join(out)+'\n')
+    # Preserve the historical report rather than regenerate it with current sources.
+    if not (dest/'market-thesis-2026-11-12.md').exists():
+        (dest/'market-thesis-2026-11-12.md').write_text('\n'.join(out)+'\n')
+    import overview_page
+    overview_page.export_research(root,d)
     dest=root/'docs/data';dest.mkdir(exist_ok=True)
     (dest/'market_thesis.json').write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')

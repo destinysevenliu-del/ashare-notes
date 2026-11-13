@@ -24,7 +24,18 @@ class VerdictTests(unittest.TestCase):
    for item in v['evidence']+m['macro_nodes']:self.assertFalse(set(item['refs'])-self.data['sources'].keys())
    top=json.dumps(v,ensure_ascii=False)
    for stale in ['不对每只股票重复扣分','当前没有已核定的目标仓位','缺口不补成利好']:self.assertNotIn(stale,top)
-  self.assertIn('低利率',self.data['markets']['a']['macro_overview']['verdict'])
+  for market in ['a','hk']:
+   m=self.data['markets'][market]
+   self.assertGreaterEqual(len(m['macro_research']['financial_rows']),6)
+   for row in m['macro_research']['financial_rows']:
+    for field in ['metric','value','universe','period','meaning','refs']:self.assertTrue(row[field])
+   for row in m['macro_research']['chains']:
+    for field in ['observation','mechanism','assumption','result','refs']:self.assertTrue(row[field])
+   c=next(n for n in m['macro_nodes'] if n['key']=='C')
+   self.assertNotIn('profit',c['refs'])
+  self.assertAlmostEqual(2657/5572*100,47.68,places=2)
+  self.assertIn('2026年',next(n for n in self.data['markets']['hk']['macro_nodes'] if n['key']=='E')['fact'])
+  self.assertIn('不是恒指EPS',next(n for n in self.data['markets']['hk']['macro_nodes'] if n['key']=='E')['limit'])
   self.assertIn('HIBOR',self.data['markets']['hk']['macro_overview']['valuation']['text'])
  def test_portfolio_reads_current_nodes(self):
   page=(ROOT/'docs/stocks/portfolio.html').read_text()

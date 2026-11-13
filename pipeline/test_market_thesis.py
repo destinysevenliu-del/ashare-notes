@@ -28,7 +28,7 @@ class ThesisTest(unittest.TestCase):
  def test_sources_exist_and_dates_are_bounded(self):
   d=json.loads((ROOT/'data/market_thesis.json').read_text())
   for s in d['sources'].values():
-   self.assertLessEqual(s['date'],d['as_of'])
+   self.assertLessEqual(s['date'],d['overview_reviewed_at'])
    if not s['url'].startswith('https://'):self.assertTrue((ROOT/'docs'/s['url']).exists())
   for m in d['markets'].values():
    for obj in m['nodes']+m['sectors']:
