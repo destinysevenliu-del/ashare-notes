@@ -1,0 +1,141 @@
+{
+ "method": "股债差=1/PE−中国10年国债；分位为样本内小于当前值的观测占比。回测用扩张窗口分位（至少250个观测）与之后120个交易日收益，样本重叠、独立事件少，只作提醒。PPI基数推算用统计局公布的同比与2025年5—10月环比。",
+ "erp": {
+  "pe_all": {
+   "label": "中证全指",
+   "date": "2026-11-06",
+   "pe": 16.44,
+   "cn10y": 1.5868,
+   "erp_pct": 4.5,
+   "percentile": 84.1,
+   "sample_start": "2019-01-01",
+   "n": 1902
+  },
+  "pe_hs300": {
+   "label": "沪深300",
+   "date": "2026-11-06",
+   "pe": 13.13,
+   "cn10y": 1.5868,
+   "erp_pct": 6.03,
+   "percentile": 78.6,
+   "sample_start": "2016-01-01",
+   "n": 2633
+  }
+ },
+ "backtest": {
+  "pe_all": {
+   "label": "中证全指",
+   "bucket": "股债差分位≥80%",
+   "n": 691,
+   "median_pct": -0.1,
+   "win_pct": 50.0
+  },
+  "pe_hs300": {
+   "label": "沪深300",
+   "bucket": "股债差分位≥80%",
+   "n": 464,
+   "median_pct": 5.2,
+   "win_pct": 70.0
+  }
+ },
+ "margin": {
+  "date": "2026-11-06",
+  "balance_trn": 2.28,
+  "peak_date": "2026-06-25",
+  "peak_trn": 3.03,
+  "from_peak_pct": -24.7,
+  "share_of_float_pct": 2.51,
+  "share_percentile_since": "2022-09-19",
+  "share_percentile": 74.0
+ },
+ "index": {
+  "idx_all": {
+   "label": "中证全指",
+   "high_date": "2026-05-13",
+   "high": 6686.87,
+   "low_date": "2026-10-30",
+   "low": 4952.5,
+   "drawdown_pct": -25.9,
+   "last_date": "2026-11-09",
+   "last": 5119.56
+  },
+  "idx_hs300": {
+   "label": "沪深300",
+   "high_date": "2026-06-22",
+   "high": 5059.66,
+   "low_date": "2026-10-30",
+   "low": 3985.5,
+   "drawdown_pct": -21.2,
+   "last_date": "2026-11-09",
+   "last": 4056.11
+  },
+  "idx_cyb": {
+   "label": "创业板指",
+   "high_date": "2026-06-25",
+   "high": 4371.99,
+   "low_date": "2026-11-03",
+   "low": 2391.65,
+   "drawdown_pct": -45.3,
+   "last_date": "2026-11-09",
+   "last": 2458.56
+  },
+  "idx_kc50": {
+   "label": "科创50",
+   "high_date": "2026-06-30",
+   "high": 2207.86,
+   "low_date": "2026-11-03",
+   "low": 1151.28,
+   "drawdown_pct": -47.9,
+   "last_date": "2026-11-09",
+   "last": 1256.96
+  },
+  "hs300_longest_weekly_losing_streak_in_sample": 12
+ },
+ "ppi_base": {
+  "oct2026_yoy": 5.7,
+  "apr2026_yoy": 2.8,
+  "mom_2025_may_oct": [
+   -0.4,
+   -0.4,
+   -0.2,
+   0.0,
+   0.0,
+   0.1
+  ],
+  "level_oct26_vs_apr26_pct": 1.9,
+  "apr2027_yoy_if_flat": 1.9,
+  "avg_mom_needed_for_4_5pct": 0.42
+ },
+ "hk": {
+  "date": "2026-11-09",
+  "pe": 13.69,
+  "dividend_yield": 2.99,
+  "earnings_yield": 7.3,
+  "us10y": 4.86,
+  "us10y_date": "2026-11-06",
+  "gap_vs_us10y": 2.44,
+  "hibor_1m": 2.59,
+  "hsi_june_low": {
+   "date": "2026-06-26",
+   "close": 22671.86
+  },
+  "hsi_oct_low": {
+   "date": "2026-10-22",
+   "close": 22934.68
+  },
+  "hstech_june_low": {
+   "date": "2026-06-26",
+   "close": 4255.59
+  },
+  "hstech_oct_low": {
+   "date": "2026-10-29",
+   "close": 3744.14
+  }
+ },
+ "rates": {
+  "cn10y_now": 1.5868,
+  "cn10y_now_date": "2026-11-06",
+  "cn10y_year_ago": 1.8126,
+  "us10y_year_ago": 4.11
+ }
+}

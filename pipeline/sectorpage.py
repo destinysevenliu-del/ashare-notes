@@ -145,8 +145,8 @@ def hub(data,market):
     outlook='../index.html#horizon' if market=='a' else '../hk/index.html#horizon'
     body=f'<div class="hero"><div><h1>{name}板块 · 半年判断</h1><p class="stamp">明细更新 {data["as_of"]} · 总结复核 {data.get("market_synthesis_reviewed_at",data["as_of"])} · {data["window"]}</p></div><div class="hero-meta">板块结论统一维护在此，点击进入公司筛选。<br><a href="{outlook}">查看大盘 A–H 综合依据 →</a></div></div>'
     body+=f'<section class="final-panel" id="conclusion"><h2>研究汇总</h2><p class="final-headline">{E(m["headline"])}</p><div class="market-verdict"><p class="market-copy">{E(m["body"])}</p><div class="market-actions"><div><b>当前研究重心</b><p>{E(m["focus"])}</p></div><div><b>相较上一轮的变化</b><p>{E(m["revision"])}</p></div></div></div></section>'
-    body+='<section class="block"><h2>各板块最终结论 · 横向对照</h2><p class="note">“结构性看好”指特定细分已有需求依据；“条件看好”仍有关键兑现条件；观察类暂不列为优先主线。分类表示研究判断强度，不是收益排序。</p><div class="table-shell"><table class="review-table"><thead><tr><th>板块</th><th>最终判断 / 变化</th><th>未来半年怎样看</th><th>决定性证据</th><th>什么会改变结论</th></tr></thead><tbody>'
-    order={'结构性看好':0,'条件看好':1,'防御观察':2,'周期观察':3,'细分观察':4}
+    body+='<section class="block"><h2>各板块最终结论 · 横向对照</h2><p class="note">“结构性看好”指特定细分已有需求依据；“条件看好”仍有关键兑现条件；“等待开关”指方向成立但时机取决于美联储等外部条件；观察类暂不列为优先主线。分类表示研究判断强度，不是收益排序。</p><div class="table-shell"><table class="review-table"><thead><tr><th>板块</th><th>最终判断 / 变化</th><th>未来半年怎样看</th><th>决定性证据</th><th>什么会改变结论</th></tr></thead><tbody>'
+    order={'结构性看好':0,'条件看好':1,'等待开关':2,'防御观察':3,'周期观察':4,'细分观察':5}
     items=sorted(items,key=lambda s:order[s['review']['group']])
     for s in items:
         v=s['review'];facts=v['decisive']

@@ -84,7 +84,7 @@ def render_execution(ctx,market):
         if n['key'] in 'GH':out+=node_card(n,refs)
     return out+'</div><p><a href="'+prefix+'stocks/portfolio.html">查看组合约束 →</a></p></details>'
 
-def render(ctx,market):
+def legacy(ctx,market):
     d,m,prefix,refs=load_context(ctx,market);v=m['macro_overview']
     out='<section id="macro-verdict" class="verdict-layout"><div class="overview-thesis"><span class="view-label">当前研究基准</span><h3>'+E(v['verdict'])+'</h3><p>'+E(v['synthesis'])+'</p><p class="signal-status">'+E(v['signals']['status'])+'</p></div><aside id="macro-scenarios" class="verdict-signals" aria-label="看多与看空触发条件">'
     for key in ['up','down']:
@@ -116,4 +116,38 @@ CSS = """
 .macro-chain-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:24px 0}.macro-chain-grid article,.macro-scenario-grid article{border:1px solid #d4dfeb;border-radius:8px;padding:22px;background:#fff}.macro-chain-grid h4,.macro-scenario-grid h4{margin:0 0 14px;font-size:17px}.macro-chain-grid p,.macro-scenario-grid p{line-height:1.85}.macro-scenario-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
 #macro-node-definitions,#macro-method{margin:24px 0}#macro-node-definitions>summary,#macro-method>summary{cursor:pointer;font-weight:600;padding:16px;background:#f3f6f9}
 @media(max-width:1000px){.verdict-layout{grid-template-columns:1fr}.verdict-signals{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.overview-decisions.half-year-pillars,.verdict-signals,.macro-chain-grid,.macro-scenario-grid{grid-template-columns:1fr}.overview-thesis h3{font-size:20px}}
+"""
+
+
+def regime(d,market,prefix,refs):
+    g=d['macro_regime'];x=g['markets'][market]
+    out='<style>'+REGIME_CSS+'</style><section id="regime" class="regime"><div class="regime-head"><span class="view-label">未来半年判断 · 复核 '+E(g['reviewed_at'])+' · 窗口 '+E(g['window'])+'</span><h3>'+E(x['verdict'])+'</h3><p>'+E(x['summary'])+'</p><p class="regime-why"><b>为什么重写：</b>'+E(x['why_new'])+'</p></div>'
+    out+='<p class="regime-frame"><b>分析框架</b>'+E(g['framework'])+'</p><div class="regime-parts">'
+    for p_ in x['parts']:
+        out+='<article class="part-'+p_['key']+'"><span class="part-name">'+E(p_['name'])+'</span><h4>'+E(p_['state'])+'</h4><p>'+E(p_['text'])+'</p><p class="part-imp"><b>推出：</b>'+E(p_['implication'])+'</p>'+refs(p_['refs'])+'</article>'
+    out+='</div><div class="regime-scen">'
+    for s_ in x['scenarios']:
+        out+='<article><b>'+E(s_['name'])+'</b><span>'+E(s_['prob'])+'</span><p>'+E(s_['text'])+'</p></article>'
+    board=prefix+('boards/index.html' if market=='a' else 'boards/hk.html')
+    out+='</div><section id="regime-sectors"><h3 class="h3s">从大盘到板块：每个驱动指向哪里</h3><div class="tblwrap"><table class="mt regime-table"><thead><tr><th>宏观驱动</th><th>半年方向</th><th>顺风</th><th>逆风或等待</th><th>站内板块分档</th></tr></thead><tbody>'
+    for r in x['sectors']:out+='<tr>'+''.join('<td>'+E(c)+'</td>' for c in r)+'</tr>'
+    out+='</tbody></table></div><p class="regime-next"><a href="'+board+'">进入'+('A股' if market=='a' else '港股')+'板块，查看分档与证据 →</a></p></section>'
+    out+='<section id="regime-checks"><h3 class="h3s">可证伪清单：到期对账</h3><p class="note">每条都有现值、判定日期、证实线与证伪线；到期后在此标注对或错。</p><div class="tblwrap"><table class="mt regime-table regime-checks"><thead><tr><th>编号</th><th>命题</th><th>现值</th><th>判定日期</th><th>证实</th><th>证伪及后果</th><th>状态</th></tr></thead><tbody>'
+    for c in x['checks']:out+='<tr>'+''.join('<td>'+E(v)+'</td>' for v in c)+'<td>待到期</td></tr>'
+    out+='</tbody></table></div></section><details id="regime-calendar"><summary>未来半年的关键节点</summary><div class="tblwrap"><table class="mt regime-table"><thead><tr><th>时间</th><th>事件</th><th>影响哪个部件</th></tr></thead><tbody>'
+    for c in g['calendar']:out+='<tr>'+''.join('<td>'+E(v)+'</td>' for v in c)+'</tr>'
+    out+='</tbody></table></div></details><p class="note">'+E(g['limits'])+' <a href="'+prefix+g['research']+'">完整研究稿</a> · <a href="'+prefix+g['evidence']+'">计算底稿</a></p></section>'
+    return out
+
+def render(ctx,market):
+    d,m,prefix,refs=load_context(ctx,market)
+    return regime(d,market,prefix,refs)+'<details class="deep-research" id="macro-legacy"><summary>历史研究：11月13日早先版本（盈利×估值主线，已由上方框架替代）</summary>'+legacy(ctx,market)+'</details>'
+
+REGIME_CSS = """
+.regime{margin:18px 0 28px}.regime-head{border-left:4px solid #365875;padding:4px 0 4px 20px;margin-bottom:18px}.regime-head h3{font:600 23px/1.6 var(--sans);color:#223e57;margin:8px 0 12px}.regime-head p{font-size:15px;line-height:1.95;margin:0 0 8px}.regime-why{font-size:13px!important;color:#52687b}
+.regime-frame{background:#f3f6f9;border-radius:8px;padding:12px 16px;font-size:14px;line-height:1.8}.regime-frame b{margin-right:10px}
+.regime-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:18px 0}.regime-parts article{border:1px solid #d4dfeb;border-radius:8px;padding:18px 20px;background:#fff}.part-name{font-size:12px;color:#64798d}.regime-parts h4{margin:6px 0 10px;font-size:17px}.regime-parts p{font-size:14px;line-height:1.85;margin:0 0 8px}.part-imp{background:#f6f8fa;padding:8px 10px;border-radius:6px}
+.regime-scen{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin:0 0 22px}.regime-scen article{border:1px solid #d4dfeb;border-radius:8px;padding:14px 16px}.regime-scen article:first-child{border-left:4px solid #365875}.regime-scen span{float:right;font-size:13px;color:#52687b}.regime-scen p{font-size:14px;line-height:1.8;margin:8px 0 0}
+.regime-table{width:100%;min-width:820px}.regime-table td{vertical-align:top;font-size:13.5px;line-height:1.75}.regime-next{margin:10px 0 22px}.regime-checks td:first-child,.regime-checks td:last-child,.regime-checks td:nth-child(4){white-space:nowrap}#regime-calendar{margin:18px 0}#regime-calendar>summary,#macro-legacy>summary{cursor:pointer;font-weight:600;padding:14px 16px;background:#f3f6f9}
+@media(max-width:1000px){.regime-parts{grid-template-columns:1fr}.regime-scen{grid-template-columns:1fr}}
 """
