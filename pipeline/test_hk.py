@@ -43,8 +43,7 @@ class HKTest(unittest.TestCase):
   hk=(ROOT/'docs/hk/index.html').read_text();a=(ROOT/'docs/index.html').read_text()
   self.assertIn('href="hk/index.html"',a)
   self.assertIn('href="../index.html"',hk)
-  for key in 'ABCDEFGHX':self.assertIn('id="node-'+key+'"',hk)
-  self.assertIn('不合成总分',hk);self.assertIn('17:00 前剔除当日',hk)
+  self.assertIn('id="tracking"',hk);self.assertNotIn('id="today"',hk)
   for p in (ROOT/'data/snapshots/hk_v1').glob('*.json'):
    s=json.loads(p.read_text())
    for k in ['external','economy','policy','valuation']:self.assertIsNone(s['scores'][k])
@@ -56,9 +55,6 @@ class HKTest(unittest.TestCase):
    self.assertEqual(set(data['scores']),set('ABCDEFGX'))
    self.assertTrue(all(value is None for value in data['scores'].values()))
    self.assertEqual(set(data['proxy_signals']),{'hibor','southbound'})
-  html=(ROOT/'docs/hk/index.html').read_text()
-  for label in ['人民币汇率','盈利折算','资金偏好','美联储','仓位、申赎与交易约束','信用／融资条件']:
-   self.assertIn(label,html)
  def test_completed_research_has_evidence_for_all_nodes(self):
   from hk_research import load
   r=load(ROOT,'2026-11-09')

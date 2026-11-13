@@ -1,0 +1,427 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>研究框架 | A 股框架笔记</title><style>:root{color-scheme:light;
+--paper:#F4F5F7;--surface:#FFFFFF;--ink:#18202B;--ink2:#4B5565;--ink3:#7C8696;--line:#DCE0E6;--line2:#EEF0F3;
+--up:#C8312B;--up-bg:#FBE8E6;--down:#15804E;--down-bg:#E2F2E9;--flat-bg:#ECEEF2;--link:#27408B;--link-bg:#E8ECF7;
+--warn:#8A6D12;--warn-bg:#FFF3C4;
+--serif:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong",serif;
+--sans:-apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.7 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--link);text-decoration:none}
+a:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px}
+.brand{font:600 18px/1 var(--serif);color:var(--ink)}
+header nav{display:flex;gap:2px;font-size:14px;align-items:center}
+header nav a,header nav .soon{padding:5px 10px;border-radius:6px;color:var(--ink2)}
+header nav a[aria-current]{background:var(--link-bg);color:var(--link);font-weight:600}
+header nav .soon{color:#B0B6C0}
+header nav .soon small{font-size:11px;margin-left:3px}
+
+.hero{padding:34px 0 6px}
+.hero .date{margin:0;color:var(--ink3);font-size:14px}
+.hero h1{font:600 34px/1.3 var(--serif);margin:2px 0 10px}
+.hero .sum{font:500 19px/1.6 var(--serif);margin:0;max-width:36em}
+.hero .stamp{font-size:13px;color:var(--ink3);margin:8px 0 0}
+
+.block{padding:34px 0 4px}
+h2{font:600 23px/1.3 var(--serif);margin:0 0 4px}
+.sub{color:var(--ink2);margin:0 0 16px;max-width:44em;font-size:14px}
+.note{color:var(--ink2);font-size:14px;max-width:46em}
+
+.tag{display:inline-block;font-size:12px;line-height:20px;padding:0 8px;border-radius:4px;margin-right:8px;white-space:nowrap;font-weight:600}
+.tag.up{background:var(--up-bg);color:var(--up)}
+.tag.down{background:var(--down-bg);color:var(--down)}
+.tag.flat,.tag.na{background:var(--flat-bg);color:var(--ink2)}
+.tag.alert{background:var(--warn-bg);color:var(--warn)}
+
+.chg-list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.chg-list li{padding:11px 16px;border-top:1px solid var(--line2);font-size:15px}
+.chg-list li:first-child{border-top:0}
+.chg-list li a{font-size:13px;margin-left:6px;white-space:nowrap}
+
+/* 框架图 */
+.fwbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 10px 6px;overflow-x:auto}
+svg.fw{display:block;width:100%;min-width:760px;height:auto}
+.fw .edge{fill:none;stroke:#9AA2AF;stroke-width:1.4}
+.fw .edge.fb{stroke:#D88B1F;stroke-dasharray:5 4}
+.fw .node rect{stroke-width:1.5}
+.fw .node .n{font:600 15px var(--sans);fill:var(--ink)}
+.fw .node .s{font:13px var(--sans);fill:var(--ink2)}
+.fw .node .lc{fill:var(--ink)} .fw .node .lt{font:700 13px var(--sans);fill:#fff}
+.fw .node.up rect{fill:var(--up-bg);stroke:var(--up)} .fw .node.up .s{fill:var(--up)} .fw .node.up .lc{fill:var(--up)}
+.fw .node.down rect{fill:var(--down-bg);stroke:var(--down)} .fw .node.down .s{fill:var(--down)} .fw .node.down .lc{fill:var(--down)}
+.fw .node.flat rect{fill:var(--flat-bg);stroke:#AEB5C1} .fw .node.flat .lc{fill:#7C8696}
+.fw .node.na rect{fill:#fff;stroke:#C3C8D0;stroke-dasharray:4 3} .fw .node.na .lc{fill:#B0B6C0} .fw .node.na .n{fill:var(--ink3)}
+.fw .node.price rect{fill:var(--ink);stroke:var(--ink)} .fw .node.price .n{fill:#fff} .fw .node.price .s{fill:#C9CFD8} .fw .node.price .lc{fill:#fff} .fw .node.price .lt{fill:var(--ink)}
+.fw .node:hover rect{stroke-width:3}
+.chips{display:none}
+
+/* 打分卡 */
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sc{background:var(--surface);padding:13px 16px;color:var(--ink);display:block}
+a.sc:hover{background:#FAFBFC}
+.sc .lbl{display:flex;align-items:baseline;gap:6px;font-weight:600}
+.sc .lbl .v{margin-left:auto;font:700 19px var(--sans)}
+.sc .man{font-size:11px;font-weight:600;color:var(--warn);background:var(--warn-bg);padding:0 5px;border-radius:3px}
+.v.up{color:var(--up)} .v.down{color:var(--down)} .v.flat{color:var(--ink3)}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin:7px 0 6px}
+.scale span{height:7px;border-radius:2px;background:var(--flat-bg)}
+.scale span.mid{background:#C9CED6} .scale span.u{background:var(--up)} .scale span.d{background:var(--down)}
+.sc p{margin:0;font-size:13px;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sc.total{grid-column:1/-1;background:var(--ink);color:#fff}
+.sc.total .v{color:#fff;font-size:26px}
+.sc.total p{color:#C9CFD8;-webkit-line-clamp:unset;margin-top:4px}
+.trend{display:block;width:100%;max-width:480px;height:auto;margin-top:8px}
+.trend .u{fill:#FF8A80} .trend .d{fill:#5BC28A} .trend .z{fill:#7C8696}
+
+/* 节点展开 */
+.nd{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px 16px;margin-bottom:16px;scroll-margin-top:72px}
+.nd:target{box-shadow:0 0 0 3px var(--link-bg);border-color:var(--link)}
+.ndh{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
+.ndh h3{margin:0;font:600 19px/1.35 var(--serif)}
+.ndh .q{margin:2px 0 0;color:var(--ink2);font-size:14px}
+.lc2{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;background:#7C8696}
+.lc2.up{background:var(--up)} .lc2.down{background:var(--down)} .lc2.price{background:var(--ink)} .lc2.na{background:#B0B6C0}
+h4{font-size:14px;margin:18px 0 8px;color:var(--ink2)}
+
+.verdict{border-left:4px solid #AEB5C1;background:#F8F9FB;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px}
+.verdict.up{border-color:var(--up);background:#FDF5F4} .verdict.down{border-color:var(--down);background:#F3FAF6}
+.verdict .vh{display:flex;align-items:center;gap:4px}
+.verdict .vh b{font-size:18px}
+.verdict.up .vh b{color:var(--up)} .verdict.down .vh b{color:var(--down)}
+.verdict .vwhy{margin-left:auto;font-size:12px;color:var(--ink3)}
+.verdict ul{list-style:none;margin:6px 0 0;padding:0}
+.verdict li{display:flex;gap:10px;font-size:14px;padding:3px 0;color:var(--ink)}
+.pt{flex:0 0 40px;text-align:right;font-weight:700;font-size:13px}
+.pt.up{color:var(--up)} .pt.down{color:var(--down)} .pt.flat{color:var(--ink3)}
+.mnote{font-size:13px;color:var(--warn);margin:6px 0 0}
+.verdict.na .mnote{color:var(--ink2)}
+
+.tblwrap{overflow-x:auto}
+table.mt{width:100%;border-collapse:collapse;font-size:14px}
+.mt th,.mt td{padding:9px 10px;border-top:1px solid var(--line2);text-align:left;vertical-align:middle}
+.mt thead th{border-top:0;font-size:12px;color:var(--ink3);font-weight:600;white-space:nowrap}
+.mt tbody th{font-weight:600;min-width:150px}
+.mt .hint{display:block;font-weight:400;font-size:12px;color:var(--ink3);line-height:1.45}
+.mt .v{font-weight:700;white-space:nowrap}
+.mt .chg{white-space:nowrap;font-size:13px}
+.mt .up,.chg.up{color:var(--up)} .mt .down,.chg.down{color:var(--down)} .chg.flat{color:var(--ink3)}
+.mt .dt{font-size:13px;color:var(--ink2);white-space:nowrap}
+.mt .freq{display:block;font-size:11px;color:var(--ink3)}
+.mt .sp{width:130px}
+.spark{display:block}
+.it td,.it th{white-space:nowrap}
+
+.chartbox{margin:14px 0 4px}
+svg.chart{display:block;width:100%;height:auto}
+.chart .grid{stroke:#EEF0F3} .chart .ax{font:11px var(--sans);fill:var(--ink3)}
+.chart .band{stroke:#D88B1F;stroke-dasharray:4 4} .chart .bandlab{font:11px var(--sans);fill:#B07015}
+.cleg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);padding-left:48px}
+.cleg i{display:inline-block;width:14px;height:3px;margin-right:6px;vertical-align:3px;border-radius:2px}
+
+.ev{list-style:none;margin:0;padding:0}
+.ev li{padding:8px 0;border-top:1px solid var(--line2);font-size:14px}
+.ev li:first-child{border-top:0}
+.ev .evd{color:var(--ink3);font-size:12px;margin-left:8px}
+.ev p{margin:2px 0 0;color:var(--ink2)}
+.ev .src{display:block;font-size:12px;color:var(--ink3)}
+
+details.rules{margin-top:12px;font-size:13px;color:var(--ink2);background:#F8F9FB;border-radius:8px;padding:8px 12px}
+details.rules summary{cursor:pointer;color:var(--link);font-weight:600}
+details.rules[open] summary{margin-bottom:6px}
+
+.conds{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.conds li{display:grid;grid-template-columns:96px 1fr;gap:2px 12px;padding:11px 16px;border-top:1px solid var(--line2);font-size:14px}
+.conds li:first-child{border-top:0}
+.conds .cs{grid-row:span 2;font-size:12px;font-weight:600;align-self:start;margin-top:2px;padding:1px 8px;border-radius:4px;text-align:center;background:var(--flat-bg);color:var(--ink3)}
+.conds li.hit .cs{background:var(--warn-bg);color:var(--warn)}
+.conds .cn{color:var(--ink2);font-size:13px}
+
+.empty{background:var(--surface);border:1px dashed #C3C8D0;border-radius:12px;padding:20px 24px}
+.empty h3{margin:0 0 6px;font:600 18px var(--serif)}
+.empty blockquote{margin:10px 0;padding:10px 14px;background:#F8F9FB;border-left:3px solid var(--link);color:var(--ink);border-radius:0 6px 6px 0}
+
+footer{margin-top:44px;padding:20px 0 40px;border-top:1px solid var(--line);font-size:13px;color:var(--ink3)}
+footer p{margin:4px 0}
+
+@media (max-width:760px){
+ .wrap{padding:0 16px}
+ .brand{font-size:16px}
+ header nav .soon{display:none}
+ .hero h1{font-size:26px} .hero .sum{font-size:17px}
+ .fwbox{display:none}
+ .chips{display:grid;gap:8px}
+ .chip{display:grid;grid-template-columns:28px 1fr;gap:0 10px;background:var(--surface);border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:9px 12px;color:var(--ink);font-size:14px;font-weight:600}
+ .chip b{grid-row:span 2;width:26px;height:26px;border-radius:50%;background:#7C8696;color:#fff;display:grid;place-items:center;font-size:13px}
+ .chip span{font-weight:400;font-size:13px;color:var(--ink2)}
+ .chip.up{border-left-color:var(--up)} .chip.up b{background:var(--up)} .chip.up span{color:var(--up)}
+ .chip.down{border-left-color:var(--down)} .chip.down b{background:var(--down)} .chip.down span{color:var(--down)}
+ .chip.price b{background:var(--ink)} .chip.na{border-style:dashed} .chip.na b{background:#B0B6C0}
+ .score{grid-template-columns:1fr 1fr}
+ .nd{padding:16px 14px 12px}
+ .mt .sp{display:none}
+ .mt tbody th{min-width:118px}
+ .conds li{grid-template-columns:1fr}
+ .conds .cs{grid-row:auto;justify-self:start}
+}
+
+/* 个股页 */
+.crumb{font-size:13px;color:var(--ink3);padding-top:22px}
+.crumb a{color:var(--ink2)}
+.shero{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-top:6px}
+.shero h1{margin:0}
+.shero h1 small{font:400 16px var(--sans);color:var(--ink3);margin-left:12px}
+.tags2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tags2 span{font-size:12px;padding:1px 10px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--ink2)}
+.tags2 .drv{background:var(--ink);border-color:var(--ink);color:#fff}
+.tags2 .cand{background:var(--warn-bg);border-color:var(--warn-bg);color:var(--warn)}
+.px{text-align:right}
+.px b{font:700 34px/1 var(--sans);display:block}
+.px span{font-weight:700;margin-right:8px}
+.px small{color:var(--ink3);font-size:12px}
+.up{color:var(--up)} .down{color:var(--down)}
+.tag.up,.tag.down{color:inherit}
+.tag.up{color:var(--up)} .tag.down{color:var(--down)}
+.lay th{width:72px;font-size:15px}
+.lay td:nth-child(2){width:96px}
+.soon2{font-size:12px;color:var(--ink3);margin-left:6px}
+.prior{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--link);border-radius:0 10px 10px 0;padding:12px 16px;margin:0;max-width:52em;font:500 16px/1.7 var(--serif)}
+.prior .src{display:block;font:12px var(--sans);color:var(--ink3);margin-top:4px}
+.fm .why{color:var(--ink2);font-size:13px;min-width:180px}
+.fm .now{font-size:13px;min-width:200px}
+.fm .now.na{color:var(--ink3)} .fm .now.flat{color:var(--ink2)}
+.lv{display:inline-block;font-size:12px;font-weight:700;padding:0 8px;border-radius:4px}
+.lv.hi{background:var(--ink);color:#fff} .lv.mid{background:#C9CED6;color:var(--ink)} .lv.lo{background:var(--flat-bg);color:var(--ink3)}
+.ndlist{margin-top:16px}
+.h3s{margin:0 0 6px;font:600 18px var(--serif)}
+.ann{list-style:none;margin:0;padding:0;font-size:14px}
+.ann li{padding:5px 0;border-top:1px solid var(--line2)}
+.ann li:first-child{border-top:0}
+.ann .evd{display:inline-block;width:92px;color:var(--ink3);font-size:12px}
+/* 个股列表 */
+.slist{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.srow{display:grid;grid-template-columns:1.4fr 1fr .8fr .9fr .9fr 1.6fr;gap:12px;align-items:center;padding:14px 18px;border-top:1px solid var(--line2);color:var(--ink)}
+.srow:first-child{border-top:0}
+.srow:hover{background:#FAFBFC}
+.srow .nm{font-weight:700;font-size:16px}
+.srow .nm small{display:block;font-weight:400;font-size:12px;color:var(--ink3)}
+.srow .px2 b{display:block;font-size:16px}
+.srow .px2 span{font-size:13px;font-weight:600}
+.srow .kv{font-size:12px;color:var(--ink3)} .srow .kv b{display:block;font-size:15px;color:var(--ink)}
+.srow .kv b.up{color:var(--up)} .srow .kv b.down{color:var(--down)}
+.lys{display:flex;gap:4px;flex-wrap:wrap}
+.lys .tag{margin:0}
+/* 报告 */
+.rplist{display:grid;gap:10px}
+.rp{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;color:var(--ink)}
+.rp:hover{border-color:var(--link)}
+.rp b{font:600 17px var(--serif);display:block}
+.rp .rh{display:block;color:var(--ink);font-size:14px;margin-top:2px}
+.rp .rd{display:block;color:var(--ink3);font-size:13px}
+@media (max-width:760px){
+ .srow{grid-template-columns:1fr 1fr;gap:6px 12px}
+ .srow .lys{grid-column:1/-1}
+ .px{text-align:left}
+ .fm .why{min-width:140px}
+}
+.lc2{color:#fff!important}
+@media (max-width:760px){
+ .lay tr{display:grid;grid-template-columns:64px 1fr;padding:8px 0;border-top:1px solid var(--line2)}
+ .lay th,.lay td{border:0;padding:2px 8px}
+ .lay td:last-child{grid-column:1/-1}
+}
+.chip2{display:inline-block;font-size:12px;padding:1px 10px;border-radius:20px;background:var(--link-bg);color:var(--link);margin-right:4px}
+.sum2{font-size:15px;color:var(--ink2);margin:14px 0 0}
+.sum2 b{font-size:18px}
+.brow{grid-template-columns:1.6fr .7fr .9fr .9fr 1fr 1.4fr}
+.sc .sk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--flat-bg);color:var(--ink2);font-size:11px;font-weight:700}
+@media (max-width:760px){.sc.total{grid-column:1/-1!important}}
+@media (max-width:760px){.score .sc:nth-last-child(2):nth-child(odd){grid-column:1/-1}}
+.lls{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:22px}
+.ll{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.ll p{margin:6px 0 0;font-size:14px}
+.llh{display:flex;align-items:center;gap:8px}
+.llh b{font:600 17px var(--serif)}
+.llh .v{margin-left:auto;font:700 18px var(--sans)}
+.star{font-size:11px;font-weight:700;background:var(--link);color:#fff;padding:1px 7px;border-radius:4px}
+.kv2{color:var(--ink3);font-size:12px!important}
+.scr td,.scr th{white-space:nowrap;font-size:13px}
+.scr tr.hl{background:#F7F9FE}
+@media (max-width:760px){.lls{grid-template-columns:1fr}}
+.gh{margin:22px 0 8px;display:flex;align-items:baseline;gap:10px}
+.gh small{font:13px var(--sans);color:var(--ink3)}
+.tags2 .st2{background:var(--link-bg);border-color:var(--link-bg);color:var(--link)}
+
+/* v2 research cards: preserve readable columns, scroll tables on narrow screens. */
+#research{scroll-margin-top:110px}
+#research table{min-width:920px}
+#research th:first-child{min-width:85px}
+#research td{vertical-align:top}
+@media(max-width:600px){
+ header.top .wrap{height:auto;min-height:72px;flex-wrap:wrap;gap:6px;padding-top:10px;padding-bottom:8px}
+ .brand{white-space:nowrap}
+ header nav{width:100%;justify-content:space-between;white-space:nowrap}
+ header nav a{padding:5px 8px}
+}
+
+/* HK market navigation and observation cards */
+.market-switch{display:flex;gap:6px;padding-top:26px;align-items:center}
+.market-switch a{padding:8px 24px;border:1px solid var(--line,#dedbd5);border-radius:5px;text-decoration:none;color:inherit;font-weight:600}
+.market-switch a[aria-current="page"]{background:#293e50;color:#fff;border-color:#293e50}
+.market-switch+.hero{padding-top:30px}
+.hk-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.hk-node{border:1px solid var(--line);border-left:3px solid currentColor;border-radius:10px;padding:13px 15px;text-decoration:none;display:flex;flex-direction:column;gap:6px;color:var(--ink3);background:var(--surface)}
+.hk-node b{font:700 20px/1 var(--serif)}.hk-node span{font-weight:600;color:var(--ink);font-size:14px}.hk-node small{font-size:11px;color:var(--ink3)}
+.hk-notice{border-left:3px solid var(--warn);padding:8px 18px;background:var(--warn-bg);font-size:13px;border-radius:0 8px 8px 0}
+.hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:var(--ink2)}.hk-diagram .small{font-size:10px;fill:var(--ink3)}
+@media(min-width:761px){.hk-diagram+.hk-map{display:none}}
+@media(max-width:760px){.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-diagram{display:none}.hk-node{padding:12px}.market-switch{padding-top:18px}}
+
+.hk-node.fx,.lc2.fx{color:#3478db;border-color:#4e91ff;background:#eef5ff}
+.lc2.fx{background:#3478db;color:#fff}
+.hk-node.price{background:#172333;color:#fff}.hk-node.price span,.hk-node.price small{color:#fff}
+@media(max-width:760px){.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.hk-call{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#f0f3f7;padding:16px;margin-bottom:18px;border-radius:6px}.hk-call small{color:#64748b}.hk-scope{display:block;color:#64748b;font-size:11px;line-height:1.6;margin-top:6px}.hk-evidence p{line-height:1.9}.hk-evidence .mt th:first-child{min-width:100px}.hk-evidence .mt td:last-child{white-space:nowrap}
+@media(max-width:760px){.hk-evidence .mt{min-width:640px}.hk-evidence .tblwrap{overflow-x:auto}.hk-call{padding:12px}}
+
+.hk-mobilehint{display:none}@media(max-width:760px){.hk-mobilehint{display:block;font-size:12px;color:#64748b}}
+
+/* ---- 半年名单 /picks/ ---- */
+.pkbar{width:100%;height:auto;margin:8px 0 0}
+.pkb{fill:#fff;font:600 13px var(--sans)}
+.pkbl{fill:var(--ink2);font:12px var(--sans)}
+.pklegend{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 0;font-size:13px;color:var(--ink2)}
+.pkleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+table.pk td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.pk td.pkjudge{font-size:13px;color:var(--ink2);min-width:260px}
+.pkh3{font:600 17px/1.4 var(--serif);margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
+.pkh3:first-of-type{margin-top:8px}
+.pkh3 span{font:13px var(--sans);color:var(--ink3)}
+.pkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.pkcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 12px;border-top:3px solid var(--line)}
+.pkcard.tA{border-top-color:var(--link)}
+.pkcard.tB{border-top-color:var(--ink3)}
+.pkcard.tC{border-top-color:var(--up)}
+.pkh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.pkh a{font:600 18px/1.3 var(--serif);color:var(--ink)}
+.pkw{font:700 15px var(--sans);color:var(--link)}
+.pkmeta{margin:2px 0 8px;font-size:12px;color:var(--ink3)}
+.pkmini{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pkmini span{font-size:12px;color:var(--ink2);background:var(--line2);border-radius:6px;padding:2px 8px}
+.pkmini b{color:var(--ink);font-weight:700}
+.pkass{margin:0 0 8px;font-size:13.5px;line-height:1.65;color:var(--ink)}
+.pklab{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--ink);border-radius:4px;padding:0 6px;margin-right:6px}
+.pklab2{display:block;margin:0 0 4px;background:var(--warn-bg);color:var(--warn)}
+.pkfals{margin:0;padding-left:18px;font-size:13px;color:var(--ink2)}
+.pkfals li{margin:2px 0}
+.pknote{margin:8px 0 0;font-size:12px;color:var(--ink3)}
+.pkrules{margin:0;padding-left:22px;font-size:14.5px}
+.pkrules li{margin:6px 0}
+
+/* 今天变了什么：结论先行（A 股与港股共用） */
+.lead{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ink);border-radius:12px;padding:15px 20px 13px;margin:0 0 14px}
+.lead-k{font:700 11px var(--sans);letter-spacing:.14em;color:var(--ink3);margin:0 0 6px}
+.lead-main{font:600 19px/1.62 var(--serif);margin:0 0 9px;max-width:46em}
+.lead-points{margin:0;padding-left:18px;font-size:14px;line-height:1.78;color:var(--ink2)}
+.lead-points li{margin:2px 0}
+.lead-points b{color:var(--ink)}
+@media(max-width:760px){.lead-main{font-size:17px}}
+.v.na{color:var(--ink3)} .v.fx{color:var(--link)} .v.price{color:var(--ink2)}
+
+/* 信号时效分析 */
+.hz-lead{border-left-color:var(--link)}
+.hz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:32px}
+.hz-col{background:var(--surface);padding:18px 20px}
+.hz-head{font:600 16px/1.3 var(--serif);margin:-18px -20px 12px;padding:12px 20px;background:var(--flat-bg);display:flex;align-items:center;gap:6px}
+.hz-head span{font-size:20px}
+.hz-s{border-bottom:3px solid var(--up)} .hz-m{border-bottom:3px solid #D88B1F} .hz-l{border-bottom:3px solid var(--down)}
+.hz-tbl{font-size:13px}
+.hz-tbl td.note{font-size:12px}
+.hz-col > .note{font-size:13px;margin:0 0 10px}
+.hz-col .tblwrap .mt td{padding:7px 8px}
+.chip2{display:inline-block;font-size:11px;font-weight:700;background:var(--flat-bg);color:var(--ink2);padding:1px 6px;border-radius:4px;margin-left:4px;vertical-align:1px}
+.chip2:hover{background:var(--link-bg);color:var(--link)}
+@media(max-width:760px){.hz-grid{grid-template-columns:1fr}}
+/* 板块选入理由 */
+.reason-block{padding:14px 20px}
+.reason-label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.hz-badge{display:inline-block;margin-left:8px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;vertical-align:middle}
+.hz-struct{background:#dbeafe;color:#1e40af}
+.hz-cycle{background:#fef3c7;color:#92400e}
+
+.reason-link{font-size:11.5px;color:var(--ink2)}
+.reason-link a{color:var(--link)}
+/* 股性卡 */
+.gx-block{background:var(--surface)}
+.gx-char{font-size:13.5px;color:var(--ink);line-height:1.6;margin-bottom:12px;padding:12px 16px;background:white;border-radius:8px;border:1px solid var(--line)}
+
+/* 半年板块推断 */
+.ol-lead{border-left-color:var(--link)}
+.ol-lead .lead-points li{margin-bottom:6px}
+.ol-tier{margin:0 0 22px}
+.ol-th{display:flex;align-items:center;gap:4px;margin:0 0 10px}
+.ol-desc{font-size:13px;color:var(--ink2)}
+.ol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ol-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 16px}
+.ol-ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;font-size:15px}
+.ol-ch a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.ol-hz{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--link-bg);color:var(--link);font-weight:600}
+.ol-new{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-weight:600}
+.ol-stat{font-size:12px;color:var(--ink3);margin:0 0 6px;line-height:1.5}
+.ol-p{font-size:13px;line-height:1.6;margin:4px 0;color:var(--ink)}
+.ol-lab{display:inline-block;font-size:11px;font-weight:700;color:var(--ink2);background:var(--flat-bg);border-radius:4px;padding:0 6px;margin-right:6px}
+.ol-scs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 24px}
+.ol-sc{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--ink3);border-radius:12px;padding:12px 16px;font-size:13px;line-height:1.6}
+.ol-sc.up{border-top-color:var(--up)} .ol-sc.down{border-top-color:var(--down)}
+.ol-sc p{margin:6px 0 0}
+@media(max-width:760px){.ol-scs{grid-template-columns:1fr}}
+
+/* 大盘页一级折叠 */
+.l1nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+.l1nav a{font-size:13px;padding:4px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--line);color:var(--ink2);text-decoration:none}
+details.l1{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px 22px;margin:0 0 18px}
+details.l1[open]{padding-bottom:18px}
+details.l1>summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:14px 0}
+details.l1>summary::-webkit-details-marker{display:none}
+details.l1>summary h2{margin:0;font:600 22px/1.3 var(--serif)}
+details.l1>summary h2::before{content:"▸";display:inline-block;margin-right:10px;color:var(--ink3);transition:transform .15s}
+details.l1[open]>summary h2::before{transform:rotate(90deg)}
+details.l1[open]>summary{border-bottom:1px solid var(--line2);margin-bottom:12px}
+.l1hint{font-size:13px;color:var(--ink3)}
+details.sub2{margin:14px 0;border:1px solid var(--line2);border-radius:10px;padding:8px 14px;background:#FAFBFC}
+details.sub2>summary{cursor:pointer;font-weight:600;color:var(--link);font-size:14px}
+details.sub2[open]>summary{margin-bottom:10px}
+.secondary-nav{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:16px;font-size:13px}.secondary-nav a{color:#536b82}
+body:has(.market-research) .wrap{max-width:1500px}.market-research{display:block!important}.market-rail{display:none}.market-content .l1nav{display:none!important}
+.market-content details.l1{margin-bottom:16px}.market-content .hero{padding:18px 0}.market-content .hero h1{font-size:30px}
+.overview-decisions,.overview-evidence{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin:15px 0 22px}
+.overview-decisions article{border:1px solid #c8d8e7;border-top:3px solid #3d5c77;border-radius:8px;background:#f3f7fb;padding:20px;min-width:0}
+.overview-decisions span{font-size:12px;color:#60758b}.overview-decisions h3{font:600 19px/1.55 var(--sans);margin:10px 0}.overview-decisions p{font-size:14px;line-height:1.9;margin:10px 0 0}
+.overview-change{font-size:13px!important;color:#5d7185;border-bottom:1px solid #dce4ed;padding-bottom:16px}
+.overview-evidence article{padding:0 18px 0 0;border-right:1px solid #e0e6ed;min-width:0}.overview-evidence article:last-child{border:0}.overview-evidence h4{font:600 16px/1.6 var(--sans);margin:0 0 10px}.overview-evidence p{font-size:14px;line-height:1.85}.overview-evidence .src{font-size:11px;line-height:1.6}
+.overview-conditions{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:18px 20px;background:#f7f8fa;border-radius:7px;margin:22px 0}.overview-conditions b{font-size:14px}.overview-conditions p{font-size:14px;line-height:1.8;margin:8px 0 0}
+.next-step{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:20px 0;border-top:1px solid #dce4ed}.next-step p{font-size:13px;margin:6px 0}.next-step>a{white-space:nowrap;font-size:14px;padding:10px 18px;border-radius:6px;background:#26455f;color:white}
+.deep-research{border:1px solid #d4dfea;border-radius:8px;padding:16px 20px;margin:18px 0;background:#fff}.deep-research>summary{font:600 15px/1.8 var(--sans);cursor:pointer;color:#395872}.deep-research[open]>summary{border-bottom:1px solid #e0e7ef;padding-bottom:12px;margin-bottom:18px}
+.macro-flow{display:block;width:100%;max-width:1000px;margin:auto}.macro-flow-wrap{overflow-x:auto}.sector-factor-notes{border-top:1px solid #dce4ed;margin-top:18px;padding-top:15px}.sector-factor-notes summary{cursor:pointer;font-size:14px;color:#4a647b}
+.research-rail .factor-links{display:none}.research-content .takeaway-grid{display:none}.research-content .final-panel .factor-balance{margin-bottom:0}.research-content .hero-meta{font-size:12px}.sd-nav{position:static!important;justify-content:space-between}.sd-nav details{font-size:13px;color:#536b82}.sd-nav details a{background:transparent;padding:6px 8px;font-size:12px}.sd-summary-line{font-size:13px;color:#596e84;padding:12px 0;border-bottom:1px solid #dbe3ec}
+@media(max-width:900px){.overview-decisions,.overview-evidence,.overview-conditions{grid-template-columns:1fr}.overview-evidence article{border-right:0;border-bottom:1px solid #e0e6ed;padding-bottom:12px}.next-step{align-items:start;flex-direction:column}.macro-flow{min-width:760px}}
+</style></head><body>
+<header class="top"><div class="wrap"><a class="brand" href="index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="index.html">总览</a><a href="boards/index.html">板块</a><a href="stocks/index.html">个股</a><a href="framework.html" aria-current="page">框架</a></nav></div></header>
+<main class="wrap"><div class="hero"><p class="date">框架版本 2026-11-13 v1</p><h1>研究框架：分子、分母、水龙头</h1><p class="sum">任何一个投资对象的价格 = 它未来赚的钱（分子）÷ 市场要求它给的回报（分母）；在中国市场，还要看谁在放水、谁在托底（水龙头）。</p></div><style>
+.fw-card{background:#f3f6f9;border-radius:10px;padding:18px 22px;margin:18px 0}.fw-card p,.fw-card li{font-size:15px;line-height:1.95}
+.fw-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:14px 0}.fw-parts article{border:1px solid #d4dfeb;border-radius:8px;padding:16px 18px;background:#fff}.fw-parts span{font-size:13px;color:#64798d;font-weight:600}.fw-parts h3{font-size:17px;margin:6px 0 10px}.fw-parts p{font-size:14px;line-height:1.85;margin:0 0 8px}.fw-trap{background:#f6f8fa;padding:8px 10px;border-radius:6px}
+.fw-num{border-top:4px solid #3d6b8f!important}.fw-den{border-top:4px solid #8a6d3b!important}.fw-tap{border-top:4px solid #3f7d63!important}
+.fw-grid{width:100%;min-width:900px}.fw-grid td,.fw-grid th{vertical-align:top;font-size:13.5px;line-height:1.75}.fw-grid thead th small{display:block;font-weight:400;color:#64798d;font-size:12px}
+.fw-chain{display:flex;align-items:stretch;gap:10px;margin:12px 0}.fw-chain article{flex:1;border:1px solid #d4dfeb;border-radius:8px;padding:14px 16px}.fw-chain p{font-size:14px;line-height:1.8;margin:8px 0 0}.fw-arrow{align-self:center;font-size:22px;color:#8798a9}
+.fw-out li{font-size:14.5px;line-height:1.9}
+@media(max-width:900px){.fw-parts{grid-template-columns:1fr}.fw-chain{flex-direction:column}.fw-arrow{transform:rotate(90deg)}}
+</style><section class="fw-card"><h2>一个比喻</h2><p>把价格想成一个水池的水位：分子是进水的多少，分母是池子的大小，水龙头是外面有没有人在额外加水或抽水。分子决定长期水位，分母决定同样多的水能撑多高，水龙头决定这几个月水位怎么晃。</p></section><section><h2>三件事，每件事只问一个问题</h2><div class="fw-parts"><article class="fw-num"><span>分子</span><h3>它未来赚的钱会变多还是变少？</h3><p><b>由什么决定：</b>销量 × 价格 × 利润率；最后看能否变成现金。</p><p class="fw-trap"><b>容易犯的错：</b>看增速的方向（在加速还是减速），不只看高低；涨价带来的利润要分清是持续的还是一次性的。</p></article><article class="fw-den"><span>分母</span><h3>市场要求它给多高的回报？</h3><p><b>由什么决定：</b>无风险利率（A股看中国国债，港股看美国利率）＋ 风险溢价（政策、地缘、信用、情绪）。</p><p class="fw-trap"><b>容易犯的错：</b>便宜不等于会涨；便宜只是下跌时的垫子，真正改变分母的是利率和风险事件。</p></article><article class="fw-tap"><span>水龙头</span><h3>谁在买、谁在卖、谁在托底？</h3><p><b>由什么决定：</b>国家队与政策、杠杆资金、居民存款、外资与南向、新股与解禁供给。</p><p class="fw-trap"><b>容易犯的错：</b>资金决定半年内的路径，不决定长期方向；资金流入不能再拿来证明盈利变好。</p></article></div></section><section><h2>同一套问题，用在三个层级</h2><p class="note">横着看是同一层级的三件事，竖着看是同一件事在不同层级换了指标。</p><div class="tblwrap"><table class="mt fw-grid"><thead><tr><th></th><th>分子<small>它未来赚的钱会变多还是变少？</small></th><th>分母<small>市场要求它给多高的回报？</small></th><th>水龙头<small>谁在买、谁在卖、谁在托底？</small></th><th>开关（外部条件）</th><th>这一层的输出</th></tr></thead><tbody><tr><th scope="row">大盘</th><td>上市公司整体盈利；PPI、出口、内需、信贷</td><td>中国/美国10年国债；股债差（盈利收益率减国债利率）</td><td>汇金等国家队、两融、M1与存款、南向、IPO与解禁</td><td>美联储、中央经济工作会议、两会、中美关税</td><td><b>风向表：哪一类分子、分母、水龙头处在顺风</b></td></tr><tr><th scope="row">板块</th><td>行业的量、价、产能利用率、利润率、订单</td><td>行业估值在自身历史的位置；对利率的敏感度（成长股更敏感）</td><td>行业ETF与基金持仓拥挤度、政策资金、行业供给（新股、增发）</td><td>行业政策、价格拐点、海外需求</td><td><b>四档：顺风、前半段、等开关、逆风</b></td></tr><tr><th scope="row">个股</th><td>收入、毛利率、现金流、份额：在板块的蛋糕里拿得多不多</td><td>估值与增速是否匹配；相对行业贵还是便宜</td><td>股东增减持、回购、解禁、机构持仓变化</td><td>财报、订单、产品与公告</td><td><b>三个决定：能否入池、排第几、现在是不是好时机</b></td></tr></tbody></table></div></section><section><h2>三层怎样接力</h2><div class="fw-chain"><article><b>大盘 → 板块</b><p>大盘给出风向表；只研究自身三件事与风向同向的板块，逆风板块不进入优先研究。</p></article><div class="fw-arrow">→</div><article><b>板块 → 个股</b><p>板块的分子就是个股的蛋糕；个股只比较谁拿到的分子最多、最可靠。</p></article><div class="fw-arrow">→</div><article><b>个股 → 组合</b><p>分母与水龙头决定时机和仓位节奏，不重复给个股打分。</p></article></div><p class="note">个股页现有三个决定与本框架一一对应：赛道归属＝板块是否顺风；兑现质量＝分子；价格反映＝分母与水龙头。</p></section><section><h2>每一层都交付同样的六样东西</h2><ol class="fw-out"><li>一句话结论（方向＋时机）</li><li>三件事各自的状态与证据</li><li>开关：要等什么外部条件</li><li>情景与概率：基准、上调、下调</li><li>跟踪单：定期看哪些指标、阈值是多少</li><li>证伪单：命题、现值、判定日、证实线、证伪线</li></ol></section><section><h2>持续更新：三类信息，三种处理方式</h2><div class="fw-parts"><article><span>定期数据</span><p>按固定频率发布的数据：日度行情与资金、月度宏观、季度财报。</p><p class="fw-trap"><b>怎么处理：</b>只更新现值；越过阈值才进入改判流程。不因为一天的涨跌改结论。</p></article><article><span>已排期事件</span><p>提前知道日期的会议和到期日：美联储议息、中央经济工作会议、两会、关税到期、财报截止。</p><p class="fw-trap"><b>怎么处理：</b>事前写好预期，事后对照：符合预期不改，偏离预期按部件评估。</p></article><article><span>突发事件</span><p>事先不知道的冲击：地缘、政策突发、信用事件、监管变化。</p><p class="fw-trap"><b>怎么处理：</b>先归类到三件事中的一个，再看是否触及阈值或直接回答某条证伪命题。</p></article></div><h3>什么时候改结论</h3><ol class="fw-out"><li>日度：只看是否触线；收盘连续3个交易日在线外才改判，单日触线只记录。</li><li>月度：每月15日左右（金融数据公布后）例行复核一次，更新现值，情景概率每次最多调整10个百分点。</li><li>排期事件：事件次日复核，对照事前预期。</li><li>突发事件：归类后观察3个交易日的价格与资金反应；有明确数字的政策（降息幅度、资金规模）可当日评估。</li><li>任何结论变化都要写进更新日志：哪个部件、哪条证据、原结论→新结论。</li></ol><h3>突发事件归类</h3><div class="tblwrap"><table class="mt fw-grid"><thead><tr><th>类型</th><th>例子</th><th>归到哪件事</th><th>看什么</th></tr></thead><tbody><tr><th scope="row">外部利率与信用冲击</th><td>美联储意外加息或转向、美债急升、AI资本开支相关的信用事件</td><td>分母</td><td>美国10年期是否越过4.5%或5.2%；成长股与港股先受影响</td></tr><tr><th scope="row">地缘与大宗商品</th><td>中东冲突、油价跳升、航运中断</td><td>分子＋分母</td><td>上游利润上升、中游成本上升；PPI路径与风险溢价同时变化</td></tr><tr><th scope="row">中美贸易与科技限制</th><td>关税恢复或加征、出口管制、制裁名单</td><td>分子＋分母</td><td>出口链盈利与整体风险溢价；对照1月10日到期等节点</td></tr><tr><th scope="row">国内宏观政策突发</th><td>降准降息、增量财政、消费补贴、地产政策</td><td>分母＋分子</td><td>中国10年国债与M1是否响应；有金额和期限的政策才计入分子</td></tr><tr><th scope="row">资本市场政策</th><td>汇金入场、IPO与减持节奏、印花税、两融规则</td><td>水龙头</td><td>成交额、两融与宽基ETF份额；托底主要作用于大盘股</td></tr><tr><th scope="row">产业政策</th><td>反内卷文件、行业整顿、产能限制、行业补贴</td><td>板块分子</td><td>相关行业价格与利润率；只改相关板块，不改大盘结论</td></tr><tr><th scope="row">港股特有</th><td>南向规则变化、跨境券商整顿、港元流动性紧张、大型新股或配售</td><td>港股水龙头</td><td>南向5日与20日合计、HIBOR、新股募资规模</td></tr></tbody></table></div></section><section class="fw-card"><h2>带走要点</h2><ul><li>先问谁在决定价格：半年尺度上，分母和水龙头常常比分子更重要。</li><li>大盘不选股，只给风向表；板块只研究顺风的，个股只比较谁拿到的分子最多。</li><li>每个结论都要有跟踪单和证伪单；没有触线就不改结论。</li></ul><p><a href="index.html#horizon">看A股的当前应用 →</a>　<a href="hk/index.html#horizon">看港股的当前应用 →</a></p></section></main>
+<footer><div class="wrap"><nav class="secondary-nav" aria-label="资料与记录"><a href="reports/index.html">研究报告</a><a href="trades.html">操作记录</a><a href="stocks/selection-rules.html">筛选规则</a><a href="stocks/portfolio.html">组合约束详情</a></nav><p>数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 2026-11-10 v3（新增全球环境、实际利率、杠杆拥挤度、盈利分位），每节的“怎么判的”里有完整规则。</p>
+<p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer><script>
+function revealAnchor(){var id=decodeURIComponent(location.hash.slice(1)),el=document.getElementById(id);if(!el)return;for(var p=el;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;requestAnimationFrame(function(){el.scrollIntoView();});}
+window.addEventListener('hashchange',revealAnchor);if(location.hash)revealAnchor();
+document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(a){var el=document.getElementById(a.getAttribute('href').slice(1));for(;el;el=el.parentElement)if(el.tagName==='DETAILS')el.open=true;}});
+</script></body></html>

@@ -122,7 +122,7 @@ CSS = """
 def regime(d,market,prefix,refs):
     g=d['macro_regime'];x=g['markets'][market]
     out='<style>'+REGIME_CSS+'</style><section id="regime" class="regime"><div class="regime-head"><span class="view-label">未来半年判断 · 复核 '+E(g['reviewed_at'])+' · 窗口 '+E(g['window'])+'</span><h3>'+E(x['verdict'])+'</h3><p>'+E(x['summary'])+'</p><p class="regime-why"><b>为什么重写：</b>'+E(x['why_new'])+'</p></div>'
-    out+='<p class="regime-frame"><b>分析框架</b>'+E(g['framework'])+'</p><div class="regime-parts">'
+    out+='<p class="regime-frame"><b>分析框架</b>'+E(g['framework'])+' <a href="'+prefix+'framework.html">框架说明：如何用在大盘、板块和个股 →</a></p><div class="regime-parts">'
     for p_ in x['parts']:
         out+='<article class="part-'+p_['key']+'"><span class="part-name">'+E(p_['name'])+'</span><h4>'+E(p_['state'])+'</h4><p>'+E(p_['text'])+'</p><p class="part-imp"><b>推出：</b>'+E(p_['implication'])+'</p>'+refs(p_['refs'])+'</article>'
     out+='</div><div class="regime-scen">'
@@ -134,14 +134,18 @@ def regime(d,market,prefix,refs):
     out+='</tbody></table></div><p class="regime-next"><a href="'+board+'">进入'+('A股' if market=='a' else '港股')+'板块，查看分档与证据 →</a></p></section>'
     out+='<section id="regime-checks"><h3 class="h3s">可证伪清单：到期对账</h3><p class="note">每条都有现值、判定日期、证实线与证伪线；到期后在此标注对或错。</p><div class="tblwrap"><table class="mt regime-table regime-checks"><thead><tr><th>编号</th><th>命题</th><th>现值</th><th>判定日期</th><th>证实</th><th>证伪及后果</th><th>状态</th></tr></thead><tbody>'
     for c in x['checks']:out+='<tr>'+''.join('<td>'+E(v)+'</td>' for v in c)+'<td>待到期</td></tr>'
-    out+='</tbody></table></div></section><details id="regime-calendar"><summary>未来半年的关键节点</summary><div class="tblwrap"><table class="mt regime-table"><thead><tr><th>时间</th><th>事件</th><th>影响哪个部件</th></tr></thead><tbody>'
-    for c in g['calendar']:out+='<tr>'+''.join('<td>'+E(v)+'</td>' for v in c)+'</tr>'
-    out+='</tbody></table></div></details><p class="note">'+E(g['limits'])+' <a href="'+prefix+g['research']+'">完整研究稿</a> · <a href="'+prefix+g['evidence']+'">计算底稿</a></p></section>'
+    out+='</tbody></table></div></section><p class="note">'+E(g['limits'])+' <a href="'+prefix+g['research']+'">完整研究稿</a> · <a href="'+prefix+g['evidence']+'">计算底稿</a></p></section>'
     return out
 
 def render(ctx,market):
     d,m,prefix,refs=load_context(ctx,market)
-    return regime(d,market,prefix,refs)+'<details class="deep-research" id="macro-legacy"><summary>历史研究：11月13日早先版本（盈利×估值主线，已由上方框架替代）</summary>'+legacy(ctx,market)+'</details>'
+    return regime(d,market,prefix,refs)
+
+def render_tracking(ctx,market):
+    import tracking
+    d,m,prefix,refs=load_context(ctx,market)
+    fw=json.loads((Path(ctx['ROOT'])/'data/framework.json').read_text())
+    return tracking.render(Path(ctx['ROOT']),d,fw,market,prefix)
 
 REGIME_CSS = """
 .regime{margin:18px 0 28px}.regime-head{border-left:4px solid #365875;padding:4px 0 4px 20px;margin-bottom:18px}.regime-head h3{font:600 23px/1.6 var(--sans);color:#223e57;margin:8px 0 12px}.regime-head p{font-size:15px;line-height:1.95;margin:0 0 8px}.regime-why{font-size:13px!important;color:#52687b}

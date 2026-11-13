@@ -17,7 +17,11 @@ class RegimeTest(unittest.TestCase):
     self.assertEqual(len(c),6);self.assertTrue(all(c))
  def test_pages(self):
   for f,k in [('docs/index.html','a'),('docs/hk/index.html','hk')]:
-   body=(ROOT/f).read_text();self.assertIn(self.g['markets'][k]['verdict'],body);self.assertIn('id="macro-legacy"',body)
+   body=(ROOT/f).read_text();self.assertIn(self.g['markets'][k]['verdict'],body);self.assertIn('id="tracking"',body)
+   for gone in ['id="macro-legacy"','id="execution-constraints"','id="today"','id="conds"']:self.assertNotIn(gone,body)
+   for r in self.g['markets'][k]['tracking']:self.assertIn(r['name'],body)
+  fw=(ROOT/'docs/framework.html').read_text()
+  for word in ['分子','分母','水龙头','大盘','板块','个股','突发事件']:self.assertIn(word,fw)
  def test_sector_groups(self):
   s={x['id']:x for x in json.loads((ROOT/'data/industry_research.json').read_text())['sectors']}
   self.assertEqual(s['hk-internet']['review']['group'],'等待开关')

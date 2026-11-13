@@ -607,7 +607,7 @@ def page(title, active, body, prefix=""):
     if active == "gg":
         with open(os.path.join(ROOT, 'pipeline', 'stock_decisions.css'), encoding='utf-8') as style_file:
             page_css += style_file.read()
-    nav = [("index.html", "总览", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg")]
+    nav = [("index.html", "总览", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg"), ("framework.html", "框架", "fw")]
     links = ""
     for href, lab, key in nav:
         if not href:
@@ -655,22 +655,13 @@ def index():
 <div class="hero"><p class="date">结论复核 2026年11月13日 · 行情截至{cn_date(TODAY, True)}</p><h1>A股总览</h1>
 <p class="sum">先看分子（企业盈利）、分母（要求回报）与水龙头（资金与托底），再进入板块和公司。结论复核：2026-11-13；数据保留各自原日期。</p><p class="stamp">{E(stamp)}</p></div>
 
-<nav class="l1nav"><a href="#horizon">六个月的判断</a><a href="#today">今日分析</a><a href="#conds">大盘关注条件</a></nav>
+<nav class="l1nav"><a href="#horizon">未来半年判断</a><a href="#tracking">跟踪与更新</a><a href="framework.html">研究框架</a></nav>
 
-<details class="l1" id="horizon" open><summary><h2>未来半年判断</h2><span class="l1hint">结论 · 依据 · 改判条件</span></summary>
+<details class="l1" id="horizon" open><summary><h2>未来半年判断</h2><span class="l1hint">结论 · 三件事 · 板块 · 证伪</span></summary>
 {outlook_section()}</details>
-{overview_page.render_execution(globals(), "a")}
 
-<details class="l1" id="today"><summary><h2>日度数据与历史规则</h2><span class="l1hint">传导图 · 结论 · 展开分析（{cn_date(TODAY)}）</span></summary>
-<div class="market-overview daily-overview"><div class="market-day-verdict"><h3 class="h3s">结论：今天变了什么</h3>{today_lead()}</div><div class="market-day-map"><h3 class="h3s" id="map">今日传导图</h3><p class="sub">红色利好，绿色利空，灰色中性。点任意一环跳到下面的展开分析。</p>
-<div class="fwbox">{market_layout.diagram({k:N[k]["state"] for k in NODE_POS},{k:node_sub(k) for k in NODE_POS},NODE_NAME,"day")}</div><div class="chips">{chips}</div></div></div>
-<details class="sub2"><summary>和上一交易日（{cn_date(R['prev'])}）相比的逐条明细</summary>{changes()}</details>
-<h3 class="h3s" id="score">展开分析</h3><p class="sub">信号观察卡沿用独立日度规则，只作变化提醒；人工综合方向未量化时不计分，不能据总分选择半年板块。</p>{scorecard()}
-<details class="sub2" id="nodes"><summary>A–H 逐项展开（看什么指标、现在多少、怎么判的）</summary>{nodes_html}</details>
-</details>
-
-<details class="l1" id="conds"><summary><h2>大盘关注条件</h2><span class="l1hint">触发只是提醒你去看一眼，不是买卖信号</span></summary>
-{conds_html()}</details>
+<details class="l1" id="tracking" open><summary><h2>跟踪与更新</h2><span class="l1hint">定期数据 · 排期事件 · 突发事件 · 改判规则</span></summary>
+{overview_page.render_tracking(globals(), "a")}</details>
 
 <script>
 /* 点站内锚点时自动展开所在的折叠块；没有 JS 时折叠块仍可手动展开 */
@@ -716,6 +707,8 @@ with open(os.path.join(SITE, "trades.html"), "w", encoding="utf-8") as f:
 
 import hkpage
 hkpage.build(globals())
+import frameworkpage
+frameworkpage.build(globals())
 
 import stockpage, reportspage, boardpage, sectorpage  # noqa: E402
 BOARDS = boardpage.build(globals(), json.load(open(os.path.join(ROOT, "data", "stocks.json"), encoding="utf-8"))["stocks"])
