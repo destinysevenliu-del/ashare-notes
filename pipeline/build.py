@@ -713,6 +713,8 @@ frameworkpage.build(globals())
 import stockpage, reportspage, boardpage, sectorpage  # noqa: E402
 BOARDS = boardpage.build(globals(), json.load(open(os.path.join(ROOT, "data", "stocks.json"), encoding="utf-8"))["stocks"])
 stock_analyses = stockpage.build(globals())
+import stockpick
+stockpick.build(globals())
 reportspage.build(globals())
 import sectorsel
 sectorsel.build(globals())
