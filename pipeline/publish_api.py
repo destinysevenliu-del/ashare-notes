@@ -70,9 +70,12 @@ if DRY:
 
 # 3) 上传 blob（只传变更）
 entries = []
-for p in added + modified:
+from concurrent.futures import ThreadPoolExecutor
+def _up(p):
     r = call("POST", f"{API}/git/blobs", {"content": base64.b64encode(blobs[p]).decode(), "encoding": "base64"})
-    entries.append({"path": p, "mode": "100644", "type": "blob", "sha": r["sha"]})
+    return {"path": p, "mode": "100644", "type": "blob", "sha": r["sha"]}
+with ThreadPoolExecutor(12) as ex:
+    entries.extend(ex.map(_up, added + modified))
 for p in deleted:
     entries.append({"path": p, "mode": "100644", "type": "blob", "sha": None})
 print(f"blobs 上传完成 {len(added) + len(modified)} 个")

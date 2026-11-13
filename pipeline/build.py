@@ -714,7 +714,8 @@ import stockpage, reportspage, boardpage, sectorpage  # noqa: E402
 BOARDS = boardpage.build(globals(), json.load(open(os.path.join(ROOT, "data", "stocks.json"), encoding="utf-8"))["stocks"])
 stock_analyses = stockpage.build(globals())
 reportspage.build(globals())
-sectorpage.build(globals())
+import sectorsel
+sectorsel.build(globals())
 
 snap = {"date": TODAY, "total": R["total"], "scores": {r["key"]: r["score"] for r in R["score_rows"]},
         "nodes": {k: v["state"] for k, v in N.items()}, "conds": {c["id"]: c["hit"] for c in R["conds"]},
