@@ -139,8 +139,18 @@ def regime(d,market,prefix,refs):
     out+='</tbody></table></div></section><p class="note">'+E(g['limits'])+' <a href="'+prefix+g['research']+'">完整研究稿</a> · <a href="'+prefix+g['evidence']+'">计算底稿</a></p></section>'
     return out
 
+def sse_block(root):
+    v=json.loads((Path(root)/'data/sse_view.json').read_text())
+    out='<section id="sse" class="sse"><h3 class="h3s">上证指数在什么位置</h3><div class="sse-kpi"><article><span>上证指数（'+v['as_of']+'）</span><b>'+format(v['close'],',.0f')+'</b><small>2016年以来点位分位'+str(v['level_pct']['since2016'])+'%；10年最高'+format(v['highs']['since2016'][1],',.0f')+'（'+v['highs']['since2016'][0]+'）</small></article><article><span>市盈率</span><b>'+format(v['pe'],'.1f')+'倍</b><small>2011年以来分位'+str(v['pe_pct']['since2011'])+'%、2016年以来'+str(v['pe_pct']['since2016'])+'%；区间'+format(v['pe_range_since2011'][0],'.1f')+'—'+format(v['pe_range_since2011'][1],'.1f')+'倍</small></article>'
+    d=v['decomp'][-1];out+='<article><span>剔除银行后（自5月高点）</span><b>约'+format(d['exbank_level'],',.0f')+'</b><small>上证'+format(d['actual'],'+.1f')+'%，剔除银行'+format(d['exbank_ret'],'+.1f')+'%；银行贡献约'+format(d['bank_pts'],'+.0f')+'点</small></article></div>'
+    out+='<div class="tblwrap"><table class="mt regime-table"><thead><tr><th>区间</th><th>上证涨跌</th><th>银行权重（期初）</th><th>银行涨跌</th><th>银行贡献点数</th><th>半导体贡献点数</th><th>剔除银行涨跌</th><th>剔除银行相当于</th></tr></thead><tbody>'
+    for d in v['decomp']:out+='<tr><th scope="row">'+d['label']+'<small>'+d['from']+'起</small></th><td>'+format(d['actual'],'+.1f')+'%</td><td>'+format(d['bank_w'],'.1f')+'%</td><td>'+format(d['bank_ret'],'+.1f')+'%</td><td>'+format(d['bank_pts'],'+.0f')+'</td><td>'+format(d['semi_pts'],'+.0f')+'</td><td>'+format(d['exbank_ret'],'+.1f')+'%</td><td>约'+format(d['exbank_level'],',.0f')+'点</td></tr>'
+    out+='</tbody></table></div><p class="note"><b>怎么读：</b>上证指数按总市值加权，银行约占沪市市值的两成。5月高点以来上证跌13%，但银行逆势涨15%、托住约110点；剔除银行，其余股票相当于跌18%，上证约在3,480点。2026年以来同理：上证跌7%，剔除银行跌10%。剔除银行后的点位（约3,480—3,560）在2016年以来的分位仍有79%—83%。点位分位会随名义增长自然上移，参考价值弱于市盈率分位（63%—67%，处于历史中上部而非高位）。</p><p class="note">方法：用沪市A股每只股票的期初总市值×期间价格涨跌，分成银行、半导体与其他，按期初总市值加权；近似结果与上证实际涨跌相差1—2个百分点（新股纳入与权重口径差异）。'+v['source']+'。</p></section>'
+    return out
+
 def render(ctx,market):
     d,m,prefix,refs=load_context(ctx,market)
+    if market=='a':return sse_block(ctx['ROOT'])+regime(d,market,prefix,refs)
     return regime(d,market,prefix,refs)
 
 def render_tracking(ctx,market):
@@ -150,7 +160,7 @@ def render_tracking(ctx,market):
     return tracking.render(Path(ctx['ROOT']),d,fw,market,prefix)
 
 REGIME_CSS = """
-.regime{margin:18px 0 28px}.regime-head{border-left:4px solid #365875;padding:4px 0 4px 20px;margin-bottom:18px}.regime-head h3{font:600 23px/1.6 var(--sans);color:#223e57;margin:8px 0 12px}.regime-head p{font-size:15px;line-height:1.95;margin:0 0 8px}.regime-why{font-size:13px!important;color:#52687b}
+.regime{margin:18px 0 28px}.sse{margin:18px 0 26px}.sse-kpi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:10px 0 14px}.sse-kpi article{border:1px solid #d4dfeb;border-radius:8px;padding:14px 16px}.sse-kpi span{font-size:12.5px;color:#64798d}.sse-kpi b{display:block;font-size:26px;margin:4px 0;color:#223e57}.sse-kpi small{font-size:12.5px;color:#455a6e;line-height:1.6}@media(max-width:900px){.sse-kpi{grid-template-columns:1fr}}.regime-head{border-left:4px solid #365875;padding:4px 0 4px 20px;margin-bottom:18px}.regime-head h3{font:600 23px/1.6 var(--sans);color:#223e57;margin:8px 0 12px}.regime-head p{font-size:15px;line-height:1.95;margin:0 0 8px}.regime-why{font-size:13px!important;color:#52687b}
 .regime-frame{background:#f3f6f9;border-radius:8px;padding:12px 16px;font-size:14px;line-height:1.8}.regime-frame b{margin-right:10px}
 .regime-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:18px 0}.regime-parts article{border:1px solid #d4dfeb;border-radius:8px;padding:18px 20px;background:#fff}.part-name{font-size:12px;color:#64798d}.regime-parts h4{margin:6px 0 10px;font-size:17px}.regime-parts p{font-size:14px;line-height:1.85;margin:0 0 8px}.part-imp{background:#f6f8fa;padding:8px 10px;border-radius:6px}.part-alt{font-size:13px!important;color:#455a6e;border-left:3px solid #d4dfeb;padding-left:8px}
 .regime-scen{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin:0 0 22px}.regime-scen article{border:1px solid #d4dfeb;border-radius:8px;padding:14px 16px}.regime-scen article:first-child{border-left:4px solid #365875}.regime-scen span{float:right;font-size:13px;color:#52687b}.regime-scen p{font-size:14px;line-height:1.8;margin:8px 0 0}

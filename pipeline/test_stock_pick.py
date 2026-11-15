@@ -19,6 +19,14 @@ class PickTest(unittest.TestCase):
    self.assertTrue(0<=x['pos']<=0.25)
   counts=[n for _,n in P['funnel']];self.assertEqual(counts,sorted(counts,reverse=True))
  def test_page(self):
-  body=(ROOT/'docs/stocks/index.html').read_text()
-  self.assertIn('id="logic1"',body);self.assertIn('id="logic2"',body);self.assertIn('乐凯胶片',body);self.assertIn('按真实规则做组合回测',body)
+  body=(ROOT/'docs/stocks/index.html').read_text();box=(ROOT/'docs/stocks/box.html').read_text()
+  self.assertIn('id="overview"',body);self.assertIn('id="logic1"',body);self.assertIn('href="box.html"',body)
+  self.assertIn('id="logic2"',box);self.assertIn('乐凯胶片',box);self.assertIn('按真实规则做组合回测',box)
+ def test_three_layers(self):
+  S=json.loads((ROOT/'data/sector_selection.json').read_text())['sectors']
+  r=logic1_rules.select_v2(ROOT,S)
+  for k,v in r.items():
+   for x in v['picks']:
+    for layer in ['fund','pos','chip']:self.assertIn(x[layer],['好','中','差'],(k,x['code']))
+    self.assertTrue(x['en'],(k,x['code']))
 if __name__=='__main__':unittest.main()

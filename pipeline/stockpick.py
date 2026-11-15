@@ -24,20 +24,51 @@ def box_svg(ref):
     out+='<text x="36" y="32" font-size="13" fill="#9b3d27">天花板：箱顶（90%分位）· 卖出区</text><text x="36" y="218" font-size="13" fill="#2f6f53">地板：箱底（10%分位）· 买入区</text><text x="36" y="250" font-size="13" fill="#2f6f53">止损线：跌破箱底15%</text><text x="168" y="62" font-size="13" fill="#455a6e">事件脉冲</text></svg>'
     return out
 
-def logic1_html(root,S,sec):
-    L1=logic1_rules.select(root,S['sectors'])
-    out='<section id="logic1"><h2>逻辑一：顺势选股</h2><ol class="lp-funnel"><li><b>大盘</b>给出风向表（首页）</li><li><b>板块</b>分四档：顺风、前半段、等开关、逆风（逆风不选）</li><li><b>门槛</b>每个板块用自己的硬条件筛（市值、利润、估值）</li><li><b>排序</b>每个板块一个主排序指标，取前几名</li></ol><p class="note">排名不再按利润规模：市值只作门槛，排名用增速、加速度、营收支撑、估值（银行用股息率）的百分位平均。初步意见：顺风与前半段板块中没有质量提示的前两名“建议跟踪”（银行因拥挤改为“等拥挤回落”）；等开关板块全部“观察”。</p>'
+BADGE={'顺风':'up','前半段':'early','等开关':'wait'}
+LAY={'好':'g','中':'m','差':'b'}
+def lay(v):return '<span class="ly ly-'+LAY[v]+'">'+v+'</span>'
+
+def view_of(rating,sid,x,i):
+    if rating=='等开关':return ('观察：价格已确认，等开关' if x['pos']=='好' else '观察，开关前不买'),'wait'
+    if x['fund']=='差' or x['chip']=='差':return '备选（有一层为差）',''
+    if x['pos']=='差':return '等回落（位置偏高）',''
+    return ('建议跟踪','go') if i<2 else ('备选','')
+
+def fund_cells(t,x):
+    e=x['en'] or {}
+    if t=='crowded':return [f(x['dy'],'.2f','%'),f(x['np_yoy'],'+.0f','%'),f(x['pb'],'.2f'),f(e.get('roe'),'.1f','%')]
+    if t=='upstream':return [f(x['np_yoy'],'+.0f','%'),f(x['dy'] if x['dy'] is not None else e.get('dy'),'.2f','%'),f(e.get('cashEps'),'.2f'),f(e.get('gmChg'),'+.1f')]
+    if t=='growth':return [f(x['np_yoy'],'+.0f','%'),f((x['np_yoy'] or 0)-(x['h1_yoy'] or 0),'+.0f'),f(x['rev_yoy'],'+.0f','%'),f(e.get('cashEps'),'.2f')]
+    return [f(e.get('gmChg'),'+.1f'),f(x['np_yoy'],'+.0f','%'),f(x['rev_yoy'],'+.0f','%'),f(e.get('cashEps'),'.2f')]
+FH={'crowded':['股息率','单季利润同比','PB','前三季ROE'],'upstream':['单季利润同比','股息率','现金/利润','毛利率变化'],'growth':['单季利润同比','加速（百分点）','营收同比','现金/利润'],'cost':['毛利率变化','单季利润同比','营收同比','现金/利润']}
+
+def logic1_data(root,S):
+    return logic1_rules.select_v2(root,S['sectors'])
+
+def overview_html(L1,sec,L2):
+    out='<section id="overview"><h2>候选总览</h2><p class="note">先看这张表，点股票名直接跳到它所在的板块。每只股票分三层判断：基本面（各板块看的指标不同）、位置、筹码。</p><div class="tblwrap"><table class="mt lp-table ov-table"><thead><tr><th>板块</th><th>档位</th><th>这个板块的个股看什么</th><th>候选与初步意见</th></tr></thead><tbody>'
     order=['顺风','前半段','等开关']
     for sid in sorted(L1,key=lambda k:order.index(sec[k]['rating'])):
-        s=sec[sid];r=L1[sid];wait=s['rating']=='等开关'
-        out+=('<details class="lp-sec" id="l1-'+sid+'"><summary>' if wait else '<article class="lp-sec" id="l1-'+sid+'">')+'<h3><a href="../boards/'+sid+'.html">'+E(s['title'])+'</a> <span class="lp-badge lp-'+{'顺风':'up','前半段':'early','等开关':'wait'}[s['rating']]+'">'+E(s['rating'])+'</span></h3><p class="lp-rule"><b>门槛：</b>'+E(r['gate'])+'　<b>排序：</b>'+E(r['rank'])+'　<b>通过：</b>'+str(r['passed'])+' / '+str(r['pool'])+'家</p>'+('</summary>' if wait else '')
-        out+='<div class="tblwrap"><table class="mt lp-table"><thead><tr><th>股票</th><th>三季度单季利润</th><th>单季利润同比</th><th>上半年同比</th><th>PE</th><th>PB</th><th>股息率</th><th>市值（亿）</th><th>综合分</th><th>提示</th><th>初步意见</th></tr></thead><tbody>'
-        go=[x['code'] for x in r['picks'] if not x['flag']][:2]
+        s=sec[sid];r=L1[sid];chips=[]
         for i,x in enumerate(r['picks']):
-            view='观察，开关前不买' if wait else (('等拥挤回落' if sid=='a-bank' else '建议跟踪') if x['code'] in go else '备选')
-            out+='<tr><th scope="row">'+E(x['name'])+'<small>'+x['code']+' · '+E(x['industry'])+'</small></th><td>'+f(x['q_np'],'.1f','亿')+'</td><td>'+f(x['np_yoy'],'+.0f','%')+'</td><td>'+f(x['h1_yoy'],'+.0f','%')+'</td><td>'+f(x['pe'],'.1f')+'</td><td>'+f(x['pb'],'.2f')+'</td><td>'+f(x['dy'],'.2f','%')+'</td><td>'+str(x['mc'])+'</td><td>'+f(x['score'],'.2f')+'</td><td><small>'+E(x['flag'])+'</small></td><td><span class="lp-view'+(' wait' if wait else (' go' if x['code'] in go else ''))+'">'+view+'</span></td></tr>'
-        out+='</tbody></table></div><p class="note">进入个股研究时比较：'+E('；'.join(s['handoff']))+'</p>'+('</details>' if wait else '</article>')
-    out+='<article class="lp-sec" id="l1-hk"><h3>港股（规则待数据）</h3><p class="note">港股尚无同口径公司财务数据，暂按板块列出代表公司，不排序；补齐数据后按同样的门槛和排序重算。</p><ul>'
+            v,c=view_of(s['rating'],sid,x,i);chips.append('<a class="ov-c '+c+'" href="#l1-'+sid+'">'+E(x['name'])+'<small>'+E(v)+'</small></a>')
+        out+='<tr><th scope="row"><a href="#l1-'+sid+'">'+E(s['title'])+'</a></th><td><span class="lp-badge lp-'+BADGE[s['rating']]+'">'+E(s['rating'])+'</span></td><td><small>'+E(r['lens']['name'])+'：'+E(r['lens']['fund'].split('：')[0])+'</small></td><td>'+''.join(chips)+'</td></tr>'
+    out+='<tr><th scope="row"><a href="box.html">逻辑二：国资箱体</a></th><td><span class="lp-badge lp-wait">观察</span></td><td><small>箱体位置、往返次数、事件脉冲</small></td><td>'+''.join('<a class="ov-c wait" href="box.html#logic2">'+E(x['name'])+'</a>' for x in L2['top'][:8])+'<a class="ov-c" href="box.html#logic2">…共'+str(L2['funnel'][-1][1])+'只</a></td></tr>'
+    return out+'</tbody></table></div></section>'
+
+def logic1_html(root,S,sec,L1):
+    out='<section id="logic1"><h2>逻辑一：顺势选股（按板块展开）</h2><p class="note">门槛与基本面排名同前（市值只作门槛）。在此基础上，每个板块按自己的类型加看“位置”和“筹码”，三层合成排序：基本面百分位、位置、筹码各占三分之一；基本面出现硬伤（例如毛利率下降、现金流为负）时总分减半。</p>'
+    order=['顺风','前半段','等开关']
+    for sid in sorted(L1,key=lambda k:order.index(sec[k]['rating'])):
+        s=sec[sid];r=L1[sid];t=r['type'];Lz=r['lens']
+        out+='<details class="lp-sec" id="l1-'+sid+'"'+('' if s['rating']=='等开关' else ' open')+'><summary><h3>'+E(s['title'])+' <span class="lp-badge lp-'+BADGE[s['rating']]+'">'+E(s['rating'])+'</span></h3><span class="lp-sum">'+'、'.join(E(x['name']) for x in r['picks'])+'</span></summary>'
+        out+='<div class="lens"><p><b>这类板块（'+E(Lz['name'])+'）看什么：</b></p><ul><li><b>基本面：</b>'+E(Lz['fund'])+'</li><li><b>位置：</b>'+E(Lz['pos'])+'</li><li><b>筹码：</b>'+E(Lz['chip'])+'</li></ul><p class="lp-rule"><b>门槛：</b>'+E(r['gate'])+'　<b>通过：</b>'+str(r['passed'])+' / '+str(r['pool'])+'家　<a href="../boards/'+sid+'.html">板块依据 →</a></p></div>'
+        out+='<div class="tblwrap"><table class="mt lp-table"><thead><tr><th rowspan="2">股票</th><th colspan="5">基本面</th><th colspan="4">位置</th><th colspan="5">筹码</th><th rowspan="2">提示</th><th rowspan="2">初步意见</th></tr><tr>'+''.join('<th>'+h+'</th>' for h in FH[t])+'<th>判断</th><th>一年位置</th><th>距高点</th><th>相对60日线</th><th>判断</th><th>股东户数变化</th><th>融资20日</th><th>融资占比</th><th>6个月解禁</th><th>判断</th></tr></thead><tbody>'
+        for i,x in enumerate(r['picks']):
+            e=x['en'] or {};v,c=view_of(s['rating'],sid,x,i)
+            out+='<tr><th scope="row">'+E(x['name'])+'<small>'+x['code']+'</small></th>'+''.join('<td>'+v_+'</td>' for v_ in fund_cells(t,x))+'<td>'+lay(x['fund'])+'</td><td>'+f(e.get('pos52'),'.2f')+'</td><td>'+f(e.get('dd'),'.0f','%')+'</td><td>'+f(e.get('vsMA60'),'+.0f','%')+'</td><td>'+lay(x['pos'])+'</td><td>'+f(e.get('holdersChg'),'+.0f','%')+'<small>'+E(e.get('hdate') or '')+'</small></td><td>'+f(e.get('margin20'),'+.0f','%')+'</td><td>'+f(e.get('marginPct'),'.1f','%')+'</td><td>'+f(e.get('lift6m'),'.1f','%')+'</td><td>'+lay(x['chip'])+'</td><td><small>'+E('；'.join(([x['flag']] if x['flag'] else [])+x['notes']))+'</small></td><td><span class="lp-view '+c+'">'+E(v)+'</span></td></tr>'
+        out+='</tbody></table></div><p class="note">进入个股研究时还要比较：'+E('；'.join(s['handoff']))+'</p></details>'
+    out+='<article class="lp-sec" id="l1-hk"><h3>港股（规则待数据）</h3><p class="note">港股尚无同口径公司数据，暂按板块列出代表公司，不排序。</p><ul>'
     for sid,names in HK.items():out+='<li><b>'+E(sec[sid]['title'])+'（'+E(sec[sid]['rating'])+'）</b>：'+E('、'.join(names))+'</li>'
     return out+'</ul></article></section>'
 
@@ -52,7 +83,7 @@ def logic2_html(L2,sw):
     for a,b,c,ok in rows:out+='<tr><th scope="row">'+E(a)+'</th><td>'+E(b)+'</td><td>'+E(c)+'</td><td>'+('满足' if ok else '不满足')+'</td></tr>'
     out+='</tbody></table></div><h3>三个动作与一个暂停条件</h3><div class="l2-act"><p><b>买：</b>'+E(A['buy'])+'</p><p><b>卖：</b>'+E(A['sell'])+'</p><p><b>止损：</b>'+E(A['stop'])+'</p><p class="l2-sw '+('on' if sw['on'] else 'off')+'"><b>'+E(A['switch'])+'<br>现在：中证全指'+f(sw['close'],',.0f')+'（'+sw['date']+'）→ '+('规则允许研究买点' if sw['on'] else '暂停开新仓')+'</p></div>'
     pb=L2.get('pbt');o=L2['oos_1y']
-    out+='<h3>按真实规则做组合回测</h3><div class="l2-bt">'
+    out+='<h3 id="l2-bt">按真实规则做组合回测</h3><div class="l2-bt">'
     if pb:
         B=pb['base'];M=pb['bench']
         out+='<p>'+E(pb['setup'])+'</p><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>指标</th><th>策略（'+str(B['K'])+'只上限，成本'+f(B['cost'],'.1f','%')+'）</th><th>同一股票池等权持有</th></tr></thead><tbody>'
@@ -61,27 +92,42 @@ def logic2_html(L2,sw):
         ys=sorted(B['annual']);out+='</tbody></table></div><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>年份</th>'+''.join('<th>'+y+'</th>' for y in ys)+'</tr></thead><tbody><tr><th scope="row">策略</th>'+''.join('<td>'+f(B['annual'][y],'+.1f','%')+'</td>' for y in ys)+'</tr><tr><th scope="row">等权基准</th>'+''.join('<td>'+f(M['annual'].get(y),'+.1f','%')+'</td>' for y in ys)+'</tr></tbody></table></div>'
         out+='<p><b>稳健性：</b>'+E(pb['robust'])+'</p><p class="note"><b>偏差：</b>'+E(pb['bias'])+'</p>'
     out+='<p class="note"><b>信号层面统计（旧口径）：</b>2019—2026年2,357次箱底信号，120日平均+4.5%、中位+0.2%；最近一年箱体股信号平均'+f(o['box_hot']['mean'],'+.1f','%')+'。</p><p class="l2-con"><b>结论：</b>'+E(L2.get('verdict',''))+'</p></div>'
-    fun=L2['funnel'];out+='<h3>候选名单</h3><ol class="lp-funnel">'+''.join('<li>'+E(a)+'：<b>'+str(b)+'</b></li>' for a,b in fun)+'</ol>'
+    fun=L2['funnel'];out+='<h3 id="l2-list">候选名单</h3><ol class="lp-funnel">'+''.join('<li>'+E(a)+'：<b>'+str(b)+'</b></li>' for a,b in fun)+'</ol>'
     out+='<div class="tblwrap"><table class="mt lp-table"><thead><tr><th>股票</th><th>市值（亿）</th><th>箱体宽度</th><th>往返</th><th>涨停 / 脉冲</th><th>当前位置</th><th>与大盘相关</th><th>前三季营收 / 利润（亿）</th><th>主要标签</th><th>初步意见</th></tr></thead><tbody>'
     for x in L2['top']:out+=l2_row(x,'观察（组合化跟踪）' if sw['on'] else '暂停')
     out+=l2_row(ref,'参考样本：满足六项条件，未进首批（脉冲1次、往返2次，重复性不足）')
     out+='</tbody></table></div><p class="note">排序：往返次数＋2×脉冲次数，从高到低；同分时位置更低者优先。这里列出前15名，另有'+str(fun[-1][1]-len(L2['top']))+'只同样满足条件。亏损公司需单独确认没有财务类退市风险。</p></section>'
     return out
 
+def head(active):
+    return '<nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if active==1 else '')+'><b>逻辑一 · 顺势选股</b><span>大盘→板块→个股</span></a><a href="box.html"'+(' aria-current="page"' if active==2 else '')+'><b>逻辑二 · 国资箱体</b><span>地板、天花板、烟花</span></a></nav>'
+
 def page(ctx):
     root=Path(ctx['ROOT']);S=json.loads((root/'data/sector_selection.json').read_text());P=json.loads((root/'data/stock_pick.json').read_text())
-    sec={s['id']:s for s in S['sectors']};L2=P['logic2'];sw=switch_state(root)
-    out='<style>'+CSS+'</style><div class="hero"><h1>个股：两条选股逻辑</h1><p class="sum">逻辑一顺着大盘和板块找“风口上最强的船”；逻辑二利用A股制度特点找“有地板、有天花板、偶尔放烟花的房间”。两条逻辑独立筛选，候选名单由我们一起决定。</p><p class="stamp">数据截至2026-11-13 · 本轮只提出候选，不做买卖决定</p></div>'
-    out+='<section class="lp-two"><article><span>逻辑一 · 顺势选股</span><h2>风往哪吹，就在那里找最强的船</h2><p><b>来源：</b>大盘风向 → 板块档位 → 板块内的门槛与排序。</p><p><b>赚的是：</b>盈利兑现（分子）与估值修复（分母）。</p><p><b>现在：</b>银行方向顺风但拥挤，等回落；煤炭、石油、油运看价格水平与拥挤度；等开关的方向只观察（利率或盈利两条路径任一成立再升级）。</p><a href="#logic1">看候选 →</a></article>'
-    out+='<article><span>逻辑二 · 国资箱体</span><h2>有地板、有天花板，偶尔放烟花</h2><p><b>来源：</b>国资背景不易退市（地板）、标签多（事件来了会被炒）、游资和散户定价（来回震荡）。</p><p><b>赚的是：</b>箱底到箱顶的位置差与事件脉冲。</p><p><b>现在：</b>'+('观察：组合回测年化比等权持有多3—4个百分点，但盈利几乎全部来自少数大涨交易；只按20只左右的组合跟踪，单只不作买入判断。' if sw['on'] else '大盘跌破托底线，暂停开新仓。')+'</p><a href="#logic2">看规则与候选 →</a></article></section>'
-    out+=logic1_html(root,S,sec)+logic2_html(L2,sw)
-    out+='<p class="note">'+E(P['source'])+' <a href="sector-pools.html">旧的个股三维筛选资料（历史）</a></p>'
-    return out
+    sec={s['id']:s for s in S['sectors']};L1=logic1_data(root,S)
+    out='<style>'+CSS+'</style><div class="hero"><h1>个股</h1><p class="sum">两条逻辑分开看：逻辑一顺着大盘和板块选；逻辑二利用A股国资股的箱体特征。数据截至2026-11-13，本页只提候选，不做买卖决定。</p></div>'+head(1)
+    out+=overview_html(L1,sec,P['logic2'])+logic1_html(root,S,sec,L1)
+    return out+'<p class="note">'+E(P['source'])+' 位置与筹码数据：'+E(json.loads((root/'data/raw/stock_pick/l1_enrich.json').read_text())['_meta']['source'])+'。</p>'
+
+def box_page(ctx):
+    root=Path(ctx['ROOT']);P=json.loads((root/'data/stock_pick.json').read_text());sw=switch_state(root)
+    out='<style>'+CSS+'</style><div class="hero"><h1>个股 · 国资箱体</h1><p class="sum">有地板、有天花板、偶尔放烟花的房间。规则、验证与候选都在本页。</p></div>'+head(2)
+    out+='<nav class="lp-jump"><a href="#logic2">规则</a><a href="#l2-bt">回测</a><a href="#l2-list">候选名单</a></nav>'
+    return out+logic2_html(P['logic2'],sw)+'<p class="note">'+E(P['source'])+'</p>'
 
 def build(ctx):
-    (Path(ctx['SITE'])/'stocks/index.html').write_text(ctx['page']('个股 | A 股框架笔记','gg',page(ctx),'../'),encoding='utf-8')
+    site=Path(ctx['SITE'])
+    (site/'stocks/index.html').write_text(ctx['page']('个股 | A 股框架笔记','gg',page(ctx),'../'),encoding='utf-8')
+    (site/'stocks/box.html').write_text(ctx['page']('国资箱体 | A 股框架笔记','gg',box_page(ctx),'../'),encoding='utf-8')
 
 CSS="""
+.lp-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 22px;position:sticky;top:56px;z-index:5;background:var(--paper,#f4f5f7);padding:6px 0}.lp-tabs a{border:1px solid #d4dfeb;border-radius:10px;padding:12px 16px;background:#fff;text-decoration:none;color:#223e57}.lp-tabs a[aria-current]{border-color:#365875;box-shadow:inset 0 -3px 0 #365875}.lp-tabs b{display:block;font-size:16px}.lp-tabs span{font-size:12.5px;color:#64798d}
+.lp-jump{display:flex;gap:10px;margin:0 0 10px}.lp-jump a{font-size:13px;padding:4px 10px;border-radius:14px;background:#eef2f6;text-decoration:none}
+.ov-c{display:inline-block;margin:3px 6px 3px 0;padding:4px 9px;border-radius:8px;background:#f3f6f9;font-size:13px;text-decoration:none;color:#223e57}.ov-c small{display:block;font-size:11px;color:#64798d}.ov-c.go{background:#fbe9e4}.ov-c.wait{background:#e8eef6}
+.lens{background:#f6f8fa;border-radius:8px;padding:10px 14px;margin:8px 0}.lens ul{margin:4px 0 6px;padding-left:18px}.lens li,.lens p{font-size:13.5px;line-height:1.75;margin:2px 0}
+.ly{display:inline-block;padding:1px 7px;border-radius:9px;font-size:12px}.ly-g{background:#e9f5ef;color:#2f6f53}.ly-m{background:#eef2f6;color:#455a6e}.ly-b{background:#fbe9e4;color:#9b3d27}
+.lp-sum{font-size:13px;color:#52687b;margin-left:10px}details.lp-sec>summary{cursor:pointer}details.lp-sec>summary h3{display:inline}
+.lp-table thead tr:first-child th{text-align:center;background:#f3f6f9}
 .lp-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:20px 0}.lp-two article{border:1px solid #d4dfeb;border-radius:10px;padding:18px 22px;background:#fff}.lp-two span{font-size:13px;color:#64798d;font-weight:600}.lp-two h2{font-size:20px;margin:6px 0 12px}.lp-two p{font-size:14.5px;line-height:1.85;margin:0 0 8px}
 .lp-funnel{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}.lp-funnel li{background:#f3f6f9;border-radius:8px;padding:8px 12px;font-size:13.5px;line-height:1.6}
 .lp-sec{border-top:1px solid #e1e8f0;padding:14px 0}.lp-sec h3{font-size:18px;margin:6px 0;display:inline}details.lp-sec>summary{cursor:pointer;list-style-position:outside}.lp-rule{font-size:13.5px;color:#455a6e;line-height:1.8}

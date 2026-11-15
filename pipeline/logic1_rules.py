@@ -50,3 +50,67 @@ def select(root,sectors):
         for x in ok:x['score']=round(sum(x['pct_'+k] for k in R['factors'])/len(R['factors']),2);x['flag']=flag(x)
         res[s['id']]={'gate':R['gate'],'rank':'综合排名＝以下各项在通过门槛的公司中的百分位平均：'+'、'.join(F[k][0] for k in R['factors'])+'。市值只用作门槛，不参与排名。','pool':len(pool),'passed':len(ok),'picks':sorted(ok,key=lambda x:-x['score'])[:R['n']]}
     return res
+
+# ---------- 2026-11-15：按板块类型看三层（基本面 / 位置 / 筹码） ----------
+TYPE={'a-bank':'crowded','a-coal':'upstream','a-oil':'upstream','a-tanker':'upstream','a-semiconductor':'growth','a-computing':'growth','a-pharma':'growth','a-grid':'cost','a-chemical':'cost'}
+LENS={
+ 'crowded':{'name':'顺风但拥挤','fund':'股息率（2025年度）、单季利润同比、PB、ROE：分红能不能持续','pos':'近一年位置：拥挤板块不追高，位置≤0.6为好，>0.85为差','chip':'股东户数变化（户数大增＝散户追入）、融资余额20日变化（快速上升＝杠杆追入）'},
+ 'upstream':{'name':'看价格水平','fund':'单季利润同比、股息率、经营现金流/利润（≥1说明利润是真金白银）、毛利率变化','pos':'距一年高点回撤：已回撤20%以上说明部分风险已反映；回撤不足10%为差','chip':'融资余额20日变化与股东户数变化：资金是否还在追'},
+ 'growth':{'name':'等开关','fund':'利润加速、营收增速、毛利率变化、经营现金流/利润：盈利路径（开关②）靠这些兑现','pos':'是否已出现价格确认：站上60日均线且60日涨幅为正＝好（开关②的价格条件）；仍在均线下方＝差','chip':'融资余额是否已出清、股东户数是否减少（筹码集中）、未来6个月解禁比例（≥5%为差）'},
+ 'cost':{'name':'看成本与价差','fund':'毛利率同比变化（成本压力或价差修复的直接证据）、单季利润与营收','pos':'近一年位置：≤0.5为好，>0.8为差','chip':'股东户数变化、融资余额20日变化、未来6个月解禁比例'},
+}
+
+def _layers(t,x):
+    e=x.get('en') or {}
+    # 位置
+    p=e.get('pos52');dd=e.get('dd');ma=e.get('vsMA60');r60=e.get('ret60')
+    if t=='crowded':pos='好' if p is not None and p<=.6 else '差' if p is not None and p>.85 else '中'
+    elif t=='upstream':pos='好' if dd is not None and dd<=-20 else '差' if dd is not None and dd>-10 else '中'
+    elif t=='growth':pos='好' if ma is not None and ma>0 and (r60 or 0)>0 else '差' if ma is not None and ma<-5 else '中'
+    else:pos='好' if p is not None and p<=.5 else '差' if p is not None and p>.8 else '中'
+    # 筹码
+    bad=[];good=[]
+    hc=e.get('holdersChg');m20=e.get('margin20');lf=e.get('lift6m') or 0
+    if hc is not None and hc>=10:bad.append('股东户数+'+format(hc,'.0f')+'%')
+    if hc is not None and hc<=-5:good.append('股东户数'+format(hc,'.0f')+'%')
+    if m20 is not None and m20>=15:bad.append('融资20日+'+format(m20,'.0f')+'%')
+    if t=='growth' and m20 is not None and m20<=-10:good.append('融资已出清'+format(m20,'.0f')+'%')
+    if lf>=5:bad.append('6个月解禁'+format(lf,'.1f')+'%')
+    chip='差' if bad else '好' if good else '中'
+    # 基本面（板块特有的硬检查）
+    fb=[]
+    if t=='upstream' and e.get('cashEps') is not None and e['cashEps']<1:fb.append('经营现金流低于利润')
+    if t=='cost' and e.get('gmChg') is not None and e['gmChg']<0:fb.append('毛利率同比下降'+format(e['gmChg'],'.1f')+'个百分点')
+    if t=='growth' and e.get('cashEps') is not None and e['cashEps']<0.5:fb.append('经营现金流明显低于利润')
+    if t=='cost' and e.get('cashEps') is not None and e['cashEps']<0:fb.append('经营现金流为负')
+    fund='差' if fb else '好' if x.get('score',0)>=0.6 else '中'
+    return {'fund':fund,'pos':pos,'chip':chip,'notes':fb+bad+good}
+
+def select_v2(root,sectors):
+    import json
+    p=Path(root)/'data/raw/stock_pick/l1_enrich.json';en=json.loads(p.read_text()) if p.exists() else {}
+    base=select_all(root,sectors);out={}
+    V={'好':1,'中':.5,'差':0}
+    for sid,r in base.items():
+        t=TYPE[sid];rows=[]
+        for x in r['all']:
+            x['en']=en.get(x['code'],{});L=_layers(t,x);x.update(L)
+            x['total']=round((x['score']+V[L['pos']]+V[L['chip']])/3*(0.5 if L['fund']=='差' else 1),2)
+            rows.append(x)
+        rows.sort(key=lambda x:-x['total'])
+        out[sid]={**{k:v for k,v in r.items() if k!='all'},'type':t,'lens':LENS[t],'picks':rows[:R_N.get(sid,5)]}
+    return out
+
+R_N={'a-bank':5,'a-coal':4,'a-oil':2,'a-tanker':2,'a-semiconductor':5,'a-computing':5,'a-pharma':4,'a-grid':4,'a-chemical':4}
+
+def select_all(root,sectors):
+    res=select(root,sectors)
+    for s in sectors:
+        if s['id'] not in RULES:continue
+        R=RULES[s['id']];pool=rows(root,s['bks']);ok=[x for x in pool if R['filter'](x)]
+        for k in R['factors']:
+            vals=sorted(F[k][1](x) for x in ok)
+            for x in ok:x['pct_'+k]=(sum(v<F[k][1](x) for v in vals)+0.5*sum(v==F[k][1](x) for v in vals))/len(vals)
+        for x in ok:x['score']=round(sum(x['pct_'+k] for k in R['factors'])/len(R['factors']),2);x['flag']=flag(x)
+        res[s['id']]['all']=ok
+    return res
