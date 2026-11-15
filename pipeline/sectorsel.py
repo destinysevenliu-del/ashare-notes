@@ -40,7 +40,7 @@ def hub(d,rows,market):
     out+='<section id="excluded"><h2>未入选的方向与原因</h2><ul class="ss-ex">'
     for x in d['excluded']:
         if x['market']==market:out+='<li><b>'+E(x['name'])+'</b>：'+E(x['reason'])+'</li>'
-    out+='</ul></section><details class="deep-research" id="method"><summary>选板块的方法与数据口径</summary><ol class="ss-steps">'+''.join('<li><b>'+E(x['name'])+'</b>：'+E(x['text'])+'</li>' for x in d['steps'])+'</ol>'
+    out+='</ul></section><details class="deep-research" id="method"><summary>选板块的方法与数据口径</summary>'+('<ul class="ss-ex">'+''.join('<li>'+E(x)+'</li>' for x in d.get('principles',[]))+'</ul>')+'<ol class="ss-steps">'+''.join('<li><b>'+E(x['name'])+'</b>：'+E(x['text'])+'</li>' for x in d['steps'])+'</ol>'
     if market=='a':
         bks=[b for s in secs for b in s['bks']]+[b for x in d['excluded'] if x['market']=='a' for b in x['bks']]
         out+='<h3>入选与未入选行业的同口径数据</h3>'+screen_table(rows,bks)
@@ -53,6 +53,7 @@ def detail(d,rows,s):
     mk='A股' if s['market']=='a' else '港股';back='index.html' if s['market']=='a' else 'hk.html'
     out='<style>'+CSS+'</style><div class="crumb"><a href="'+back+'">'+mk+'板块</a> ／ '+E(s['title'])+'</div><div class="hero"><div><h1>'+E(s['title'])+' '+badge(s['rating'])+'</h1><p class="sum">'+E(s['verdict'])+'</p></div><div class="hero-meta">窗口 '+E(d['window'])+'<br>变化：'+E(s['prev'])+'</div></div>'
     out+='<section id="why"><h2>为什么在这个方向里</h2><p>'+E(s['why'])+'</p><p class="note">对应大盘驱动：'+E(s['driver'])+'。</p></section>'
+    if s.get('priced'):out+='<section id="expect"><h2>市场已定价什么，最强的反方解释是什么</h2><div class="ss-parts ss-two"><article><span>市场已定价</span><p>'+E(s['priced'])+'</p></article><article><span>最强替代解释</span><p>'+E(s['alternative'])+'</p></article></div></section>'
     out+='<section id="parts"><h2>板块自身的三件事</h2><div class="ss-parts">'
     for k in ['num','den','tap']:
         p=s['parts'][k];out+='<article class="ss-'+k+'"><span>'+PART_NAME[k]+'</span><h3>'+E(p['state'])+'</h3><p>'+E(p['text'])+'</p>'+refs(d,p['refs'],'../')+'</article>'
@@ -86,7 +87,8 @@ CSS="""
 .ss-ex li,.ss-steps li{font-size:14px;line-height:1.9}
 .ss-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:12px 0}.ss-parts article{border:1px solid #d4dfeb;border-radius:8px;padding:16px 18px;background:#fff}.ss-parts span{font-size:12px;color:#64798d}.ss-parts h3{font-size:17px;margin:6px 0 10px}.ss-parts p{font-size:14px;line-height:1.85;margin:0 0 8px}.ss-parts .src{font-size:11.5px}
 .ss-num{border-top:4px solid #3d6b8f!important}.ss-den{border-top:4px solid #8a6d3b!important}.ss-tap{border-top:4px solid #3f7d63!important}
-#why,#parts,#switch,#tracking,#checks,#handoff,#excluded,#conclusion{margin:30px 0}.hero h1 .ss-badge{font-size:14px}
+#why,#expect,#parts,#switch,#tracking,#checks,#handoff,#excluded,#conclusion{margin:30px 0}.hero h1 .ss-badge{font-size:14px}
+.ss-two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .ss-switch{background:#f3f6f9;border-radius:8px;padding:12px 16px;font-size:15px;line-height:1.8}
 @media(max-width:900px){.ss-parts,.ss-legend{grid-template-columns:1fr}}
 """

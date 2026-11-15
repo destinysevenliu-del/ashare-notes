@@ -129,6 +129,8 @@ def regime(d,market,prefix,refs):
     for s_ in x['scenarios']:
         out+='<article><b>'+E(s_['name'])+'</b><span>'+E(s_['prob'])+'</span><p>'+E(s_['text'])+'</p></article>'
     board=prefix+('boards/index.html' if market=='a' else 'boards/hk.html')
+    if x.get('assumptions'):
+        out+='</div><section id="regime-assumptions"><h3 class="h3s">关键假设与薄弱环节</h3><div class="tblwrap"><table class="mt regime-table"><thead><tr><th>问题</th><th>证据现状</th><th>如果错了</th></tr></thead><tbody>'+''.join('<tr><th scope="row">'+E(a)+'</th><td>'+E(b)+'</td><td>'+E(c)+'</td></tr>' for a,b,c in x['assumptions'])+'</tbody></table></div></section><div>'
     out+='</div><section id="regime-sectors"><h3 class="h3s">从大盘到板块：每个驱动指向哪里</h3><div class="tblwrap"><table class="mt regime-table"><thead><tr><th>宏观驱动</th><th>半年方向</th><th>顺风</th><th>逆风或等待</th><th>站内板块分档</th></tr></thead><tbody>'
     for r in x['sectors']:out+='<tr>'+''.join('<td>'+E(c)+'</td>' for c in r)+'</tr>'
     out+='</tbody></table></div><p class="regime-next"><a href="'+board+'">进入'+('A股' if market=='a' else '港股')+'板块，查看分档与证据 →</a></p></section>'
@@ -150,7 +152,7 @@ def render_tracking(ctx,market):
 REGIME_CSS = """
 .regime{margin:18px 0 28px}.regime-head{border-left:4px solid #365875;padding:4px 0 4px 20px;margin-bottom:18px}.regime-head h3{font:600 23px/1.6 var(--sans);color:#223e57;margin:8px 0 12px}.regime-head p{font-size:15px;line-height:1.95;margin:0 0 8px}.regime-why{font-size:13px!important;color:#52687b}
 .regime-frame{background:#f3f6f9;border-radius:8px;padding:12px 16px;font-size:14px;line-height:1.8}.regime-frame b{margin-right:10px}
-.regime-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:18px 0}.regime-parts article{border:1px solid #d4dfeb;border-radius:8px;padding:18px 20px;background:#fff}.part-name{font-size:12px;color:#64798d}.regime-parts h4{margin:6px 0 10px;font-size:17px}.regime-parts p{font-size:14px;line-height:1.85;margin:0 0 8px}.part-imp{background:#f6f8fa;padding:8px 10px;border-radius:6px}
+.regime-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:18px 0}.regime-parts article{border:1px solid #d4dfeb;border-radius:8px;padding:18px 20px;background:#fff}.part-name{font-size:12px;color:#64798d}.regime-parts h4{margin:6px 0 10px;font-size:17px}.regime-parts p{font-size:14px;line-height:1.85;margin:0 0 8px}.part-imp{background:#f6f8fa;padding:8px 10px;border-radius:6px}.part-alt{font-size:13px!important;color:#455a6e;border-left:3px solid #d4dfeb;padding-left:8px}
 .regime-scen{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin:0 0 22px}.regime-scen article{border:1px solid #d4dfeb;border-radius:8px;padding:14px 16px}.regime-scen article:first-child{border-left:4px solid #365875}.regime-scen span{float:right;font-size:13px;color:#52687b}.regime-scen p{font-size:14px;line-height:1.8;margin:8px 0 0}
 .regime-table{width:100%;min-width:820px}.regime-table td{vertical-align:top;font-size:13.5px;line-height:1.75}.regime-next{margin:10px 0 22px}.regime-checks td:first-child,.regime-checks td:last-child,.regime-checks td:nth-child(4){white-space:nowrap}#regime-calendar{margin:18px 0}#regime-calendar>summary,#macro-legacy>summary{cursor:pointer;font-weight:600;padding:14px 16px;background:#f3f6f9}
 @media(max-width:1000px){.regime-parts{grid-template-columns:1fr}.regime-scen{grid-template-columns:1fr}}

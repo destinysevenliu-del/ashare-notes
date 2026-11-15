@@ -24,6 +24,12 @@ def values(root):
     l=_j(root,'hk','liquidity.json');v['hk_hibor']=(round(l[-1]['hibor_fixing_1m'],2),l[-1]['end_of_date'])
     s=_j(root,'hk','southbound.json')
     for n in (5,20):v['hk_south%d'%n]=(round(sum(x['net'] for x in s[-n:]),1),s[-1]['date'])
+    gl=json.loads(Path(root,'data','raw','global.json').read_text())['series']['us_hy_oas']['rows']
+    gl=[r for r in gl if r['value'] is not None];v['us_hy_oas']=(gl[-1]['value'],gl[-1]['date'])
+    pp={r['TIME']:r['BASE_SAME'] for r in _j(root,'ppi.json')}
+    M25={1:-0.2,2:-0.1,3:-0.4,4:-0.4,5:-0.4,6:-0.4,7:-0.2,8:0.0,9:0.0,10:0.1,11:0.1,12:0.2}
+    last=max(k for k in pp if k.startswith('2026'));m=int(last[5:7]);prev=pp['2026年%02d月份'%(m-1)] if m>1 else pp['2025年12月份']
+    v['ppi_mom']=(round(pp[last]-prev+M25[m],1),last+'（推算）')
     return v
 
 def status(row,val):
@@ -40,14 +46,14 @@ def fmt(x):
 
 def render(root,d,fw,market,prefix):
     g=d['macro_regime'];x=g['markets'][market];vals=values(root)
-    out='<style>'+CSS+'</style><p class="trk-lead">三类信息，三种处理方式：<b>定期数据</b>只更新现值，越过阈值才进入改判；<b>已排期事件</b>事前写预期、事后对照；<b>突发事件</b>先归到分子、分母或水龙头，再看是否触线。</p>'
-    out+='<section id="track-regular"><h3 class="h3s">定期跟踪单</h3><div class="tblwrap"><table class="mt trk-table"><thead><tr><th>部件</th><th>指标</th><th>频率</th><th>现值</th><th>阈值</th><th>状态</th><th>命题</th><th>为什么看它</th></tr></thead><tbody>'
+    out='<style>'+CSS+'</style><p class="trk-lead">三类信息，三种处理方式：<b>定期数据</b>只更新现值，越过阈值才进入改判（阈值分三类：风控规则是纪律线，研究信号是经验观察线，预测是可被证伪的推算）；<b>已排期事件</b>事前写预期、事后对照；<b>突发事件</b>先归到分子、分母或水龙头，再看是否触线。</p>'
+    out+='<section id="track-regular"><h3 class="h3s">定期跟踪单</h3><div class="tblwrap"><table class="mt trk-table"><thead><tr><th>部件</th><th>指标</th><th>频率</th><th>现值</th><th>阈值</th><th>阈值性质与依据</th><th>状态</th><th>命题</th><th>为什么看它</th></tr></thead><tbody>'
     for r in x['tracking']:
         if r['src'].startswith('manual:'):val,date=r['src'][7:],''
         else:val,date=vals[r['src']]
         st,cls=status(r,val)
         th='；'.join(t for t in [('低于'+fmt(r['lo'])+'：'+r['lo_label'].split('：')[0]) if r['lo'] is not None else '',('高于'+fmt(r['hi'])+'：'+r['hi_label'].split('：')[0]) if r['hi'] is not None else ''] if t) or '—'
-        out+='<tr><td>'+E(r['part'])+'</td><td><b>'+E(r['name'])+'</b></td><td>'+E(r['freq'])+'</td><td class="trk-v">'+E(fmt(val))+('<small>'+E(date)+'</small>' if date else '')+'</td><td>'+E(th)+'</td><td><span class="trk-s '+cls+'">'+E(st)+'</span></td><td>'+E(r['check'] or '—')+'</td><td>'+E(r['note'])+'</td></tr>'
+        out+='<tr><td>'+E(r['part'])+'</td><td><b>'+E(r['name'])+'</b></td><td>'+E(r['freq'])+'</td><td class="trk-v">'+E(fmt(val))+('<small>'+E(date)+'</small>' if date else '')+'</td><td>'+E(th)+'</td><td><b>'+E(r.get('nature',''))+'</b><br><small>'+E(r.get('basis',''))+'</small></td><td><span class="trk-s '+cls+'">'+E(st)+'</span></td><td>'+E(r['check'] or '—')+'</td><td>'+E(r['note'])+'</td></tr>'
     out+='</tbody></table></div><p class="note">日度与月度数值随每次构建从站内数据自动读取；“人工跟踪”项需在研究数据中手动更新。</p></section>'
     out+='<section id="track-events"><h3 class="h3s">已排期事件</h3><div class="tblwrap"><table class="mt trk-table"><thead><tr><th>时间</th><th>事件</th><th>影响哪个部件</th></tr></thead><tbody>'
     for c in g['calendar']:out+='<tr>'+''.join('<td>'+E(v)+'</td>' for v in c)+'</tr>'

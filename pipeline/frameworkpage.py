@@ -7,6 +7,7 @@ def body(fw):
     P={p['key']:p for p in fw['parts']}
     out='<div class="hero"><p class="date">框架版本 '+E(fw['version'])+'</p><h1>研究框架：'+E(fw['name'])+'</h1><p class="sum">'+E(fw['one_line'])+'</p></div><style>'+CSS+'</style>'
     out+='<section class="fw-card"><h2>一个比喻</h2><p>'+E(fw['metaphor'])+'</p></section>'
+    out+='<section><h2>七条检验规则：结论不能强过证据</h2><div class="tblwrap"><table class="mt fw-grid"><tbody>'+''.join('<tr><th scope="row">'+E(x['name'])+'</th><td>'+E(x['text'])+'</td></tr>' for x in fw.get('principles',[]))+'</tbody></table></div></section>'
     out+='<section><h2>三件事，每件事只问一个问题</h2><div class="fw-parts">'
     for p in fw['parts']:out+='<article class="fw-'+p['key']+'"><span>'+E(p['name'])+'</span><h3>'+E(p['question'])+'</h3><p><b>由什么决定：</b>'+E(p['drivers'])+'</p><p class="fw-trap"><b>容易犯的错：</b>'+E(p['trap'])+'</p></article>'
     out+='</div></section><section><h2>同一套问题，用在三个层级</h2><p class="note">横着看是同一层级的三件事，竖着看是同一件事在不同层级换了指标。</p><div class="tblwrap"><table class="mt fw-grid"><thead><tr><th></th>'

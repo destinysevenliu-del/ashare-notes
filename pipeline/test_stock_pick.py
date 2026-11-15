@@ -20,5 +20,5 @@ class PickTest(unittest.TestCase):
   counts=[n for _,n in P['funnel']];self.assertEqual(counts,sorted(counts,reverse=True))
  def test_page(self):
   body=(ROOT/'docs/stocks/index.html').read_text()
-  self.assertIn('id="logic1"',body);self.assertIn('id="logic2"',body);self.assertIn('乐凯胶片',body)
+  self.assertIn('id="logic1"',body);self.assertIn('id="logic2"',body);self.assertIn('乐凯胶片',body);self.assertIn('按真实规则做组合回测',body)
 if __name__=='__main__':unittest.main()
