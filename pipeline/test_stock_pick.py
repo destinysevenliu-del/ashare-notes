@@ -49,4 +49,17 @@ class PickTest(unittest.TestCase):
   L=12.5/1.25;H=L*1.5
   self.assertAlmostEqual(b['buy'][1],round(L+0.25*(H-L),2));self.assertAlmostEqual(b['sell'],round(L+0.8*(H-L),2))
   for f,i in [('docs/stocks/index.html','id="price-rules"'),('docs/stocks/box.html','id="box-rules"')]:self.assertIn(i,(ROOT/f).read_text())
+ def test_logic2_judge(self):
+  import stockpick
+  P=json.loads((ROOT/'data/stock_pick.json').read_text())['logic2'];F=stockpick.l2_fund(ROOT)
+  rows=stockpick.l2_judged(P,{'on':True},F)
+  self.assertEqual(len(rows),len(P['top'])+1)
+  for x,j,_ in rows:self.assertIn(j['view'],stockpick.VORD,x['code'])
+  bad={'code':'x','pos':0.1,'W':0.5,'swings':2,'sp':1}
+  j=logic2_box.judge(bad,{'pb':1,'q3':{'rev_m':150,'np_m':-10,'bps':2,'cfps':0,'roe':-3}},{},True)
+  self.assertEqual(j['view'],'剔除：地板不牢')
+  j=logic2_box.judge({**bad,'pos':-0.4},{'pb':1,'q3':{'rev_m':900,'np_m':10,'bps':2,'cfps':0,'roe':3}},{},True)
+  self.assertEqual(j['view'],'已破位，不接')
+  self.assertEqual(logic2_box.judge(bad,None,{},False)['view'],'暂停开新仓')
+  self.assertIn('id="l2-judge"',(ROOT/'docs/stocks/box.html').read_text())
 if __name__=='__main__':unittest.main()

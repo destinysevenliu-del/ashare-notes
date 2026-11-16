@@ -75,6 +75,7 @@ def step_write(m, csi, miss, asof):
             x["boxL"] = round(x["close"] / (1 + x["pos"] * x["W"]), 3); x["boxH"] = round(x["boxL"] * (1 + x["W"]), 3); x["box_asof"] = L2.get("box_asof", "2026-11-13")
         v = mt.get(x["code"]) or {}
         if v.get("close"):
+            x["en"] = {**(x.get("en") or {}), **{k: v[k] for k in ("holdersChg", "hdate", "margin20", "marginPct", "lift6m", "top10free", "focus") if v.get(k) is not None}}
             x["close"] = v["close"]; x["pos"] = round((v["close"] - x["boxL"]) / (x["boxH"] - x["boxL"]), 2)
     L2["px_asof"] = asof
     st = rj(ST_P) if ST_P.exists() else {}
@@ -105,9 +106,10 @@ def step_snapshot(asof):
         for i, x in enumerate(r["picks"]):
             p = x.get("pl"); v, _ = stockpick.view_of(sec[sid]["rating"], sid, x, i)
             out["logic1"][x["code"]] = {"name": x["name"], "sector": sec[sid]["title"], "rating": sec[sid]["rating"], "type": r["type"], "view": v, "cat": cat(p), **({k: p.get(k) for k in ("close", "buy", "sell", "sell2", "stop", "rr", "where")} if p else {})}
+    import logic2_box; F2 = stockpick.l2_fund(ROOT)
     for x in L2["top"]:
-        b = logic1_rules.box_levels(x)
-        out["logic2"][x["code"]] = {"name": x["name"], "cat": "跌破止损" if b["close"] <= b["stop"] else ("到达卖出价" if b["close"] >= b["sell"] else ("在买入区" if b["where"] == "在买入区" else b["where"])), **b}
+        b = logic1_rules.box_levels(x); J = logic2_box.judge(x, F2.get(x["code"]), x.get("en"), sw["on"])
+        out["logic2"][x["code"]] = {"name": x["name"], "view": J["view"], "layers": [J["fund"], J["pos"], J["chip"], J["box"]], "cat": "跌破止损" if b["close"] <= b["stop"] else ("到达卖出价" if b["close"] >= b["sell"] else ("在买入区" if b["where"] == "在买入区" else b["where"])), **b}
     wj(SNAP / (asof + ".json"), out)
     return out
 
@@ -119,6 +121,7 @@ def step_changes(cur):
             o = (P or {}).get(part, {}).get(c)
             if o is None: items.append({"logic": label, "code": c, "name": x["name"], "from": "—", "to": x["cat"], "close": x.get("close")}); continue
             if o["cat"] != x["cat"]: items.append({"logic": label, "code": c, "name": x["name"], "from": o["cat"], "to": x["cat"], "close": x.get("close")})
+            elif o.get("view") and x.get("view") and o["view"] != x["view"]: items.append({"logic": label, "code": c, "name": x["name"], "from": o["view"], "to": x["view"], "close": x.get("close")})
         for c, o in ((P or {}).get(part) or {}).items():
             if c not in cur[part]: items.append({"logic": label, "code": c, "name": o["name"], "from": o["cat"], "to": "移出候选", "close": None})
     if P: cmp("logic1", "逻辑一"); cmp("logic2", "逻辑二")

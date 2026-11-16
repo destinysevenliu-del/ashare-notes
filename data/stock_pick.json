@@ -54,7 +54,16 @@
    "rev9m": 9.6,
    "boxL": 6.726,
    "boxH": 10.425,
-   "box_asof": "2026-11-13"
+   "box_asof": "2026-11-13",
+   "en": {
+    "holdersChg": 1.1,
+    "hdate": "2026-09-30",
+    "margin20": -0.1,
+    "marginPct": 5.13,
+    "lift6m": 0,
+    "top10free": 51,
+    "focus": "较分散"
+   }
   },
   "top": [
    {
@@ -84,7 +93,14 @@
     ],
     "boxL": 9.025,
     "boxH": 12.996,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": 2.8,
+     "hdate": "2026-09-30",
+     "lift6m": 0,
+     "top10free": 40,
+     "focus": "较集中"
+    }
    },
    {
     "code": "002400",
@@ -113,7 +129,16 @@
     ],
     "boxL": 6.467,
     "boxH": 9.571,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": 2.1,
+     "hdate": "2026-09-30",
+     "margin20": 0.1,
+     "marginPct": 6.14,
+     "lift6m": 0,
+     "top10free": 22,
+     "focus": "非常分散"
+    }
    },
    {
     "code": "603099",
@@ -142,7 +167,16 @@
     ],
     "boxL": 33.039,
     "boxH": 48.567,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": 5.2,
+     "hdate": "2026-09-30",
+     "margin20": -28.3,
+     "marginPct": 2.51,
+     "lift6m": 0,
+     "top10free": 67,
+     "focus": "较分散"
+    }
    },
    {
     "code": "600855",
@@ -171,7 +205,16 @@
     ],
     "boxL": 11.01,
     "boxH": 19.708,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": -6.7,
+     "hdate": "2026-09-30",
+     "margin20": -4.9,
+     "marginPct": 4.16,
+     "lift6m": 0,
+     "top10free": 47,
+     "focus": "非常分散"
+    }
    },
    {
     "code": "603123",
@@ -200,7 +243,16 @@
     ],
     "boxL": 8.155,
     "boxH": 13.945,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": 13.1,
+     "hdate": "2026-09-30",
+     "margin20": -12.1,
+     "marginPct": 2.36,
+     "lift6m": 0,
+     "top10free": 54,
+     "focus": "非常分散"
+    }
    },
    {
     "code": "600691",
@@ -229,7 +281,16 @@
     ],
     "boxL": 2.136,
     "boxH": 3.247,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": 14,
+     "hdate": "2026-09-30",
+     "margin20": -6.6,
+     "marginPct": 2.07,
+     "lift6m": 0,
+     "top10free": 55,
+     "focus": "非常分散"
+    }
    },
    {
     "code": "000509",
@@ -257,7 +318,14 @@
     ],
     "boxL": 3.126,
     "boxH": 3.97,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": -10.6,
+     "hdate": "2026-09-30",
+     "lift6m": 0,
+     "top10free": 50,
+     "focus": "较分散"
+    }
    },
    {
     "code": "002112",
@@ -286,7 +354,15 @@
     ],
     "boxL": 12.086,
     "boxH": 21.271,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": -2.7,
+     "hdate": "2026-11-10",
+     "margin20": -20.2,
+     "marginPct": 6.74,
+     "lift6m": 10.9,
+     "focus": "非常分散"
+    }
    },
    {
     "code": "600858",
@@ -312,7 +388,14 @@
     ],
     "boxL": 4.771,
     "boxH": 6.202,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": 4.5,
+     "hdate": "2026-09-30",
+     "lift6m": 0,
+     "top10free": 51,
+     "focus": "较集中"
+    }
    },
    {
     "code": "000420",
@@ -341,7 +424,16 @@
     ],
     "boxL": 3.561,
     "boxH": 4.736,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": -6,
+     "hdate": "2026-09-30",
+     "margin20": 0,
+     "marginPct": 4.78,
+     "lift6m": 0,
+     "top10free": 27,
+     "focus": "非常分散"
+    }
    },
    {
     "code": "002136",
@@ -370,7 +462,14 @@
     ],
     "boxL": 9.799,
     "boxH": 13.817,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": -2.3,
+     "hdate": "2026-09-30",
+     "lift6m": 0,
+     "top10free": 37,
+     "focus": "较集中"
+    }
    },
    {
     "code": "002366",
@@ -399,7 +498,16 @@
     ],
     "boxL": 4.837,
     "boxH": 8.32,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": -2.7,
+     "hdate": "2026-09-30",
+     "margin20": -7.1,
+     "marginPct": 3.48,
+     "lift6m": 0,
+     "top10free": 38,
+     "focus": "非常分散"
+    }
    },
    {
     "code": "002523",
@@ -428,7 +536,15 @@
     ],
     "boxL": 3.198,
     "boxH": 4.317,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": 2.2,
+     "hdate": "2026-11-10",
+     "margin20": 0.7,
+     "marginPct": 4.79,
+     "lift6m": 0,
+     "focus": "较分散"
+    }
    },
    {
     "code": "600192",
@@ -457,7 +573,16 @@
     ],
     "boxL": 6.191,
     "boxH": 10.339,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": 0,
+     "hdate": "2026-09-30",
+     "margin20": -9.1,
+     "marginPct": 4.66,
+     "lift6m": 0,
+     "top10free": 43,
+     "focus": "较分散"
+    }
    },
    {
     "code": "600230",
@@ -485,7 +610,16 @@
     ],
     "boxL": 10.353,
     "boxH": 18.946,
-    "box_asof": "2026-11-13"
+    "box_asof": "2026-11-13",
+    "en": {
+     "holdersChg": 22.5,
+     "hdate": "2026-09-30",
+     "margin20": -2.8,
+     "marginPct": 5.12,
+     "lift6m": 0,
+     "top10free": 53,
+     "focus": "较分散"
+    }
    }
   ],
   "oos_1y": {
