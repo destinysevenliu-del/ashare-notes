@@ -114,3 +114,59 @@ def select_all(root,sectors):
         for x in ok:x['score']=round(sum(x['pct_'+k] for k in R['factors'])/len(R['factors']),2);x['flag']=flag(x)
         res[s['id']]['all']=ok
     return res
+
+# ---------- 2026-11-16：参考买入价、卖出价与止损价（研究规则，未回测） ----------
+CN10Y=1.59
+PRICE_RULES={
+ 'crowded':{'buy':'股息率达到“10年国债+2.5个百分点”对应的价格及以下（每股分红÷(1.59%+2.5%)）','sell':'股息率降到“10年国债+2.0个百分点”对应的价格（与板块降级线一致）','stop':'不设价格止损；分红下调或10年国债持续高于1.85%时退出'},
+ 'upstream':{'buy':'一年区间下部：区间位置0.2—0.4（且不高于60日均线）','sell':'接近一年高点：区间位置0.9（前半段板块不预期创新高）','stop':'跌破一年低点5%'},
+ 'growth':{'buy':'开关打开、且价格先站上60日均线后：60日均线至均线上方5%','sell':'第一目标取“一年区间中位”与“两倍风险距离”中较高者，第二目标为一年高点下方5%','stop':'买入价下方12%与一年低点下方5%中较高者'},
+ 'cost':{'buy':'一年区间下部：区间位置0.15—0.35','sell':'一年区间位置0.8','stop':'跌破一年低点5%'},
+}
+
+def _range(e):
+    c=e.get('close');dd=e.get('dd');p=e.get('pos52');ma=e.get('vsMA60')
+    if c is None or dd is None or p is None:return None
+    hi=c/(1+dd/100)
+    lo=c if p>=0.999 else (c-p*hi)/(1-p)
+    if p>=0.999:lo=None
+    return {'c':c,'hi':hi,'lo':lo,'ma60':c/(1+ma/100) if ma is not None else None}
+
+def price_levels(t,x):
+    e=x.get('en') or {};R=_range(e)
+    if not R:return None
+    c,hi,lo,ma=R['c'],R['hi'],R['lo'],R['ma60']
+    out={'close':c,'note':''}
+    if t=='crowded':
+        dy=e.get('dy') or x.get('dy');dps=(dy or 0)*c/100
+        if not dps:return None
+        b=dps/((CN10Y+2.5)/100);s=dps/((CN10Y+2.0)/100)
+        out.update(buy=(round(b*0.97,2),round(b,2)),sell=round(s,2),stop=None,dps=round(dps,3))
+    elif lo is None:
+        return None
+    elif t=='upstream':
+        b1=lo+0.2*(hi-lo);b2=lo+0.4*(hi-lo)
+        if ma:b2=min(b2,ma)
+        b2=max(b2,b1)
+        out.update(buy=(round(b1,2),round(b2,2)),sell=round(lo+0.9*(hi-lo),2),stop=round(lo*0.95,2))
+    elif t=='growth':
+        if not ma:return None
+        b1,b2=ma,ma*1.05;mid=(b1+b2)/2
+        st=max(mid*0.88,lo*0.95);out.update(buy=(round(b1,2),round(b2,2)),sell=round(max(lo+0.5*(hi-lo),mid+2*(mid-st)),2),sell2=round(max(hi*0.95,mid+2*(mid-st)),2),stop=round(st,2))
+    else:
+        out.update(buy=(round(lo+0.15*(hi-lo),2),round(lo+0.35*(hi-lo),2)),sell=round(lo+0.8*(hi-lo),2),stop=round(lo*0.95,2))
+    b1,b2=out['buy'];mid=(b1+b2)/2
+    out['rr']=round((out['sell']-mid)/(mid-out['stop']),1) if out.get('stop') and mid>out['stop'] else None
+    out['where']='在买入区' if b1<=c<=b2 else ('高于买入区'+format((c/b2-1)*100,'.0f')+'%' if c>b2 else '低于买入区'+format((1-c/b1)*100,'.0f')+'%')
+    if t=='crowded':
+        out['where']='已在卖出区（股息率不足）' if c>=out['sell'] else ('在买入区（股息率达标）' if c<=b2 else '等待：高于买入价'+format((c/b2-1)*100,'.0f')+'%')
+    if t=='growth':
+        out['where']='价格已确认，'+('在买入区' if b1<=c<=b2 else '高于买入区'+format((c/b2-1)*100,'.0f')+'%') if c>=b1 else '未确认：需先站上60日均线（约'+format(b1,'.2f')+'）'
+    if t in ('upstream','cost') and c<b1:out['where']='低于买入区'+format((1-c/b1)*100,'.0f')+'%（接近一年低点，靠近止损）'
+    return out
+
+def box_levels(x):
+    c,p,W=x['close'],x['pos'],x['W']
+    L=c/(1+p*W);H=L*(1+W)
+    b=(round(L,2),round(L+0.2*(H-L),2));s=round(H-0.2*(H-L),2);st=round(L*0.85,2);mid=sum(b)/2
+    return {'close':c,'buy':b,'sell':s,'stop':st,'rr':round((s-mid)/(mid-st),1),'where':'在买入区' if b[0]<=c<=b[1] else ('高于买入区' if c>b[1] else '低于箱底')}

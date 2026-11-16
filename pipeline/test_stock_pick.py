@@ -22,6 +22,17 @@ class PickTest(unittest.TestCase):
   body=(ROOT/'docs/stocks/index.html').read_text();box=(ROOT/'docs/stocks/box.html').read_text()
   self.assertIn('id="overview"',body);self.assertIn('id="logic1"',body);self.assertIn('href="box.html"',body)
   self.assertIn('id="logic2"',box);self.assertIn('乐凯胶片',box);self.assertIn('按真实规则做组合回测',box)
+ def test_price_levels_are_ordered(self):
+  S=json.loads((ROOT/'data/sector_selection.json').read_text())['sectors']
+  r=logic1_rules.select_v2(ROOT,S)
+  for k,v in r.items():
+   for x in v['picks']:
+    pl=logic1_rules.price_levels(v['type'],x);self.assertTrue(pl,(k,x['code']))
+    self.assertLessEqual(pl['buy'][0],pl['buy'][1]);self.assertGreater(pl['sell'],pl['buy'][1])
+    if pl.get('stop'):self.assertLess(pl['stop'],pl['buy'][0])
+  P=json.loads((ROOT/'data/stock_pick.json').read_text())['logic2']
+  for x in P['top']:
+   b=logic1_rules.box_levels(x);self.assertTrue(b['stop']<b['buy'][0]<=b['buy'][1]<b['sell'])
  def test_three_layers(self):
   S=json.loads((ROOT/'data/sector_selection.json').read_text())['sectors']
   r=logic1_rules.select_v2(ROOT,S)
