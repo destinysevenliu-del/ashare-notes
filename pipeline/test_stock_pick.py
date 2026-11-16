@@ -40,4 +40,12 @@ class PickTest(unittest.TestCase):
    for x in v['picks']:
     for layer in ['fund','pos','chip']:self.assertIn(x[layer],['好','中','差'],(k,x['code']))
     self.assertTrue(x['en'],(k,x['code']))
+ def test_price_rules_documented(self):
+  D=logic1_rules.PRICE_DOC
+  self.assertEqual({r['t'] for r in D['types']},set(logic1_rules.PRICE_RULES))
+  self.assertEqual(set(logic1_rules.TYPE.values()),set(logic1_rules.PRICE_RULES))
+  b=logic1_rules.box_levels({'close':12.5,'pos':0.5,'W':0.5})
+  L=12.5/1.25;H=L*1.5
+  self.assertAlmostEqual(b['buy'][1],round(L+0.25*(H-L),2));self.assertAlmostEqual(b['sell'],round(L+0.8*(H-L),2))
+  for f,i in [('docs/stocks/index.html','id="price-rules"'),('docs/stocks/box.html','id="box-rules"')]:self.assertIn(i,(ROOT/f).read_text())
 if __name__=='__main__':unittest.main()

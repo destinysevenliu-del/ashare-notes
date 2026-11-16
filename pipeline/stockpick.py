@@ -54,12 +54,12 @@ def money(v):return '—' if v is None else format(v,'.2f')
 
 def plan_table(t,picks):
     R=logic1_rules.PRICE_RULES[t]
-    out='<div class="plan"><p class="plan-h"><b>价格计划</b>（研究规则，未回测；按11月13日收盘计算，数据更新后重算）</p><ul><li><b>买入：</b>'+E(R['buy'])+'</li><li><b>卖出：</b>'+E(R['sell'])+'</li><li><b>止损：</b>'+E(R['stop'])+'</li></ul><div class="tblwrap"><table class="mt lp-table plan-table"><thead><tr><th>股票</th><th>现价</th><th>参考买入区间</th><th>卖出参考价</th><th>第二目标</th><th>止损价</th><th>盈亏比</th><th>现价状态</th></tr></thead><tbody>'
+    out='<div class="plan"><p class="plan-h"><b>价格计划</b>（研究规则，未回测；按11月13日收盘计算，数据更新后重算；<a href="#price-rules">完整规则与原因 →</a>）</p><ul><li><b>买入：</b>'+E(R['buy'])+'</li><li><b>卖出：</b>'+E(R['sell'])+'</li><li><b>止损：</b>'+E(R['stop'])+'</li></ul><div class="tblwrap"><table class="mt lp-table plan-table"><thead><tr><th>股票</th><th>现价</th><th>参考买入区间</th><th>卖出参考价</th><th>第二目标</th><th>止损价</th><th>盈亏比</th><th>现价状态</th></tr></thead><tbody>'
     for x in picks:
         pl=x.get('pl')
         if not pl:out+='<tr><th scope="row">'+E(x['name'])+'</th><td colspan="7">价格数据不足</td></tr>';continue
         out+='<tr><th scope="row">'+E(x['name'])+'<small>'+x['code']+'</small></th><td>'+money(pl['close'])+'</td><td><b>'+money(pl['buy'][0])+' — '+money(pl['buy'][1])+'</b></td><td><b>'+money(pl['sell'])+'</b></td><td>'+money(pl.get('sell2'))+'</td><td>'+money(pl.get('stop'))+'</td><td>'+('—' if pl.get('rr') is None else format(pl['rr'],'.1f'))+'</td><td>'+E(pl['where'])+'</td></tr>'
-    return out+'</tbody></table></div><p class="note">盈亏比＝（卖出参考价−买入区中点）÷（买入区中点−止损价）；低于2说明按这套价位做，赚的空间不足亏的两倍，需要更好的买点。</p></div>'
+    return out+'</tbody></table></div><p class="note">表中的盈亏比＝（卖出参考价−买入区中点）÷（买入区中点−止损价）；低于2说明按这套价位做，赚的空间不足亏的两倍，需要更好的买点。</p></div>'
 
 def overview_html(L1,sec,L2):
     out='<section id="overview"><h2>候选总览</h2><p class="note">先看这张表，点股票名直接跳到它所在的板块。每只股票分三层判断：基本面（各板块看的指标不同）、位置、筹码。</p><div class="tblwrap"><table class="mt lp-table ov-table"><thead><tr><th>板块</th><th>档位</th><th>这个板块的个股看什么</th><th>候选与初步意见</th></tr></thead><tbody>'
@@ -120,6 +120,20 @@ def logic2_html(L2,sw):
     out+='</tbody></table></div><p class="note">排序：往返次数＋2×脉冲次数，从高到低；同分时位置更低者优先。这里列出前15名，另有'+str(fun[-1][1]-len(L2['top']))+'只同样满足条件。亏损公司需单独确认没有财务类退市风险。</p></section>'
     return out
 
+
+def rules_html():
+    D=logic1_rules.PRICE_DOC
+    out='<section id="price-rules"><h2>价格规则：买入价、卖出价、止损价怎么算</h2><p class="note">本页所有价格都按下面的规则计算。规则写在这里，以后跟进时按同一套口径重算，不凭当时的感觉调。</p>'
+    out+='<h3>一、四类板块各用一套规则</h3><div class="tblwrap"><table class="mt lp-table pr-table"><thead><tr><th>板块类型</th><th>买入</th><th>卖出</th><th>止损</th><th>为什么这样定</th></tr></thead><tbody>'
+    for r in D['types']:out+='<tr><th scope="row">'+E(r['name'])+'<small>'+E(r['sectors'])+'</small></th><td>'+E(r['buy'])+'</td><td>'+E(r['sell'])+'</td><td>'+E(r['stop'])+'</td><td><small>'+E(r['why'])+'</small></td></tr>'
+    out+='</tbody></table></div><h3>二、共同原则</h3><dl class="pr-dl">'+''.join('<dt>'+E(a)+'</dt><dd>'+E(b)+'</dd>' for a,b in D['common'])+'</dl>'
+    out+='<details class="pr-in"><summary><b>三、输入数据怎么来</b>（一年高低点、60日均线等的换算）</summary><dl class="pr-dl">'+''.join('<dt>'+E(a)+'</dt><dd>'+E(b)+'</dd>' for a,b in D['inputs'])+'</dl></details>'
+    return out+'<p class="note">逻辑二（国资箱体）的价格规则见 <a href="box.html#box-rules">国资箱体页</a>。</p></section>'
+
+def box_rules_html():
+    B=logic1_rules.PRICE_DOC['box']
+    return '<section id="box-rules"><h2>价格规则：箱体怎么定买卖价</h2><dl class="pr-dl"><dt>箱体</dt><dd>'+E(B['inputs'])+'</dd><dt>买入</dt><dd>'+E(B['buy'])+'</dd><dt>卖出</dt><dd>'+E(B['sell'])+'</dd><dt>止损</dt><dd>'+E(B['stop'])+'</dd><dt>暂停</dt><dd>'+E(B['pause'])+'</dd><dt>为什么</dt><dd>'+E(B['why'])+'</dd><dt>盈亏比</dt><dd>'+E(dict(logic1_rules.PRICE_DOC['common'])['盈亏比'])+'</dd></dl></section>'
+
 def head(active):
     return '<nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if active==1 else '')+'><b>逻辑一 · 顺势选股</b><span>大盘→板块→个股</span></a><a href="box.html"'+(' aria-current="page"' if active==2 else '')+'><b>逻辑二 · 国资箱体</b><span>地板、天花板、烟花</span></a></nav>'
 
@@ -127,14 +141,15 @@ def page(ctx):
     root=Path(ctx['ROOT']);S=json.loads((root/'data/sector_selection.json').read_text());P=json.loads((root/'data/stock_pick.json').read_text())
     sec={s['id']:s for s in S['sectors']};L1=logic1_data(root,S)
     out='<style>'+CSS+'</style><div class="hero"><h1>个股</h1><p class="sum">两条逻辑分开看：逻辑一顺着大盘和板块选；逻辑二利用A股国资股的箱体特征。数据截至2026-11-13，本页只提候选，不做买卖决定。</p></div>'+head(1)
-    out+=overview_html(L1,sec,P['logic2'])+logic1_html(root,S,sec,L1)
+    out+='<nav class="lp-jump"><a href="#overview">候选总览</a><a href="#price-rules">价格规则</a><a href="#logic1">按板块展开</a></nav>'
+    out+=overview_html(L1,sec,P['logic2'])+rules_html()+logic1_html(root,S,sec,L1)
     return out+'<p class="note">'+E(P['source'])+' 位置与筹码数据：'+E(json.loads((root/'data/raw/stock_pick/l1_enrich.json').read_text())['_meta']['source'])+'。</p>'
 
 def box_page(ctx):
     root=Path(ctx['ROOT']);P=json.loads((root/'data/stock_pick.json').read_text());sw=switch_state(root)
     out='<style>'+CSS+'</style><div class="hero"><h1>个股 · 国资箱体</h1><p class="sum">有地板、有天花板、偶尔放烟花的房间。规则、验证与候选都在本页。</p></div>'+head(2)
-    out+='<nav class="lp-jump"><a href="#logic2">规则</a><a href="#l2-bt">回测</a><a href="#l2-list">候选名单</a></nav>'
-    return out+logic2_html(P['logic2'],sw)+'<p class="note">'+E(P['source'])+'</p>'
+    out+='<nav class="lp-jump"><a href="#logic2">规则</a><a href="#box-rules">价格规则</a><a href="#l2-bt">回测</a><a href="#l2-list">候选名单</a></nav>'
+    return out+logic2_html(P['logic2'],sw).replace('<h3 id="l2-bt">',box_rules_html()+'<h3 id="l2-bt">',1)+'<p class="note">'+E(P['source'])+'</p>'
 
 def build(ctx):
     site=Path(ctx['SITE'])
@@ -142,6 +157,8 @@ def build(ctx):
     (site/'stocks/box.html').write_text(ctx['page']('国资箱体 | A 股框架笔记','gg',box_page(ctx),'../'),encoding='utf-8')
 
 CSS="""
+#price-rules,#box-rules{margin:30px 0;border:1px solid #d4dfeb;border-radius:10px;padding:16px 20px;background:#fff}.pr-table{min-width:880px}.pr-table td small{font-size:12.5px;color:#455a6e;line-height:1.7}.pr-dl{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:6px 14px;margin:8px 0;font-size:14px;line-height:1.8}.pr-dl dt{font-weight:600;color:#223e57}.pr-dl dd{margin:0}.pr-in{margin-top:10px}.pr-in summary{cursor:pointer}
+@media(max-width:640px){.pr-dl{grid-template-columns:1fr}.pr-dl dd{margin-bottom:6px}}
 .plan{border:1px dashed #b8c8d8;border-radius:8px;padding:10px 14px;margin:10px 0}.plan-h{margin:0 0 4px}.plan ul{margin:2px 0 8px;padding-left:18px;font-size:13.5px;line-height:1.75}.plan-table{min-width:760px}.ov-c small+small{color:#9b3d27}
 .lp-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 22px;position:sticky;top:56px;z-index:5;background:var(--paper,#f4f5f7);padding:6px 0}.lp-tabs a{border:1px solid #d4dfeb;border-radius:10px;padding:12px 16px;background:#fff;text-decoration:none;color:#223e57}.lp-tabs a[aria-current]{border-color:#365875;box-shadow:inset 0 -3px 0 #365875}.lp-tabs b{display:block;font-size:16px}.lp-tabs span{font-size:12.5px;color:#64798d}
 .lp-jump{display:flex;gap:10px;margin:0 0 10px}.lp-jump a{font-size:13px;padding:4px 10px;border-radius:14px;background:#eef2f6;text-decoration:none}
