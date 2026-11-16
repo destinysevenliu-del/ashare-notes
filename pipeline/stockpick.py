@@ -10,8 +10,15 @@ def f(x,p='.1f',suf=''):
     return '—' if x is None else format(x,p)+suf
 
 def switch_state(root):
-    idx=json.loads((Path(root)/'data/raw/idx_all.json').read_text())['rows']
-    return {'close':idx[-1]['close'],'date':idx[-1]['date'],'on':idx[-1]['close']>=4700}
+    idx=json.loads((Path(root)/'data/raw/idx_all.json').read_text())['rows'];last={'close':idx[-1]['close'],'date':idx[-1]['date']}
+    p=Path(root)/'data/raw/weekly/state.json'
+    if p.exists():
+        w=json.loads(p.read_text()).get('csi_all')
+        if w and w['date']>last['date']:last={'close':w['close'],'date':w['date']}
+    return {**last,'on':last['close']>=4700}
+
+def asof(root):
+    return json.loads((Path(root)/'data/raw/stock_pick/l1_enrich.json').read_text())['_meta']['as_of']
 
 def box_svg(ref):
     pos=max(0,min(1,ref['pos']));y=lambda v:200-160*v
@@ -45,6 +52,7 @@ def fund_cells(t,x):
 FH={'crowded':['股息率','单季利润同比','PB','前三季ROE'],'upstream':['单季利润同比','股息率','现金/利润','毛利率变化'],'growth':['单季利润同比','加速（百分点）','营收同比','现金/利润'],'cost':['毛利率变化','单季利润同比','营收同比','现金/利润']}
 
 def logic1_data(root,S):
+    logic1_rules.CN10Y=logic1_rules.cn10y(root)['value']
     r=logic1_rules.select_v2(root,S['sectors'])
     for v in r.values():
         for x in v['picks']:x['pl']=logic1_rules.price_levels(v['type'],x)
@@ -52,9 +60,9 @@ def logic1_data(root,S):
 
 def money(v):return '—' if v is None else format(v,'.2f')
 
-def plan_table(t,picks):
+def plan_table(t,picks,day='2026-11-13'):
     R=logic1_rules.PRICE_RULES[t]
-    out='<div class="plan"><p class="plan-h"><b>价格计划</b>（研究规则，未回测；按11月13日收盘计算，数据更新后重算；<a href="#price-rules">完整规则与原因 →</a>）</p><ul><li><b>买入：</b>'+E(R['buy'])+'</li><li><b>卖出：</b>'+E(R['sell'])+'</li><li><b>止损：</b>'+E(R['stop'])+'</li></ul><div class="tblwrap"><table class="mt lp-table plan-table"><thead><tr><th>股票</th><th>现价</th><th>参考买入区间</th><th>卖出参考价</th><th>第二目标</th><th>止损价</th><th>盈亏比</th><th>现价状态</th></tr></thead><tbody>'
+    out='<div class="plan"><p class="plan-h"><b>价格计划</b>（研究规则，未回测；按'+day+'收盘计算'+('，10年国债'+format(logic1_rules.CN10Y,'.2f')+'%' if t=='crowded' else '')+'；每周重算；<a href="#price-rules">完整规则与原因 →</a>）</p><ul><li><b>买入：</b>'+E(R['buy'])+'</li><li><b>卖出：</b>'+E(R['sell'])+'</li><li><b>止损：</b>'+E(R['stop'])+'</li></ul><div class="tblwrap"><table class="mt lp-table plan-table"><thead><tr><th>股票</th><th>现价</th><th>参考买入区间</th><th>卖出参考价</th><th>第二目标</th><th>止损价</th><th>盈亏比</th><th>现价状态</th></tr></thead><tbody>'
     for x in picks:
         pl=x.get('pl')
         if not pl:out+='<tr><th scope="row">'+E(x['name'])+'</th><td colspan="7">价格数据不足</td></tr>';continue
@@ -84,7 +92,7 @@ def logic1_html(root,S,sec,L1):
         for i,x in enumerate(r['picks']):
             e=x['en'] or {};v,c=view_of(s['rating'],sid,x,i)
             out+='<tr><th scope="row">'+E(x['name'])+'<small>'+x['code']+'</small></th>'+''.join('<td>'+v_+'</td>' for v_ in fund_cells(t,x))+'<td>'+lay(x['fund'])+'</td><td>'+f(e.get('pos52'),'.2f')+'</td><td>'+f(e.get('dd'),'.0f','%')+'</td><td>'+f(e.get('vsMA60'),'+.0f','%')+'</td><td>'+lay(x['pos'])+'</td><td>'+f(e.get('holdersChg'),'+.0f','%')+'<small>'+E(e.get('hdate') or '')+'</small></td><td>'+f(e.get('margin20'),'+.0f','%')+'</td><td>'+f(e.get('marginPct'),'.1f','%')+'</td><td>'+f(e.get('lift6m'),'.1f','%')+'</td><td>'+lay(x['chip'])+'</td><td><small>'+E('；'.join(([x['flag']] if x['flag'] else [])+x['notes']))+'</small></td><td><span class="lp-view '+c+'">'+E(v)+'</span></td></tr>'
-        out+='</tbody></table></div>'+plan_table(t,r['picks'])+'<p class="note">进入个股研究时还要比较：'+E('；'.join(s['handoff']))+'</p></details>'
+        out+='</tbody></table></div>'+plan_table(t,r['picks'],asof(root))+'<p class="note">进入个股研究时还要比较：'+E('；'.join(s['handoff']))+'</p></details>'
     out+='<article class="lp-sec" id="l1-hk"><h3>港股（规则待数据）</h3><p class="note">港股尚无同口径公司数据，暂按板块列出代表公司，不排序。</p><ul>'
     for sid,names in HK.items():out+='<li><b>'+E(sec[sid]['title'])+'（'+E(sec[sid]['rating'])+'）</b>：'+E('、'.join(names))+'</li>'
     return out+'</ul></article></section>'
@@ -134,20 +142,34 @@ def box_rules_html():
     B=logic1_rules.PRICE_DOC['box']
     return '<section id="box-rules"><h2>价格规则：箱体怎么定买卖价</h2><dl class="pr-dl"><dt>箱体</dt><dd>'+E(B['inputs'])+'</dd><dt>买入</dt><dd>'+E(B['buy'])+'</dd><dt>卖出</dt><dd>'+E(B['sell'])+'</dd><dt>止损</dt><dd>'+E(B['stop'])+'</dd><dt>暂停</dt><dd>'+E(B['pause'])+'</dd><dt>为什么</dt><dd>'+E(B['why'])+'</dd><dt>盈亏比</dt><dd>'+E(dict(logic1_rules.PRICE_DOC['common'])['盈亏比'])+'</dd></dl></section>'
 
+def weekly_html(root):
+    p=Path(root)/'data/weekly_changes.json'
+    if not p.exists():return '<section id="weekly"><h2>本周变化</h2><p class="note">还没有跑过每周更新（pipeline/weekly_update.py）。第一次运行只建立基准快照，从第二次开始列出变化。</p></section>'
+    W=json.loads(p.read_text())
+    out='<section id="weekly"><h2>本周变化</h2><p class="note">截止'+E(W['asof'])+(('，与'+E(W['prev'])+'相比') if W['prev'] else '（首次建立基准快照，下次更新开始列出变化）')+'。只列状态有变化的股票；状态分布：'+E('，'.join(k+str(v)+'只' for k,v in W['summary'].items()))+'。</p>'
+    out+=''.join('<p class="wk-alert">'+E(a)+'</p>' for a in W['alerts'])
+    if W['prev']:
+        if not W['items']:out+='<p>本周没有股票改变状态。</p>'
+        else:
+            out+='<div class="tblwrap"><table class="mt lp-table wk-table"><thead><tr><th>股票</th><th>逻辑</th><th>上周</th><th>本周</th><th>现价</th></tr></thead><tbody>'
+            for x in W['items']:out+='<tr><th scope="row">'+E(x['name'])+'<small>'+x['code']+'</small></th><td>'+E(x['logic'])+'</td><td>'+E(x['from'])+'</td><td><b>'+E(x['to'])+'</b></td><td>'+money(x['close'])+'</td></tr>'
+            out+='</tbody></table></div>'
+    return out+'</section>'
+
 def head(active):
     return '<nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if active==1 else '')+'><b>逻辑一 · 顺势选股</b><span>大盘→板块→个股</span></a><a href="box.html"'+(' aria-current="page"' if active==2 else '')+'><b>逻辑二 · 国资箱体</b><span>地板、天花板、烟花</span></a></nav>'
 
 def page(ctx):
     root=Path(ctx['ROOT']);S=json.loads((root/'data/sector_selection.json').read_text());P=json.loads((root/'data/stock_pick.json').read_text())
     sec={s['id']:s for s in S['sectors']};L1=logic1_data(root,S)
-    out='<style>'+CSS+'</style><div class="hero"><h1>个股</h1><p class="sum">两条逻辑分开看：逻辑一顺着大盘和板块选；逻辑二利用A股国资股的箱体特征。数据截至2026-11-13，本页只提候选，不做买卖决定。</p></div>'+head(1)
-    out+='<nav class="lp-jump"><a href="#overview">候选总览</a><a href="#price-rules">价格规则</a><a href="#logic1">按板块展开</a></nav>'
-    out+=overview_html(L1,sec,P['logic2'])+rules_html()+logic1_html(root,S,sec,L1)
+    out='<style>'+CSS+'</style><div class="hero"><h1>个股</h1><p class="sum">两条逻辑分开看：逻辑一顺着大盘和板块选；逻辑二利用A股国资股的箱体特征。价格截至'+asof(root)+'（每周更新），本页只提候选，不做买卖决定。</p></div>'+head(1)
+    out+='<nav class="lp-jump"><a href="#weekly">本周变化</a><a href="#overview">候选总览</a><a href="#price-rules">价格规则</a><a href="#logic1">按板块展开</a></nav>'
+    out+=weekly_html(root)+overview_html(L1,sec,P['logic2'])+rules_html()+logic1_html(root,S,sec,L1)
     return out+'<p class="note">'+E(P['source'])+' 位置与筹码数据：'+E(json.loads((root/'data/raw/stock_pick/l1_enrich.json').read_text())['_meta']['source'])+'。</p>'
 
 def box_page(ctx):
     root=Path(ctx['ROOT']);P=json.loads((root/'data/stock_pick.json').read_text());sw=switch_state(root)
-    out='<style>'+CSS+'</style><div class="hero"><h1>个股 · 国资箱体</h1><p class="sum">有地板、有天花板、偶尔放烟花的房间。规则、验证与候选都在本页。</p></div>'+head(2)
+    out='<style>'+CSS+'</style><div class="hero"><h1>个股 · 国资箱体</h1><p class="sum">有地板、有天花板、偶尔放烟花的房间。规则、验证与候选都在本页。价格截至'+E(P['logic2'].get('px_asof','2026-11-13'))+'（每周更新；箱底箱顶每季度重算）。</p></div>'+head(2)
     out+='<nav class="lp-jump"><a href="#logic2">规则</a><a href="#box-rules">价格规则</a><a href="#l2-bt">回测</a><a href="#l2-list">候选名单</a></nav>'
     return out+logic2_html(P['logic2'],sw).replace('<h3 id="l2-bt">',box_rules_html()+'<h3 id="l2-bt">',1)+'<p class="note">'+E(P['source'])+'</p>'
 
@@ -157,6 +179,7 @@ def build(ctx):
     (site/'stocks/box.html').write_text(ctx['page']('国资箱体 | A 股框架笔记','gg',box_page(ctx),'../'),encoding='utf-8')
 
 CSS="""
+#weekly{margin:20px 0;border:1px solid #d4dfeb;border-radius:10px;padding:14px 20px;background:#fff}.wk-alert{background:#fff4dc;border-radius:8px;padding:8px 12px;font-size:14px}.wk-table{min-width:520px}
 #price-rules,#box-rules{margin:30px 0;border:1px solid #d4dfeb;border-radius:10px;padding:16px 20px;background:#fff}.pr-table{min-width:880px}.pr-table td small{font-size:12.5px;color:#455a6e;line-height:1.7}.pr-dl{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:6px 14px;margin:8px 0;font-size:14px;line-height:1.8}.pr-dl dt{font-weight:600;color:#223e57}.pr-dl dd{margin:0}.pr-in{margin-top:10px}.pr-in summary{cursor:pointer}
 @media(max-width:640px){.pr-dl{grid-template-columns:1fr}.pr-dl dd{margin-bottom:6px}}
 .plan{border:1px dashed #b8c8d8;border-radius:8px;padding:10px 14px;margin:10px 0}.plan-h{margin:0 0 4px}.plan ul{margin:2px 0 8px;padding-left:18px;font-size:13.5px;line-height:1.75}.plan-table{min-width:760px}.ov-c small+small{color:#9b3d27}

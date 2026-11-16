@@ -16,7 +16,8 @@ class PickTest(unittest.TestCase):
   P=json.loads((ROOT/'data/stock_pick.json').read_text())['logic2']
   for x in P['top']+[P['reference']]:
    self.assertTrue(logic2_box.qualifies(x),x['code'])
-   self.assertTrue(0<=x['pos']<=0.25)
+   self.assertTrue(-1<=x['pos']<=2)
+   if 'boxL' in x:self.assertAlmostEqual(x['pos'],(x['close']-x['boxL'])/(x['boxH']-x['boxL']),1)
   counts=[n for _,n in P['funnel']];self.assertEqual(counts,sorted(counts,reverse=True))
  def test_page(self):
   body=(ROOT/'docs/stocks/index.html').read_text();box=(ROOT/'docs/stocks/box.html').read_text()

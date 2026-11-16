@@ -91,6 +91,7 @@ def select_v2(root,sectors):
     p=Path(root)/'data/raw/stock_pick/l1_enrich.json';en=json.loads(p.read_text()) if p.exists() else {}
     base=select_all(root,sectors);out={}
     V={'好':1,'中':.5,'差':0}
+    sp=Path(root)/'data/stock_pick.json';fixed=(json.loads(sp.read_text()).get('logic1_list') or {}).get('sectors',{}) if sp.exists() else {}
     for sid,r in base.items():
         t=TYPE[sid];rows=[]
         for x in r['all']:
@@ -98,7 +99,9 @@ def select_v2(root,sectors):
             x['total']=round((x['score']+V[L['pos']]+V[L['chip']])/3*(0.5 if L['fund']=='差' else 1),2)
             rows.append(x)
         rows.sort(key=lambda x:-x['total'])
-        out[sid]={**{k:v for k,v in r.items() if k!='all'},'type':t,'lens':LENS[t],'picks':rows[:R_N.get(sid,5)]}
+        # 名单季度固定（stock_pick.json 的 logic1_list）；没有固定名单时按三层总分取前N
+        picks=[x for x in rows if x['code'] in fixed[sid]] if fixed.get(sid) else rows[:R_N.get(sid,5)]
+        out[sid]={**{k:v for k,v in r.items() if k!='all'},'type':t,'lens':LENS[t],'picks':picks}
     return out
 
 R_N={'a-bank':5,'a-coal':4,'a-oil':2,'a-tanker':2,'a-semiconductor':5,'a-computing':5,'a-pharma':4,'a-grid':4,'a-chemical':4}
@@ -117,6 +120,13 @@ def select_all(root,sectors):
 
 # ---------- 2026-11-16：参考买入价、卖出价与止损价（研究规则，未回测） ----------
 CN10Y=1.59
+def cn10y(root):
+    """银行买卖价用的10年国债收益率：每周更新写在 data/raw/weekly/state.json；没有时用建档值1.59%。"""
+    p=Path(root)/'data/raw/weekly/state.json'
+    if p.exists():
+        v=json.loads(p.read_text()).get('cn10y')
+        if v and v.get('value'):return {'value':round(v['value'],2),'date':v['date']}
+    return {'value':1.59,'date':'2026-11-13'}
 PRICE_RULES={
  'crowded':{'buy':'股息率达到“10年国债+2.5个百分点”对应的价格及以下（每股分红÷(1.59%+2.5%)）','sell':'股息率降到“10年国债+2.0个百分点”对应的价格（与板块降级线一致）','stop':'不设价格止损；分红下调或10年国债持续高于1.85%时退出'},
  'upstream':{'buy':'一年区间下部：区间位置0.2—0.4（且不高于60日均线）','sell':'接近一年高点：区间位置0.9（前半段板块不预期创新高）','stop':'跌破一年低点5%'},
@@ -163,25 +173,26 @@ def price_levels(t,x):
     if t=='growth':
         out['where']='价格已确认，'+('在买入区' if b1<=c<=b2 else '高于买入区'+format((c/b2-1)*100,'.0f')+'%') if c>=b1 else '未确认：需先站上60日均线（约'+format(b1,'.2f')+'）'
     if t in ('upstream','cost') and c<b1:out['where']='低于买入区'+format((1-c/b1)*100,'.0f')+'%（接近一年低点，靠近止损）'
+    if t!='growth' and out.get('stop') and c<=out['stop']:out['where']='已跌破止损价（按规则退出，不接）'
     return out
 
 def box_levels(x):
     c,p,W=x['close'],x['pos'],x['W']
     L=c/(1+p*W);H=L*(1+W)
     b=(round(L,2),round(L+0.25*(H-L),2));s=round(H-0.2*(H-L),2);st=round(L*0.85,2);mid=sum(b)/2
-    return {'close':c,'buy':b,'sell':s,'stop':st,'rr':round((s-mid)/(mid-st),1),'where':'在买入区' if b[0]<=c<=b[1] else ('高于买入区' if c>b[1] else '低于箱底')}
+    return {'close':c,'buy':b,'sell':s,'stop':st,'rr':round((s-mid)/(mid-st),1),'where':'已跌破止损价（箱体失效）' if c<=st else ('到达卖出区' if c>=s else ('在买入区' if b[0]<=c<=b[1] else ('高于买入区' if c>b[1] else '低于箱底')))}
 
 
 # ---------- 价格规则说明（网页“价格规则”区块的唯一来源；改规则时同时改这里） ----------
 PRICE_DOC={
  'inputs':[
-  ('现价','最近一个交易日收盘价（当前为2026-11-13），未复权。'),
-  ('一年高点','现价÷(1+距一年高点回撤)。'),
+  ('现价','每周更新时最近一个交易日的收盘价，未复权；页面顶部写明截止日。'),
+  ('一年高点','近365天复权收盘价最高点（复权序列由每日涨跌幅从最新收盘价倒推，等于前复权），即现价÷(1+距一年高点回撤)。'),
   ('一年低点','由“一年区间位置”反推：低点＝(现价−位置×高点)÷(1−位置)。现价就是一年高点时无法反推，该股不给价格。'),
   ('区间位置','(价格−一年低点)÷(一年高点−一年低点)，0＝一年最低，1＝一年最高。'),
   ('60日均线','现价÷(1+相对60日线偏离)。'),
   ('每股分红','2025年度每股分红（与板块页股息率同口径，不用滚动12个月）。'),
-  ('10年国债','1.59%（2026-11-13口径）；变化超过0.10个百分点时重算银行价格。'),
+  ('10年国债','每周更新时取最新一期中国10年期国债收益率（东方财富数据中心 RPTA_WEB_TREASURYYIELD）；建档值1.59%。'),
  ],
  'types':[
   {'t':'crowded','name':'顺风但拥挤','sectors':'银行','buy':'每股分红÷(10年国债+2.5%)，向下留3%作为区间','sell':'每股分红÷(10年国债+2.0%)','stop':'不设价格止损；分红下调、或10年国债持续高于1.85%时退出','why':'买银行买的是分红，价格高低只体现在“股息率比国债高多少”。卖出线2.0个百分点与板块页的降级线是同一条线，个股和板块用同一把尺子。银行波动小，价格止损容易被噪音打掉，所以改用基本面退出条件。'},
@@ -192,8 +203,8 @@ PRICE_DOC={
  'common':[
   ('使用顺序','板块档位 → 三层判断（基本面、位置、筹码）→ 价格。价格只决定“什么价格做”，不改变“做不做”：等开关板块即使在买入区也不买；任何股票到了卖出参考价，初步意见都改成“不买”。'),
   ('盈亏比','(卖出参考价−买入区中点)÷(买入区中点−止损价)。低于2说明赚的空间不足亏的两倍，应等更低的买点；这是研究信号，不是硬规则。'),
-  ('现价状态','“在买入区”＝可以按计划执行；“高于买入区X%”＝等回落；“低于买入区（靠近止损）”＝区间可能正在失效，先观察不接；“未确认”＝等开关板块尚未站上60日均线；“已在卖出区”＝持有者兑现，新资金不买。'),
-  ('什么时候重算','每次更新收盘价和一年区间时全部重算；10年国债变化超过0.10个百分点或银行公布新分红时重算银行；板块档位变化时，该板块换用新档位对应的规则。'),
+  ('现价状态','“在买入区”＝可以按计划执行；“高于买入区X%”＝等回落；“低于买入区（靠近止损）”＝区间可能正在失效，先观察不接；“未确认”＝等开关板块尚未站上60日均线；“已在卖出区”＝持有者兑现，新资金不买；“已跌破止损价”＝持有者按规则退出，新资金不接。'),
+  ('什么时候重算','每周按“更新流程.md”跑一次 weekly_update.py，全部价格自动重算并存快照；银行公布新分红时，先改分红数据再跑；板块档位变化时，该板块换用新档位对应的规则。规则本身只在复盘时改，改了要写版本和原因。'),
   ('规则性质','逻辑一的价格规则是研究规则，尚未回测，阈值（0.2、0.4、0.9、12%等）是按板块逻辑设定的初始值，回测后可能调整。逻辑二的买卖规则就是组合回测里用的那一套。'),
  ],
  'box':{'inputs':'箱底＝近两年前复权收盘价的10%分位，箱顶＝90%分位；箱体位置＝(价格−箱底)÷(箱顶−箱底)。','buy':'箱体位置0—0.25，即箱底到箱底+25%箱宽','sell':'箱体位置≥0.8；或单次脉冲上涨≥30%时直接兑现','stop':'收盘跌破箱底15%（箱底×0.85），视为箱体失效','pause':'中证全指收盘低于4,700时不开新仓（托底失效）','why':'这类股票赚的是箱体往返和事件脉冲的钱，不是盈利增长，所以价格完全由箱体决定。这几个数和组合回测用的规则完全一致，回测结果见本页“回测”。'},
