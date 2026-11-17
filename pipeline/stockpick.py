@@ -35,7 +35,69 @@ BADGE={'顺风':'up','前半段':'early','等开关':'wait'}
 LAY={'好':'g','中':'m','差':'b'}
 def lay(v):return '<span class="ly ly-'+LAY[v]+'">'+v+'</span>'
 
+
+# ================= 判断链（2026-11-17）：板块→初筛→核验→估值→价格→筹码 =================
+def verify_data(root):
+    p=Path(root)/'data/raw/stock_pick/verify.json'
+    return json.loads(p.read_text()) if p.exists() else {}
+
+def sub_state(s,v):
+    """板块层：公司利润主要来自的业务是否适用板块档位。"""
+    if s['rating']=='等开关':return '等开关','板块开关未打开'
+    subs={b['name']:b['state'] for b in s.get('subs',[])}
+    if not subs or not v:return '通过','板块档位'+s['rating']+'适用'
+    sub=v.get('sub','')
+    if sub.startswith('一体化'):
+        st=subs.get('炼化及贸易','待核')
+        return ('待核','一体化公司：上游适用前半段，炼化部分'+st) if st!='前半段' else ('通过','上游与炼化均适用')
+    st=subs.get(sub)
+    if st in ('前半段','顺风'):return '通过',sub+'：'+st
+    return '待核',(sub or '业务归属')+'：'+(st or '未判断')
+
+def chain(sid,s,t,x,V):
+    pl=x.get('pl');c=SC.status(pl)[0];v=V.get(x['code'])
+    st=[]
+    a,at=sub_state(s,v);st.append(('板块',a,at))
+    st.append(('初筛','通过','进入候选（门槛与排序见本板块）'))
+    if v:
+        mix=v.get('mix','')
+        if v['fcf_div']<1:k,kt='未通过','资本开支后自由现金流%.1f亿元，不覆盖分红%.1f亿元（扩张性开支占比待核）'%(v['fcf_ttm'],v['div'])
+        elif v['ocf_np']>=1:k,kt='通过','经营现金流覆盖%.1f倍；资本开支后自由现金流%.1f亿元，覆盖分红%.1f倍'%(v['ocf_np'],v['fcf_ttm'],v['fcf_div'])
+        else:k,kt='待核','经营现金流覆盖不足1倍'
+        kt+='；滚动利润为2021—2025年平均的%.0f%%'%(v['np_ttm']/v['np_avg5']*100)
+        if mix:kt=mix+'。'+kt
+    elif t=='crowded':k,kt='待核','分红可持续性（拨备、资本充足率、分红率）未核验'
+    else:k,kt='待核','业务受益、盈利持续性与资本开支后现金未核验'
+    st.append(('核验',k,kt))
+    if v:
+        if v['pb']>v['pb95']:g,gt='否决','PB %.2f高于自身五年95%%分位%.2f（站内初始研究规则，未回测）'%(v['pb'],v['pb95'])
+        else:g,gt='待核','PB %.2f（五年分位%d%%）未触发否决；PE(TTM) %.1f倍，按五年平均利润约%.0f倍，正常化估值待验证'%(v['pb'],v['pbpct5'],v['pe_ttm'],v['pe_norm'])
+    elif t=='crowded':
+        g,gt=('通过','股息率达到10年国债+2.5个百分点') if c=='买入' else (('否决','股息率低于10年国债+2.0个百分点') if c=='卖出' else ('未到','股息率还没到买入线'))
+    else:g,gt='待核','未做估值核验'
+    st.append(('估值',g,gt))
+    st.append(('价格',{'买入':'到位','高于':'未到','低于':'低于区间','止损':'跌破止损','卖出':'到卖出价','未确认':'未确认','无':'待核'}[c],SC.status(pl)[1]))
+    st.append(('筹码','提示',{'好':'无明显拥挤','中':'一般','差':'有拥挤或解禁压力'}[x['chip']]))
+    D={k:val for k,val,_ in st}
+    if s['rating']=='等开关':view='等开关：不买'
+    elif c=='卖出':view='不买：已到卖出价'
+    elif D['估值']=='否决':view='不买：估值否决'
+    elif D['核验']=='未通过':view='不买：核验未通过'
+    elif c=='买入':view='可执行' if all(D[k]=='通过' for k in ('板块','核验','估值')) else '价格到位·待核'
+    elif c=='高于':view='等回落'+('（业务待核）' if D['板块']=='待核' else '')
+    else:view='观察：低于买入区'
+    return {'steps':st,'view':view}
+
+VIEW_CLS=lambda v:'go' if v=='可执行' else 'bad' if v.startswith('不买') else 'wait' if ('待核' in v or v.startswith('等开关')) else ''
+STEP_CLS={'通过':'ok','到位':'ok','待核':'chk','未到':'chk','未确认':'chk','低于区间':'chk','提示':'tip','未通过':'no','否决':'no','跌破止损':'no','到卖出价':'no','等开关':'chk'}
+
+def chain_html(ch):
+    out='<ol class="ch">'+''.join('<li class="ch-'+STEP_CLS.get(b,'chk')+'"><span>'+E(a)+'</span><b>'+E(b)+'</b></li>' for a,b,_ in ch['steps'])+'</ol>'
+    det=[(a,tx) for a,b,tx in ch['steps'] if a in ('板块','核验','估值')]
+    return out+'<dl class="ch-d">'+''.join('<div><dt>'+E(a)+'</dt><dd>'+E(tx)+'</dd></div>' for a,tx in det)+'</dl>'
+
 def view_of(rating,sid,x,i):
+    if x.get('chain'):v=x['chain']['view'];return v,VIEW_CLS(v)
     pl=x.get('pl') or {}
     if rating!='等开关' and str(pl.get('where','')).startswith('已在卖出区'):return '不买：已到卖出参考价',''
     if rating=='等开关':return ('观察：价格已确认，等开关' if x['pos']=='好' else '观察，开关前不买'),'wait'
@@ -49,25 +111,25 @@ def fund_cells(t,x):
     if t=='upstream':return [f(x['np_yoy'],'+.0f','%'),f(x['dy'] if x['dy'] is not None else e.get('dy'),'.2f','%'),f(e.get('cashEps'),'.2f'),f(e.get('gmChg'),'+.1f')]
     if t=='growth':return [f(x['np_yoy'],'+.0f','%'),f((x['np_yoy'] or 0)-(x['h1_yoy'] or 0),'+.0f'),f(x['rev_yoy'],'+.0f','%'),f(e.get('cashEps'),'.2f')]
     return [f(e.get('gmChg'),'+.1f'),f(x['np_yoy'],'+.0f','%'),f(x['rev_yoy'],'+.0f','%'),f(e.get('cashEps'),'.2f')]
-FH={'crowded':['股息率','单季利润同比','PB','前三季ROE'],'upstream':['单季利润同比','股息率','现金/利润','毛利率变化'],'growth':['单季利润同比','加速（百分点）','营收同比','现金/利润'],'cost':['毛利率变化','单季利润同比','营收同比','现金/利润']}
+FH={'crowded':['股息率','单季利润同比','PB','前三季ROE'],'upstream':['单季利润同比','股息率','经营现金流覆盖','毛利率变化'],'growth':['单季利润同比','加速（百分点）','营收同比','经营现金流覆盖'],'cost':['毛利率变化','单季利润同比','营收同比','经营现金流覆盖']}
 
 def logic1_data(root,S):
     logic1_rules.CN10Y=logic1_rules.cn10y(root)['value']
-    r=logic1_rules.select_v2(root,S['sectors'])
-    for v in r.values():
-        for x in v['picks']:x['pl']=logic1_rules.price_levels(v['type'],x)
+    r=logic1_rules.select_v2(root,S['sectors']);V=verify_data(root);sec={s['id']:s for s in S['sectors']}
+    for sid,v in r.items():
+        for x in v['picks']:x['pl']=logic1_rules.price_levels(v['type'],x);x['chain']=chain(sid,sec[sid],v['type'],x,V)
     return r
 
 def money(v):return '—' if v is None else format(v,'.2f')
 
 def plan_table(t,picks,day='2026-11-13'):
     R=logic1_rules.PRICE_RULES[t]
-    out='<div class="plan"><p class="plan-h"><b>价格计划</b>（研究规则，未回测；按'+day+'收盘计算'+('，10年国债'+format(logic1_rules.CN10Y,'.2f')+'%' if t=='crowded' else '')+'；每周重算；<a href="#price-rules">完整规则与原因 →</a>）</p><ul><li><b>买入：</b>'+E(R['buy'])+'</li><li><b>卖出：</b>'+E(R['sell'])+'</li><li><b>止损：</b>'+E(R['stop'])+'</li></ul><div class="tblwrap"><table class="mt lp-table plan-table"><thead><tr><th>股票</th><th>现价</th><th>参考买入区间</th><th>卖出参考价</th><th>第二目标</th><th>止损价</th><th>盈亏比</th><th>现价状态</th></tr></thead><tbody>'
+    out='<div class="plan"><p class="plan-h"><b>价格计划</b>（研究规则，未回测；按'+day+'收盘计算'+('，10年国债'+format(logic1_rules.CN10Y,'.2f')+'%' if t=='crowded' else '')+'；每周重算；<a href="#price-rules">完整规则与原因 →</a>）</p><ul><li><b>买入：</b>'+E(R['buy'])+'</li><li><b>卖出：</b>'+E(R['sell'])+'</li><li><b>止损：</b>'+E(R['stop'])+'</li></ul><div class="tblwrap"><table class="mt lp-table plan-table"><thead><tr><th>股票</th><th>现价</th><th>参考买入区间</th><th>卖出参考价</th><th>第二目标</th><th>止损价</th><th>计划盈亏比</th><th>现价状态</th></tr></thead><tbody>'
     for x in picks:
         pl=x.get('pl')
         if not pl:out+='<tr><th scope="row">'+E(x['name'])+'</th><td colspan="7">价格数据不足</td></tr>';continue
         out+='<tr><th scope="row">'+E(x['name'])+'<small>'+x['code']+'</small></th><td>'+money(pl['close'])+'</td><td><b>'+money(pl['buy'][0])+' — '+money(pl['buy'][1])+'</b></td><td><b>'+money(pl['sell'])+'</b></td><td>'+money(pl.get('sell2'))+'</td><td>'+money(pl.get('stop'))+'</td><td>'+('—' if pl.get('rr') is None else format(pl['rr'],'.1f'))+'</td><td>'+E(pl['where'])+'</td></tr>'
-    return out+'</tbody></table></div><p class="note">表中的盈亏比＝（卖出参考价−买入区中点）÷（买入区中点−止损价）；低于2说明按这套价位做，赚的空间不足亏的两倍，需要更好的买点。</p></div>'
+    return out+'</tbody></table></div><p class="note">计划盈亏比＝（卖出参考价−买入区中点）÷（买入区中点−止损价）；现价盈亏比见卡片。低于2说明赚的空间不足亏的两倍。</p></div>'
 
 def overview_html(L1,sec,L2,sw=None,F={}):
     out='<section id="overview"><h2>候选总览</h2><p class="note">先看这张表，点股票名直接跳到它所在的板块。每只股票分三层判断：基本面（各板块看的指标不同）、位置、筹码。</p><div class="tblwrap"><table class="mt lp-table ov-table"><thead><tr><th>板块</th><th>档位</th><th>这个板块的个股看什么</th><th>候选与初步意见</th></tr></thead><tbody>'
@@ -170,7 +232,7 @@ def rules_html():
     for r in D['types']:out+='<tr><th scope="row">'+E(r['name'])+'<small>'+E(r['sectors'])+'</small></th><td>'+E(r['buy'])+'</td><td>'+E(r['sell'])+'</td><td>'+E(r['stop'])+'</td><td><small>'+E(r['why'])+'</small></td></tr>'
     out+='</tbody></table></div><h3>二、共同原则</h3><dl class="pr-dl">'+''.join('<dt>'+E(a)+'</dt><dd>'+E(b)+'</dd>' for a,b in D['common'])+'</dl>'
     out+='<details class="pr-in"><summary><b>三、输入数据怎么来</b>（一年高低点、60日均线等的换算）</summary><dl class="pr-dl">'+''.join('<dt>'+E(a)+'</dt><dd>'+E(b)+'</dd>' for a,b in D['inputs'])+'</dl></details>'
-    return out+'<p class="note">逻辑二（国资箱体）的价格规则见 <a href="box.html#box-rules">国资箱体页</a>。</p></section>'
+    return out+'<p class="note">逻辑二（国资箱体）的价格规则见 <a href="box.html#box-rules">国资箱体页</a>；六层职责与状态定义见 <a href="selection-rules.html">筛选规则</a>。</p></section>'
 
 def box_rules_html():
     B=logic1_rules.PRICE_DOC['box']
@@ -209,11 +271,15 @@ def l1_bar(t,x):
     return SC.bar(None,None,pl['buy'],pl['sell'],pl.get('stop'),pl['close'])
 
 def l1_bucket(rating,x):
-    st=SC.status(x.get('pl'))[0]
-    if rating=='等开关':return '等开关'
-    return {'买入':'在买入区','高于':'等回落','低于':'低于买入区','止损':'低于买入区','卖出':'已到卖出价'}.get(st,'低于买入区')
+    v=x['chain']['view']
+    if v=='可执行':return '可执行'
+    if v.startswith('价格到位'):return '价格到位·待核'
+    if v.startswith('不买'):return '不买'
+    if v.startswith('等开关'):return '等开关'
+    if v.startswith('等回落'):return '等回落'
+    return '观察'
 
-L1_ORDER=[('在买入区','ab-buy','顺风或前半段板块，价格在参考买入区'),('等回落','ab-high','高于买入区，等价格回到区间再买'),('低于买入区','ab-low','接近一年低点，先观察区间是否失效'),('已到卖出价','ab-sell','持有者兑现，新资金不买'),('等开关','ab-wait','板块开关未打开，任何价格都不买')]
+L1_ORDER=[('可执行','ab-buy','板块、核验、估值都通过，价格在买入区'),('价格到位·待核','ab-high','价格已在买入区，但核验或估值没完成，不直接买'),('等回落','ab-high','高于买入区，等价格回到区间'),('观察','ab-low','低于买入区或接近止损，先观察区间是否失效'),('不买','ab-sell','已到卖出价、估值否决或核验未通过'),('等开关','ab-wait','板块开关未打开，任何价格都不买')]
 
 def board_l1(L1,sec):
     B={}
@@ -221,13 +287,16 @@ def board_l1(L1,sec):
         for x in r['picks']:
             k=l1_bucket(sec[sid]['rating'],x);sm=short(sec[sid]['title'])
             if k=='等开关':sm+=' · '+('价格已确认' if SC.status(x.get('pl'))[0]!='未确认' else '未确认')
+            elif k=='不买':sm+=' · '+x['chain']['view'].replace('不买：','')
             B.setdefault(k,[]).append(('s-'+x['code'],x['name'],sm))
-    return '<section id="overview"><h2>行动看板</h2><p class="note">按“现在该做什么”把候选分组，点名字跳到它的卡片。分组只看板块档位和价格位置；卡片里的三层判断决定同一组里先看谁。</p>'+SC.board(B,L1_ORDER,'价格截至最近一次每周更新；规则见页面底部“价格规则”。',wide=('等开关',))+'</section>'
+    return '<section id="overview"><h2>行动看板</h2><p class="note">按“现在该做什么”把候选分组，点名字跳到它的卡片。判断顺序：板块 → 初筛 → 核验 → 估值 → 价格 → 筹码。进入候选只表示值得研究；价格到了买入区，核验或估值没完成时仍是“待核”，不直接买。</p>'+SC.board(B,L1_ORDER,'价格截至最近一次每周更新；规则见页面底部“价格规则”。',wide=('等开关',))+'</section>'
 
 def card_l1(sid,s,r,x,i):
     t=r['type'];v,c=view_of(s['rating'],sid,x,i);fund,pos,chip=l1_texts(t,x)
     note='；'.join(([x['flag']] if x.get('flag') else [])+[n for n in x.get('notes',[]) if not n.startswith(('股东户数','融资','6个月解禁'))])
-    return SC.card('s-'+x['code'],x['name'],x['code']+' · '+short(s['title']),v,c,x.get('pl'),[('基本面',x['fund'],E(fund)),('位置',x['pos'],E(pos)),('筹码',x['chip'],E(chip))],l1_bar(t,x),note)
+    posk='回撤条件' if t=='upstream' else '位置'
+    plab={'好':'达标','中':'一般','差':'未达标'} if t=='upstream' else None
+    return SC.card('s-'+x['code'],x['name'],x['code']+' · '+short(s['title']),v,c,x.get('pl'),[('初筛指标',x['fund'],E(fund)),(posk,x['pos'],E(pos),plab),('筹码',x['chip'],E(chip))],l1_bar(t,x),note,chain_html(x['chain']))
 
 def sector_l1(root,sid,s,r):
     t=r['type'];Lz=r['lens'];R=logic1_rules.PRICE_RULES[t]
@@ -240,7 +309,7 @@ def sector_l1(root,sid,s,r):
 
 def logic1_cards(root,S,sec,L1):
     order=['顺风','前半段','等开关']
-    out='<section id="logic1"><h2>按板块展开</h2><p class="note">每个板块按自己的类型看三层：基本面、位置、筹码。每张卡片从上到下是：结论、现价与价格状态、位置条（绿色为买入区，红线为卖出价，黑线为止损）、价格计划、三层判断。等开关的板块默认收起。</p>'
+    out='<section id="logic1"><h2>按板块展开</h2><p class="note">每个板块按自己的类型看三层：基本面、位置、筹码。每张卡片从上到下是：结论、现价与价格状态、位置条（绿色为买入区，红线为卖出价，黑线为止损）、价格计划、判断链（板块、初筛、核验、估值、价格、筹码各一格）、初筛的三层指标。等开关的板块默认收起。</p>'
     for sid in sorted(L1,key=lambda k:order.index(sec[k]['rating'])):out+=sector_l1(root,sid,sec[sid],L1[sid])
     out+='<details class="more"><summary>查看全部指标表（逐板块）</summary>'+logic1_html(root,S,sec,L1).replace('<section id="logic1">','<div>').replace('</section>','</div>')+'</details>'
     out+='<article class="lp-sec" id="l1-hk"><h3>港股（规则待数据）</h3><p class="note">港股尚无同口径公司数据，暂按板块列出代表公司，不排序。</p><ul>'
@@ -281,6 +350,30 @@ def l2_cards(L2,sw,F):
     out+='<details class="more"><summary>查看全部指标表</summary>'+l2_judge_html(L2,sw,F).replace('<section id="l2-judge">','<div>').replace('</section>','</div>')+'</details>'
     return out+'</section>'
 
+# ================= 当前生效的筛选规则页（覆盖旧版 selection-rules.html） =================
+LAYERS=[('板块','这个业务现在有没有盈利驱动','大盘风向 + 板块三件事；煤炭、石油按业务拆开（动力煤/焦煤/煤化工，上游/炼化）','可以：开关未打开或业务待核时，不进入可执行'),
+ ('个股初筛','值不值得研究','各板块自己的门槛和排序（单季利润同比、股息率等），只用来缩小范围','不否决，只决定进不进候选'),
+ ('个股核验','公司是否真的受益、利润能否持续、现金能否兑现','业务归属（分产品毛利、分部利润）；经营现金流覆盖倍数；资本开支后自由现金流对分红的覆盖','可以：自由现金流不覆盖分红为“核验未通过”'),
+ ('估值','价格是否已经充分反映这些收益','煤炭、石油：PB对比自身五年95%分位（否决线），TTM PE与按五年平均利润的正常化PE并列；银行：股息率对比10年国债','可以：触发否决为“不买”；没有正常化结论时为“待核”'),
+ ('价格','什么价格参与、何时兑现、何时止损','各类型的价格规则（研究规则，未回测）','只在前三层通过后用于执行'),
+ ('筹码','拥挤和交易风险','股东户数、融资余额、解禁','只提示，不代替盈利或估值证据')]
+VIEWS=[('可执行','板块、核验、估值都通过，价格在买入区'),('价格到位·待核','价格在买入区，但板块业务、核验或估值没有完成'),('等回落','高于买入区'),('观察','低于买入区或接近止损'),('不买','已到卖出价、估值否决或核验未通过'),('等开关','板块开关未打开')]
+
+def rules_page(root):
+    S=json.loads((Path(root)/'data/sector_selection.json').read_text());V=verify_data(root)
+    out='<style>'+CSS+SC.CSS+'.rp table{min-width:760px}</style><div class="hero"><h1>筛选规则（当前生效）</h1><p class="sum">2026-11-17起生效。进入候选只表示值得研究；只有板块、核验、估值都通过且价格在买入区，才显示“可执行”。</p></div><nav class="lp-jump"><a href="index.html">← 个股页</a><a href="#layers">六层职责</a><a href="#views">状态定义</a><a href="#types">各类型规则</a><a href="#data">数据口径</a><a href="#legacy">旧版说明</a></nav>'
+    out+='<section id="layers" class="rp"><h2>六层职责</h2><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>层</th><th>回答什么问题</th><th>用什么</th><th>能否否决</th></tr></thead><tbody>'+''.join('<tr><th scope="row">'+E(a)+'</th><td>'+E(b)+'</td><td>'+E(c)+'</td><td>'+E(d)+'</td></tr>' for a,b,c,d in LAYERS)+'</tbody></table></div></section>'
+    out+='<section id="views"><h2>状态定义</h2><ul class="lens-ul">'+''.join('<li><b>'+E(a)+'：</b>'+E(b)+'</li>' for a,b in VIEWS)+'</ul></section>'
+    out+='<section id="types" class="rp"><h2>各类型规则</h2><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>类型</th><th>初筛看什么</th><th>核验</th><th>估值</th><th>价格规则</th></tr></thead><tbody>'
+    VAL={'crowded':'股息率对比10年国债：达到+2.5个百分点为通过，低于+2.0个百分点为否决','upstream':'PB高于自身五年95%分位为否决；否则列出TTM PE与正常化PE，正常化结论待验证','growth':'待核（开关打开后补）','cost':'待核（开关打开后补）'}
+    VER={'crowded':'分红可持续性（拨备、资本充足率、分红率）：待核','upstream':'业务归属；经营现金流覆盖倍数；资本开支后自由现金流覆盖分红（煤炭、石油已核验，油运待核）','growth':'待核','cost':'待核'}
+    for t,Lz in logic1_rules.LENS.items():
+        R=logic1_rules.PRICE_RULES[t];out+='<tr><th scope="row">'+E(Lz['name'])+'</th><td>'+E(Lz['fund'])+'</td><td>'+E(VER[t])+'</td><td>'+E(VAL[t])+'</td><td>买入 '+E(R['buy'])+'；卖出 '+E(R['sell'])+'；止损 '+E(R['stop'])+'</td></tr>'
+    out+='</tbody></table></div><p class="note">煤炭、石油按业务分开判断，见<a href="../boards/a-coal.html#subs">煤炭</a>、<a href="../boards/a-oil.html#subs">石油</a>板块页；标为“待核”的业务，相关公司不进入可执行。价格规则的完整原因见<a href="index.html#price-rules">个股页“价格规则”</a>。</p></section>'
+    m=V.get('_meta',{});out+='<section id="data"><h2>数据口径</h2><ul class="lens-ul">'+''.join('<li>'+E(v)+'</li>' for v in m.get('defs',{}).values())+'<li>数据来源：'+E(m.get('source',''))+'（截至'+E(m.get('as_of',''))+'）</li><li>同比与环比、单季与累计与滚动12个月、实际值与机构预测、现货与期货分开标注；没有依据的阈值标“待核”。</li></ul></section>'
+    out+='<section id="legacy"><h2>旧版说明</h2><p class="note">2026-11-13版的“子池合同与研究席位、A–H职能、追/等/不追”已停用。保留两条：辅助估值高于五年95%分位否决（现为估值层否决规则，仍未回测）；正常化自由现金流的思路（现为核验层的分红覆盖检查）。旧版个股研究页和组合约束页只作历史资料。</p></section>'
+    return out
+
 def head(active):
     return '<nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if active==1 else '')+'><b>逻辑一 · 顺势选股</b><span>大盘→板块→个股</span></a><a href="box.html"'+(' aria-current="page"' if active==2 else '')+'><b>逻辑二 · 国资箱体</b><span>地板、天花板、烟花</span></a></nav>'
 
@@ -303,6 +396,9 @@ def build(ctx):
     site=Path(ctx['SITE'])
     (site/'stocks/index.html').write_text(ctx['page']('个股 | A 股框架笔记','gg',page(ctx),'../'),encoding='utf-8')
     (site/'stocks/box.html').write_text(ctx['page']('国资箱体 | A 股框架笔记','gg',box_page(ctx),'../'),encoding='utf-8')
+    (site/'stocks/selection-rules.html').write_text(ctx['page']('筛选规则 | A 股框架笔记','gg',rules_page(ctx['ROOT']),'../'),encoding='utf-8')
+    vp=Path(ctx['ROOT'])/'data/raw/stock_pick/verify.json'
+    if vp.exists():(site/'data/verify.json').write_text(vp.read_text(encoding='utf-8'),encoding='utf-8')
 
 CSS="""
 .lens-ul{font-size:13px;line-height:1.75;padding-left:18px}

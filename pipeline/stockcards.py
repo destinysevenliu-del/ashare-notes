@@ -9,7 +9,7 @@ def money(v):
     return '—' if v is None else format(v, '.2f')
 
 LY = {'好': 'g', '中': 'm', '差': 'b'}
-def pill(v): return '<span class="ly ly-' + LY[v] + '">' + v + '</span>'
+def pill(v, lab=None): return '<span class="ly ly-' + LY[v] + '">' + ((lab or {}).get(v, v)) + '</span>'
 
 def status(pl):
     """价格状态 → (类别, 显示文字, 颜色类)"""
@@ -41,15 +41,15 @@ def bar(lo, hi, buy, sell, stop, cur, lab_lo='一年低点', lab_hi='一年高�
 
 def plan(pl, rr_note=True):
     if not pl: return '<p class="sc-na">价格数据不足</p>'
-    cells = [('参考买入', money(pl['buy'][0]) + '—' + money(pl['buy'][1])), ('卖出', money(pl['sell']) + (('<small>二 ' + money(pl['sell2']) + '</small>') if pl.get('sell2') else '')), ('止损', money(pl.get('stop')) if pl.get('stop') is not None else '<small>不设，看分红</small>'), ('盈亏比', '—' if pl.get('rr') is None else format(pl['rr'], '.1f'))]
+    cells = [('参考买入', money(pl['buy'][0]) + '—' + money(pl['buy'][1])), ('卖出', money(pl['sell']) + (('<small>二 ' + money(pl['sell2']) + '</small>') if pl.get('sell2') else '')), ('止损', money(pl.get('stop')) if pl.get('stop') is not None else '<small>不设，看分红</small>'), ('计划盈亏比', '—' if pl.get('rr') is None else format(pl['rr'], '.1f')), ('现价盈亏比', '—' if pl.get('rr_now') is None else format(pl['rr_now'], '.1f'))]
     return '<dl class="sc-plan">' + ''.join('<div><dt>' + a + '</dt><dd>' + b + '</dd></div>' for a, b in cells) + '</dl>'
 
-def card(cid, name, sub, view, vcls, pl, layers, bar_html='', note=''):
+def card(cid, name, sub, view, vcls, pl, layers, bar_html='', note='', chain=''):
     st = status(pl)
     out = '<article class="sc' + (' sc-dim' if vcls == 'bad' else '') + '" id="' + cid + '"><header><div><b>' + E(name) + '</b><small>' + E(sub) + '</small></div><span class="lp-view ' + vcls + '">' + E(view) + '</span></header>'
     out += '<div class="sc-px"><span>现价 <b>' + money(pl['close'] if pl else None) + '</b></span><span class="st ' + st[2] + '">' + E(st[1]) + '</span></div>'
-    out += bar_html + plan(pl)
-    out += '<ul class="sc-ly">' + ''.join('<li><span class="sc-k">' + E(k) + '</span>' + pill(v) + '<span class="sc-v">' + t + '</span></li>' for k, v, t in layers) + '</ul>'
+    out += bar_html + plan(pl) + chain
+    out += '<ul class="sc-ly">' + ''.join('<li><span class="sc-k">' + E(L[0]) + '</span>' + pill(L[1], L[3] if len(L) > 3 else None) + '<span class="sc-v">' + L[2] + '</span></li>' for L in layers) + '</ul>'
     if note: out += '<p class="sc-note">' + E(note) + '</p>'
     return out + '</article>'
 
@@ -77,9 +77,12 @@ CSS = """
 .sc header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.sc header b{font-size:16.5px;color:#1b324a}.sc header small{display:block;color:#6b7c8c;font-size:12px;margin-top:2px}
 .sc-px{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:13.5px;color:#455a6e}.sc-px b{font-size:17px;color:#1b324a}
 .st{font-size:12.5px;padding:2px 9px;border-radius:10px;font-weight:600}.st-buy{background:#e3f3ea;color:#2f6f53}.st-high{background:#fff3d9;color:#8a5a00}.st-sell{background:#fbe3dc;color:#9b3d27}.st-low,.st-na{background:#eef1f4;color:#5b6b7a}.st-stop{background:#ececec;color:#555}.st-wait{background:#e6eef7;color:#2f4f6f}
-.sc-plan{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0 10px}.sc-plan div{background:#f5f7fa;border-radius:8px;padding:6px 8px}
+.sc-plan{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:8px 0 10px}.sc-plan div{background:#f5f7fa;border-radius:8px;padding:6px 8px}
 .sc-plan dt{font-size:11.5px;color:#6b7c8c}.sc-plan dd{margin:1px 0 0;font-size:14px;font-weight:600;color:#1b324a;font-variant-numeric:tabular-nums}.sc-plan dd small{font-weight:400;color:#6b7c8c;font-size:11px;margin-left:4px}
-.sc-ly{list-style:none;margin:0;padding:0}.sc-ly li{display:grid;grid-template-columns:4.2em 2.2em minmax(0,1fr);align-items:baseline;gap:6px;padding:5px 0;border-top:1px solid #f0f3f6;font-size:13px;line-height:1.6}
+.ch{list-style:none;display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 6px;padding:0}.ch li{display:flex;align-items:center;gap:4px;font-size:12px;border-radius:7px;padding:3px 7px;background:#eef1f4;color:#5b6b7a}.ch li span{opacity:.8}.ch li b{font-weight:600}
+.ch-ok{background:#e3f3ea!important;color:#2f6f53!important}.ch-no{background:#fbe3dc!important;color:#9b3d27!important}.ch-tip{background:#f3f0e6!important;color:#6b5a2e!important}
+.ch-d{margin:0 0 8px;font-size:12.5px;line-height:1.65;color:#3a4c5e}.ch-d div{display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:6px;padding:2px 0}.ch-d dt{color:#6b7c8c}.ch-d dd{margin:0}
+.sc-ly{list-style:none;margin:0;padding:0}.sc-ly li{display:grid;grid-template-columns:4.6em 3.1em minmax(0,1fr);align-items:baseline;gap:6px;padding:5px 0;border-top:1px solid #f0f3f6;font-size:13px;line-height:1.6}
 .sc-k{color:#455a6e;font-weight:600}.sc-v{color:#3a4c5e}.sc-note{font-size:12.5px;color:#6b5a2e;background:#fbf6e9;border-radius:8px;padding:6px 10px;margin:8px 0 0;line-height:1.6}.sc-na{color:#7a8794;font-size:13px}
 .pb{margin:6px 0 2px}.pb-track{position:relative;height:10px;background:#eef1f4;border-radius:5px}
 .pb-track i,.pb-track b{position:absolute;top:0;height:10px}.pb-rng{background:#dde5ee;border-radius:5px}.pb-buy{background:#7cc19a;border-radius:3px}

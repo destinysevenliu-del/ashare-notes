@@ -30,6 +30,7 @@ ASOF = arg("--asof") or BJ.date().isoformat()
 EN_P = ROOT / "data/raw/stock_pick/l1_enrich.json"; VX_P = ROOT / "data/raw/stock_pick/val_extra.json"
 SP_P = ROOT / "data/stock_pick.json"; ST_P = ROOT / "data/raw/weekly/state.json"
 SNAP = ROOT / "data/snapshots/prices"; CH_P = ROOT / "data/weekly_changes.json"
+RULES_VERSION = "2026-11-17 判断链"  # 规则版本变化时，本周变化不比较结论（避免把改规则当成市场变化）
 PRICE_FIELDS = ["close", "pxdate", "pos52", "dd", "ret60", "vsMA60", "marginPct", "margin20", "holdersChg", "hdate", "focus", "top10free", "lift6m"]
 
 def codes():
@@ -101,7 +102,7 @@ def step_snapshot(asof):
     importlib.reload(logic1_rules); importlib.reload(stockpick)
     S = rj(ROOT / "data/sector_selection.json"); sec = {s["id"]: s for s in S["sectors"]}
     L1 = stockpick.logic1_data(ROOT, S); L2 = rj(SP_P)["logic2"]; sw = stockpick.switch_state(ROOT)
-    out = {"asof": asof, "cn10y": logic1_rules.cn10y(ROOT), "switch": sw, "logic1": {}, "logic2": {}}
+    out = {"asof": asof, "rules": RULES_VERSION, "cn10y": logic1_rules.cn10y(ROOT), "switch": sw, "logic1": {}, "logic2": {}}
     for sid, r in L1.items():
         for i, x in enumerate(r["picks"]):
             p = x.get("pl"); v, _ = stockpick.view_of(sec[sid]["rating"], sid, x, i)
@@ -116,16 +117,17 @@ def step_snapshot(asof):
 def step_changes(cur):
     prev = sorted(p for p in SNAP.glob("*.json") if p.stem < cur["asof"])
     items = []; P = rj(prev[-1]) if prev else None
+    same_rules = bool(P) and P.get("rules") == cur.get("rules")
     def cmp(part, label):
         for c, x in cur[part].items():
             o = (P or {}).get(part, {}).get(c)
             if o is None: items.append({"logic": label, "code": c, "name": x["name"], "from": "—", "to": x["cat"], "close": x.get("close")}); continue
             if o["cat"] != x["cat"]: items.append({"logic": label, "code": c, "name": x["name"], "from": o["cat"], "to": x["cat"], "close": x.get("close")})
-            elif o.get("view") and x.get("view") and o["view"] != x["view"]: items.append({"logic": label, "code": c, "name": x["name"], "from": o["view"], "to": x["view"], "close": x.get("close")})
+            elif same_rules and o.get("view") and x.get("view") and o["view"] != x["view"]: items.append({"logic": label, "code": c, "name": x["name"], "from": o["view"], "to": x["view"], "close": x.get("close")})
         for c, o in ((P or {}).get(part) or {}).items():
             if c not in cur[part]: items.append({"logic": label, "code": c, "name": o["name"], "from": o["cat"], "to": "移出候选", "close": None})
     if P: cmp("logic1", "逻辑一"); cmp("logic2", "逻辑二")
-    alerts = []
+    alerts = [] if (not P or same_rules) else ["规则已更新（%s）：本周起结论按判断链重排，结论变化不计入本周变化，详见筛选规则页" % cur.get("rules")]
     ty = cur["cn10y"]
     if ty["value"] > 1.85: alerts.append("10年国债%.2f%%高于1.85%%：银行按规则退出条件需要复核" % ty["value"])
     if P and abs(ty["value"] - P["cn10y"]["value"]) >= 0.10: alerts.append("10年国债较上周变化%.2f个百分点：银行买卖价已按新收益率重算" % (ty["value"] - P["cn10y"]["value"]))
@@ -157,6 +159,6 @@ if __name__ == "__main__":
     for x in ch["items"]: print("变化：[%s] %s %s：%s → %s（现价 %s）" % (x["logic"], x["name"], x["code"], x["from"], x["to"], x["close"]))
     if "--no-build" not in ARGS:
         run("build.py")
-        for t in ("test_stock_pick.py", "test_weekly.py", "test_sector_selection.py", "test_macro_regime.py", "test_hk.py"):
+        for t in ("test_stock_pick.py", "test_chain.py", "test_weekly.py", "test_sector_selection.py", "test_macro_regime.py", "test_hk.py"):
             print(t, run(t))
     print("完成。发布：python3 -I pipeline/publish_api.py <根目录> \"每周价格更新 %s\"" % asof)

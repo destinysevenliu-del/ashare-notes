@@ -10,7 +10,7 @@ class SelTest(unittest.TestCase):
    self.assertEqual(set(s['parts']),{'num','den','tap'})
    for p in s['parts'].values():self.assertFalse(set(p['refs'])-set(D['sources']))
    self.assertTrue(s['tracking']);self.assertTrue(s['checks']);self.assertTrue(s['handoff'])
-   for r in s['tracking']:self.assertEqual(len(r),5)
+   for r in s['tracking']:self.assertIn(len(r),(5,6))
    for r in s['checks']:self.assertEqual(len(r),5)
  def test_screen_numbers_match(self):
   rows={r['bk']:r for r in json.loads((ROOT/'docs/data/sector-screen.json').read_text())['rows']}
