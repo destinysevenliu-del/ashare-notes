@@ -69,7 +69,7 @@ def detail(d,rows,s):
         p=s['parts'][k];out+='<article class="ss-'+k+'"><span>'+PART_NAME[k]+'</span><h3>'+E(p['state'])+'</h3><p>'+E(p['text'])+'</p>'+refs(d,p['refs'],'../')+'</article>'
     out+='</div>'
     if s['bks']:out+='<details><summary>同口径行业数据</summary>'+screen_table(rows,s['bks'])+'<p class="note">'+E(d['data_note'])+'</p></details>'
-    out+='</section><section id="switch"><h2>开关与降级信号</h2><p class="ss-switch">'+E(s['switch'])+'</p>'+('<p class="note">'+E(s['note85'])+'</p>' if s.get('note85') else '')+'</section>'
+    out+='</section><section id="switch"><h2>开关与降级信号</h2><p class="ss-switch">'+E(s['switch'])+'</p>'+('<p class="note">'+E(s['note85'])+'</p>' if s.get('note85') else '')+('<p class="ss-switch"><b>当前暂停新增：</b>'+E(s['no_new'])+'</p>' if s.get('no_new') else '')+'</section>'
     role=any(len(r)>5 for r in s['tracking'])
     out+='<section id="tracking"><h2>跟踪单</h2>'+('<p class="note">“性质”说明这一行承担什么职责：预警和复核只触发重新评估；预测验收在判定日检验命题；风控是交易纪律；观察阈值写明依据；待核表示数据不足、暂不设阈值。</p>' if role else '')+'<div class="tblwrap"><table class="mt ss-table"><thead><tr><th>指标</th><th>频率</th><th>现值</th><th>阈值与动作</th><th>数据从哪来</th>'+('<th>性质</th>' if role else '')+'</tr></thead><tbody>'
     for r in s['tracking']:out+='<tr>'+''.join('<td>'+E(x)+'</td>' for x in r)+('<td>—</td>' if role and len(r)==5 else '')+'</tr>'

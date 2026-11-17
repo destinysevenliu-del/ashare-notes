@@ -33,7 +33,7 @@
   "pe_hs300": {
    "label": "沪深300",
    "bucket": "股债差分位≥80%",
-   "n": 464,
+   "n": 470,
    "median_pct": 5.2,
    "win_pct": 70.0
   }
@@ -133,8 +133,8 @@
   }
  },
  "rates": {
-  "cn10y_now": 1.5868,
-  "cn10y_now_date": "2026-11-06",
+  "cn10y_now": 1.6285,
+  "cn10y_now_date": "2026-11-16",
   "cn10y_year_ago": 1.8126,
   "us10y_year_ago": 4.11
  }

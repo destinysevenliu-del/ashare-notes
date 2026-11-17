@@ -48,4 +48,24 @@ class ChainTest(unittest.TestCase):
    b=(ROOT/'docs/boards'/(sid+'.html')).read_text();self.assertIn('id="subs"',b);self.assertIn('性质',b)
   self.assertNotIn('利润是真金白银',idx);self.assertNotIn('不预期创新高',idx)
   self.assertNotIn('说明部分风险已反映',idx)
+ def test8_all_sectors_rules(self):
+  D=json.loads((ROOT/'data/sector_selection.json').read_text())
+  for x in D['sectors']:
+   self.assertNotIn('PPI环比连续两个月≤0',x['switch'],x['id'])
+   for r in x['tracking']:
+    self.assertEqual(len(r),6,(x['id'],r[0]));self.assertTrue(r[5],(x['id'],r[0]))
+    if 'PPI' in r[0] and '同比' in r[0]:self.assertNotIn('降级',r[3],(x['id'],r[0]))
+    if r[0]=='美国10年期国债':self.assertIn('5.15',r[2],x['id'])
+   for c in x['checks']:
+    for t in c[3:5]:
+     if '降为逆风' in t or '升为顺风' in t:self.assertTrue(any(k in t for k in ('且','同时','复核','决定')),(x['id'],t))
+ def test9_all_candidates_verified(self):
+  V=json.loads((ROOT/'data/raw/stock_pick/verify.json').read_text())
+  L=json.loads((ROOT/'data/stock_pick.json').read_text())['logic1_list']['sectors']
+  for sid,cs in L.items():
+   for c in cs:self.assertIn(c,V,(sid,c))
+ def test10_crowding_pause(self):
+  s=dict(S['a-bank']);s['no_new']='测试'
+  ch=stockpick.chain('a-bank',s,'crowded',X(10.5),{})
+  self.assertTrue(ch['view'].startswith('不买'))
 if __name__=='__main__':unittest.main()

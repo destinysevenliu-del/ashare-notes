@@ -16,7 +16,7 @@
    "sector": "银行（高股息）",
    "rating": "顺风",
    "type": "crowded",
-   "view": "等回落",
+   "view": "不买：板块拥挤，暂停新增",
    "cat": "高于买入区",
    "close": 10.78,
    "buy": [
@@ -34,7 +34,7 @@
    "sector": "银行（高股息）",
    "rating": "顺风",
    "type": "crowded",
-   "view": "价格到位·待核",
+   "view": "不买：板块拥挤，暂停新增",
    "cat": "在买入区",
    "close": 6.32,
    "buy": [
@@ -70,7 +70,7 @@
    "sector": "银行（高股息）",
    "rating": "顺风",
    "type": "crowded",
-   "view": "等回落",
+   "view": "不买：板块拥挤，暂停新增",
    "cat": "高于买入区",
    "close": 13.13,
    "buy": [
@@ -232,7 +232,7 @@
    "sector": "油运（航运港口）",
    "rating": "前半段",
    "type": "upstream",
-   "view": "价格到位·待核",
+   "view": "不买：核验未通过",
    "cat": "在买入区",
    "close": 16.54,
    "buy": [

@@ -44,6 +44,7 @@ def verify_data(root):
 def sub_state(s,v):
     """板块层：公司利润主要来自的业务是否适用板块档位。"""
     if s['rating']=='等开关':return '等开关','板块开关未打开'
+    if s.get('no_new'):return '暂停',s['no_new']
     subs={b['name']:b['state'] for b in s.get('subs',[])}
     if not subs or not v:return '通过','板块档位'+s['rating']+'适用'
     sub=v.get('sub','')
@@ -54,33 +55,52 @@ def sub_state(s,v):
     if st in ('前半段','顺风'):return '通过',sub+'：'+st
     return '待核',(sub or '业务归属')+'：'+(st or '未判断')
 
+def verify_step(t,v):
+    """个股核验：按类型核验业务、现金与分红支撑（口径见 verify.json 的 _meta.defs）。"""
+    if not v:return '待核','未取得核验数据'
+    pre=(v['mix']+'。') if v.get('mix') else ''
+    tail='；滚动利润为2021—2025年平均的%.0f%%'%(v['np_ttm']/v['np_avg5']*100) if v.get('np_avg5') and v['np_avg5']>0 else '；近五年平均利润为负，无法比较'
+    if t=='crowded':
+        ok=(v.get('cet1') or 0)>=7.5 and (v.get('cov') or 0)>=150 and (v.get('np_yoy') or -1)>=0
+        txt='核心一级资本充足率%s%%、拨备覆盖率%.0f%%（上年同期%.0f%%）、不良率%.2f%%、前三季利润同比%+.1f%%；分红约占滚动利润%.0f%%'%(v['cet1'] if v.get('cet1') is not None else '—',v['cov'],v['cov_prev'],v['npl'],v['np_yoy'],v['div_np']*100)
+        return ('通过' if ok else '待核'),txt+('（高于监管底线，只说明分红有支撑）' if ok else '')
+    if t=='upstream':
+        if v.get('fcf_div') is not None and v['fcf_div']<1:return '未通过',pre+'资本开支后自由现金流%.1f亿元，不覆盖分红%.1f亿元（扩张性开支占比待核）'%(v['fcf_ttm'],v['div'])+tail
+        if (v.get('ocf_np') or 0)>=1:return '通过',pre+'经营现金流覆盖%.1f倍；资本开支后自由现金流%.1f亿元，覆盖分红%.1f倍'%(v['ocf_np'],v['fcf_ttm'],v['fcf_div'] or 0)+tail
+        return '待核',pre+'经营现金流覆盖不足1倍'+tail
+    if v['ocf_ttm']<0:return '未通过','滚动经营现金流为负（%.1f亿元）'%v['ocf_ttm']
+    why=[]
+    if v.get('ocf_np') is None or v['ocf_np']<1:why.append('经营现金流覆盖%s倍，低于1'%('—' if v.get('ocf_np') is None else format(v['ocf_np'],'.2f')))
+    if v['fcf_ttm']<0:why.append('资本开支后自由现金流为负')
+    for k,lab in (('ar_days','应收'),('inv_days','存货')):
+        a,b=v.get(k),v.get(k+'_prev')
+        if a and b and a>b*1.2 and a-b>=10:why.append('%s周转天数由%.0f天升到%.0f天'%(lab,b,a))
+    base='经营现金流覆盖%s倍；资本开支后自由现金流%.1f亿元；应收周转%s天、存货周转%s天'%('—' if v.get('ocf_np') is None else format(v['ocf_np'],'.2f'),v['fcf_ttm'],format(v['ar_days'],'.0f') if v.get('ar_days') else '—',format(v['inv_days'],'.0f') if v.get('inv_days') else '—')
+    return ('待核' if why else '通过'),base+('；待核：'+'、'.join(why) if why else '')+tail
+
+def value_step(t,v,c):
+    if v and v['pb']>v['pb95']:return '否决','PB %.2f高于自身五年95%%分位%.2f（站内初始研究规则，未回测）'%(v['pb'],v['pb95'])
+    if t=='crowded':
+        return ('通过','股息率达到10年国债+2.5个百分点') if c=='买入' else (('否决','股息率低于10年国债+2.0个百分点') if c=='卖出' else ('未到','股息率还没到买入线'))
+    if not v:return '待核','未做估值核验'
+    pn='按五年平均利润约%.0f倍'%v['pe_norm'] if v.get('pe_norm') else '近五年平均利润为负，正常化PE不可用'
+    return '待核','PB %.2f（五年分位%d%%）未触发否决；PE(TTM) %s倍，%s，正常化估值待验证'%(v['pb'],v['pbpct5'],'—' if v['pe_ttm'] is None else format(v['pe_ttm'],'.1f'),pn)
+
 def chain(sid,s,t,x,V):
     pl=x.get('pl');c=SC.status(pl)[0];v=V.get(x['code'])
     st=[]
     a,at=sub_state(s,v);st.append(('板块',a,at))
     st.append(('初筛','通过','进入候选（门槛与排序见本板块）'))
-    if v:
-        mix=v.get('mix','')
-        if v['fcf_div']<1:k,kt='未通过','资本开支后自由现金流%.1f亿元，不覆盖分红%.1f亿元（扩张性开支占比待核）'%(v['fcf_ttm'],v['div'])
-        elif v['ocf_np']>=1:k,kt='通过','经营现金流覆盖%.1f倍；资本开支后自由现金流%.1f亿元，覆盖分红%.1f倍'%(v['ocf_np'],v['fcf_ttm'],v['fcf_div'])
-        else:k,kt='待核','经营现金流覆盖不足1倍'
-        kt+='；滚动利润为2021—2025年平均的%.0f%%'%(v['np_ttm']/v['np_avg5']*100)
-        if mix:kt=mix+'。'+kt
-    elif t=='crowded':k,kt='待核','分红可持续性（拨备、资本充足率、分红率）未核验'
-    else:k,kt='待核','业务受益、盈利持续性与资本开支后现金未核验'
+    k,kt=verify_step(t,v)
     st.append(('核验',k,kt))
-    if v:
-        if v['pb']>v['pb95']:g,gt='否决','PB %.2f高于自身五年95%%分位%.2f（站内初始研究规则，未回测）'%(v['pb'],v['pb95'])
-        else:g,gt='待核','PB %.2f（五年分位%d%%）未触发否决；PE(TTM) %.1f倍，按五年平均利润约%.0f倍，正常化估值待验证'%(v['pb'],v['pbpct5'],v['pe_ttm'],v['pe_norm'])
-    elif t=='crowded':
-        g,gt=('通过','股息率达到10年国债+2.5个百分点') if c=='买入' else (('否决','股息率低于10年国债+2.0个百分点') if c=='卖出' else ('未到','股息率还没到买入线'))
-    else:g,gt='待核','未做估值核验'
+    g,gt=value_step(t,v,c)
     st.append(('估值',g,gt))
     st.append(('价格',{'买入':'到位','高于':'未到','低于':'低于区间','止损':'跌破止损','卖出':'到卖出价','未确认':'未确认','无':'待核'}[c],SC.status(pl)[1]))
     st.append(('筹码','提示',{'好':'无明显拥挤','中':'一般','差':'有拥挤或解禁压力'}[x['chip']]))
     D={k:val for k,val,_ in st}
     if s['rating']=='等开关':view='等开关：不买'
     elif c=='卖出':view='不买：已到卖出价'
+    elif D['板块']=='暂停':view='不买：板块拥挤，暂停新增'
     elif D['估值']=='否决':view='不买：估值否决'
     elif D['核验']=='未通过':view='不买：核验未通过'
     elif c=='买入':view='可执行' if all(D[k]=='通过' for k in ('板块','核验','估值')) else '价格到位·待核'
@@ -89,7 +109,7 @@ def chain(sid,s,t,x,V):
     return {'steps':st,'view':view}
 
 VIEW_CLS=lambda v:'go' if v=='可执行' else 'bad' if v.startswith('不买') else 'wait' if ('待核' in v or v.startswith('等开关')) else ''
-STEP_CLS={'通过':'ok','到位':'ok','待核':'chk','未到':'chk','未确认':'chk','低于区间':'chk','提示':'tip','未通过':'no','否决':'no','跌破止损':'no','到卖出价':'no','等开关':'chk'}
+STEP_CLS={'暂停':'no','通过':'ok','到位':'ok','待核':'chk','未到':'chk','未确认':'chk','低于区间':'chk','提示':'tip','未通过':'no','否决':'no','跌破止损':'no','到卖出价':'no','等开关':'chk'}
 
 def chain_html(ch):
     out='<ol class="ch">'+''.join('<li class="ch-'+STEP_CLS.get(b,'chk')+'"><span>'+E(a)+'</span><b>'+E(b)+'</b></li>' for a,b,_ in ch['steps'])+'</ol>'
@@ -279,7 +299,7 @@ def l1_bucket(rating,x):
     if v.startswith('等回落'):return '等回落'
     return '观察'
 
-L1_ORDER=[('可执行','ab-buy','板块、核验、估值都通过，价格在买入区'),('价格到位·待核','ab-high','价格已在买入区，但核验或估值没完成，不直接买'),('等回落','ab-high','高于买入区，等价格回到区间'),('观察','ab-low','低于买入区或接近止损，先观察区间是否失效'),('不买','ab-sell','已到卖出价、估值否决或核验未通过'),('等开关','ab-wait','板块开关未打开，任何价格都不买')]
+L1_ORDER=[('可执行','ab-buy','板块、核验、估值都通过，价格在买入区'),('价格到位·待核','ab-high','价格已在买入区，但核验或估值没完成，不直接买'),('等回落','ab-high','高于买入区，等价格回到区间'),('观察','ab-low','低于买入区或接近止损，先观察区间是否失效'),('不买','ab-sell','已到卖出价、估值否决、核验未通过，或板块拥挤暂停新增'),('等开关','ab-wait','板块开关未打开，任何价格都不买')]
 
 def board_l1(L1,sec):
     B={}
@@ -287,7 +307,7 @@ def board_l1(L1,sec):
         for x in r['picks']:
             k=l1_bucket(sec[sid]['rating'],x);sm=short(sec[sid]['title'])
             if k=='等开关':sm+=' · '+('价格已确认' if SC.status(x.get('pl'))[0]!='未确认' else '未确认')
-            elif k=='不买':sm+=' · '+x['chain']['view'].replace('不买：','')
+            elif k=='不买':sm+=' · '+x['chain']['view'].replace('不买：','').replace('板块拥挤，暂停新增','拥挤暂停')
             B.setdefault(k,[]).append(('s-'+x['code'],x['name'],sm))
     return '<section id="overview"><h2>行动看板</h2><p class="note">按“现在该做什么”把候选分组，点名字跳到它的卡片。判断顺序：板块 → 初筛 → 核验 → 估值 → 价格 → 筹码。进入候选只表示值得研究；价格到了买入区，核验或估值没完成时仍是“待核”，不直接买。</p>'+SC.board(B,L1_ORDER,'价格截至最近一次每周更新；规则见页面底部“价格规则”。',wide=('等开关',))+'</section>'
 
@@ -351,10 +371,10 @@ def l2_cards(L2,sw,F):
     return out+'</section>'
 
 # ================= 当前生效的筛选规则页（覆盖旧版 selection-rules.html） =================
-LAYERS=[('板块','这个业务现在有没有盈利驱动','大盘风向 + 板块三件事；煤炭、石油按业务拆开（动力煤/焦煤/煤化工，上游/炼化）','可以：开关未打开或业务待核时，不进入可执行'),
+LAYERS=[('板块','这个业务现在有没有盈利驱动','大盘风向 + 板块三件事；煤炭、石油、油运按业务拆开（动力煤/焦煤/煤化工，上游/炼化，油轮/港口集运）','可以：开关未打开或业务待核时，不进入可执行'),
  ('个股初筛','值不值得研究','各板块自己的门槛和排序（单季利润同比、股息率等），只用来缩小范围','不否决，只决定进不进候选'),
- ('个股核验','公司是否真的受益、利润能否持续、现金能否兑现','业务归属（分产品毛利、分部利润）；经营现金流覆盖倍数；资本开支后自由现金流对分红的覆盖','可以：自由现金流不覆盖分红为“核验未通过”'),
- ('估值','价格是否已经充分反映这些收益','煤炭、石油：PB对比自身五年95%分位（否决线），TTM PE与按五年平均利润的正常化PE并列；银行：股息率对比10年国债','可以：触发否决为“不买”；没有正常化结论时为“待核”'),
+ ('个股核验','公司是否真的受益、利润能否持续、现金能否兑现','按类型：银行看资本与拨备；资源与运输看资本开支后自由现金流对分红的覆盖；成长与成本类看经营现金流覆盖、自由现金流和应收存货周转','可以：资源与运输类自由现金流不覆盖分红、成长与成本类经营现金流为负为“核验未通过”'),
+ ('估值','价格是否已经充分反映这些收益','所有类型：PB对比自身五年95%分位（否决线）；TTM PE与按五年平均利润的正常化PE并列；银行另看股息率对比10年国债','可以：触发否决为“不买”；没有正常化结论时为“待核”'),
  ('价格','什么价格参与、何时兑现、何时止损','各类型的价格规则（研究规则，未回测）','只在前三层通过后用于执行'),
  ('筹码','拥挤和交易风险','股东户数、融资余额、解禁','只提示，不代替盈利或估值证据')]
 VIEWS=[('可执行','板块、核验、估值都通过，价格在买入区'),('价格到位·待核','价格在买入区，但板块业务、核验或估值没有完成'),('等回落','高于买入区'),('观察','低于买入区或接近止损'),('不买','已到卖出价、估值否决或核验未通过'),('等开关','板块开关未打开')]
@@ -365,11 +385,11 @@ def rules_page(root):
     out+='<section id="layers" class="rp"><h2>六层职责</h2><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>层</th><th>回答什么问题</th><th>用什么</th><th>能否否决</th></tr></thead><tbody>'+''.join('<tr><th scope="row">'+E(a)+'</th><td>'+E(b)+'</td><td>'+E(c)+'</td><td>'+E(d)+'</td></tr>' for a,b,c,d in LAYERS)+'</tbody></table></div></section>'
     out+='<section id="views"><h2>状态定义</h2><ul class="lens-ul">'+''.join('<li><b>'+E(a)+'：</b>'+E(b)+'</li>' for a,b in VIEWS)+'</ul></section>'
     out+='<section id="types" class="rp"><h2>各类型规则</h2><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>类型</th><th>初筛看什么</th><th>核验</th><th>估值</th><th>价格规则</th></tr></thead><tbody>'
-    VAL={'crowded':'股息率对比10年国债：达到+2.5个百分点为通过，低于+2.0个百分点为否决','upstream':'PB高于自身五年95%分位为否决；否则列出TTM PE与正常化PE，正常化结论待验证','growth':'待核（开关打开后补）','cost':'待核（开关打开后补）'}
-    VER={'crowded':'分红可持续性（拨备、资本充足率、分红率）：待核','upstream':'业务归属；经营现金流覆盖倍数；资本开支后自由现金流覆盖分红（煤炭、石油已核验，油运待核）','growth':'待核','cost':'待核'}
+    VAL={'crowded':'PB高于自身五年95%分位为否决；否则看股息率对比10年国债：达到+2.5个百分点为通过，低于+2.0个百分点为否决','upstream':'PB高于自身五年95%分位为否决；否则列出TTM PE与按五年平均利润的正常化PE，正常化结论待验证','growth':'PB高于自身五年95%分位为否决；否则列出TTM PE与正常化PE（近五年平均利润为负时不可用），待验证','cost':'同成长类'}
+    VER={'crowded':'核心一级资本充足率、拨备覆盖率高于监管底线（7.5%、150%）且前三季度利润同比不为负为通过；只说明分红有支撑','upstream':'业务归属；经营现金流覆盖倍数；资本开支后自由现金流覆盖分红，不覆盖为未通过','growth':'滚动经营现金流为负为未通过；经营现金流覆盖≥1、资本开支后自由现金流不为负、应收与存货周转天数上升不超过两成为通过；其余待核','cost':'同成长类'}
     for t,Lz in logic1_rules.LENS.items():
         R=logic1_rules.PRICE_RULES[t];out+='<tr><th scope="row">'+E(Lz['name'])+'</th><td>'+E(Lz['fund'])+'</td><td>'+E(VER[t])+'</td><td>'+E(VAL[t])+'</td><td>买入 '+E(R['buy'])+'；卖出 '+E(R['sell'])+'；止损 '+E(R['stop'])+'</td></tr>'
-    out+='</tbody></table></div><p class="note">煤炭、石油按业务分开判断，见<a href="../boards/a-coal.html#subs">煤炭</a>、<a href="../boards/a-oil.html#subs">石油</a>板块页；标为“待核”的业务，相关公司不进入可执行。价格规则的完整原因见<a href="index.html#price-rules">个股页“价格规则”</a>。</p></section>'
+    out+='</tbody></table></div><p class="note">煤炭、石油、油运按业务分开判断，见<a href="../boards/a-coal.html#subs">煤炭</a>、<a href="../boards/a-oil.html#subs">石油</a>、<a href="../boards/a-tanker.html#subs">油运</a>板块页；标为“待核”的业务，相关公司不进入可执行。价格规则的完整原因见<a href="index.html#price-rules">个股页“价格规则”</a>。</p></section>'
     m=V.get('_meta',{});out+='<section id="data"><h2>数据口径</h2><ul class="lens-ul">'+''.join('<li>'+E(v)+'</li>' for v in m.get('defs',{}).values())+'<li>数据来源：'+E(m.get('source',''))+'（截至'+E(m.get('as_of',''))+'）</li><li>同比与环比、单季与累计与滚动12个月、实际值与机构预测、现货与期货分开标注；没有依据的阈值标“待核”。</li></ul></section>'
     out+='<section id="legacy"><h2>旧版说明</h2><p class="note">2026-11-13版的“子池合同与研究席位、A–H职能、追/等/不追”已停用。保留两条：辅助估值高于五年95%分位否决（现为估值层否决规则，仍未回测）；正常化自由现金流的思路（现为核验层的分红覆盖检查）。旧版个股研究页和组合约束页只作历史资料。</p></section>'
     return out

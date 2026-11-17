@@ -53,6 +53,10 @@ def fetch_raw(codes, asof):
             new(x["SECURITY_CODE"])["lf"].append([x["FREE_DATE"][:10], x["TOTAL_RATIO"]])
     return raw
 
+def fetch_bond_rows(asof):
+    """中美10年期国债（东方财富数据中心，中债与美债口径），写回 data/raw/bond.json，首页跟踪单与各板块共用。"""
+    return (_get({"reportName": "RPTA_WEB_TREASURYYIELD", "columns": "SOLAR_DATE,EMM00166466,EMG00001310", "pageSize": 15, "sortColumns": "SOLAR_DATE", "sortTypes": -1, "filter": "(SOLAR_DATE<='%s')" % asof}).get("data") or [])
+
 def fetch_cn10y(asof):
     r = _get({"reportName": "RPTA_WEB_TREASURYYIELD", "columns": "SOLAR_DATE,EMM00166466", "pageSize": 5, "sortColumns": "SOLAR_DATE", "sortTypes": -1, "filter": "(SOLAR_DATE<='%s')" % asof})
     rows = [x for x in r.get("data") or [] if x.get("EMM00166466") is not None]
@@ -98,4 +102,4 @@ def compute(r, asof, y1):
 
 def metrics(codes, asof):
     raw = fetch_raw(codes, asof); y1 = shift(asof, -365)
-    return {"asof": asof, "via": "python", "cn10y": fetch_cn10y(asof), "metrics": {c: compute(raw.get(c, {"px": [], "mg": [], "hd": [], "lf": []}), asof, y1) for c in codes}}
+    return {"asof": asof, "via": "python", "cn10y": fetch_cn10y(asof), "bond_rows": fetch_bond_rows(asof), "metrics": {c: compute(raw.get(c, {"px": [], "mg": [], "hd": [], "lf": []}), asof, y1) for c in codes}}

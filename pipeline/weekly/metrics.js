@@ -18,10 +18,11 @@ async function weeklyMetrics(codes, asof) {
     for (const x of await all('RPT_F10_EH_HOLDERNUM', 'END_DATE', `(SECURITY_CODE in ${inn})(END_DATE>='${shift(asof, -400)}')`)) (raw[x.SECURITY_CODE] ??= { px: [], mg: [], hd: [], lf: [] }).hd.push([day(x.END_DATE), x.TOTAL_NUM_RATIO, x.HOLD_FOCUS, x.FREEHOLD_RATIO_TOTAL, day(x.NOTICE_DATE || x.END_DATE)]);
     for (const x of await all('RPT_LIFT_STAGE', 'FREE_DATE', `(SECURITY_CODE in ${inn})(FREE_DATE>'${asof}')(FREE_DATE<='${l6}')`)) (raw[x.SECURITY_CODE] ??= { px: [], mg: [], hd: [], lf: [] }).lf.push([day(x.FREE_DATE), x.TOTAL_RATIO]);
   }
+  const bond_rows = (await get({ reportName: 'RPTA_WEB_TREASURYYIELD', columns: 'SOLAR_DATE,EMM00166466,EMG00001310', pageSize: 15, sortColumns: 'SOLAR_DATE', sortTypes: -1, filter: `(SOLAR_DATE<='${asof}')` })).data || [];
   const ty = (await get({ reportName: 'RPTA_WEB_TREASURYYIELD', columns: 'SOLAR_DATE,EMM00166466', pageSize: 5, sortColumns: 'SOLAR_DATE', sortTypes: -1, filter: `(SOLAR_DATE<='${asof}')` })).data.filter(x => x.EMM00166466 != null)[0];
   const metrics = {};
   for (const c of codes) metrics[c] = compute(raw[c] || { px: [], mg: [], hd: [], lf: [] }, asof, y1);
-  return { asof, via: 'browser', cn10y: ty ? { date: day(ty.SOLAR_DATE), value: ty.EMM00166466 } : null, metrics };
+  return { asof, via: 'browser', bond_rows, cn10y: ty ? { date: day(ty.SOLAR_DATE), value: ty.EMM00166466 } : null, metrics };
 }
 function compute(r, asof, y1) {
   const r2 = v => v == null ? null : Math.round(v * 100) / 100, r1 = v => v == null ? null : Math.round(v * 10) / 10;

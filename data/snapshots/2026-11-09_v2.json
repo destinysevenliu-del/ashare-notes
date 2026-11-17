@@ -24,7 +24,7 @@
   "score": false,
   "margin5": true,
   "us10": false,
-  "cn10": true,
+  "cn10": false,
   "pe": false,
   "pmi": true
  },

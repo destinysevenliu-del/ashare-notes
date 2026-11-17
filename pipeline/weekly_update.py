@@ -81,6 +81,9 @@ def step_write(m, csi, miss, asof):
     L2["px_asof"] = asof
     st = rj(ST_P) if ST_P.exists() else {}
     if m.get("cn10y"): st["cn10y"] = m["cn10y"]
+    if m.get("bond_rows"):  # 中美10年期写回 bond.json（首页跟踪单读这里），按日期合并、不覆盖已有行
+        bp = ROOT / "data/raw/bond.json"; b = rj(bp); have = {r["SOLAR_DATE"] for r in b}
+        b = sorted([r for r in m["bond_rows"] if r["SOLAR_DATE"] not in have] + b, key=lambda r: r["SOLAR_DATE"], reverse=True); wj(bp, b)
     if csi: st["csi_all"] = csi[-1]; st["csi_all_rows"] = csi[-260:]
     st["asof"] = asof; st["via"] = m.get("via")
     wj(EN_P, en); wj(VX_P, vx); wj(SP_P, sp); wj(ST_P, st)
