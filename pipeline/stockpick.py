@@ -131,7 +131,7 @@ def fund_cells(t,x):
     if t=='upstream':return [f(x['np_yoy'],'+.0f','%'),f(x['dy'] if x['dy'] is not None else e.get('dy'),'.2f','%'),f(e.get('cashEps'),'.2f'),f(e.get('gmChg'),'+.1f')]
     if t=='growth':return [f(x['np_yoy'],'+.0f','%'),f((x['np_yoy'] or 0)-(x['h1_yoy'] or 0),'+.0f'),f(x['rev_yoy'],'+.0f','%'),f(e.get('cashEps'),'.2f')]
     return [f(e.get('gmChg'),'+.1f'),f(x['np_yoy'],'+.0f','%'),f(x['rev_yoy'],'+.0f','%'),f(e.get('cashEps'),'.2f')]
-FH={'crowded':['股息率','单季利润同比','PB','前三季ROE'],'upstream':['单季利润同比','股息率','经营现金流覆盖','毛利率变化'],'growth':['单季利润同比','加速（百分点）','营收同比','经营现金流覆盖'],'cost':['毛利率变化','单季利润同比','营收同比','经营现金流覆盖']}
+FH={'crowded':['股息率','单季利润同比','PB','前三季ROE'],'upstream':['单季利润同比','股息率','经营现金流覆盖（前三季）','毛利率变化'],'growth':['单季利润同比','加速（百分点）','营收同比','经营现金流覆盖（前三季）'],'cost':['毛利率变化','单季利润同比','营收同比','经营现金流覆盖（前三季）']}
 
 def logic1_data(root,S):
     logic1_rules.CN10Y=logic1_rules.cn10y(root)['value']

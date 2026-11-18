@@ -9,6 +9,8 @@ RULES={
  'a-bank':{'gate':'市值≥1000亿；三季度单季利润同比≥0','factors':['dy','np'],'n':5,'filter':lambda x:x['mc']>=1000 and (x['np_yoy'] or -1)>=0},
  'a-coal':{'gate':'市值≥100亿；三季度单季利润≥3亿且同比为正；PE 0—20','factors':['np','acc','dy','cheap','qual'],'n':4,'filter':lambda x:x['mc']>=100 and x['q_np']>=3 and (x['np_yoy'] or -1)>0 and 0<(x['pe'] or 99)<=20},
  'a-oil':{'gate':'一体化油企（油价弹性来自上游，板块其余为炼化）','factors':['np','dy'],'n':2,'filter':lambda x:x['code'] in ('601857','600028')},
+ 'a-rare-earth':{'gate':'稀土冶炼分离公司（稀土业务为主，按分产品毛利确认；市值≥150亿）','factors':['np','cheap','qual'],'n':4,'filter':lambda x:x['code'] in ('600111','000831','600259','600392')},
+ 'a-magnet':{'gate':'钕铁硼占主营毛利≥70%、市值≥100亿','factors':['np','rev','cheap','qual'],'n':4,'filter':lambda x:x['code'] in ('300748','300224','600366','000970')},
  'a-tanker':{'gate':'只保留纯油运公司（板块含港口与集运）；三季度单季利润同比为正','factors':['np','cheap'],'n':3,'filter':lambda x:x['code'] in ('601872','600026','601975') and (x['np_yoy'] or -1)>0},
  'a-semiconductor':{'gate':'市值≥300亿；三季度单季利润≥3亿且同比≥30%；PE 0—60','factors':['np','acc','rev','cheap','qual'],'n':5,'filter':lambda x:x['mc']>=300 and x['q_np']>=3 and (x['np_yoy'] or 0)>=30 and 0<(x['pe'] or 999)<=60},
  'a-computing':{'gate':'市值≥300亿；三季度单季利润≥3亿且同比≥30%；PE 0—40','factors':['np','acc','rev','cheap','qual'],'n':5,'filter':lambda x:x['mc']>=300 and x['q_np']>=3 and (x['np_yoy'] or 0)>=30 and 0<(x['pe'] or 999)<=40},
@@ -52,7 +54,7 @@ def select(root,sectors):
     return res
 
 # ---------- 2026-11-15：按板块类型看三层（基本面 / 位置 / 筹码） ----------
-TYPE={'a-bank':'crowded','a-coal':'upstream','a-oil':'upstream','a-tanker':'upstream','a-semiconductor':'growth','a-computing':'growth','a-pharma':'growth','a-grid':'cost','a-chemical':'cost'}
+TYPE={'a-bank':'crowded','a-coal':'upstream','a-oil':'upstream','a-tanker':'upstream','a-semiconductor':'growth','a-computing':'growth','a-pharma':'growth','a-grid':'cost','a-chemical':'cost','a-rare-earth':'upstream','a-magnet':'cost'}
 LENS={
  'crowded':{'name':'顺风但拥挤','fund':'股息率（2025年度）、单季利润同比、PB、ROE：分红能不能持续','pos':'近一年位置：拥挤板块不追高，位置≤0.6为好，>0.85为差','chip':'股东户数变化（户数大增＝散户追入）、融资余额20日变化（快速上升＝杠杆追入）'},
  'upstream':{'name':'看价格水平','fund':'单季利润同比（只作初筛，同时看利润绝对额和比较基数）、股息率、经营现金流覆盖倍数（经营现金流÷净利润；≥1只说明当期利润有现金覆盖，不证明分红安全）、毛利率变化','pos':'距一年高点回撤：回撤≥20%＝回撤条件达标（只说明价格离高点较远，不代表风险已充分反映）；回撤不足10%为未达标','chip':'融资余额20日变化与股东户数变化：资金是否还在追'},
@@ -104,7 +106,7 @@ def select_v2(root,sectors):
         out[sid]={**{k:v for k,v in r.items() if k!='all'},'type':t,'lens':LENS[t],'picks':picks}
     return out
 
-R_N={'a-bank':5,'a-coal':4,'a-oil':2,'a-tanker':2,'a-semiconductor':5,'a-computing':5,'a-pharma':4,'a-grid':4,'a-chemical':4}
+R_N={'a-bank':5,'a-coal':4,'a-oil':2,'a-tanker':2,'a-semiconductor':5,'a-computing':5,'a-pharma':4,'a-grid':4,'a-chemical':4,'a-rare-earth':4,'a-magnet':4}
 
 def select_all(root,sectors):
     res=select(root,sectors)
@@ -167,7 +169,7 @@ def price_levels(t,x):
         out.update(buy=(round(lo+0.15*(hi-lo),2),round(lo+0.35*(hi-lo),2)),sell=round(lo+0.8*(hi-lo),2),stop=round(lo*0.95,2))
     b1,b2=out['buy'];mid=(b1+b2)/2
     out['rr']=round((out['sell']-mid)/(mid-out['stop']),1) if out.get('stop') and mid>out['stop'] else None
-    out['rr_now']=round((out['sell']-c)/(c-out['stop']),1) if out.get('stop') and out['stop']<c<out['sell'] else None
+    out['rr_now']=round((out['sell']-c)/(c-out['stop']),1) if out.get('stop') and max(out['stop'],out['buy'][0])<=c<out['sell'] else None  # 低于买入区时规则是观察，不计算现价盈亏比
     out['where']='在买入区' if b1<=c<=b2 else ('高于买入区'+format((c/b2-1)*100,'.0f')+'%' if c>b2 else '低于买入区'+format((1-c/b1)*100,'.0f')+'%')
     if t=='crowded':
         out['where']='已在卖出区（股息率不足）' if c>=out['sell'] else ('在买入区（股息率达标）' if c<=b2 else '等待：高于买入价'+format((c/b2-1)*100,'.0f')+'%')
@@ -203,7 +205,7 @@ PRICE_DOC={
  ],
  'common':[
   ('使用顺序','板块层（业务是否适用）→ 个股初筛（进入候选）→ 个股核验（业务受益、盈利持续性、资本开支后现金与分红覆盖）→ 估值（价格是否已充分反映）→ 价格（入场、兑现、止损）→ 筹码（只提示拥挤与交易风险）。价格只决定“什么价格做”，不改变“做不做”：核验或估值没有通过时，进入买入区也只显示“价格到位·待核”；估值否决、核验未通过或到了卖出价，显示“不买”；等开关板块任何价格都不买。'),
-  ('盈亏比','计划盈亏比＝(卖出参考价−买入区中点)÷(买入区中点−止损价)，衡量按计划价位买入的性价比；现价盈亏比＝(卖出参考价−现价)÷(现价−止损价)，衡量现在买的性价比，现价不在止损与卖出价之间时不计算。低于2说明赚的空间不足亏的两倍；这是研究信号，不是硬规则。'),
+  ('盈亏比','计划盈亏比＝(卖出参考价−买入区中点)÷(买入区中点−止损价)，衡量按计划价位买入的性价比；现价盈亏比＝(卖出参考价−现价)÷(现价−止损价)，衡量现在买的性价比，现价低于买入区（规则要求先观察）或已到卖出价时不计算。低于2说明赚的空间不足亏的两倍；这是研究信号，不是硬规则。'),
   ('现价状态','“在买入区”＝可以按计划执行；“高于买入区X%”＝等回落；“低于买入区（靠近止损）”＝区间可能正在失效，先观察不接；“未确认”＝等开关板块尚未站上60日均线；“已在卖出区”＝持有者兑现，新资金不买；“已跌破止损价”＝持有者按规则退出，新资金不接。'),
   ('什么时候重算','每周按“更新流程.md”跑一次 weekly_update.py，全部价格自动重算并存快照；银行公布新分红时，先改分红数据再跑；板块档位变化时，该板块换用新档位对应的规则。规则本身只在复盘时改，改了要写版本和原因。'),
   ('规则性质','逻辑一的价格规则是研究规则，尚未回测，阈值（0.2、0.4、0.9、12%等）是按板块逻辑设定的初始值，回测后可能调整。逻辑二的买卖规则就是组合回测里用的那一套。'),

@@ -124,7 +124,7 @@ def step_changes(cur):
     def cmp(part, label):
         for c, x in cur[part].items():
             o = (P or {}).get(part, {}).get(c)
-            if o is None: items.append({"logic": label, "code": c, "name": x["name"], "from": "—", "to": x["cat"], "close": x.get("close")}); continue
+            if o is None: items.append({"logic": label, "code": c, "name": x["name"], "from": "新增候选", "to": x["cat"], "close": x.get("close")}); continue
             if o["cat"] != x["cat"]: items.append({"logic": label, "code": c, "name": x["name"], "from": o["cat"], "to": x["cat"], "close": x.get("close")})
             elif same_rules and o.get("view") and x.get("view") and o["view"] != x["view"]: items.append({"logic": label, "code": c, "name": x["name"], "from": o["view"], "to": x["view"], "close": x.get("close")})
         for c, o in ((P or {}).get(part) or {}).items():
