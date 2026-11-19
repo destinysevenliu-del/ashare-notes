@@ -217,17 +217,18 @@ def l2_judge_html(L2,sw,F):
     return out+'</tbody></table></div><p class="note">融资一栏为“—”表示该股不是融资融券标的。基本面每季度更新，位置和筹码每周更新。</p></section>'
 
 def l2_row(x,note):
-    return '<tr><th scope="row">'+E(x['name'])+'<small>'+x['code']+' · '+E(x['ind'])+'</small></th><td>'+str(x['mc'])+'</td><td>'+f(x['W']*100,'.0f','%')+'</td><td>'+str(x['swings'])+'</td><td>'+str(x['lu'])+' / '+str(x['sp'])+'</td><td>'+f(x['pos'],'.2f')+'</td><td>'+f(x['corr'],'.2f')+'</td><td>'+f(x.get('rev9m'),'.0f')+' / '+f(x.get('np9m'),'.2f')+'</td><td>'+E('、'.join(x['tags'][:3]))+'</td>'+box_px(x)+'<td>'+E(note)+'</td></tr>'
+    return '<tr><th scope="row">'+E(x['name'])+'<small>'+x['code']+' · '+E(x['ind'])+'</small></th><td>'+str(x['mc'])+'</td><td>'+f(x['W']*100,'.0f','%')+'</td><td>'+str(x['swings'])+'</td><td>'+str(x['lu'])+' / '+str(x['sp'])+'</td><td>'+f(x['pos'],'.2f')+'</td><td>'+f(x['corr'],'.2f')+'</td><td>'+f(x.get('rev9m'),'.0f')+' / '+f(x.get('np9m'),'.2f')+'</td><td>'+(format(x['holders'],',') if x.get('holders') else '—')+'</td><td>'+E('、'.join(x['tags'][:3]))+'</td>'+box_px(x)+'<td>'+E(note)+'</td></tr>'
 
 def logic2_html(L2,sw,F={}):
     ref=L2['reference'];R=logic2_box.RULES;A=logic2_box.ACTIONS
     out='<section id="logic2"><h2>逻辑二：国资箱体</h2><div class="l2-intro"><div>'+box_svg(ref)+'</div><div><p>把一只股票想成一个房间：<b>地板</b>是国资背景和净资产带来的下限，<b>天花板</b>是没有业绩支撑时游资和散户愿意追到的上限，<b>烟花</b>是政策、重组、题材事件带来的脉冲。</p><p>它赚钱的方式不是盈利增长，而是“在地板附近买、在天花板附近卖、遇到烟花就兑现”。</p><p class="note">图中“现在”按乐凯胶片当前位置（'+f(ref['pos'],'.2f')+'）画出。</p></div></div>'
-    out+='<h3>六个可量化的入选条件（以乐凯胶片为例）</h3><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>条件</th><th>怎么算</th><th>乐凯胶片</th><th>是否满足</th></tr></thead><tbody>'
-    rows=[('国资与安全',R['universe'],'市值'+str(ref['mc'])+'亿 · PB '+f(ref['pb'],'.2f'),True),('有箱体',R['box'],'宽度'+f(ref['W']*100,'.0f','%'),.25<=ref['W']<=1.2),('没有单边趋势',R['flat'],f(ref['trend'],'+.2f'),abs(ref['trend'])<=.3),('来回震荡',R['swings'],str(ref['swings'])+'次',ref['swings']>=2),('地板有效',R['floor'],f(ref['floor']*100,'.0f','%'),ref['floor']>=-.15),('有事件脉冲',R['hot'],'涨停'+str(ref['lu'])+'次 · 脉冲'+str(ref['sp'])+'次',ref['lu']>=4 and ref['sp']>=1)]
+    out+='<h3>七个可量化的入选条件（以乐凯胶片为例）</h3><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>条件</th><th>怎么算</th><th>乐凯胶片</th><th>是否满足</th></tr></thead><tbody>'
+    rows=[('国资与安全',R['universe'],'市值'+str(ref['mc'])+'亿 · PB '+f(ref['pb'],'.2f'),True),('有箱体',R['box'],'宽度'+f(ref['W']*100,'.0f','%'),.25<=ref['W']<=1.2),('没有单边趋势',R['flat'],f(ref['trend'],'+.2f'),abs(ref['trend'])<=.3),('来回震荡',R['swings'],str(ref['swings'])+'次',ref['swings']>=2),('地板有效',R['floor'],f(ref['floor']*100,'.0f','%'),ref['floor']>=-.15),('有事件脉冲',R['hot'],'涨停'+str(ref['lu'])+'次 · 脉冲'+str(ref['sp'])+'次',ref['lu']>=4 and ref['sp']>=1),('股东户数少',R['holders'],(format(ref['holders'],',')+'户（'+ref.get('hdate','')+'）') if ref.get('holders') else '—',(ref.get('holders') or 10**9)<50000)]
     for a,b,c,ok in rows:out+='<tr><th scope="row">'+E(a)+'</th><td>'+E(b)+'</td><td>'+E(c)+'</td><td>'+('满足' if ok else '不满足')+'</td></tr>'
-    out+='</tbody></table></div><h3>三个动作与一个暂停条件</h3><div class="l2-act"><p><b>买：</b>'+E(A['buy'])+'</p><p><b>卖：</b>'+E(A['sell'])+'</p><p><b>止损：</b>'+E(A['stop'])+'</p><p class="l2-sw '+('on' if sw['on'] else 'off')+'"><b>'+E(A['switch'])+'<br>现在：中证全指'+f(sw['close'],',.0f')+'（'+sw['date']+'）→ '+('规则允许研究买点' if sw['on'] else '暂停开新仓')+'</p></div>'
+    HR=L2.get('holders_rule')
+    out+='</tbody></table></div>'+(('<div class="l2-hr"><p><b>关于“股东户数低于5万户”：</b>'+E(HR['basis'])+'（'+E(HR['origin'])+'）</p><p><b>现有证据：</b>'+E(HR['evidence'])+'</p><p><b>状态：</b>'+E(HR['status'])+'</p></div>') if HR else '')+'<h3>三个动作与一个暂停条件</h3><div class="l2-act"><p><b>买：</b>'+E(A['buy'])+'</p><p><b>卖：</b>'+E(A['sell'])+'</p><p><b>止损：</b>'+E(A['stop'])+'</p><p class="l2-sw '+('on' if sw['on'] else 'off')+'"><b>'+E(A['switch'])+'<br>现在：中证全指'+f(sw['close'],',.0f')+'（'+sw['date']+'）→ '+('规则允许研究买点' if sw['on'] else '暂停开新仓')+'</p></div>'
     pb=L2.get('pbt');o=L2['oos_1y']
-    out+='<h3 id="l2-bt">按真实规则做组合回测</h3><div class="l2-bt">'
+    out+='<h3 id="l2-bt">按真实规则做组合回测</h3><div class="l2-bt"><p class="note">注意：回测的股票池没有包含2026-11-19加入的“股东户数低于5万户”条件。</p>'
     if pb:
         B=pb['base'];M=pb['bench']
         out+='<p>'+E(pb['setup'])+'</p><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>指标</th><th>策略（'+str(B['K'])+'只上限，成本'+f(B['cost'],'.1f','%')+'）</th><th>同一股票池等权持有</th></tr></thead><tbody>'
@@ -237,11 +238,11 @@ def logic2_html(L2,sw,F={}):
         out+='<p><b>稳健性：</b>'+E(pb['robust'])+'</p><p class="note"><b>偏差：</b>'+E(pb['bias'])+'</p>'
     out+='<p class="note"><b>信号层面统计（旧口径）：</b>2019—2026年2,357次箱底信号，120日平均+4.5%、中位+0.2%；最近一年箱体股信号平均'+f(o['box_hot']['mean'],'+.1f','%')+'。</p><p class="l2-con"><b>结论：</b>'+E(L2.get('verdict',''))+'</p></div>'
     fun=L2['funnel'];out+='<h3 id="l2-list">候选名单</h3><ol class="lp-funnel">'+''.join('<li>'+E(a)+'：<b>'+str(b)+'</b></li>' for a,b in fun)+'</ol>'
-    out+='<details class="more"><summary>查看候选名单全部参数（箱体、标签、价格）</summary><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>股票</th><th>市值（亿）</th><th>箱体宽度</th><th>往返</th><th>涨停 / 脉冲</th><th>当前位置</th><th>与大盘相关</th><th>前三季营收 / 利润（亿）</th><th>主要标签</th><th>参考买入</th><th>卖出参考</th><th>止损</th><th>逐只判断</th></tr></thead><tbody>'
+    out+='<details class="more"><summary>查看候选名单全部参数（箱体、标签、价格）</summary><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>股票</th><th>市值（亿）</th><th>箱体宽度</th><th>往返</th><th>涨停 / 脉冲</th><th>当前位置</th><th>与大盘相关</th><th>前三季营收 / 利润（亿）</th><th>股东户数</th><th>主要标签</th><th>参考买入</th><th>卖出参考</th><th>止损</th><th>逐只判断</th></tr></thead><tbody>'
     J={x['code']:j['view'] for x,j,_ in l2_judged(L2,sw,F)}
     for x in L2['top']:out+=l2_row(x,J[x['code']])
-    out+=l2_row(ref,'参考样本：满足六项条件，未进首批（脉冲1次、往返2次，重复性不足）')
-    out+='</tbody></table></div><p class="note">排序：往返次数＋2×脉冲次数，从高到低；同分时位置更低者优先。这里列出前15名，另有'+str(fun[-1][1]-len(L2['top']))+'只同样满足条件。亏损公司需单独确认没有财务类退市风险。</p></details></section>'
+    out+=l2_row(ref,'参考样本：满足箱体条件与户数条件，但当前低于箱底（位置'+f(ref['pos'],'.2f')+'），重复性不足（脉冲1次、往返2次）')
+    out+='</tbody></table></div><p class="note">排序：往返次数＋2×脉冲次数，从高到低；同分时位置更低者优先。这里列出前15名，另有'+str(fun[-1][1]-len(L2['top']))+'只同样满足条件'+(('：'+E('、'.join(L2['rest']))) if L2.get('rest') else '')+'。'+(('因股东户数≥5万户被排除的'+str(len(L2['holders_out']))+'只：'+E('、'.join(L2['holders_out']))+'。') if L2.get('holders_out') else '')+'亏损公司需单独确认没有财务类退市风险。</p></details></section>'
     return out
 
 
@@ -353,7 +354,7 @@ def card_l2(x,j,F,ref=False):
     b=logic1_rules.box_levels(x);L=x['close']/(1+x['pos']*x['W']);H=L*(1+x['W'])
     fund='前三季营收 '+f(q.get('rev_m') and q['rev_m']/100,'.1f','亿')+' · 利润 '+(f(q['np_m']/100,'+.2f','亿') if q.get('np_m') is not None else '—')+' · PB '+f(pb,'.2f')+' · ROE '+f(q.get('roe'),'.1f','%')
     pos='箱体位置 '+f(x['pos'],'.2f')+'（0＝箱底，1＝箱顶）· 箱宽 '+f(x['W']*100,'.0f','%')
-    chip='股东户数 '+f(e.get('holdersChg'),'+.0f','%')+' · 融资20日 '+f(e.get('margin20'),'+.0f','%')+' · 6个月解禁 '+f(e.get('lift6m'),'.1f','%')
+    chip=(('股东'+format(x['holders']/1e4,'.1f')+'万户 ') if x.get('holders') else '股东户数 ')+f(e.get('holdersChg'),'+.0f','%')+' · 融资20日 '+f(e.get('margin20'),'+.0f','%')+' · 6个月解禁 '+f(e.get('lift6m'),'.1f','%')
     box='两年往返 '+str(x['swings'])+'次 · 脉冲 '+str(x['sp'])+'次 · 涨停 '+str(x['lu'])+'次'
     return SC.card('j-'+x['code'],x['name'],x['code']+' · '+x['ind']+(' · 参考样本' if ref else ''),j['view'],VCLS[j['view']],b,[('基本面',j['fund'],E(fund)),('位置',j['pos'],E(pos)),('筹码',j['chip'],E(chip)),('箱体',j['box'],E(box))],SC.bar(L,H,b['buy'],b['sell'],b['stop'],b['close'],'箱底','箱顶'),j['why'])
 
@@ -421,6 +422,7 @@ def build(ctx):
     if vp.exists():(site/'data/verify.json').write_text(vp.read_text(encoding='utf-8'),encoding='utf-8')
 
 CSS="""
+.l2-hr{background:#f6f8fa;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13.5px;line-height:1.8}.l2-hr p{margin:2px 0}
 .lens-ul{font-size:13px;line-height:1.75;padding-left:18px}
 .l2-groups{display:flex;flex-direction:column;gap:6px;margin:10px 0 12px}.l2-g{font-size:14px;line-height:1.8}.l2j-table{min-width:1250px}.l2-why{display:block;color:#52687b;font-size:12px;line-height:1.6;margin-top:4px;max-width:260px}.l2-ref{background:#fafbfc}.lp-view.bad,.ov-c.bad{background:#f1f1f1;color:#777}#l2-judge{margin:24px 0}
 #weekly{margin:20px 0;border:1px solid #d4dfeb;border-radius:10px;padding:14px 20px;background:#fff}.wk-alert{background:#fff4dc;border-radius:8px;padding:8px 12px;font-size:14px}.wk-table{min-width:520px}
