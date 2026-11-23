@@ -1,0 +1,54 @@
+{
+ "date": "2026-11-20",
+ "total": -2,
+ "scores": {
+  "ext": 0,
+  "glob": -1,
+  "econ": -2,
+  "pol": 0,
+  "liq": 1,
+  "val": 1,
+  "funds": -1
+ },
+ "nodes": {
+  "A": "down",
+  "B": "flat",
+  "C": "down",
+  "D": "up",
+  "E": "na",
+  "F": "up",
+  "G": "down",
+  "H": "price"
+ },
+ "conds": {
+  "score": false,
+  "margin5": true,
+  "us10": true,
+  "cn10": false,
+  "pe": false,
+  "pmi": true
+ },
+ "changes": [
+  {
+   "dir": "up",
+   "node": "D",
+   "text": "美国 10 年国债收益率 4.92%，较上一交易日 -12bp（11-20）"
+  },
+  {
+   "dir": "down",
+   "node": "G",
+   "text": "两融单日净偿还 419 亿元（11-20）"
+  },
+  {
+   "dir": "up",
+   "node": "F",
+   "text": "全 A 估值分位从 45% 变为 39%"
+  },
+  {
+   "dir": "alert",
+   "node": "",
+   "text": "关注条件触发：美国 10 年国债收益率一周内变化超过 ±20bp（-23bp，现在 4.92%）"
+  }
+ ],
+ "rules_version": "2026-11-10 v3（新增全球环境、实际利率、杠杆拥挤度、盈利分位）"
+}

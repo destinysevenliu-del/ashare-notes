@@ -47,8 +47,11 @@ def compute(root):
     out['ppi_base']={'oct2026_yoy':oct26,'apr2026_yoy':apr26,'mom_2025_may_oct':mom_2025,'level_oct26_vs_apr26_pct':round(100*(level-1),2),'apr2027_yoy_if_flat':round(100*(level-1),1),'avg_mom_needed_for_4_5pct':round(need,2)}
     hk=json.loads((root/'data/raw/hk/valuations.json').read_text())['indices']['hsi']
     v=hk['rows'][-1] if isinstance(hk,dict) and 'rows' in hk else hk[-1]
-    us=json.loads((root/'docs/data/market-verdict-evidence.json').read_text())['observations']['hk']
-    out['hk']={'date':v['date'],'pe':v['pe_ratio'],'dividend_yield':v['dividend_yield_pct'],'earnings_yield':round(100/v['pe_ratio'],2),'us10y':us['us10']['value'],'us10y_date':us['us10']['date'],'gap_vs_us10y':round(100/v['pe_ratio']-us['us10']['value'],2),'hibor_1m':round(us['hibor'],2)}
+    # 美国10年期取 data/raw/hk/context.json 最新值，1个月HIBOR取金管局日度数据最新值（不再读冻结的首页审计文件）
+    ctx=json.loads((root/'data/raw/hk/context.json').read_text())['series']['us10']['rows'][-1]
+    liq=[r for r in json.loads((root/'data/raw/hk/liquidity.json').read_text())['rows'] if isinstance(r.get('hibor_fixing_1m'),(int,float))][-1]
+    us={'us10':{'date':ctx['date'],'value':ctx['value']},'hibor':liq['hibor_fixing_1m'],'hibor_date':liq['end_of_date']}
+    out['hk']={'date':v['date'],'pe':v['pe_ratio'],'dividend_yield':v['dividend_yield_pct'],'earnings_yield':round(100/v['pe_ratio'],2),'us10y':us['us10']['value'],'us10y_date':us['us10']['date'],'gap_vs_us10y':round(100/v['pe_ratio']-us['us10']['value'],2),'hibor_1m':round(us['hibor'],2),'hibor_date':us['hibor_date']}
     for name in ['hsi','hstech']:
         r=json.loads((root/'data/raw/hk'/(name+'.json')).read_text())['rows']
         for a,b,key in [('2026-06-01','2026-07-15','june_low'),('2026-09-25','2026-11-11','oct_low')]:

@@ -2254,11 +2254,48 @@
         {
           "date": "2026-11-06",
           "value": 4.86
+        },
+        {
+          "date": "2026-11-09",
+          "value": 4.88
+        },
+        {
+          "date": "2026-11-10",
+          "value": 4.98
+        },
+        {
+          "date": "2026-11-12",
+          "value": 5.1
+        },
+        {
+          "date": "2026-11-13",
+          "value": 5.15
+        },
+        {
+          "date": "2026-11-16",
+          "value": 5.12
+        },
+        {
+          "date": "2026-11-17",
+          "value": 5.1
+        },
+        {
+          "date": "2026-11-18",
+          "value": 5.07
+        },
+        {
+          "date": "2026-11-19",
+          "value": 5.04
+        },
+        {
+          "date": "2026-11-20",
+          "value": 4.92
         }
       ],
       "source": "https://fred.stlouisfed.org/series/DGS10",
       "download_url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10&cosd=2025-10-06&coed=2026-11-10",
-      "observed_at": "2026-11-10T03:11:55.798442+00:00"
+      "observed_at": "2026-11-10T03:11:55.798442+00:00",
+      "supplement": "2026-11-09起的数值取自东方财富数据中心 RPTA_WEB_TREASURYYIELD 的美国10年期国债（EMG00001310），因本周无法访问FRED；2026-11-06两边同为4.86"
     },
     "usd_broad": {
       "name": "美联储广义美元指数",
