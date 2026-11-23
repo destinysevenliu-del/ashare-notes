@@ -353,7 +353,8 @@ def build(ctx):
     verdict_txt=('内地需求与成本变化使盈利分化，美债收益率回落提供折现率支持，但波动率与信用利差抬升。'
                  '科技权重股的收入增长尚需现金回报验证。资金层同时出现整体成交降温、盈富份额轻微净发行和代表股淡仓变化分化，'
                  '后续要看盈利、融资与价格是否相互印证。')
-    body=f'<div class="hero"><p class="date">结论复核 2026年11月13日 · 行情截至 {asof}</p><h1>港股总览</h1><p class="sum">港股是中国的分子、美国的分母、内地的水龙头；先看三者，再进入板块和公司。结论复核：2026-11-13；数据保留各自原日期。</p><p class="stamp">{stamp}</p></div>'
+    _rv=json.loads((root/'data/market_thesis.json').read_text())['macro_regime']['reviewed_at'];_ry,_rm,_rd=_rv.split('-')
+    body=f'<div class="hero"><p class="date">结论复核 {_ry}年{int(_rm)}月{int(_rd)}日 · 行情截至 {asof}</p><h1>港股总览</h1><p class="sum">港股是中国的分子、美国的分母、内地的水龙头；先看三者，再进入板块和公司。结论复核：{_rv}；数据保留各自原日期。</p><p class="stamp">{stamp}</p></div>'
     daily_notes = '<p class="stamp">日度资料留档复核截至 '+E(research.get('reviewed_at', ''))+'。月末估值、季度业绩和日行情按各自日期展示，定性判断随新证据复核。</p>'
     if warnings:daily_notes+='<div class="hk-notice">'+''.join('<p>'+E(w)+'</p>' for w in warnings)+'</div>'
     d1={k:change(rows,1) for k,rows in indices.items()}
