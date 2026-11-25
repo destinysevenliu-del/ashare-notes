@@ -367,6 +367,8 @@ def build(ctx):
         pts.append('<li>南向近 5 个港股交易日合计 '+f'{net5:+.2f} 亿港元'+(f'，20 日 {net20:+.2f} 亿港元。' if net20 is not None else '。')+'</li>')
     pts.append(f'<li>{E(snapshot_note)}</li>')
     pts.append('<li>定性判断来自研究资料，具体事实、相反证据与验证条件见 A–G / X 各节。</li>')
+    import newslog
+    body += newslog.home_card(root, '../')
     body += '<nav class="l1nav"><a href="#horizon">未来半年判断</a><a href="#tracking">跟踪与更新</a><a href="../framework.html">研究框架</a></nav>'
     body += '<details class="l1" id="horizon" open><summary><h2>未来半年判断</h2><span class="l1hint">结论 · 三件事 · 板块 · 证伪</span></summary>'+framework_review.render(ctx,'hk')+'</details>'
     body += '<details class="l1" id="tracking" open><summary><h2>跟踪与更新</h2><span class="l1hint">定期数据 · 排期事件 · 突发事件 · 改判规则</span></summary>'+overview_page.render_tracking(ctx,'hk')+'</details>'

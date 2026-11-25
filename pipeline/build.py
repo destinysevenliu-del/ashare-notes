@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.join(ROOT, "pipeline"))
 import analyze as A  # noqa: E402
 import market_layout
 import overview_page
+import newslog
 _RV = json.load(open(os.path.join(ROOT, "data", "market_thesis.json"), encoding="utf-8"))["macro_regime"]["reviewed_at"].split("-")
 
 RAW = os.path.join(ROOT, "data", "raw")
@@ -608,7 +609,7 @@ def page(title, active, body, prefix=""):
     if active == "gg":
         with open(os.path.join(ROOT, 'pipeline', 'stock_decisions.css'), encoding='utf-8') as style_file:
             page_css += style_file.read()
-    nav = [("index.html", "总览", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg"), ("framework.html", "框架", "fw")]
+    nav = [("index.html", "总览", "dp"), ("boards/index.html", "板块", "bk"), ("stocks/index.html", "个股", "gg"), ("news.html", "新闻", "nw"), ("framework.html", "框架", "fw")]
     links = ""
     for href, lab, key in nav:
         if not href:
@@ -656,6 +657,7 @@ def index():
 <div class="hero"><p class="date">结论复核 {_RV[0]}年{int(_RV[1])}月{int(_RV[2])}日 · 行情截至{cn_date(TODAY, True)}</p><h1>A股总览</h1>
 <p class="sum">先看分子（企业盈利）、分母（要求回报）与水龙头（资金与托底），再进入板块和公司。结论复核：{"-".join(_RV)}；数据保留各自原日期。</p><p class="stamp">{E(stamp)}</p></div>
 
+{newslog.home_card(ROOT)}
 <nav class="l1nav"><a href="#horizon">未来半年判断</a><a href="#tracking">跟踪与更新</a><a href="framework.html">研究框架</a></nav>
 
 <details class="l1" id="horizon" open><summary><h2>未来半年判断</h2><span class="l1hint">结论 · 三件事 · 板块 · 证伪</span></summary>
@@ -719,6 +721,7 @@ stockpick.build(globals())
 reportspage.build(globals())
 import sectorsel
 sectorsel.build(globals())
+newslog.build(globals())
 
 snap = {"date": TODAY, "total": R["total"], "scores": {r["key"]: r["score"] for r in R["score_rows"]},
         "nodes": {k: v["state"] for k, v in N.items()}, "conds": {c["id"]: c["hit"] for c in R["conds"]},

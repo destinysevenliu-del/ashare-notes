@@ -162,6 +162,6 @@ if __name__ == "__main__":
     for x in ch["items"]: print("变化：[%s] %s %s：%s → %s（现价 %s）" % (x["logic"], x["name"], x["code"], x["from"], x["to"], x["close"]))
     if "--no-build" not in ARGS:
         run("build.py")
-        for t in ("test_stock_pick.py", "test_chain.py", "test_weekly.py", "test_sector_selection.py", "test_macro_regime.py", "test_hk.py"):
+        for t in ("test_stock_pick.py", "test_chain.py", "test_weekly.py", "test_sector_selection.py", "test_macro_regime.py", "test_hk.py", "test_newslog.py"):
             print(t, run(t))
     print("完成。发布：python3 -I pipeline/publish_api.py <根目录> \"每周价格更新 %s\"" % asof)
