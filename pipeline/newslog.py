@@ -96,7 +96,7 @@ def thresholds(root, start, end):
             last = wk[-1][2]
             gap = (last/line-1)*100 if unit == 'pct' else (last-line)*100
             if not hit and abs(gap) <= (2 if unit == 'pct' else 10):
-                near.append({'date': wk[-1][1], 'name': name, 'line': line, 'close': last, 'gap': round(gap, 1),
+                near.append({'date': wk[-1][1], 'name': name, 'line': line, 'close': last, 'gap': round(gap, 1), 'past': (side == 'lo' and last < line) or (side == 'hi' and last > line),
                              'unit': '%' if unit == 'pct' else '个基点', 'label': lab})
     return crossed, near
 
@@ -162,8 +162,12 @@ def week_html(w):
         out += ('<div class="nw-alert"><b>读数越过阈值：</b>' + md(c['date']) + E(c['name']) + '收盘' + format(c['close'], ',') +
                 '，越过' + format(c['line'], ',') + '（' + E(c['label'] or '') + '）。' + E(act) + '</div>')
     for n in w['near']:
-        out += ('<div class="nw-near"><b>接近阈值：</b>' + md(n['date']) + E(n['name']) + '收于' + format(n['close'], ',') + '，距' +
-                format(n['line'], ',') + '（' + E(n['label'] or '') + '）' + ('%+.1f' % n['gap']) + n['unit'] + '。</div>')
+        if n['past']:
+            out += ('<div class="nw-near"><b>仍在阈值另一侧：</b>' + md(n['date']) + E(n['name']) + '收于' + format(n['close'], ',') + '，仍在' +
+                    format(n['line'], ',') + '另一侧（' + E(n['label'] or '') + '，已触发并执行；恢复条件见大盘页）。</div>')
+        else:
+            out += ('<div class="nw-near"><b>接近阈值：</b>' + md(n['date']) + E(n['name']) + '收于' + format(n['close'], ',') + '，距' +
+                    format(n['line'], ',') + '（' + E(n['label'] or '') + '）' + ('%+.1f' % n['gap']) + n['unit'] + '。</div>')
     out += ('<div class="tbl-wrap"><table class="nw-tbl"><thead><tr><th>日期</th><th>新闻与归类理由</th><th>归到</th><th>对应读数</th>'
             '<th>来源</th><th>当日反应</th><th>分级</th></tr></thead><tbody>')
     order = {'B': 0, '待数据': 1, 'C': 2}
@@ -190,11 +194,11 @@ def home_card(root, prefix=''):
         return ''
     w = weeks[-1]; nb = sum(1 for x in w['items'] if x['grade'] == 'B')
     out = ('<style>' + CSS + '</style><div class="nw-home"><p><b>本周新闻归类（' + E(w['start'][5:]) + '至' + E(w['end'][5:]) + '）：</b>' +
-           str(len(w['items'])) + '条新闻，' + str(nb) + '条进入跟踪，其余不改变判断。')
+           str(len(w['items'])) + '条新闻，' + str(nb) + '条进入跟踪，' + str(sum(1 for x in w['items'] if x['grade'] == '待数据')) + '条待数据，其余不改变判断。')
     for c in w['crossed']:
         out += '读数越过阈值：' + E(c['name']) + '收盘' + format(c['close'], ',') + '（' + E(c['label'] or '') + '）。'
     for n in w['near']:
-        out += '接近阈值：' + E(n['name']) + '距' + format(n['line'], ',') + ('%+.1f' % n['gap']) + n['unit'] + '。'
+        out += (E(n['name']) + '仍在' + format(n['line'], ',') + '另一侧（已触发）。') if n['past'] else ('接近阈值：' + E(n['name']) + '距' + format(n['line'], ',') + ('%+.1f' % n['gap']) + n['unit'] + '。')
     return out + '<a href="' + prefix + 'news.html">看归类与理由</a></p></div>'
 
 

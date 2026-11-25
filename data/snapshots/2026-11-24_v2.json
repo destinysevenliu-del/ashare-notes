@@ -1,0 +1,33 @@
+{
+ "date": "2026-11-24",
+ "total": -2,
+ "scores": {
+  "ext": 0,
+  "glob": -1,
+  "econ": -2,
+  "pol": 0,
+  "liq": 1,
+  "val": 1,
+  "funds": -1
+ },
+ "nodes": {
+  "A": "down",
+  "B": "flat",
+  "C": "down",
+  "D": "up",
+  "E": "na",
+  "F": "up",
+  "G": "down",
+  "H": "price"
+ },
+ "conds": {
+  "score": false,
+  "margin5": true,
+  "us10": false,
+  "cn10": false,
+  "pe": false,
+  "pmi": true
+ },
+ "changes": [],
+ "rules_version": "2026-11-10 v3（新增全球环境、实际利率、杠杆拥挤度、盈利分位）"
+}

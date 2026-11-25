@@ -76,8 +76,8 @@
     },
     {
      "date": "2026-11-20",
-     "title": "据媒体报道，网易、快手三季度业绩不及市场预期；恒生科技连续第八日下跌",
-     "why": "对应港股互联网的分子（盈利修订）；该板块本来就在“等开关”。",
+     "title": "网易、快手三季度业绩低于一致预期：网易营收278.5亿元（预期303.5亿元），快手收入315.92亿元、同比降11.1%（预期329亿元）",
+     "why": "对应港股互联网的分子（盈利修订）；该板块本来就在“等开关”，这次是盈利路径继续向下的证据。两家均于11月19日公布，港股反应日为11月20日。",
      "part": "分子",
      "links": [
       "hk-internet"
@@ -85,16 +85,16 @@
      "links_label": [
       "港股互联网"
      ],
-     "source_name": "Lapaas Voice 报道",
-     "url": "https://lapaasvoice.com/hong-kong-stocks-fall-20-from-2026-high-as-ai-selloff-spreads-across-asia",
-     "source_level": "未核实",
+     "source_name": "公司业绩（英为财情、21财经转述，含一致预期）",
+     "url": "https://cn.investing.com/news/transcripts/article-93CH-3677040",
+     "source_level": "公司公告",
      "path_change": false,
      "react": {
       "ind": "hstech",
       "date": "2026-11-20"
      },
      "direction": "不利",
-     "path_note": "业绩本身已由公司公告，但“不及预期”是媒体口径，尚未核对一致预期；核实后可把来源改为公司公告重新分级（当日恒生科技反应约为日常波动的2.2倍）"
+     "path_note": "11月23日核实：业绩数字来自公司公告，一致预期来自媒体转述；快手当日收跌11.37%"
     },
     {
      "date": "2026-11-20",
@@ -186,6 +186,105 @@
       "date": "2026-11-23"
      },
      "direction": "有利"
+    }
+   ]
+  },
+  {
+   "start": "2026-11-23",
+   "end": "2026-11-29",
+   "summary": "本周进行中（数据截至11月24日收盘）。周一中证全指盘中跌到4,667、跌破4,700后收回到4,813，同日股票ETF净流入近200亿元；两融新规的市场反应已可计算。美国把阿里巴巴新加坡子公司列入实体清单，恒指仍在22,500下方；商务部暂停对美两用物项出口管制中的一项条款，是中美之间的缓和信号。",
+   "items": [
+    {
+     "date": "2026-11-23",
+     "title": "中证全指盘中跌至4,667、跌破4,700后收回4,813；当日股票ETF净流入近200亿元",
+     "why": "直接对应命题P4（托底有效，大盘不破位）与4,700风控线。风控线以收盘计，盘中跌破不触发。",
+     "part": "水龙头",
+     "links": [
+      "a_idx_all",
+      "P4"
+     ],
+     "links_label": [
+      "中证全指",
+      "P4"
+     ],
+     "source_name": "中国证券报（新浪转述）",
+     "url": "https://finance.sina.com.cn/stock/y/2026-11-25/doc-inizwwnp9678500.shtml",
+     "source_level": "权威媒体",
+     "path_change": false,
+     "path_note": "托底在4,700附近再次出现，与原判断一致，不是新路径",
+     "react": {
+      "ind": "idx_all",
+      "date": "2026-11-23"
+     },
+     "direction": "有利"
+    },
+    {
+     "date": "2026-11-24",
+     "title": "美国商务部将阿里巴巴新加坡子公司Apex等7家与Megaspeed相关的实体列入实体清单（11月23日生效）；阿里表示不认可并将诉诸法律",
+     "why": "涉及芯片获取与中美科技限制，对应港股互联网（阿里为恒指与恒生科技权重股）与命题P8。",
+     "part": "分子",
+     "links": [
+      "hk-internet",
+      "P8"
+     ],
+     "links_label": [
+      "港股互联网",
+      "P8"
+     ],
+     "source_name": "The Next Web（引彭博与联邦公报）",
+     "url": "https://thenextweb.com/news/alibaba-apex-us-entity-list-megaspeed",
+     "source_level": "官方",
+     "path_change": false,
+     "path_note": "针对单一子公司的出口管制，不涉及1月10日到期的关税安排；阿里云业务主体不在名单内",
+     "react": {
+      "ind": "hstech",
+      "date": "2026-11-24"
+     },
+     "direction": "不利"
+    },
+    {
+     "date": "2026-11-24",
+     "title": "商务部：自11月28日至2027年1月27日，暂停实施2024年第46号公告第二款（镓、锗、锑、超硬材料对美出口原则上不予许可）",
+     "why": "中方出口管制是对美谈判筹码，这次是暂停而非取消；对应命题P8（1月10日关税暂停到期前是否缓和）。",
+     "part": "分子",
+     "links": [
+      "P8"
+     ],
+     "links_label": [
+      "P8"
+     ],
+     "source_name": "商务部公告（新浪操盘必读汇总）",
+     "url": "https://finance.sina.com.cn/stock/cpbd/2026-11-25/doc-inizwwnv4464178.shtml",
+     "source_level": "官方",
+     "path_change": true,
+     "path_note": "官方决定，暂停期正好覆盖1月10日关税到期日，P8的缓和方向得到一条官方证据；同一类管制工具也是稀土逻辑的核心，暂停说明它正在被用作谈判筹码",
+     "react": {
+      "ind": "idx_all",
+      "date": "2026-11-25"
+     },
+     "direction": "有利"
+    },
+    {
+     "date": "2026-11-24",
+     "title": "央行公告：11月25日开展8,000亿元1年期MLF（当日到期1万亿元，净回笼约2,000亿元）和5,000亿元7天期逆回购",
+     "why": "对应国内利率（分母）；用中国10年国债看反应。",
+     "part": "分母",
+     "links": [
+      "cn10y"
+     ],
+     "links_label": [
+      "中国10年国债"
+     ],
+     "source_name": "央行公告（证券之星汇总）",
+     "url": "https://fx168news.com/article/1119136",
+     "source_level": "官方",
+     "path_change": false,
+     "path_note": "例行的跨月流动性操作，利率未见调整",
+     "react": {
+      "ind": "cn10y",
+      "date": "2026-11-25"
+     },
+     "direction": "中性"
     }
    ]
   }
