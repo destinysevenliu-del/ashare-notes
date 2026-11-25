@@ -140,7 +140,7 @@ CSS = """
 .nw-week h3{margin:0 0 6px}.nw-sum{font-size:15px;line-height:1.9}
 .nw-alert{border-left:4px solid #C8312B;background:#fbecea;padding:10px 14px;margin:10px 0;font-size:14.5px;line-height:1.85}
 .nw-near{border-left:4px solid #D88B1F;background:#fdf4e7;padding:10px 14px;margin:10px 0;font-size:14.5px;line-height:1.85}
-.nw-tbl td,.nw-tbl th{vertical-align:top;font-size:13.5px;line-height:1.75}
+.nw-tbl td,.nw-tbl th{vertical-align:top;font-size:13.5px;line-height:1.75}.nw-tbl td:nth-child(1),.nw-tbl th:nth-child(1),.nw-tbl td:nth-child(3),.nw-tbl th:nth-child(3){white-space:nowrap}.nw-tbl td:nth-child(2){min-width:240px}
 .nw-g{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12.5px;font-weight:600;white-space:nowrap}
 .nw-B{background:#fde6d8;color:#9a3d12}.nw-C{background:#eef1f4;color:#55687a}.nw-待数据{background:#fff4d6;color:#7a5a00}
 .nw-home{border:1px solid #d4dfeb;border-left:4px solid #3d6b8f;border-radius:8px;padding:12px 16px;margin:16px 0;background:#fff}.nw-home p{margin:4px 0;font-size:14.5px;line-height:1.85}
