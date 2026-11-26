@@ -22,12 +22,12 @@ ORDER = [('可执行', 'ab-buy', '板块、核验、估值都通过，价格在�
          ('等回落', 'ab-high', '高于买入区上沿，等回到区间'),
          ('观察', 'ab-low', '行业在反转、利润还在谷底，股价没站上26周均线'),
          ('不买', 'ab-sell', '空头在增加，或已跌破止损')]
-SHORT_TXT = {'low': ('中', '空头占比低于3%，8周内没有上升'), 'fall': ('好', '空头8周内下降≥0.5个百分点（回补）'),
+SHORT_TXT = {'na': ('中', 'A股没有可报告淡仓数据；融资余额变化待接入'), 'low': ('中', '空头占比低于3%，8周内没有上升'), 'fall': ('好', '空头8周内下降≥0.5个百分点（回补）'),
              'rise': ('差', '空头8周内上升≥0.5个百分点'), 'high': ('差', '空头≥3%且没有下降')}
 
 
-def load(root):
-    p = Path(root)/'data/raw/stock_pick/hk_logic2.json'
+def load(root, fname='hk_logic2.json'):
+    p = Path(root)/'data/raw/stock_pick'/fname
     return json.loads(p.read_text()) if p.exists() else None
 
 
@@ -110,27 +110,31 @@ def breadth_table(L):
 
 
 def page2(root):
-    L = load(root)
+    return render(load(root), 4, '港股', '港股大盘目前为下调状态，按总览页的港股仓位上限执行。', '行业为东方财富港股行业，样本为港股通可买的股票。')
+
+
+def render(L, hid, mkt, market_note, uni_note):
+    """A股、港股共用：大盘 → 板块 → 个股的业绩反转页。"""
     if not L or L.get('version') != 'predict':
-        return SP.head(4) + '<div class="hero"><h1>港股 · 逻辑二 · 业绩反转</h1><p>数据尚未取得。</p></div>'
+        return SP.head(hid) + '<div class="hero"><h1>' + mkt + ' · 分子 · 业绩反转</h1><p>数据尚未取得。</p></div>'
     R = L['rules']; B = L['backtest']
-    out = '<style>' + SP.CSS + SC.CSS + CSS + '</style>' + SP.head(4)
-    out += ('<div class="hero"><h1>港股 · 逻辑二 · 业绩反转</h1><p class="sum">从大盘到板块到个股，预测哪些公司可能业绩反转：盈利周期正在反转的行业里，利润还在下降、反转尚未体现在财报里的公司；股价站上26周均线再买。</p><p class="hero-meta">价格截至' + E(L['asof']) + '，机构预测截至' + E(L['fc_asof']) + '，空头数据截至' + E(L['short_asof']) + '</p></div>')
+    out = '<style>' + SP.CSS + SC.CSS + CSS + '</style>' + SP.head(hid)
+    out += ('<div class="hero"><h1>' + mkt + ' · 分子 · 业绩反转</h1><p class="sum">从大盘到板块到个股，预测哪些公司可能业绩反转：盈利周期正在反转的行业里，利润还在下降、反转尚未体现在财报里的公司；股价站上26周均线再买。</p><p class="hero-meta">价格截至' + E(L['asof']) + '，机构预测截至' + E(L['fc_asof']) + '，空头数据截至' + E(L['short_asof']) + '</p></div>')
     out += '<nav class="lp-jump"><a href="#overview">行动看板</a><a href="#sectors">板块：哪些行业在反转</a><a href="#logic2">按板块展开</a><a href="#l2t-rules">规则</a><a href="#l2t-bt">回测</a></nav>'
     cands = [x for x in L['cand'] if x[MC] >= MC_MIN]
     Bk = {}
     for x in cands:
         pl = levels(L, x); v = view(x, pl)
         Bk.setdefault(bucket(v), []).append(('s-' + x[C], x[N], x[IND] + ' · ' + v.split('：')[-1]))
-    out += ('<section id="overview"><h2>行动看板</h2><p class="note">' + E(R['status']) + '港股大盘目前为下调状态，按总览页的港股仓位上限执行。</p>' +
+    out += ('<section id="overview"><h2>行动看板</h2><p class="note">' + E(R['status']) + market_note + '</p>' +
             SC.board(Bk, ORDER, '价格截至' + L['asof'] + '；规则见本页“规则”。') + '</section>')
-    out += ('<section id="sectors"><h2>板块：哪些行业的盈利在反转</h2><p class="note">' + E(R['sector']) + '行业为东方财富港股行业，样本为港股通可买的股票。</p>' + breadth_table(L) + '</section>')
+    out += ('<section id="sectors"><h2>板块：哪些行业的盈利在反转</h2><p class="note">' + E(R['sector']) + uni_note + '</p>' + breadth_table(L) + '</section>')
     out += '<section id="logic2"><h2>按板块展开</h2><p class="note">' + E(R['stock']) + '</p>'
     for b in turning(L):
         xs = [x for x in cands if x[IND] == b[0]]
         out += ('<details class="lp-sec" open><summary><span class="sec-h"><h3>' + E(b[0]) + '</h3><span class="lp-badge lp-' + SP.BADGE['顺风'] + '">反转中</span><span class="sec-meta">上调广度' +
                 format(b[4], '+.2f') + ' · 候选' + str(len(xs)) + '只</span></span></summary><p class="sec-rule"><b>反转动力：</b>' + E(L['drivers'].get(b[0], '—')) + '<br><b>价格规则：</b>' + E(R['price']) + '</p>')
-        out += ('<div class="sc-grid">' + ''.join(card(L, x) for x in xs) + '</div>') if xs else '<p class="note">本行业没有利润仍在下降、港股市值≥100亿港元的公司：反转已经体现在财报里，不属于“预测反转”。</p>'
+        out += ('<div class="sc-grid">' + ''.join(card(L, x) for x in xs) + '</div>') if xs else '<p class="note">本行业没有利润仍在下降的大市值公司：反转已经体现在财报里，不属于“预测反转”。</p>'
         out += '</details>'
     out += ('<article class="lp-sec"><h3>观察</h3>' + ''.join('<p><b>' + E(w['name']) + '（' + w['code'] + '）</b>：' + E(w['note']) + '</p>' for w in L.get('watch', [])) + '</article></section>')
     out += ('<section id="l2t-rules"><h2>规则</h2><dl class="pr-dl">' + ''.join('<dt>' + k + '</dt><dd>' + E(R[key]) + '</dd>' for k, key in
@@ -147,11 +151,10 @@ def bt_table(cols, rows):
 
 
 def page3(root):
-    L = load(root) or {}
-    g = L.get('logic3', {})
-    out = '<style>' + SP.CSS + SC.CSS + CSS + '</style>' + SP.head(5)
-    out += ('<div class="hero"><h1>港股 · 逻辑三 · ' + E(g.get('name', 'A股与H股比价')) + '</h1><p class="sum">' + E(g.get('status', '')) + '</p></div>'
-            '<section><h2>规则</h2><div class="l2t-box"><p>' + E(g.get('rule', '')) + '</p></div><p class="note">高息资产（中资银行、电信）的板块判断仍在<a href="../boards/hk-telecom.html">港股板块页</a>。</p></section>')
+    """旧链接：两地比价已并入港股红利高股息页。"""
+    out = SP.head(8)
+    out += ('<div class="hero"><h1>两地比价已并入“港股 · 分母 · 红利高股息”</h1><p class="sum">研究显示AH价差不会自动收敛，所以不单独作为选股逻辑，只用来比较同一家公司买A股还是H股股息更高。</p>'
+            '<p><a href="hk-dividend.html#ah">去比较工具 →</a></p></div>')
     return out
 
 

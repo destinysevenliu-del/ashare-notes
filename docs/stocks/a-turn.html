@@ -1,0 +1,515 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>A股 · 业绩反转 | A 股框架笔记</title><style>:root{color-scheme:light;
+--paper:#F4F5F7;--surface:#FFFFFF;--ink:#18202B;--ink2:#4B5565;--ink3:#7C8696;--line:#DCE0E6;--line2:#EEF0F3;
+--up:#C8312B;--up-bg:#FBE8E6;--down:#15804E;--down-bg:#E2F2E9;--flat-bg:#ECEEF2;--link:#27408B;--link-bg:#E8ECF7;
+--warn:#8A6D12;--warn-bg:#FFF3C4;
+--serif:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong",serif;
+--sans:-apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.7 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--link);text-decoration:none}
+a:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px}
+.brand{font:600 18px/1 var(--serif);color:var(--ink)}
+header nav{display:flex;gap:2px;font-size:14px;align-items:center}
+header nav a,header nav .soon{padding:5px 10px;border-radius:6px;color:var(--ink2)}
+header nav a[aria-current]{background:var(--link-bg);color:var(--link);font-weight:600}
+header nav .soon{color:#B0B6C0}
+header nav .soon small{font-size:11px;margin-left:3px}
+
+.hero{padding:34px 0 6px}
+.hero .date{margin:0;color:var(--ink3);font-size:14px}
+.hero h1{font:600 34px/1.3 var(--serif);margin:2px 0 10px}
+.hero .sum{font:500 19px/1.6 var(--serif);margin:0;max-width:36em}
+.hero .stamp{font-size:13px;color:var(--ink3);margin:8px 0 0}
+
+.block{padding:34px 0 4px}
+h2{font:600 23px/1.3 var(--serif);margin:0 0 4px}
+.sub{color:var(--ink2);margin:0 0 16px;max-width:44em;font-size:14px}
+.note{color:var(--ink2);font-size:14px;max-width:46em}
+
+.tag{display:inline-block;font-size:12px;line-height:20px;padding:0 8px;border-radius:4px;margin-right:8px;white-space:nowrap;font-weight:600}
+.tag.up{background:var(--up-bg);color:var(--up)}
+.tag.down{background:var(--down-bg);color:var(--down)}
+.tag.flat,.tag.na{background:var(--flat-bg);color:var(--ink2)}
+.tag.alert{background:var(--warn-bg);color:var(--warn)}
+
+.chg-list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.chg-list li{padding:11px 16px;border-top:1px solid var(--line2);font-size:15px}
+.chg-list li:first-child{border-top:0}
+.chg-list li a{font-size:13px;margin-left:6px;white-space:nowrap}
+
+/* 框架图 */
+.fwbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 10px 6px;overflow-x:auto}
+svg.fw{display:block;width:100%;min-width:760px;height:auto}
+.fw .edge{fill:none;stroke:#9AA2AF;stroke-width:1.4}
+.fw .edge.fb{stroke:#D88B1F;stroke-dasharray:5 4}
+.fw .node rect{stroke-width:1.5}
+.fw .node .n{font:600 15px var(--sans);fill:var(--ink)}
+.fw .node .s{font:13px var(--sans);fill:var(--ink2)}
+.fw .node .lc{fill:var(--ink)} .fw .node .lt{font:700 13px var(--sans);fill:#fff}
+.fw .node.up rect{fill:var(--up-bg);stroke:var(--up)} .fw .node.up .s{fill:var(--up)} .fw .node.up .lc{fill:var(--up)}
+.fw .node.down rect{fill:var(--down-bg);stroke:var(--down)} .fw .node.down .s{fill:var(--down)} .fw .node.down .lc{fill:var(--down)}
+.fw .node.flat rect{fill:var(--flat-bg);stroke:#AEB5C1} .fw .node.flat .lc{fill:#7C8696}
+.fw .node.na rect{fill:#fff;stroke:#C3C8D0;stroke-dasharray:4 3} .fw .node.na .lc{fill:#B0B6C0} .fw .node.na .n{fill:var(--ink3)}
+.fw .node.price rect{fill:var(--ink);stroke:var(--ink)} .fw .node.price .n{fill:#fff} .fw .node.price .s{fill:#C9CFD8} .fw .node.price .lc{fill:#fff} .fw .node.price .lt{fill:var(--ink)}
+.fw .node:hover rect{stroke-width:3}
+.chips{display:none}
+
+/* 打分卡 */
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sc{background:var(--surface);padding:13px 16px;color:var(--ink);display:block}
+a.sc:hover{background:#FAFBFC}
+.sc .lbl{display:flex;align-items:baseline;gap:6px;font-weight:600}
+.sc .lbl .v{margin-left:auto;font:700 19px var(--sans)}
+.sc .man{font-size:11px;font-weight:600;color:var(--warn);background:var(--warn-bg);padding:0 5px;border-radius:3px}
+.v.up{color:var(--up)} .v.down{color:var(--down)} .v.flat{color:var(--ink3)}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin:7px 0 6px}
+.scale span{height:7px;border-radius:2px;background:var(--flat-bg)}
+.scale span.mid{background:#C9CED6} .scale span.u{background:var(--up)} .scale span.d{background:var(--down)}
+.sc p{margin:0;font-size:13px;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sc.total{grid-column:1/-1;background:var(--ink);color:#fff}
+.sc.total .v{color:#fff;font-size:26px}
+.sc.total p{color:#C9CFD8;-webkit-line-clamp:unset;margin-top:4px}
+.trend{display:block;width:100%;max-width:480px;height:auto;margin-top:8px}
+.trend .u{fill:#FF8A80} .trend .d{fill:#5BC28A} .trend .z{fill:#7C8696}
+
+/* 节点展开 */
+.nd{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px 16px;margin-bottom:16px;scroll-margin-top:72px}
+.nd:target{box-shadow:0 0 0 3px var(--link-bg);border-color:var(--link)}
+.ndh{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
+.ndh h3{margin:0;font:600 19px/1.35 var(--serif)}
+.ndh .q{margin:2px 0 0;color:var(--ink2);font-size:14px}
+.lc2{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;background:#7C8696}
+.lc2.up{background:var(--up)} .lc2.down{background:var(--down)} .lc2.price{background:var(--ink)} .lc2.na{background:#B0B6C0}
+h4{font-size:14px;margin:18px 0 8px;color:var(--ink2)}
+
+.verdict{border-left:4px solid #AEB5C1;background:#F8F9FB;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px}
+.verdict.up{border-color:var(--up);background:#FDF5F4} .verdict.down{border-color:var(--down);background:#F3FAF6}
+.verdict .vh{display:flex;align-items:center;gap:4px}
+.verdict .vh b{font-size:18px}
+.verdict.up .vh b{color:var(--up)} .verdict.down .vh b{color:var(--down)}
+.verdict .vwhy{margin-left:auto;font-size:12px;color:var(--ink3)}
+.verdict ul{list-style:none;margin:6px 0 0;padding:0}
+.verdict li{display:flex;gap:10px;font-size:14px;padding:3px 0;color:var(--ink)}
+.pt{flex:0 0 40px;text-align:right;font-weight:700;font-size:13px}
+.pt.up{color:var(--up)} .pt.down{color:var(--down)} .pt.flat{color:var(--ink3)}
+.mnote{font-size:13px;color:var(--warn);margin:6px 0 0}
+.verdict.na .mnote{color:var(--ink2)}
+
+.tblwrap{overflow-x:auto}
+table.mt{width:100%;border-collapse:collapse;font-size:14px}
+.mt th,.mt td{padding:9px 10px;border-top:1px solid var(--line2);text-align:left;vertical-align:middle}
+.mt thead th{border-top:0;font-size:12px;color:var(--ink3);font-weight:600;white-space:nowrap}
+.mt tbody th{font-weight:600;min-width:150px}
+.mt .hint{display:block;font-weight:400;font-size:12px;color:var(--ink3);line-height:1.45}
+.mt .v{font-weight:700;white-space:nowrap}
+.mt .chg{white-space:nowrap;font-size:13px}
+.mt .up,.chg.up{color:var(--up)} .mt .down,.chg.down{color:var(--down)} .chg.flat{color:var(--ink3)}
+.mt .dt{font-size:13px;color:var(--ink2);white-space:nowrap}
+.mt .freq{display:block;font-size:11px;color:var(--ink3)}
+.mt .sp{width:130px}
+.spark{display:block}
+.it td,.it th{white-space:nowrap}
+
+.chartbox{margin:14px 0 4px}
+svg.chart{display:block;width:100%;height:auto}
+.chart .grid{stroke:#EEF0F3} .chart .ax{font:11px var(--sans);fill:var(--ink3)}
+.chart .band{stroke:#D88B1F;stroke-dasharray:4 4} .chart .bandlab{font:11px var(--sans);fill:#B07015}
+.cleg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);padding-left:48px}
+.cleg i{display:inline-block;width:14px;height:3px;margin-right:6px;vertical-align:3px;border-radius:2px}
+
+.ev{list-style:none;margin:0;padding:0}
+.ev li{padding:8px 0;border-top:1px solid var(--line2);font-size:14px}
+.ev li:first-child{border-top:0}
+.ev .evd{color:var(--ink3);font-size:12px;margin-left:8px}
+.ev p{margin:2px 0 0;color:var(--ink2)}
+.ev .src{display:block;font-size:12px;color:var(--ink3)}
+
+details.rules{margin-top:12px;font-size:13px;color:var(--ink2);background:#F8F9FB;border-radius:8px;padding:8px 12px}
+details.rules summary{cursor:pointer;color:var(--link);font-weight:600}
+details.rules[open] summary{margin-bottom:6px}
+
+.conds{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.conds li{display:grid;grid-template-columns:96px 1fr;gap:2px 12px;padding:11px 16px;border-top:1px solid var(--line2);font-size:14px}
+.conds li:first-child{border-top:0}
+.conds .cs{grid-row:span 2;font-size:12px;font-weight:600;align-self:start;margin-top:2px;padding:1px 8px;border-radius:4px;text-align:center;background:var(--flat-bg);color:var(--ink3)}
+.conds li.hit .cs{background:var(--warn-bg);color:var(--warn)}
+.conds .cn{color:var(--ink2);font-size:13px}
+
+.empty{background:var(--surface);border:1px dashed #C3C8D0;border-radius:12px;padding:20px 24px}
+.empty h3{margin:0 0 6px;font:600 18px var(--serif)}
+.empty blockquote{margin:10px 0;padding:10px 14px;background:#F8F9FB;border-left:3px solid var(--link);color:var(--ink);border-radius:0 6px 6px 0}
+
+footer{margin-top:44px;padding:20px 0 40px;border-top:1px solid var(--line);font-size:13px;color:var(--ink3)}
+footer p{margin:4px 0}
+
+@media (max-width:760px){
+ .wrap{padding:0 16px}
+ .brand{font-size:16px}
+ header nav .soon{display:none}
+ .hero h1{font-size:26px} .hero .sum{font-size:17px}
+ .fwbox{display:none}
+ .chips{display:grid;gap:8px}
+ .chip{display:grid;grid-template-columns:28px 1fr;gap:0 10px;background:var(--surface);border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:9px 12px;color:var(--ink);font-size:14px;font-weight:600}
+ .chip b{grid-row:span 2;width:26px;height:26px;border-radius:50%;background:#7C8696;color:#fff;display:grid;place-items:center;font-size:13px}
+ .chip span{font-weight:400;font-size:13px;color:var(--ink2)}
+ .chip.up{border-left-color:var(--up)} .chip.up b{background:var(--up)} .chip.up span{color:var(--up)}
+ .chip.down{border-left-color:var(--down)} .chip.down b{background:var(--down)} .chip.down span{color:var(--down)}
+ .chip.price b{background:var(--ink)} .chip.na{border-style:dashed} .chip.na b{background:#B0B6C0}
+ .score{grid-template-columns:1fr 1fr}
+ .nd{padding:16px 14px 12px}
+ .mt .sp{display:none}
+ .mt tbody th{min-width:118px}
+ .conds li{grid-template-columns:1fr}
+ .conds .cs{grid-row:auto;justify-self:start}
+}
+
+/* 个股页 */
+.crumb{font-size:13px;color:var(--ink3);padding-top:22px}
+.crumb a{color:var(--ink2)}
+.shero{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-top:6px}
+.shero h1{margin:0}
+.shero h1 small{font:400 16px var(--sans);color:var(--ink3);margin-left:12px}
+.tags2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tags2 span{font-size:12px;padding:1px 10px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--ink2)}
+.tags2 .drv{background:var(--ink);border-color:var(--ink);color:#fff}
+.tags2 .cand{background:var(--warn-bg);border-color:var(--warn-bg);color:var(--warn)}
+.px{text-align:right}
+.px b{font:700 34px/1 var(--sans);display:block}
+.px span{font-weight:700;margin-right:8px}
+.px small{color:var(--ink3);font-size:12px}
+.up{color:var(--up)} .down{color:var(--down)}
+.tag.up,.tag.down{color:inherit}
+.tag.up{color:var(--up)} .tag.down{color:var(--down)}
+.lay th{width:72px;font-size:15px}
+.lay td:nth-child(2){width:96px}
+.soon2{font-size:12px;color:var(--ink3);margin-left:6px}
+.prior{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--link);border-radius:0 10px 10px 0;padding:12px 16px;margin:0;max-width:52em;font:500 16px/1.7 var(--serif)}
+.prior .src{display:block;font:12px var(--sans);color:var(--ink3);margin-top:4px}
+.fm .why{color:var(--ink2);font-size:13px;min-width:180px}
+.fm .now{font-size:13px;min-width:200px}
+.fm .now.na{color:var(--ink3)} .fm .now.flat{color:var(--ink2)}
+.lv{display:inline-block;font-size:12px;font-weight:700;padding:0 8px;border-radius:4px}
+.lv.hi{background:var(--ink);color:#fff} .lv.mid{background:#C9CED6;color:var(--ink)} .lv.lo{background:var(--flat-bg);color:var(--ink3)}
+.ndlist{margin-top:16px}
+.h3s{margin:0 0 6px;font:600 18px var(--serif)}
+.ann{list-style:none;margin:0;padding:0;font-size:14px}
+.ann li{padding:5px 0;border-top:1px solid var(--line2)}
+.ann li:first-child{border-top:0}
+.ann .evd{display:inline-block;width:92px;color:var(--ink3);font-size:12px}
+/* 个股列表 */
+.slist{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.srow{display:grid;grid-template-columns:1.4fr 1fr .8fr .9fr .9fr 1.6fr;gap:12px;align-items:center;padding:14px 18px;border-top:1px solid var(--line2);color:var(--ink)}
+.srow:first-child{border-top:0}
+.srow:hover{background:#FAFBFC}
+.srow .nm{font-weight:700;font-size:16px}
+.srow .nm small{display:block;font-weight:400;font-size:12px;color:var(--ink3)}
+.srow .px2 b{display:block;font-size:16px}
+.srow .px2 span{font-size:13px;font-weight:600}
+.srow .kv{font-size:12px;color:var(--ink3)} .srow .kv b{display:block;font-size:15px;color:var(--ink)}
+.srow .kv b.up{color:var(--up)} .srow .kv b.down{color:var(--down)}
+.lys{display:flex;gap:4px;flex-wrap:wrap}
+.lys .tag{margin:0}
+/* 报告 */
+.rplist{display:grid;gap:10px}
+.rp{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;color:var(--ink)}
+.rp:hover{border-color:var(--link)}
+.rp b{font:600 17px var(--serif);display:block}
+.rp .rh{display:block;color:var(--ink);font-size:14px;margin-top:2px}
+.rp .rd{display:block;color:var(--ink3);font-size:13px}
+@media (max-width:760px){
+ .srow{grid-template-columns:1fr 1fr;gap:6px 12px}
+ .srow .lys{grid-column:1/-1}
+ .px{text-align:left}
+ .fm .why{min-width:140px}
+}
+.lc2{color:#fff!important}
+@media (max-width:760px){
+ .lay tr{display:grid;grid-template-columns:64px 1fr;padding:8px 0;border-top:1px solid var(--line2)}
+ .lay th,.lay td{border:0;padding:2px 8px}
+ .lay td:last-child{grid-column:1/-1}
+}
+.chip2{display:inline-block;font-size:12px;padding:1px 10px;border-radius:20px;background:var(--link-bg);color:var(--link);margin-right:4px}
+.sum2{font-size:15px;color:var(--ink2);margin:14px 0 0}
+.sum2 b{font-size:18px}
+.brow{grid-template-columns:1.6fr .7fr .9fr .9fr 1fr 1.4fr}
+.sc .sk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--flat-bg);color:var(--ink2);font-size:11px;font-weight:700}
+@media (max-width:760px){.sc.total{grid-column:1/-1!important}}
+@media (max-width:760px){.score .sc:nth-last-child(2):nth-child(odd){grid-column:1/-1}}
+.lls{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:22px}
+.ll{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.ll p{margin:6px 0 0;font-size:14px}
+.llh{display:flex;align-items:center;gap:8px}
+.llh b{font:600 17px var(--serif)}
+.llh .v{margin-left:auto;font:700 18px var(--sans)}
+.star{font-size:11px;font-weight:700;background:var(--link);color:#fff;padding:1px 7px;border-radius:4px}
+.kv2{color:var(--ink3);font-size:12px!important}
+.scr td,.scr th{white-space:nowrap;font-size:13px}
+.scr tr.hl{background:#F7F9FE}
+@media (max-width:760px){.lls{grid-template-columns:1fr}}
+.gh{margin:22px 0 8px;display:flex;align-items:baseline;gap:10px}
+.gh small{font:13px var(--sans);color:var(--ink3)}
+.tags2 .st2{background:var(--link-bg);border-color:var(--link-bg);color:var(--link)}
+
+/* v2 research cards: preserve readable columns, scroll tables on narrow screens. */
+#research{scroll-margin-top:110px}
+#research table{min-width:920px}
+#research th:first-child{min-width:85px}
+#research td{vertical-align:top}
+@media(max-width:600px){
+ header.top .wrap{height:auto;min-height:72px;flex-wrap:wrap;gap:6px;padding-top:10px;padding-bottom:8px}
+ .brand{white-space:nowrap}
+ header nav{width:100%;justify-content:space-between;white-space:nowrap}
+ header nav a{padding:5px 8px}
+}
+
+/* HK market navigation and observation cards */
+.market-switch{display:flex;gap:6px;padding-top:26px;align-items:center}
+.market-switch a{padding:8px 24px;border:1px solid var(--line,#dedbd5);border-radius:5px;text-decoration:none;color:inherit;font-weight:600}
+.market-switch a[aria-current="page"]{background:#293e50;color:#fff;border-color:#293e50}
+.market-switch+.hero{padding-top:30px}
+.hk-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.hk-node{border:1px solid var(--line);border-left:3px solid currentColor;border-radius:10px;padding:13px 15px;text-decoration:none;display:flex;flex-direction:column;gap:6px;color:var(--ink3);background:var(--surface)}
+.hk-node b{font:700 20px/1 var(--serif)}.hk-node span{font-weight:600;color:var(--ink);font-size:14px}.hk-node small{font-size:11px;color:var(--ink3)}
+.hk-notice{border-left:3px solid var(--warn);padding:8px 18px;background:var(--warn-bg);font-size:13px;border-radius:0 8px 8px 0}
+.hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:var(--ink2)}.hk-diagram .small{font-size:10px;fill:var(--ink3)}
+@media(min-width:761px){.hk-diagram+.hk-map{display:none}}
+@media(max-width:760px){.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-diagram{display:none}.hk-node{padding:12px}.market-switch{padding-top:18px}}
+
+.hk-node.fx,.lc2.fx{color:#3478db;border-color:#4e91ff;background:#eef5ff}
+.lc2.fx{background:#3478db;color:#fff}
+.hk-node.price{background:#172333;color:#fff}.hk-node.price span,.hk-node.price small{color:#fff}
+@media(max-width:760px){.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.hk-call{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#f0f3f7;padding:16px;margin-bottom:18px;border-radius:6px}.hk-call small{color:#64748b}.hk-scope{display:block;color:#64748b;font-size:11px;line-height:1.6;margin-top:6px}.hk-evidence p{line-height:1.9}.hk-evidence .mt th:first-child{min-width:100px}.hk-evidence .mt td:last-child{white-space:nowrap}
+@media(max-width:760px){.hk-evidence .mt{min-width:640px}.hk-evidence .tblwrap{overflow-x:auto}.hk-call{padding:12px}}
+
+.hk-mobilehint{display:none}@media(max-width:760px){.hk-mobilehint{display:block;font-size:12px;color:#64748b}}
+
+/* ---- 半年名单 /picks/ ---- */
+.pkbar{width:100%;height:auto;margin:8px 0 0}
+.pkb{fill:#fff;font:600 13px var(--sans)}
+.pkbl{fill:var(--ink2);font:12px var(--sans)}
+.pklegend{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 0;font-size:13px;color:var(--ink2)}
+.pkleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+table.pk td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.pk td.pkjudge{font-size:13px;color:var(--ink2);min-width:260px}
+.pkh3{font:600 17px/1.4 var(--serif);margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
+.pkh3:first-of-type{margin-top:8px}
+.pkh3 span{font:13px var(--sans);color:var(--ink3)}
+.pkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.pkcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 12px;border-top:3px solid var(--line)}
+.pkcard.tA{border-top-color:var(--link)}
+.pkcard.tB{border-top-color:var(--ink3)}
+.pkcard.tC{border-top-color:var(--up)}
+.pkh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.pkh a{font:600 18px/1.3 var(--serif);color:var(--ink)}
+.pkw{font:700 15px var(--sans);color:var(--link)}
+.pkmeta{margin:2px 0 8px;font-size:12px;color:var(--ink3)}
+.pkmini{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pkmini span{font-size:12px;color:var(--ink2);background:var(--line2);border-radius:6px;padding:2px 8px}
+.pkmini b{color:var(--ink);font-weight:700}
+.pkass{margin:0 0 8px;font-size:13.5px;line-height:1.65;color:var(--ink)}
+.pklab{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--ink);border-radius:4px;padding:0 6px;margin-right:6px}
+.pklab2{display:block;margin:0 0 4px;background:var(--warn-bg);color:var(--warn)}
+.pkfals{margin:0;padding-left:18px;font-size:13px;color:var(--ink2)}
+.pkfals li{margin:2px 0}
+.pknote{margin:8px 0 0;font-size:12px;color:var(--ink3)}
+.pkrules{margin:0;padding-left:22px;font-size:14.5px}
+.pkrules li{margin:6px 0}
+
+/* 今天变了什么：结论先行（A 股与港股共用） */
+.lead{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ink);border-radius:12px;padding:15px 20px 13px;margin:0 0 14px}
+.lead-k{font:700 11px var(--sans);letter-spacing:.14em;color:var(--ink3);margin:0 0 6px}
+.lead-main{font:600 19px/1.62 var(--serif);margin:0 0 9px;max-width:46em}
+.lead-points{margin:0;padding-left:18px;font-size:14px;line-height:1.78;color:var(--ink2)}
+.lead-points li{margin:2px 0}
+.lead-points b{color:var(--ink)}
+@media(max-width:760px){.lead-main{font-size:17px}}
+.v.na{color:var(--ink3)} .v.fx{color:var(--link)} .v.price{color:var(--ink2)}
+
+/* 信号时效分析 */
+.hz-lead{border-left-color:var(--link)}
+.hz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:32px}
+.hz-col{background:var(--surface);padding:18px 20px}
+.hz-head{font:600 16px/1.3 var(--serif);margin:-18px -20px 12px;padding:12px 20px;background:var(--flat-bg);display:flex;align-items:center;gap:6px}
+.hz-head span{font-size:20px}
+.hz-s{border-bottom:3px solid var(--up)} .hz-m{border-bottom:3px solid #D88B1F} .hz-l{border-bottom:3px solid var(--down)}
+.hz-tbl{font-size:13px}
+.hz-tbl td.note{font-size:12px}
+.hz-col > .note{font-size:13px;margin:0 0 10px}
+.hz-col .tblwrap .mt td{padding:7px 8px}
+.chip2{display:inline-block;font-size:11px;font-weight:700;background:var(--flat-bg);color:var(--ink2);padding:1px 6px;border-radius:4px;margin-left:4px;vertical-align:1px}
+.chip2:hover{background:var(--link-bg);color:var(--link)}
+@media(max-width:760px){.hz-grid{grid-template-columns:1fr}}
+/* 板块选入理由 */
+.reason-block{padding:14px 20px}
+.reason-label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.hz-badge{display:inline-block;margin-left:8px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;vertical-align:middle}
+.hz-struct{background:#dbeafe;color:#1e40af}
+.hz-cycle{background:#fef3c7;color:#92400e}
+
+.reason-link{font-size:11.5px;color:var(--ink2)}
+.reason-link a{color:var(--link)}
+/* 股性卡 */
+.gx-block{background:var(--surface)}
+.gx-char{font-size:13.5px;color:var(--ink);line-height:1.6;margin-bottom:12px;padding:12px 16px;background:white;border-radius:8px;border:1px solid var(--line)}
+
+/* 半年板块推断 */
+.ol-lead{border-left-color:var(--link)}
+.ol-lead .lead-points li{margin-bottom:6px}
+.ol-tier{margin:0 0 22px}
+.ol-th{display:flex;align-items:center;gap:4px;margin:0 0 10px}
+.ol-desc{font-size:13px;color:var(--ink2)}
+.ol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ol-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 16px}
+.ol-ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;font-size:15px}
+.ol-ch a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.ol-hz{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--link-bg);color:var(--link);font-weight:600}
+.ol-new{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-weight:600}
+.ol-stat{font-size:12px;color:var(--ink3);margin:0 0 6px;line-height:1.5}
+.ol-p{font-size:13px;line-height:1.6;margin:4px 0;color:var(--ink)}
+.ol-lab{display:inline-block;font-size:11px;font-weight:700;color:var(--ink2);background:var(--flat-bg);border-radius:4px;padding:0 6px;margin-right:6px}
+.ol-scs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 24px}
+.ol-sc{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--ink3);border-radius:12px;padding:12px 16px;font-size:13px;line-height:1.6}
+.ol-sc.up{border-top-color:var(--up)} .ol-sc.down{border-top-color:var(--down)}
+.ol-sc p{margin:6px 0 0}
+@media(max-width:760px){.ol-scs{grid-template-columns:1fr}}
+
+/* 大盘页一级折叠 */
+.l1nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+.l1nav a{font-size:13px;padding:4px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--line);color:var(--ink2);text-decoration:none}
+details.l1{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px 22px;margin:0 0 18px}
+details.l1[open]{padding-bottom:18px}
+details.l1>summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:14px 0}
+details.l1>summary::-webkit-details-marker{display:none}
+details.l1>summary h2{margin:0;font:600 22px/1.3 var(--serif)}
+details.l1>summary h2::before{content:"▸";display:inline-block;margin-right:10px;color:var(--ink3);transition:transform .15s}
+details.l1[open]>summary h2::before{transform:rotate(90deg)}
+details.l1[open]>summary{border-bottom:1px solid var(--line2);margin-bottom:12px}
+.l1hint{font-size:13px;color:var(--ink3)}
+details.sub2{margin:14px 0;border:1px solid var(--line2);border-radius:10px;padding:8px 14px;background:#FAFBFC}
+details.sub2>summary{cursor:pointer;font-weight:600;color:var(--link);font-size:14px}
+details.sub2[open]>summary{margin-bottom:10px}
+body:has(.stock-decisions) .wrap{max-width:1700px;padding-left:32px;padding-right:32px}
+.stock-decisions{padding:20px 0 46px;font-family:var(--sans)}
+.stock-decisions .hero{padding:20px 0}.stock-decisions .hero h1{font-size:30px}.stock-decisions .hero .sum{max-width:none;font-size:16px;line-height:1.9}
+.sd-nav{position:sticky;top:57px;z-index:5;display:flex;gap:10px;padding:12px 0;background:var(--bg);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.sd-nav a{padding:7px 13px;border-radius:6px;background:#eaf0f6;color:#304e69;font-size:14px}
+.stock-decisions h2{font-size:22px;margin:24px 0 14px}.stock-decisions h3{font-size:17px;margin:0 0 10px}.stock-decisions p,.stock-decisions li{line-height:1.85;font-size:14px;overflow-wrap:anywhere}.stock-decisions li{margin-bottom:9px}
+.stock-decisions [id]{scroll-margin-top:136px}.stock-decisions small{display:block;font-size:12px;line-height:1.8;color:#657487;font-weight:400}
+.sd-panel{border:1px solid #d5dfeb;background:#fff;border-radius:10px;padding:22px 25px;margin:20px 0;min-width:0}.sd-panel h2:first-child{margin-top:0}
+.sd-note{color:#536478;font-size:13px!important}.sd-lead{font-size:17px!important;font-weight:600}
+.sd-flow{display:grid;grid-template-columns:1fr 32px 1fr 32px 1fr;align-items:center;gap:10px;margin:14px 0}
+.sd-flow>div{border:1px solid #b8cbdd;background:#eff4f9;padding:18px 20px;border-radius:8px;min-width:0}
+.sd-flow b{display:block;font-size:18px;margin-bottom:7px}.sd-flow span{font-size:13px;color:#4d6277}.sd-flow i{text-align:center;font-style:normal;font-size:24px;color:#6b8095}
+.sd-stats,.sd-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:24px 0}
+.sd-stats>div,.sd-three>a{padding:18px 22px;border:1px solid #d3deea;background:#fff;border-radius:8px;display:block;color:var(--ink)}
+.sd-stats b{display:block;font-size:28px;margin-bottom:7px}.sd-stats span{font-size:13px;color:#617286}.sd-three b{display:block;margin-bottom:12px;font-size:17px}
+.sd-pools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.sd-pools>.sd-panel{margin:0}
+.sd-badge{display:inline-block;padding:3px 8px;border:1px solid #c6d5e3;background:#edf3f8;border-radius:5px;font:500 12px/1.8 var(--sans);color:#34546d}
+.sd-contract{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:16px 0;padding:16px;background:#f5f8fb;border-radius:8px}
+.sd-contract p{margin:4px 0}.sd-table-wrap{overflow-x:auto;border:1px solid #d9e2ed;border-radius:8px;margin:16px 0}
+.sd-table{border-collapse:collapse;width:100%;font-size:14px;table-layout:fixed;min-width:900px}.sd-table th,.sd-table td{padding:16px 18px;border-bottom:1px solid #dfe6ee;text-align:left;vertical-align:top;line-height:1.8;overflow-wrap:anywhere}
+.sd-table thead th{background:#edf3f8;color:#5b6f85;font-size:13px}.sd-table tbody th{font-weight:500}.sd-table th>a{font-size:16px;font-weight:600}.sd-table p{margin:8px 0}.sd-comp th:first-child{width:18%}.sd-comp td{width:27.33%}
+.sd-roles{border-top:1px solid #d5dfeb;padding-top:20px;margin-top:30px}.sd-roles summary,.sd-panel summary,.sd-archive summary{cursor:pointer;font-weight:600;font-size:15px}
+.sd-archive{background:#f4f7fa;padding:16px 20px;border-radius:7px}.sd-roles .sd-table th:first-child{width:70px}.sd-roles .sd-table th:nth-child(2){width:240px}
+@media(max-width:1000px){.sd-pools{grid-template-columns:1fr}.sd-contract{grid-template-columns:1fr;gap:10px}.sd-flow{gap:5px}.sd-flow>div{padding:14px}.sd-flow b{font-size:15px}}
+@media(max-width:700px){body:has(.stock-decisions) .wrap{padding-left:16px;padding-right:16px}.sd-nav{position:static}.sd-flow{grid-template-columns:1fr}.sd-flow i{transform:rotate(90deg)}.sd-stats,.sd-three{grid-template-columns:1fr;gap:10px}.sd-panel{padding:18px 16px}.stock-decisions .hero h1{font-size:26px}.stock-decisions [id]{scroll-margin-top:75px}}
+.secondary-nav{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:16px;font-size:13px}.secondary-nav a{color:#536b82}
+body:has(.market-research) .wrap{max-width:1500px}.market-research{display:block!important}.market-rail{display:none}.market-content .l1nav{display:none!important}
+.market-content details.l1{margin-bottom:16px}.market-content .hero{padding:18px 0}.market-content .hero h1{font-size:30px}
+.overview-decisions,.overview-evidence{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin:15px 0 22px}
+.overview-decisions article{border:1px solid #c8d8e7;border-top:3px solid #3d5c77;border-radius:8px;background:#f3f7fb;padding:20px;min-width:0}
+.overview-decisions span{font-size:12px;color:#60758b}.overview-decisions h3{font:600 19px/1.55 var(--sans);margin:10px 0}.overview-decisions p{font-size:14px;line-height:1.9;margin:10px 0 0}
+.overview-change{font-size:13px!important;color:#5d7185;border-bottom:1px solid #dce4ed;padding-bottom:16px}
+.overview-evidence article{padding:0 18px 0 0;border-right:1px solid #e0e6ed;min-width:0}.overview-evidence article:last-child{border:0}.overview-evidence h4{font:600 16px/1.6 var(--sans);margin:0 0 10px}.overview-evidence p{font-size:14px;line-height:1.85}.overview-evidence .src{font-size:11px;line-height:1.6}
+.overview-conditions{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:18px 20px;background:#f7f8fa;border-radius:7px;margin:22px 0}.overview-conditions b{font-size:14px}.overview-conditions p{font-size:14px;line-height:1.8;margin:8px 0 0}
+.next-step{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:20px 0;border-top:1px solid #dce4ed}.next-step p{font-size:13px;margin:6px 0}.next-step>a{white-space:nowrap;font-size:14px;padding:10px 18px;border-radius:6px;background:#26455f;color:white}
+.deep-research{border:1px solid #d4dfea;border-radius:8px;padding:16px 20px;margin:18px 0;background:#fff}.deep-research>summary{font:600 15px/1.8 var(--sans);cursor:pointer;color:#395872}.deep-research[open]>summary{border-bottom:1px solid #e0e7ef;padding-bottom:12px;margin-bottom:18px}
+.macro-flow{display:block;width:100%;max-width:1000px;margin:auto}.macro-flow-wrap{overflow-x:auto}.sector-factor-notes{border-top:1px solid #dce4ed;margin-top:18px;padding-top:15px}.sector-factor-notes summary{cursor:pointer;font-size:14px;color:#4a647b}
+.research-rail .factor-links{display:none}.research-content .takeaway-grid{display:none}.research-content .final-panel .factor-balance{margin-bottom:0}.research-content .hero-meta{font-size:12px}.sd-nav{position:static!important;justify-content:space-between}.sd-nav details{font-size:13px;color:#536b82}.sd-nav details a{background:transparent;padding:6px 8px;font-size:12px}.sd-summary-line{font-size:13px;color:#596e84;padding:12px 0;border-bottom:1px solid #dbe3ec}
+@media(max-width:900px){.overview-decisions,.overview-evidence,.overview-conditions{grid-template-columns:1fr}.overview-evidence article{border-right:0;border-bottom:1px solid #e0e6ed;padding-bottom:12px}.next-step{align-items:start;flex-direction:column}.macro-flow{min-width:760px}}
+/* 2026-11-26 排版整理：首屏只留结论与候选，参考内容折叠，文字层级统一 */
+.hero .sum{font-size:16px;line-height:1.8;max-width:46em;margin:8px 0 4px}.hero-meta{font-size:12.5px;color:#6b7c8c;margin:4px 0 0}
+p.note{font-size:13px;line-height:1.75;color:#52687b;max-width:60em}
+details.ref{border:1px solid #e1e8ef;border-radius:10px;background:#fff;padding:4px 18px;margin:14px 0}
+details.ref>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}details.ref>summary::-webkit-details-marker{display:none}
+details.ref>summary h2{display:inline;font-size:18px;margin:10px 0;color:#2f4a63}details.ref>summary::before{content:"▸";color:#8a9aab;font-size:13px}details.ref[open]>summary::before{content:"▾"}
+details.ref>summary::after{content:"参考，点击展开";font-size:12px;color:#8a9aab;margin-left:auto}details.ref[open]>summary::after{content:"收起"}
+details.more>summary{cursor:pointer;font-size:13px;color:#2f4f6f;margin:6px 0}
+.lp-jump{margin:10px 0 18px}
+details.sub{margin:16px 0}details.sub>summary{cursor:pointer;font-size:16px;font-weight:600;color:#2f4a63;padding:6px 0}details.sub>summary::marker{color:#8a9aab}
+.lp-map{margin:8px 0 0;font-size:13px}.lp-map a{color:#2f4f6f}
+</style></head><body>
+<header class="top"><div class="wrap"><a class="brand" href="../index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="../index.html">总览</a><a href="../boards/index.html">板块</a><a href="../stocks/index.html" aria-current="page">个股</a><a href="../news.html">新闻</a><a href="../framework.html">框架</a></nav></div></header>
+<main class="wrap"><style>
+.l2-hr{background:#f6f8fa;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13.5px;line-height:1.8}.l2-hr p{margin:2px 0}
+.lens-ul{font-size:13px;line-height:1.75;padding-left:18px}
+.l2-groups{display:flex;flex-direction:column;gap:6px;margin:10px 0 12px}.l2-g{font-size:14px;line-height:1.8}.l2j-table{min-width:1250px}.l2-why{display:block;color:#52687b;font-size:12px;line-height:1.6;margin-top:4px;max-width:260px}.l2-ref{background:#fafbfc}.lp-view.bad,.ov-c.bad{background:#f1f1f1;color:#777}#l2-judge{margin:24px 0}
+#weekly{margin:20px 0;border:1px solid #d4dfeb;border-radius:10px;padding:14px 20px;background:#fff}.wk-alert{background:#fff4dc;border-radius:8px;padding:8px 12px;font-size:14px}.wk-table{min-width:520px}
+#price-rules,#box-rules{margin:30px 0;border:1px solid #d4dfeb;border-radius:10px;padding:16px 20px;background:#fff}.pr-table{min-width:880px}.pr-table td small{font-size:12.5px;color:#455a6e;line-height:1.7}.pr-dl{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:6px 14px;margin:8px 0;font-size:14px;line-height:1.8}.pr-dl dt{font-weight:600;color:#223e57}.pr-dl dd{margin:0}.pr-in{margin-top:10px}.pr-in summary{cursor:pointer}
+@media(max-width:640px){.pr-dl{grid-template-columns:1fr}.pr-dl dd{margin-bottom:6px}}
+.plan{border:1px dashed #b8c8d8;border-radius:8px;padding:10px 14px;margin:10px 0}.plan-h{margin:0 0 4px}.plan ul{margin:2px 0 8px;padding-left:18px;font-size:13.5px;line-height:1.75}.plan-table{min-width:760px}.ov-c small+small{color:#9b3d27}
+.lp-mkt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 8px}.lp-mkt a{border:1px solid #c9d6e3;border-radius:10px;padding:12px 18px;background:#f6f8fa;text-decoration:none;color:#223e57}.lp-mkt a[aria-current]{background:#223e57;color:#fff;border-color:#223e57}.lp-mkt a[aria-current] span{color:#d5e0ea}.lp-mkt b{display:block;font-size:18px}.lp-mkt span{font-size:12.5px;color:#64798d}
+.lp-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 14px}.lp-tabs a{border:1px solid #d4dfeb;border-radius:10px;padding:12px 16px;background:#fff;text-decoration:none;color:#223e57}.lp-tabs a[aria-current]{border-color:#365875;box-shadow:inset 0 -3px 0 #365875}.lp-tabs b{display:block;font-size:16px}.lp-tabs span{font-size:12.5px;color:#64798d}
+.lp-jump{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px;position:sticky;top:56px;z-index:5;background:var(--paper,#f2f4f7);padding:8px 0}@media(max-width:760px){.lp-jump{position:static}.lp-tabs b{font-size:14.5px}.lp-tabs a{padding:10px 12px}}.lp-jump a{font-size:13px;padding:4px 10px;border-radius:14px;background:#eef2f6;text-decoration:none}
+.ov-c{display:inline-block;margin:3px 6px 3px 0;padding:4px 9px;border-radius:8px;background:#f3f6f9;font-size:13px;text-decoration:none;color:#223e57}.ov-c small{display:block;font-size:11px;color:#64798d}.ov-c.go{background:#fbe9e4}.ov-c.wait{background:#e8eef6}
+.lens{background:#f6f8fa;border-radius:8px;padding:10px 14px;margin:8px 0}.lens ul{margin:4px 0 6px;padding-left:18px}.lens li,.lens p{font-size:13.5px;line-height:1.75;margin:2px 0}
+.ly{display:inline-block;padding:1px 7px;border-radius:9px;font-size:12px}.ly-g{background:#e9f5ef;color:#2f6f53}.ly-m{background:#eef2f6;color:#455a6e}.ly-b{background:#fbe9e4;color:#9b3d27}
+.lp-sum{font-size:13px;color:#52687b;margin-left:10px}details.lp-sec>summary{cursor:pointer}details.lp-sec>summary h3{display:inline}
+.lp-table thead tr:first-child th{text-align:center;background:#f3f6f9}
+.lp-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:20px 0}.lp-two article{border:1px solid #d4dfeb;border-radius:10px;padding:18px 22px;background:#fff}.lp-two span{font-size:13px;color:#64798d;font-weight:600}.lp-two h2{font-size:20px;margin:6px 0 12px}.lp-two p{font-size:14.5px;line-height:1.85;margin:0 0 8px}
+.lp-funnel{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}.lp-funnel li{background:#f3f6f9;border-radius:8px;padding:8px 12px;font-size:13.5px;line-height:1.6}
+.lp-sec{border-top:1px solid #e1e8f0;padding:14px 0}.lp-sec h3{font-size:18px;margin:6px 0;display:inline}details.lp-sec>summary{cursor:pointer;list-style-position:outside}.lp-rule{font-size:13.5px;color:#455a6e;line-height:1.8}
+.lp-badge{font-size:12.5px;padding:2px 9px;border-radius:12px;margin-left:6px}.lp-up{background:#fbe9e4;color:#9b3d27}.lp-early{background:#fff4dc;color:#8a5a00}.lp-wait{background:#e8eef6;color:#2f4f6f}
+.lp-table{width:100%;min-width:900px}.lp-table td,.lp-table th{font-size:13.5px;line-height:1.7;vertical-align:top}.lp-table th small{display:block;font-weight:400;color:#6b7c8c;font-size:11.5px}
+.lp-view{font-size:12.5px;padding:2px 8px;border-radius:10px;background:#eef2f6;white-space:nowrap}.lp-view.go{background:#fbe9e4;color:#9b3d27}.lp-view.wait{background:#e8eef6;color:#2f4f6f}
+.l2-intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:center}.l2-intro p{font-size:14.5px;line-height:1.9}.l2-svg{width:100%;height:auto}
+.l2-act{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.l2-act p{margin:0;background:#f6f8fa;border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.8}.l2-sw{grid-column:1/-1}.l2-sw.off{background:#eef2f6!important}.l2-sw.on{background:#e9f5ef!important}
+.l2-bt p{font-size:14.5px;line-height:1.9}.l2-con{background:#fff4dc;border-radius:8px;padding:10px 14px}
+#logic1,#logic2{margin:34px 0}
+@media(max-width:900px){.lp-two,.l2-intro,.l2-act{grid-template-columns:1fr}}
+
+.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0 6px}
+.ab-col{background:#fff;border:1px solid #dfe6ee;border-radius:10px;padding:12px 14px;border-top:4px solid #c8d3df}
+.ab-col h3{font-size:15px;margin:0 0 2px;display:flex;justify-content:space-between;align-items:center}.ab-col h3 span{font-size:13px;color:#64798d;font-weight:600}
+.ab-col p{font-size:12px;color:#6b7c8c;margin:0 0 8px;line-height:1.5}.ab-col ul{list-style:none;margin:0;padding:0}
+.ab-col li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #eef2f6;font-size:13.5px}.ab-col li small{color:#6b7c8c;font-size:12px;text-align:right}
+.ab-col a{text-decoration:none;color:#1f3b57;font-weight:600}.ab-empty{color:#9aa8b5}
+.ab-wide{grid-column:1/-1}.ab-wide ul{display:flex;flex-wrap:wrap;gap:6px}.ab-wide li{border:none;background:#f3f6f9;border-radius:8px;padding:4px 10px;gap:6px}.ab-wide li small{text-align:left}.sc-dim{opacity:.72}
+.ab-buy{border-top-color:#3f8a64}.ab-high{border-top-color:#d1a23d}.ab-low{border-top-color:#9aa8b5}.ab-sell{border-top-color:#c4572a}.ab-wait{border-top-color:#5a7ea6}.ab-bad{border-top-color:#8c8c8c}
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:12px;margin:12px 0}
+.sc{background:#fff;border:1px solid #dfe6ee;border-radius:12px;padding:14px 16px;scroll-margin-top:90px;align-self:start}
+.sc header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.sc header b{font-size:16.5px;color:#1b324a}.sc header small{display:block;color:#6b7c8c;font-size:12px;margin-top:2px}
+.sc-px{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:13.5px;color:#455a6e}.sc-px b{font-size:17px;color:#1b324a}
+.st{font-size:12.5px;padding:2px 9px;border-radius:10px;font-weight:600}.st-buy{background:#e3f3ea;color:#2f6f53}.st-high{background:#fff3d9;color:#8a5a00}.st-sell{background:#fbe3dc;color:#9b3d27}.st-low,.st-na{background:#eef1f4;color:#5b6b7a}.st-stop{background:#ececec;color:#555}.st-wait{background:#e6eef7;color:#2f4f6f}
+.sc-plan span{display:inline-block;margin-right:18px}.sc-plan{display:block;margin:8px 0;font-size:13.5px;font-weight:600;color:#1b324a;font-variant-numeric:tabular-nums}.sc-plan em{font-style:normal;font-weight:400;color:#6b7c8c;font-size:12px;margin-right:5px}.sc-plan small{font-weight:400;color:#6b7c8c;font-size:11.5px}
+.sc-more{margin-top:6px;border-top:1px solid #eef2f6;padding-top:6px}.sc-more>summary{cursor:pointer;font-size:12.5px;color:#52687b;list-style:none}.sc-more>summary::before{content:"▸ ";color:#8a9aab}.sc-more[open]>summary::before{content:"▾ "}.sc-more[open]>summary{margin-bottom:6px}
+.ab-none{font-size:12.5px;color:#7a8794;margin:2px 0 0}
+.ch{list-style:none;display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 6px;padding:0}.ch li{display:flex;align-items:center;gap:4px;font-size:12px;border-radius:7px;padding:3px 7px;background:#eef1f4;color:#5b6b7a}.ch li span{opacity:.8}.ch li b{font-weight:600}
+.ch-ok{background:#e3f3ea!important;color:#2f6f53!important}.ch-no{background:#fbe3dc!important;color:#9b3d27!important}.ch-tip{background:#f3f0e6!important;color:#6b5a2e!important}
+.ch-d{margin:0 0 8px;font-size:12.5px;line-height:1.65;color:#3a4c5e}.ch-d div{display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:6px;padding:2px 0}.ch-d dt{color:#6b7c8c}.ch-d dd{margin:0}
+.sc-ly{list-style:none;margin:0;padding:0}.sc-ly li{display:grid;grid-template-columns:4.6em 3.1em minmax(0,1fr);align-items:baseline;gap:6px;padding:5px 0;border-top:1px solid #f0f3f6;font-size:13px;line-height:1.6}
+.sc-k{color:#455a6e;font-weight:600}.sc-v{color:#3a4c5e}.sc-note{font-size:12.5px;color:#6b5a2e;background:#fbf6e9;border-radius:8px;padding:6px 10px;margin:8px 0 0;line-height:1.6}.sc-na{color:#7a8794;font-size:13px}
+.pb{margin:6px 0 2px}.pb-track{position:relative;height:10px;background:#eef1f4;border-radius:5px}
+.pb-track i,.pb-track b{position:absolute;top:0;height:10px}.pb-rng{background:#dde5ee;border-radius:5px}.pb-buy{background:#7cc19a;border-radius:3px}
+.pb-sell{width:3px;background:#c4572a}.pb-stop{width:3px;background:#555}.pb-cur{width:4px;margin-left:-2px;top:-4px!important;height:18px!important;background:#1b324a;border-radius:2px}
+.pb-lab{display:flex;justify-content:space-between;font-size:11.5px;color:#6b7c8c;margin-top:4px}
+.sec-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.sec-meta{font-size:13px;color:#52687b}
+.sec-lens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.sec-lens div{background:#f6f8fa;border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.6;color:#3a4c5e}.sec-lens b{display:block;color:#1f3b57;font-size:13px}
+.sec-rule{font-size:12.5px;color:#455a6e;background:#f9fafb;border:1px dashed #cfd9e3;border-radius:8px;padding:8px 12px;line-height:1.7}
+details.more{margin:8px 0}details.more>summary{cursor:pointer;font-size:13px;color:#2f4f6f}
+.wk{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.wk-i{background:#fff;border:1px solid #dfe6ee;border-radius:8px;padding:6px 10px;font-size:13px}.wk-i a{font-weight:600;text-decoration:none;color:#1f3b57}.wk-i em{font-style:normal;color:#6b7c8c}
+.wk-sum{display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px;color:#52687b}.wk-sum span{background:#eef2f6;border-radius:10px;padding:2px 9px}
+@media(max-width:760px){.sec-lens{grid-template-columns:1fr}}
+</style><nav class="lp-mkt" aria-label="市场"><a href="index.html" aria-current="page"><b>A股</b><span>4条选股逻辑：景气顺势、业绩反转、红利高股息、估值修复</span></a><a href="hk.html"><b>港股</b><span>4条选股逻辑：景气顺势、业绩反转、红利高股息、回购与私有化</span></a></nav><p class="lp-map"><a href="logic-map.html">选股逻辑地图：12条逻辑的定义、上涨动力与本站覆盖 →</a></p><nav class="lp-tabs" aria-label="A股选股逻辑"><a href="index.html"><b>分子 · 景气顺势</b><span>大盘→板块→个股：周期、成长板块</span></a><a href="a-turn.html" aria-current="page"><b>分子 · 业绩反转</b><span>行业预期上调＋利润仍在谷底</span></a><a href="dividend.html"><b>分母 · 红利高股息</b><span>股息率比国债高多少</span></a><a href="box.html"><b>分母 · 估值修复</b><span>国资箱体：净资产地板与分红兑现</span></a></nav><div class="hero"><h1>A股 · 分子 · 业绩反转</h1><p class="sum">财报已经确认利润由降转升、但股价还没有涨起来的公司。A股以散户为主、注意力有限，好消息要过一段时间才被充分定价（盈利公告后漂移）。</p><p class="hero-meta">价格截至2026-11-25；最新财报为2026年三季报</p></div><nav class="lp-jump"><a href="#overview">行动看板</a><a href="#cards">候选</a><a href="#t-rules">规则</a><a href="#t-bt">回测</a></nav><section id="overview"><h2>行动看板</h2><p class="note">回测（10个检验日，2025-11-28至2026-08-14）：本页规则779个样本，13周相对全部样本中位数的超额收益中位数+4.2%、均值+7.0%、跑赢65%，10个检验日中8个中位数为正。港股的“机构上调预测＋行业广度”在A股无效（上调组中位数−1.8%，下调组反而+1.5%）。A股大盘转防守期间暂停新增。</p><div class="ab"><section class="ab-col ab-sell ab-wide"><h3>不买<span>16</span></h3><p>跌破止损，或大盘转防守暂停新增</p><ul><li><a href="#t-002179">中航光电</a><small>军工电子Ⅱ · 价格到位·待核</small></li><li><a href="#t-601607">上海医药</a><small>医药商业 · 价格到位·待核</small></li><li><a href="#t-601880">辽港股份</a><small>航运港口 · 价格到位·待核</small></li><li><a href="#t-600925">苏能股份</a><small>煤炭开采 · 价格到位·待核</small></li><li><a href="#t-600548">深高速</a><small>铁路公路 · 价格到位·待核</small></li><li><a href="#t-002299">圣农发展</a><small>养殖业 · 价格到位·待核</small></li><li><a href="#t-601158">重庆水务</a><small>环境治理 · 价格到位·待核</small></li><li><a href="#t-002317">众生药业</a><small>中药Ⅱ · 价格到位·待核</small></li><li><a href="#t-600655">豫园股份</a><small>一般零售 · 价格到位·待核</small></li><li><a href="#t-603858">步长制药</a><small>中药Ⅱ · 价格到位·待核</small></li><li><a href="#t-601038">一拖股份</a><small>专用设备 · 价格到位·待核</small></li><li><a href="#t-000550">江铃汽车</a><small>商用车 · 价格到位·待核</small></li><li><a href="#t-001308">康冠科技</a><small>光学光电子 · 价格到位·待核</small></li><li><a href="#t-000719">中原传媒</a><small>出版 · 价格到位·待核</small></li><li><a href="#t-000028">国药一致</a><small>医药商业 · 价格到位·待核</small></li><li><a href="#t-002011">盾安环境</a><small>家电零部件Ⅱ · 价格到位·待核</small></li></ul></section></div><p class="ab-none">暂无：可执行、价格到位·待核、等回落</p><p class="note">小字为不考虑大盘防守时的状态。</p></section><section id="cards"><h2>候选（16只）</h2><p class="note">A股总市值≥100亿元；最近一季单季归母净利润同比由负转正（上一季为负、本季为正），本季盈利；以公告日为准。</p><div class="sc-grid"><article class="sc sc-dim" id="t-002179"><header><div><b>中航光电</b><small>002179 · 军工电子Ⅱ · 总市值687亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>32.70</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:14.4%;width:81.7%"></i><i class="pb-buy" style="left:11.1%;width:27.5%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:18.3%"></b></div><div class="pb-lab"><span>止损 30.82</span><span>现价 32.70</span><span>一年高点 42.69</span></div></div><p class="sc-plan"><span><em>买入</em>31.77–35.30</span><span><em>卖出</em>42.69</span><span><em>止损</em>30.82</span><span><em>盈亏比</em>3.4<small>（现价 5.3）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>军工电子Ⅱ：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比+14%、营收同比+11%</dd></div><div><dt>估值</dt><dd>市净率2.74；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-m">大幅转正</span><span class="sc-v">单季利润同比 +172% · 上一季 -10% · 营收同比 +11%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -7% · 距一年高点 -23%</span></li></ul></details></article><article class="sc sc-dim" id="t-601607"><header><div><b>上海医药</b><small>601607 · 医药商业 · 总市值602亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>16.23</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:29.0%;width:67.2%"></i><i class="pb-buy" style="left:14.4%;width:39.7%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:51.9%"></b></div><div class="pb-lab"><span>止损 14.25</span><span>现价 16.23</span><span>一年高点 18.05</span></div></div><p class="sc-plan"><span><em>买入</em>14.69–16.32</span><span><em>卖出</em>18.05</span><span><em>止损</em>14.25</span><span><em>盈亏比</em>2.0<small>（现价 0.9）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>医药商业：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比+4%、营收同比-11%</dd></div><div><dt>估值</dt><dd>市净率0.76；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-m">大幅转正</span><span class="sc-v">单季利润同比 +57% · 上一季 -33% · 营收同比 -11%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -1% · 距一年高点 -10%</span></li></ul></details></article><article class="sc sc-dim" id="t-601880"><header><div><b>辽港股份</b><small>601880 · 航运港口 · 总市值342亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>1.45</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:27.3%;width:68.9%"></i><i class="pb-buy" style="left:10.9%;width:27.2%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:36.3%"></b></div><div class="pb-lab"><span>止损 1.27</span><span>现价 1.45</span><span>一年高点 1.78</span></div></div><p class="sc-plan"><span><em>买入</em>1.31–1.46</span><span><em>卖出</em>1.78</span><span><em>止损</em>1.27</span><span><em>盈亏比</em>3.4<small>（现价 1.8）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>航运港口：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比-3%、营收同比+6%</dd></div><div><dt>估值</dt><dd>市净率0.83；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-m">大幅转正</span><span class="sc-v">单季利润同比 +43% · 上一季 -30% · 营收同比 +6%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -1% · 距一年高点 -19%</span></li></ul></details></article><article class="sc sc-dim" id="t-600925"><header><div><b>苏能股份</b><small>600925 · 煤炭开采 · 总市值265亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>3.85</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:14.4%;width:81.8%"></i><i class="pb-buy" style="left:12.1%;width:32.1%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:14.4%"></b></div><div class="pb-lab"><span>止损 3.71</span><span>现价 3.85</span><span>一年高点 4.92</span></div></div><p class="sc-plan"><span><em>买入</em>3.82–4.24</span><span><em>卖出</em>4.92</span><span><em>止损</em>3.71</span><span><em>盈亏比</em>2.8<small>（现价 7.6）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>煤炭开采：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比+24%、营收同比+39%</dd></div><div><dt>估值</dt><dd>市净率1.70；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-m">大幅转正</span><span class="sc-v">单季利润同比 +120% · 上一季 -50% · 营收同比 +39%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -9% · 距一年高点 -22%</span></li></ul></details></article><article class="sc sc-dim" id="t-600548"><header><div><b>深高速</b><small>600548 · 铁路公路 · 总市值212亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>8.36</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:28.5%;width:67.7%"></i><i class="pb-buy" style="left:12.2%;width:31.1%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:40.7%"></b></div><div class="pb-lab"><span>止损 7.36</span><span>现价 8.36</span><span>一年高点 9.86</span></div></div><p class="sc-plan"><span><em>买入</em>7.59–8.43</span><span><em>卖出</em>9.86</span><span><em>止损</em>7.36</span><span><em>盈亏比</em>2.8<small>（现价 1.5）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>铁路公路：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比-5%、营收同比+6%</dd></div><div><dt>估值</dt><dd>市净率0.90；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-g">温和转正</span><span class="sc-v">单季利润同比 +24% · 上一季 -15% · 营收同比 +6%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -1% · 距一年高点 -15%</span></li></ul></details></article><article class="sc sc-dim" id="t-002299"><header><div><b>圣农发展</b><small>002299 · 养殖业 · 总市值200亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>16.08</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:19.0%;width:77.2%"></i><i class="pb-buy" style="left:10.9%;width:26.8%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:35.0%"></b></div><div class="pb-lab"><span>止损 14.18</span><span>现价 16.08</span><span>一年高点 19.80</span></div></div><p class="sc-plan"><span><em>买入</em>14.62–16.25</span><span><em>卖出</em>19.80</span><span><em>止损</em>14.18</span><span><em>盈亏比</em>3.5<small>（现价 2.0）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>养殖业：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比+14%、营收同比-30%</dd></div><div><dt>估值</dt><dd>市净率1.69；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-g">温和转正</span><span class="sc-v">单季利润同比 +23% · 上一季 -67% · 营收同比 -30%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -1% · 距一年高点 -19%</span></li></ul></details></article><article class="sc sc-dim" id="t-601158"><header><div><b>重庆水务</b><small>601158 · 环境治理 · 总市值194亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>4.05</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:32.3%;width:63.8%"></i><i class="pb-buy" style="left:12.7%;width:33.5%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:43.0%"></b></div><div class="pb-lab"><span>止损 3.57</span><span>现价 4.05</span><span>一年高点 4.70</span></div></div><p class="sc-plan"><span><em>买入</em>3.68–4.09</span><span><em>卖出</em>4.70</span><span><em>止损</em>3.57</span><span><em>盈亏比</em>2.6<small>（现价 1.4）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>环境治理：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比-0%、营收同比+7%</dd></div><div><dt>估值</dt><dd>市净率1.11；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-g">温和转正</span><span class="sc-v">单季利润同比 +10% · 上一季 -2% · 营收同比 +7%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -1% · 距一年高点 -14%</span></li></ul></details></article><article class="sc sc-dim" id="t-002317"><header><div><b>众生药业</b><small>002317 · 中药Ⅱ · 总市值191亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>22.47</b></span><span class="st st-low">低于买入区0%</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:3.7%;width:92.5%"></i><i class="pb-buy" style="left:41.7%;width:19.4%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:29.2%"></i><b class="pb-cur" style="left:41.3%"></b></div><div class="pb-lab"><span>止损 20.92</span><span>现价 22.47</span><span>一年高点 29.54</span></div></div><p class="sc-plan"><span><em>买入</em>22.52–25.02</span><span><em>卖出</em>29.54</span><span><em>止损</em>20.92</span><span><em>盈亏比</em>2.0<small>（现价 4.6）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>中药Ⅱ：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比-22%、营收同比-30%</dd></div><div><dt>估值</dt><dd>市净率4.69；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-g">温和转正</span><span class="sc-v">单季利润同比 +4% · 上一季 -89% · 营收同比 -30%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -10% · 距一年高点 -24%</span></li></ul></details></article><article class="sc sc-dim" id="t-600655"><header><div><b>豫园股份</b><small>600655 · 一般零售 · 总市值173亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>4.45</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:15.8%;width:80.3%"></i><i class="pb-buy" style="left:10.3%;width:24.8%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:33.4%"></b></div><div class="pb-lab"><span>止损 3.91</span><span>现价 4.45</span><span>一年高点 5.59</span></div></div><p class="sc-plan"><span><em>买入</em>4.03–4.48</span><span><em>卖出</em>5.59</span><span><em>止损</em>3.91</span><span><em>盈亏比</em>3.9<small>（现价 2.1）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>一般零售：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比-19%、营收同比+134%</dd></div><div><dt>估值</dt><dd>市净率0.58；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-m">大幅转正</span><span class="sc-v">单季利润同比 +50% · 上一季 -58% · 营收同比 +134%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -1% · 距一年高点 -20%</span></li></ul></details></article><article class="sc sc-dim" id="t-603858"><header><div><b>步长制药</b><small>603858 · 中药Ⅱ · 总市值153亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>14.53</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:30.7%;width:65.5%"></i><i class="pb-buy" style="left:12.6%;width:32.6%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:34.2%"></b></div><div class="pb-lab"><span>止损 13.13</span><span>现价 14.53</span><span>一年高点 17.38</span></div></div><p class="sc-plan"><span><em>买入</em>13.54–15.04</span><span><em>卖出</em>17.38</span><span><em>止损</em>13.13</span><span><em>盈亏比</em>2.7<small>（现价 2.0）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>中药Ⅱ：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比-5%、营收同比-9%</dd></div><div><dt>估值</dt><dd>市净率1.48；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-g">温和转正</span><span class="sc-v">单季利润同比 +19% · 上一季 -43% · 营收同比 -9%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -3% · 距一年高点 -16%</span></li></ul></details></article><article class="sc sc-dim" id="t-601038"><header><div><b>一拖股份</b><small>601038 · 专用设备 · 总市值142亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>12.66</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:3.7%;width:92.5%"></i><i class="pb-buy" style="left:31.6%;width:24.0%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:16.1%"></i><b class="pb-cur" style="left:48.6%"></b></div><div class="pb-lab"><span>止损 10.90</span><span>现价 12.66</span><span>一年高点 15.23</span></div></div><p class="sc-plan"><span><em>买入</em>11.74–13.04</span><span><em>卖出</em>15.23</span><span><em>止损</em>10.90</span><span><em>盈亏比</em>1.9<small>（现价 1.5）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>专用设备：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比+14%、营收同比+6%</dd></div><div><dt>估值</dt><dd>市净率1.69；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-g">温和转正</span><span class="sc-v">单季利润同比 +20% · 上一季 -8% · 营收同比 +6%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -3% · 距一年高点 -17%</span></li></ul></details></article><article class="sc sc-dim" id="t-000550"><header><div><b>江铃汽车</b><small>000550 · 商用车 · 总市值133亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>15.44</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:23.1%;width:73.1%"></i><i class="pb-buy" style="left:12.8%;width:33.3%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:24.9%"></b></div><div class="pb-lab"><span>止损 14.39</span><span>现价 15.44</span><span>一年高点 18.97</span></div></div><p class="sc-plan"><span><em>买入</em>14.84–16.49</span><span><em>卖出</em>18.97</span><span><em>止损</em>14.39</span><span><em>盈亏比</em>2.6<small>（现价 3.4）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>商用车：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比+5%、营收同比+21%</dd></div><div><dt>估值</dt><dd>市净率1.10；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-m">大幅转正</span><span class="sc-v">单季利润同比 +923% · 上一季 -7% · 营收同比 +21%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -6% · 距一年高点 -19%</span></li></ul></details></article><article class="sc sc-dim" id="t-001308"><header><div><b>康冠科技</b><small>001308 · 光学光电子 · 总市值127亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>18.08</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:11.1%;width:85.0%"></i><i class="pb-buy" style="left:15.4%;width:27.9%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:32.7%"></b></div><div class="pb-lab"><span>止损 16.13</span><span>现价 18.08</span><span>一年高点 22.35</span></div></div><p class="sc-plan"><span><em>买入</em>16.92–18.80</span><span><em>卖出</em>22.35</span><span><em>止损</em>16.13</span><span><em>盈亏比</em>2.6<small>（现价 2.2）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>光学光电子：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比+5%、营收同比+1%</dd></div><div><dt>估值</dt><dd>市净率1.64；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-m">大幅转正</span><span class="sc-v">单季利润同比 +64% · 上一季 -6% · 营收同比 +1%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -4% · 距一年高点 -19%</span></li></ul></details></article><article class="sc sc-dim" id="t-000719"><header><div><b>中原传媒</b><small>000719 · 出版 · 总市值125亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>12.24</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:15.7%;width:80.5%"></i><i class="pb-buy" style="left:13.0%;width:33.8%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:42.2%"></b></div><div class="pb-lab"><span>止损 10.83</span><span>现价 12.24</span><span>一年高点 14.22</span></div></div><p class="sc-plan"><span><em>买入</em>11.17–12.41</span><span><em>卖出</em>14.22</span><span><em>止损</em>10.83</span><span><em>盈亏比</em>2.5<small>（现价 1.4）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>出版：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比-9%、营收同比-2%</dd></div><div><dt>估值</dt><dd>市净率1.02；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-g">温和转正</span><span class="sc-v">单季利润同比 +4% · 上一季 -6% · 营收同比 -2%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -1% · 距一年高点 -14%</span></li></ul></details></article><article class="sc sc-dim" id="t-000028"><header><div><b>国药一致</b><small>000028 · 医药商业 · 总市值124亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>20.23</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:16.5%;width:79.7%"></i><i class="pb-buy" style="left:9.7%;width:22.2%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:28.8%"></b></div><div class="pb-lab"><span>止损 17.92</span><span>现价 20.23</span><span>一年高点 26.44</span></div></div><p class="sc-plan"><span><em>买入</em>18.47–20.52</span><span><em>卖出</em>26.44</span><span><em>止损</em>17.92</span><span><em>盈亏比</em>4.4<small>（现价 2.7）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>医药商业：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比-0%、营收同比-0%</dd></div><div><dt>估值</dt><dd>市净率0.64；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-g">温和转正</span><span class="sc-v">单季利润同比 +19% · 上一季 -6% · 营收同比 -0%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -1% · 距一年高点 -23%</span></li></ul></details></article><article class="sc sc-dim" id="t-002011"><header><div><b>盾安环境</b><small>002011 · 家电零部件Ⅱ · 总市值116亿</small></div><span class="lp-view bad">不买：大盘转防守，暂停新增</span></header><div class="sc-px"><span>现价 <b>10.76</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-rng" style="left:9.7%;width:86.5%"></i><i class="pb-buy" style="left:11.5%;width:22.2%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:27.3%"></b></div><div class="pb-lab"><span>止损 9.58</span><span>现价 10.76</span><span>一年高点 14.20</span></div></div><p class="sc-plan"><span><em>买入</em>9.97–11.08</span><span><em>卖出</em>14.20</span><span><em>止损</em>9.58</span><span><em>盈亏比</em>3.9<small>（现价 2.9）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><p class="sc-note">大盘转防守：规则上暂停新增，原状态为“价格到位·待核”。</p><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>家电零部件Ⅱ：本逻辑不依赖板块档位</dd></div><div><dt>核验</dt><dd>利润转正是否来自一次性收益（资产处置、补贴、公允价值变动）需看公告；累计利润同比+11%、营收同比-5%</dd></div><div><dt>估值</dt><dd>市净率1.59；五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">反转</span><span class="ly ly-g">温和转正</span><span class="sc-v">单季利润同比 +12% · 上一季 -15% · 营收同比 -5%</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">还没涨</span><span class="sc-v">相对26周均线 -3% · 距一年高点 -24%</span></li></ul></details></article></div></section><section id="t-rules"><details class="ref"><summary><h2>规则</h2></summary><dl class="pr-dl"><dt>定义</dt><dd>财报已经确认利润由降转升、但股价还没有涨起来的公司。A股以散户为主、注意力有限，好消息要过一段时间才被充分定价（盈利公告后漂移）。</dd><dt>上涨动力</dt><dd>利润同比由负转正，被市场逐步认识；A股短期涨多会回落，所以买还没涨的。</dd><dt>候选范围</dt><dd>A股总市值≥100亿元；最近一季单季归母净利润同比由负转正（上一季为负、本季为正），本季盈利；以公告日为准。</dd><dt>价格</dt><dd>股价仍在26周均线下方（市场还没反应）；距一年高点回撤小于25%（不是深陷困境的公司）。参考买入＝26周均线下方10%至26周均线；止损＝一年低点下方3%与买入区中点下方12%中较高者，且不高于买入区下沿下方3%；卖出参考＝一年高点；持有约一个季度，下一季利润同比重新转负就退出。买入区、止损和卖出位为本站设定，回测只验证了入选条件。</dd><dt>什么时候失效</dt><dd>利润转正来自一次性收益（资产处置、补贴）；股价已经涨到26周均线上方；深度回撤的困境股。</dd></dl></details></section><section id="t-bt"><details class="ref"><summary><h2>回测</h2></summary><p class="note">2025-11-28至2026-08-14每4周一个检验日，共10个；样本为当前A股总市值≥50亿元、检验日≥100亿元的股票（含幸存者偏差）；持有13周；A股收益分布右偏（少数大涨），超额收益按“个股涨跌−同期全部样本的中位数”计算。</p><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>分组</th><th>样本</th><th>13周超额收益均值（%）</th><th>中位数（%）</th><th>跑赢比例（%）</th></tr></thead><tbody><tr><th scope="row">全部股票（基准）</th><td>18309</td><td>+4.5</td><td>+0.0</td><td>50</td></tr><tr><th scope="row">机构下一财年预测8周上调≥10%</th><td>434</td><td>+4.1</td><td>-1.8</td><td>47</td></tr><tr><th scope="row">机构预测8周下调≥5%</th><td>933</td><td>+6.6</td><td>+1.5</td><td>53</td></tr><tr><th scope="row">行业上调广度＞0.2（港股做法）</th><td>1977</td><td>+3.5</td><td>-1.6</td><td>47</td></tr><tr><th scope="row">行业上调广度＜−0.2</th><td>3983</td><td>+7.3</td><td>+0.4</td><td>51</td></tr><tr><th scope="row">单季利润同比由负转正（全部）</th><td>3327</td><td>+5.6</td><td>+1.7</td><td>54</td></tr><tr><th scope="row">……＋股价在26周均线上方</th><td>1703</td><td>+7.1</td><td>-0.2</td><td>49</td></tr><tr><th scope="row">……＋股价在26周均线下方</th><td>1624</td><td>+4.1</td><td>+2.8</td><td>60</td></tr><tr><th scope="row">……＋在26周均线下方＋回撤小于25%（本页规则）</th><td>779</td><td>+7.0</td><td>+4.2</td><td>65</td></tr><tr><th scope="row">……＋在26周均线下方＋回撤≥25%</th><td>845</td><td>+1.6</td><td>+1.5</td><td>55</td></tr><tr><th scope="row">本页规则中利润同比≥30%</th><td>330</td><td>+6.4</td><td>+2.6</td><td>61</td></tr><tr><th scope="row">本页规则中利润同比0—30%</th><td>449</td><td>+7.3</td><td>+4.9</td><td>68</td></tr></tbody></table></div><h3>本页规则逐个检验日</h3><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>检验日</th><th>样本</th><th>均值（%）</th><th>中位数（%）</th><th>跑赢比例（%）</th></tr></thead><tbody><tr><th scope="row">2025-11-28</th><td>86</td><td>+4.6</td><td>-1.1</td><td>43</td></tr><tr><th scope="row">2025-12-26</th><td>82</td><td>+4.6</td><td>+2.6</td><td>62</td></tr><tr><th scope="row">2026-01-23</th><td>42</td><td>+1.6</td><td>+4.1</td><td>57</td></tr><tr><th scope="row">2026-02-27</th><td>58</td><td>+1.4</td><td>-0.4</td><td>48</td></tr><tr><th scope="row">2026-03-27</th><td>84</td><td>+20.2</td><td>+2.6</td><td>61</td></tr><tr><th scope="row">2026-04-24</th><td>74</td><td>+4.6</td><td>+3.9</td><td>62</td></tr><tr><th scope="row">2026-05-22</th><td>109</td><td>+7.1</td><td>+8.0</td><td>74</td></tr><tr><th scope="row">2026-06-18</th><td>88</td><td>+6.8</td><td>+8.3</td><td>77</td></tr><tr><th scope="row">2026-07-17</th><td>77</td><td>+4.0</td><td>+3.3</td><td>74</td></tr><tr><th scope="row">2026-08-14</th><td>79</td><td>+10.0</td><td>+10.9</td><td>81</td></tr></tbody></table></div><p class="note"><b>回测说明了什么：</b>A股和港股的业绩反转是两种做法：港股看机构预测、等股价确认；A股机构预测上调反而没有超额，财报确认的反转才有效，而且要买股价还没涨上去的（在26周均线下方）。这和“A股散户为主、短期反转、注意力有限”的研究结论一致。利润增速不是越高越好，0—30%的温和转正表现更好。</p><p class="note">季度利润：东方财富业绩报表（RPT_LICO_FN_CPD，累计数倒推单季，与上年同季比较，以公告日为可见日）；价格：东方财富估值分析日表（RPT_VALUEANALYSIS_DET）周收盘，未复权，持有期内股本变动超过5%的样本剔除；机构预测：东方财富研报（reportapi）每家机构120天内最新一篇的中位数。</p></details></section></main>
+<footer><div class="wrap"><nav class="secondary-nav" aria-label="资料与记录"><a href="../reports/index.html">研究报告</a><a href="../trades.html">操作记录</a><a href="../stocks/selection-rules.html">筛选规则</a><a href="../stocks/portfolio.html">组合约束详情</a></nav><p>个股研究仅使用赛道归属、兑现质量、价格反映三个决策维度；D/G归组合层。资料与规则日期分别标注，旧候选身份不代表已入池，研究短名单不是交易指令。</p>
+<p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer><script>
+function revealAnchor(){var id=decodeURIComponent(location.hash.slice(1)),el=document.getElementById(id);if(!el)return;for(var p=el;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;requestAnimationFrame(function(){el.scrollIntoView();});}
+window.addEventListener('hashchange',revealAnchor);if(location.hash)revealAnchor();
+document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(a){var el=document.getElementById(a.getAttribute('href').slice(1));for(;el;el=el.parentElement)if(el.tagName==='DETAILS')el.open=true;}});
+</script></body></html>

@@ -446,69 +446,7 @@ details.sub{margin:16px 0}details.sub>summary{cursor:pointer;font-size:16px;font
 .lp-map{margin:8px 0 0;font-size:13px}.lp-map a{color:#2f4f6f}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="../index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="../index.html">总览</a><a href="../boards/index.html">板块</a><a href="../stocks/index.html" aria-current="page">个股</a><a href="../news.html">新闻</a><a href="../framework.html">框架</a></nav></div></header>
-<main class="wrap"><style>
-.l2-hr{background:#f6f8fa;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13.5px;line-height:1.8}.l2-hr p{margin:2px 0}
-.lens-ul{font-size:13px;line-height:1.75;padding-left:18px}
-.l2-groups{display:flex;flex-direction:column;gap:6px;margin:10px 0 12px}.l2-g{font-size:14px;line-height:1.8}.l2j-table{min-width:1250px}.l2-why{display:block;color:#52687b;font-size:12px;line-height:1.6;margin-top:4px;max-width:260px}.l2-ref{background:#fafbfc}.lp-view.bad,.ov-c.bad{background:#f1f1f1;color:#777}#l2-judge{margin:24px 0}
-#weekly{margin:20px 0;border:1px solid #d4dfeb;border-radius:10px;padding:14px 20px;background:#fff}.wk-alert{background:#fff4dc;border-radius:8px;padding:8px 12px;font-size:14px}.wk-table{min-width:520px}
-#price-rules,#box-rules{margin:30px 0;border:1px solid #d4dfeb;border-radius:10px;padding:16px 20px;background:#fff}.pr-table{min-width:880px}.pr-table td small{font-size:12.5px;color:#455a6e;line-height:1.7}.pr-dl{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:6px 14px;margin:8px 0;font-size:14px;line-height:1.8}.pr-dl dt{font-weight:600;color:#223e57}.pr-dl dd{margin:0}.pr-in{margin-top:10px}.pr-in summary{cursor:pointer}
-@media(max-width:640px){.pr-dl{grid-template-columns:1fr}.pr-dl dd{margin-bottom:6px}}
-.plan{border:1px dashed #b8c8d8;border-radius:8px;padding:10px 14px;margin:10px 0}.plan-h{margin:0 0 4px}.plan ul{margin:2px 0 8px;padding-left:18px;font-size:13.5px;line-height:1.75}.plan-table{min-width:760px}.ov-c small+small{color:#9b3d27}
-.lp-mkt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 8px}.lp-mkt a{border:1px solid #c9d6e3;border-radius:10px;padding:12px 18px;background:#f6f8fa;text-decoration:none;color:#223e57}.lp-mkt a[aria-current]{background:#223e57;color:#fff;border-color:#223e57}.lp-mkt a[aria-current] span{color:#d5e0ea}.lp-mkt b{display:block;font-size:18px}.lp-mkt span{font-size:12.5px;color:#64798d}
-.lp-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 14px}.lp-tabs a{border:1px solid #d4dfeb;border-radius:10px;padding:12px 16px;background:#fff;text-decoration:none;color:#223e57}.lp-tabs a[aria-current]{border-color:#365875;box-shadow:inset 0 -3px 0 #365875}.lp-tabs b{display:block;font-size:16px}.lp-tabs span{font-size:12.5px;color:#64798d}
-.lp-jump{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px;position:sticky;top:56px;z-index:5;background:var(--paper,#f2f4f7);padding:8px 0}@media(max-width:760px){.lp-jump{position:static}.lp-tabs b{font-size:14.5px}.lp-tabs a{padding:10px 12px}}.lp-jump a{font-size:13px;padding:4px 10px;border-radius:14px;background:#eef2f6;text-decoration:none}
-.ov-c{display:inline-block;margin:3px 6px 3px 0;padding:4px 9px;border-radius:8px;background:#f3f6f9;font-size:13px;text-decoration:none;color:#223e57}.ov-c small{display:block;font-size:11px;color:#64798d}.ov-c.go{background:#fbe9e4}.ov-c.wait{background:#e8eef6}
-.lens{background:#f6f8fa;border-radius:8px;padding:10px 14px;margin:8px 0}.lens ul{margin:4px 0 6px;padding-left:18px}.lens li,.lens p{font-size:13.5px;line-height:1.75;margin:2px 0}
-.ly{display:inline-block;padding:1px 7px;border-radius:9px;font-size:12px}.ly-g{background:#e9f5ef;color:#2f6f53}.ly-m{background:#eef2f6;color:#455a6e}.ly-b{background:#fbe9e4;color:#9b3d27}
-.lp-sum{font-size:13px;color:#52687b;margin-left:10px}details.lp-sec>summary{cursor:pointer}details.lp-sec>summary h3{display:inline}
-.lp-table thead tr:first-child th{text-align:center;background:#f3f6f9}
-.lp-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:20px 0}.lp-two article{border:1px solid #d4dfeb;border-radius:10px;padding:18px 22px;background:#fff}.lp-two span{font-size:13px;color:#64798d;font-weight:600}.lp-two h2{font-size:20px;margin:6px 0 12px}.lp-two p{font-size:14.5px;line-height:1.85;margin:0 0 8px}
-.lp-funnel{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}.lp-funnel li{background:#f3f6f9;border-radius:8px;padding:8px 12px;font-size:13.5px;line-height:1.6}
-.lp-sec{border-top:1px solid #e1e8f0;padding:14px 0}.lp-sec h3{font-size:18px;margin:6px 0;display:inline}details.lp-sec>summary{cursor:pointer;list-style-position:outside}.lp-rule{font-size:13.5px;color:#455a6e;line-height:1.8}
-.lp-badge{font-size:12.5px;padding:2px 9px;border-radius:12px;margin-left:6px}.lp-up{background:#fbe9e4;color:#9b3d27}.lp-early{background:#fff4dc;color:#8a5a00}.lp-wait{background:#e8eef6;color:#2f4f6f}
-.lp-table{width:100%;min-width:900px}.lp-table td,.lp-table th{font-size:13.5px;line-height:1.7;vertical-align:top}.lp-table th small{display:block;font-weight:400;color:#6b7c8c;font-size:11.5px}
-.lp-view{font-size:12.5px;padding:2px 8px;border-radius:10px;background:#eef2f6;white-space:nowrap}.lp-view.go{background:#fbe9e4;color:#9b3d27}.lp-view.wait{background:#e8eef6;color:#2f4f6f}
-.l2-intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:center}.l2-intro p{font-size:14.5px;line-height:1.9}.l2-svg{width:100%;height:auto}
-.l2-act{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.l2-act p{margin:0;background:#f6f8fa;border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.8}.l2-sw{grid-column:1/-1}.l2-sw.off{background:#eef2f6!important}.l2-sw.on{background:#e9f5ef!important}
-.l2-bt p{font-size:14.5px;line-height:1.9}.l2-con{background:#fff4dc;border-radius:8px;padding:10px 14px}
-#logic1,#logic2{margin:34px 0}
-@media(max-width:900px){.lp-two,.l2-intro,.l2-act{grid-template-columns:1fr}}
-
-.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0 6px}
-.ab-col{background:#fff;border:1px solid #dfe6ee;border-radius:10px;padding:12px 14px;border-top:4px solid #c8d3df}
-.ab-col h3{font-size:15px;margin:0 0 2px;display:flex;justify-content:space-between;align-items:center}.ab-col h3 span{font-size:13px;color:#64798d;font-weight:600}
-.ab-col p{font-size:12px;color:#6b7c8c;margin:0 0 8px;line-height:1.5}.ab-col ul{list-style:none;margin:0;padding:0}
-.ab-col li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #eef2f6;font-size:13.5px}.ab-col li small{color:#6b7c8c;font-size:12px;text-align:right}
-.ab-col a{text-decoration:none;color:#1f3b57;font-weight:600}.ab-empty{color:#9aa8b5}
-.ab-wide{grid-column:1/-1}.ab-wide ul{display:flex;flex-wrap:wrap;gap:6px}.ab-wide li{border:none;background:#f3f6f9;border-radius:8px;padding:4px 10px;gap:6px}.ab-wide li small{text-align:left}.sc-dim{opacity:.72}
-.ab-buy{border-top-color:#3f8a64}.ab-high{border-top-color:#d1a23d}.ab-low{border-top-color:#9aa8b5}.ab-sell{border-top-color:#c4572a}.ab-wait{border-top-color:#5a7ea6}.ab-bad{border-top-color:#8c8c8c}
-.sc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:12px;margin:12px 0}
-.sc{background:#fff;border:1px solid #dfe6ee;border-radius:12px;padding:14px 16px;scroll-margin-top:90px;align-self:start}
-.sc header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.sc header b{font-size:16.5px;color:#1b324a}.sc header small{display:block;color:#6b7c8c;font-size:12px;margin-top:2px}
-.sc-px{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:13.5px;color:#455a6e}.sc-px b{font-size:17px;color:#1b324a}
-.st{font-size:12.5px;padding:2px 9px;border-radius:10px;font-weight:600}.st-buy{background:#e3f3ea;color:#2f6f53}.st-high{background:#fff3d9;color:#8a5a00}.st-sell{background:#fbe3dc;color:#9b3d27}.st-low,.st-na{background:#eef1f4;color:#5b6b7a}.st-stop{background:#ececec;color:#555}.st-wait{background:#e6eef7;color:#2f4f6f}
-.sc-plan span{display:inline-block;margin-right:18px}.sc-plan{display:block;margin:8px 0;font-size:13.5px;font-weight:600;color:#1b324a;font-variant-numeric:tabular-nums}.sc-plan em{font-style:normal;font-weight:400;color:#6b7c8c;font-size:12px;margin-right:5px}.sc-plan small{font-weight:400;color:#6b7c8c;font-size:11.5px}
-.sc-more{margin-top:6px;border-top:1px solid #eef2f6;padding-top:6px}.sc-more>summary{cursor:pointer;font-size:12.5px;color:#52687b;list-style:none}.sc-more>summary::before{content:"▸ ";color:#8a9aab}.sc-more[open]>summary::before{content:"▾ "}.sc-more[open]>summary{margin-bottom:6px}
-.ab-none{font-size:12.5px;color:#7a8794;margin:2px 0 0}
-.ch{list-style:none;display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 6px;padding:0}.ch li{display:flex;align-items:center;gap:4px;font-size:12px;border-radius:7px;padding:3px 7px;background:#eef1f4;color:#5b6b7a}.ch li span{opacity:.8}.ch li b{font-weight:600}
-.ch-ok{background:#e3f3ea!important;color:#2f6f53!important}.ch-no{background:#fbe3dc!important;color:#9b3d27!important}.ch-tip{background:#f3f0e6!important;color:#6b5a2e!important}
-.ch-d{margin:0 0 8px;font-size:12.5px;line-height:1.65;color:#3a4c5e}.ch-d div{display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:6px;padding:2px 0}.ch-d dt{color:#6b7c8c}.ch-d dd{margin:0}
-.sc-ly{list-style:none;margin:0;padding:0}.sc-ly li{display:grid;grid-template-columns:4.6em 3.1em minmax(0,1fr);align-items:baseline;gap:6px;padding:5px 0;border-top:1px solid #f0f3f6;font-size:13px;line-height:1.6}
-.sc-k{color:#455a6e;font-weight:600}.sc-v{color:#3a4c5e}.sc-note{font-size:12.5px;color:#6b5a2e;background:#fbf6e9;border-radius:8px;padding:6px 10px;margin:8px 0 0;line-height:1.6}.sc-na{color:#7a8794;font-size:13px}
-.pb{margin:6px 0 2px}.pb-track{position:relative;height:10px;background:#eef1f4;border-radius:5px}
-.pb-track i,.pb-track b{position:absolute;top:0;height:10px}.pb-rng{background:#dde5ee;border-radius:5px}.pb-buy{background:#7cc19a;border-radius:3px}
-.pb-sell{width:3px;background:#c4572a}.pb-stop{width:3px;background:#555}.pb-cur{width:4px;margin-left:-2px;top:-4px!important;height:18px!important;background:#1b324a;border-radius:2px}
-.pb-lab{display:flex;justify-content:space-between;font-size:11.5px;color:#6b7c8c;margin-top:4px}
-.sec-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.sec-meta{font-size:13px;color:#52687b}
-.sec-lens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.sec-lens div{background:#f6f8fa;border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.6;color:#3a4c5e}.sec-lens b{display:block;color:#1f3b57;font-size:13px}
-.sec-rule{font-size:12.5px;color:#455a6e;background:#f9fafb;border:1px dashed #cfd9e3;border-radius:8px;padding:8px 12px;line-height:1.7}
-details.more{margin:8px 0}details.more>summary{cursor:pointer;font-size:13px;color:#2f4f6f}
-.wk{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.wk-i{background:#fff;border:1px solid #dfe6ee;border-radius:8px;padding:6px 10px;font-size:13px}.wk-i a{font-weight:600;text-decoration:none;color:#1f3b57}.wk-i em{font-style:normal;color:#6b7c8c}
-.wk-sum{display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px;color:#52687b}.wk-sum span{background:#eef2f6;border-radius:10px;padding:2px 9px}
-@media(max-width:760px){.sec-lens{grid-template-columns:1fr}}
-
-.l2t-box{background:#f3f6f9;border-radius:10px;padding:14px 18px;margin:10px 0}.l2t-box p{font-size:14.5px;line-height:1.9;margin:4px 0}
-</style><nav class="lp-mkt" aria-label="市场"><a href="index.html"><b>A股</b><span>2条选股逻辑：顺势选股、国资箱体</span></a><a href="hk.html" aria-current="page"><b>港股</b><span>3条选股逻辑：顺势选股、业绩反转、两地比价</span></a></nav><p class="lp-map"><a href="logic-map.html">选股逻辑地图：12条逻辑的定义、上涨动力与本站覆盖 →</a></p><nav class="lp-tabs" aria-label="港股选股逻辑"><a href="hk.html"><b>逻辑一 · 顺势选股</b><span>大盘→板块→个股：能源、油运、硬件</span></a><a href="hk-turn.html"><b>逻辑二 · 业绩反转</b><span>机构上调预测＋空头不加仓＋研究核验</span></a><a href="hk-ah.html" aria-current="page"><b>逻辑三 · 两地比价</b><span>A股与H股比价、南向定价（只保留逻辑）</span></a></nav><div class="hero"><h1>港股 · 逻辑三 · A股与H股比价＋南向定价</h1><p class="sum">只保留逻辑，暂不选股。原“高息资产（中资银行、电信）”板块归入这条逻辑。</p></div><section><details class="ref"><summary><h2>规则</h2></summary><div class="l2t-box"><p>只看两地上市公司：H股较A股折价≥30%且南向持股比例上升时入选；折价收窄到15%以内卖出；高息股按税后股息率比较A股与H股（内地个人买H股红利缴20%，持有A股超过一年免税），同一公司有时直接买A股更划算。</p></div><p class="note">高息资产（中资银行、电信）的板块判断仍在<a href="../boards/hk-telecom.html">港股板块页</a>。</p></details></section></main>
+<main class="wrap"><nav class="lp-mkt" aria-label="市场"><a href="index.html"><b>A股</b><span>4条选股逻辑：景气顺势、业绩反转、红利高股息、估值修复</span></a><a href="hk.html" aria-current="page"><b>港股</b><span>4条选股逻辑：景气顺势、业绩反转、红利高股息、回购与私有化</span></a></nav><p class="lp-map"><a href="logic-map.html">选股逻辑地图：12条逻辑的定义、上涨动力与本站覆盖 →</a></p><nav class="lp-tabs" aria-label="港股选股逻辑"><a href="hk.html"><b>分子 · 景气顺势</b><span>大盘→板块→个股：能源、油运、硬件</span></a><a href="hk-turn.html"><b>分子 · 业绩反转</b><span>行业预期上调＋空头不加仓</span></a><a href="hk-dividend.html" aria-current="page"><b>分母 · 红利高股息</b><span>税后股息率；含A股与H股比价</span></a><a href="hk-event.html"><b>事件 · 回购与私有化</b><span>公司真金白银买入</span></a></nav><div class="hero"><h1>两地比价已并入“港股 · 分母 · 红利高股息”</h1><p class="sum">研究显示AH价差不会自动收敛，所以不单独作为选股逻辑，只用来比较同一家公司买A股还是H股股息更高。</p><p><a href="hk-dividend.html#ah">去比较工具 →</a></p></div></main>
 <footer><div class="wrap"><nav class="secondary-nav" aria-label="资料与记录"><a href="../reports/index.html">研究报告</a><a href="../trades.html">操作记录</a><a href="../stocks/selection-rules.html">筛选规则</a><a href="../stocks/portfolio.html">组合约束详情</a></nav><p>个股研究仅使用赛道归属、兑现质量、价格反映三个决策维度；D/G归组合层。资料与规则日期分别标注，旧候选身份不代表已入池，研究短名单不是交易指令。</p>
 <p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer><script>
 function revealAnchor(){var id=decodeURIComponent(location.hash.slice(1)),el=document.getElementById(id);if(!el)return;for(var p=el;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;requestAnimationFrame(function(){el.scrollIntoView();});}

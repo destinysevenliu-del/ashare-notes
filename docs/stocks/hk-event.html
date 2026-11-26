@@ -1,0 +1,515 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>港股 · 回购与私有化 | A 股框架笔记</title><style>:root{color-scheme:light;
+--paper:#F4F5F7;--surface:#FFFFFF;--ink:#18202B;--ink2:#4B5565;--ink3:#7C8696;--line:#DCE0E6;--line2:#EEF0F3;
+--up:#C8312B;--up-bg:#FBE8E6;--down:#15804E;--down-bg:#E2F2E9;--flat-bg:#ECEEF2;--link:#27408B;--link-bg:#E8ECF7;
+--warn:#8A6D12;--warn-bg:#FFF3C4;
+--serif:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong",serif;
+--sans:-apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.7 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--link);text-decoration:none}
+a:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px}
+.brand{font:600 18px/1 var(--serif);color:var(--ink)}
+header nav{display:flex;gap:2px;font-size:14px;align-items:center}
+header nav a,header nav .soon{padding:5px 10px;border-radius:6px;color:var(--ink2)}
+header nav a[aria-current]{background:var(--link-bg);color:var(--link);font-weight:600}
+header nav .soon{color:#B0B6C0}
+header nav .soon small{font-size:11px;margin-left:3px}
+
+.hero{padding:34px 0 6px}
+.hero .date{margin:0;color:var(--ink3);font-size:14px}
+.hero h1{font:600 34px/1.3 var(--serif);margin:2px 0 10px}
+.hero .sum{font:500 19px/1.6 var(--serif);margin:0;max-width:36em}
+.hero .stamp{font-size:13px;color:var(--ink3);margin:8px 0 0}
+
+.block{padding:34px 0 4px}
+h2{font:600 23px/1.3 var(--serif);margin:0 0 4px}
+.sub{color:var(--ink2);margin:0 0 16px;max-width:44em;font-size:14px}
+.note{color:var(--ink2);font-size:14px;max-width:46em}
+
+.tag{display:inline-block;font-size:12px;line-height:20px;padding:0 8px;border-radius:4px;margin-right:8px;white-space:nowrap;font-weight:600}
+.tag.up{background:var(--up-bg);color:var(--up)}
+.tag.down{background:var(--down-bg);color:var(--down)}
+.tag.flat,.tag.na{background:var(--flat-bg);color:var(--ink2)}
+.tag.alert{background:var(--warn-bg);color:var(--warn)}
+
+.chg-list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.chg-list li{padding:11px 16px;border-top:1px solid var(--line2);font-size:15px}
+.chg-list li:first-child{border-top:0}
+.chg-list li a{font-size:13px;margin-left:6px;white-space:nowrap}
+
+/* 框架图 */
+.fwbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 10px 6px;overflow-x:auto}
+svg.fw{display:block;width:100%;min-width:760px;height:auto}
+.fw .edge{fill:none;stroke:#9AA2AF;stroke-width:1.4}
+.fw .edge.fb{stroke:#D88B1F;stroke-dasharray:5 4}
+.fw .node rect{stroke-width:1.5}
+.fw .node .n{font:600 15px var(--sans);fill:var(--ink)}
+.fw .node .s{font:13px var(--sans);fill:var(--ink2)}
+.fw .node .lc{fill:var(--ink)} .fw .node .lt{font:700 13px var(--sans);fill:#fff}
+.fw .node.up rect{fill:var(--up-bg);stroke:var(--up)} .fw .node.up .s{fill:var(--up)} .fw .node.up .lc{fill:var(--up)}
+.fw .node.down rect{fill:var(--down-bg);stroke:var(--down)} .fw .node.down .s{fill:var(--down)} .fw .node.down .lc{fill:var(--down)}
+.fw .node.flat rect{fill:var(--flat-bg);stroke:#AEB5C1} .fw .node.flat .lc{fill:#7C8696}
+.fw .node.na rect{fill:#fff;stroke:#C3C8D0;stroke-dasharray:4 3} .fw .node.na .lc{fill:#B0B6C0} .fw .node.na .n{fill:var(--ink3)}
+.fw .node.price rect{fill:var(--ink);stroke:var(--ink)} .fw .node.price .n{fill:#fff} .fw .node.price .s{fill:#C9CFD8} .fw .node.price .lc{fill:#fff} .fw .node.price .lt{fill:var(--ink)}
+.fw .node:hover rect{stroke-width:3}
+.chips{display:none}
+
+/* 打分卡 */
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sc{background:var(--surface);padding:13px 16px;color:var(--ink);display:block}
+a.sc:hover{background:#FAFBFC}
+.sc .lbl{display:flex;align-items:baseline;gap:6px;font-weight:600}
+.sc .lbl .v{margin-left:auto;font:700 19px var(--sans)}
+.sc .man{font-size:11px;font-weight:600;color:var(--warn);background:var(--warn-bg);padding:0 5px;border-radius:3px}
+.v.up{color:var(--up)} .v.down{color:var(--down)} .v.flat{color:var(--ink3)}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin:7px 0 6px}
+.scale span{height:7px;border-radius:2px;background:var(--flat-bg)}
+.scale span.mid{background:#C9CED6} .scale span.u{background:var(--up)} .scale span.d{background:var(--down)}
+.sc p{margin:0;font-size:13px;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sc.total{grid-column:1/-1;background:var(--ink);color:#fff}
+.sc.total .v{color:#fff;font-size:26px}
+.sc.total p{color:#C9CFD8;-webkit-line-clamp:unset;margin-top:4px}
+.trend{display:block;width:100%;max-width:480px;height:auto;margin-top:8px}
+.trend .u{fill:#FF8A80} .trend .d{fill:#5BC28A} .trend .z{fill:#7C8696}
+
+/* 节点展开 */
+.nd{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px 16px;margin-bottom:16px;scroll-margin-top:72px}
+.nd:target{box-shadow:0 0 0 3px var(--link-bg);border-color:var(--link)}
+.ndh{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
+.ndh h3{margin:0;font:600 19px/1.35 var(--serif)}
+.ndh .q{margin:2px 0 0;color:var(--ink2);font-size:14px}
+.lc2{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;background:#7C8696}
+.lc2.up{background:var(--up)} .lc2.down{background:var(--down)} .lc2.price{background:var(--ink)} .lc2.na{background:#B0B6C0}
+h4{font-size:14px;margin:18px 0 8px;color:var(--ink2)}
+
+.verdict{border-left:4px solid #AEB5C1;background:#F8F9FB;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px}
+.verdict.up{border-color:var(--up);background:#FDF5F4} .verdict.down{border-color:var(--down);background:#F3FAF6}
+.verdict .vh{display:flex;align-items:center;gap:4px}
+.verdict .vh b{font-size:18px}
+.verdict.up .vh b{color:var(--up)} .verdict.down .vh b{color:var(--down)}
+.verdict .vwhy{margin-left:auto;font-size:12px;color:var(--ink3)}
+.verdict ul{list-style:none;margin:6px 0 0;padding:0}
+.verdict li{display:flex;gap:10px;font-size:14px;padding:3px 0;color:var(--ink)}
+.pt{flex:0 0 40px;text-align:right;font-weight:700;font-size:13px}
+.pt.up{color:var(--up)} .pt.down{color:var(--down)} .pt.flat{color:var(--ink3)}
+.mnote{font-size:13px;color:var(--warn);margin:6px 0 0}
+.verdict.na .mnote{color:var(--ink2)}
+
+.tblwrap{overflow-x:auto}
+table.mt{width:100%;border-collapse:collapse;font-size:14px}
+.mt th,.mt td{padding:9px 10px;border-top:1px solid var(--line2);text-align:left;vertical-align:middle}
+.mt thead th{border-top:0;font-size:12px;color:var(--ink3);font-weight:600;white-space:nowrap}
+.mt tbody th{font-weight:600;min-width:150px}
+.mt .hint{display:block;font-weight:400;font-size:12px;color:var(--ink3);line-height:1.45}
+.mt .v{font-weight:700;white-space:nowrap}
+.mt .chg{white-space:nowrap;font-size:13px}
+.mt .up,.chg.up{color:var(--up)} .mt .down,.chg.down{color:var(--down)} .chg.flat{color:var(--ink3)}
+.mt .dt{font-size:13px;color:var(--ink2);white-space:nowrap}
+.mt .freq{display:block;font-size:11px;color:var(--ink3)}
+.mt .sp{width:130px}
+.spark{display:block}
+.it td,.it th{white-space:nowrap}
+
+.chartbox{margin:14px 0 4px}
+svg.chart{display:block;width:100%;height:auto}
+.chart .grid{stroke:#EEF0F3} .chart .ax{font:11px var(--sans);fill:var(--ink3)}
+.chart .band{stroke:#D88B1F;stroke-dasharray:4 4} .chart .bandlab{font:11px var(--sans);fill:#B07015}
+.cleg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);padding-left:48px}
+.cleg i{display:inline-block;width:14px;height:3px;margin-right:6px;vertical-align:3px;border-radius:2px}
+
+.ev{list-style:none;margin:0;padding:0}
+.ev li{padding:8px 0;border-top:1px solid var(--line2);font-size:14px}
+.ev li:first-child{border-top:0}
+.ev .evd{color:var(--ink3);font-size:12px;margin-left:8px}
+.ev p{margin:2px 0 0;color:var(--ink2)}
+.ev .src{display:block;font-size:12px;color:var(--ink3)}
+
+details.rules{margin-top:12px;font-size:13px;color:var(--ink2);background:#F8F9FB;border-radius:8px;padding:8px 12px}
+details.rules summary{cursor:pointer;color:var(--link);font-weight:600}
+details.rules[open] summary{margin-bottom:6px}
+
+.conds{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.conds li{display:grid;grid-template-columns:96px 1fr;gap:2px 12px;padding:11px 16px;border-top:1px solid var(--line2);font-size:14px}
+.conds li:first-child{border-top:0}
+.conds .cs{grid-row:span 2;font-size:12px;font-weight:600;align-self:start;margin-top:2px;padding:1px 8px;border-radius:4px;text-align:center;background:var(--flat-bg);color:var(--ink3)}
+.conds li.hit .cs{background:var(--warn-bg);color:var(--warn)}
+.conds .cn{color:var(--ink2);font-size:13px}
+
+.empty{background:var(--surface);border:1px dashed #C3C8D0;border-radius:12px;padding:20px 24px}
+.empty h3{margin:0 0 6px;font:600 18px var(--serif)}
+.empty blockquote{margin:10px 0;padding:10px 14px;background:#F8F9FB;border-left:3px solid var(--link);color:var(--ink);border-radius:0 6px 6px 0}
+
+footer{margin-top:44px;padding:20px 0 40px;border-top:1px solid var(--line);font-size:13px;color:var(--ink3)}
+footer p{margin:4px 0}
+
+@media (max-width:760px){
+ .wrap{padding:0 16px}
+ .brand{font-size:16px}
+ header nav .soon{display:none}
+ .hero h1{font-size:26px} .hero .sum{font-size:17px}
+ .fwbox{display:none}
+ .chips{display:grid;gap:8px}
+ .chip{display:grid;grid-template-columns:28px 1fr;gap:0 10px;background:var(--surface);border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:9px 12px;color:var(--ink);font-size:14px;font-weight:600}
+ .chip b{grid-row:span 2;width:26px;height:26px;border-radius:50%;background:#7C8696;color:#fff;display:grid;place-items:center;font-size:13px}
+ .chip span{font-weight:400;font-size:13px;color:var(--ink2)}
+ .chip.up{border-left-color:var(--up)} .chip.up b{background:var(--up)} .chip.up span{color:var(--up)}
+ .chip.down{border-left-color:var(--down)} .chip.down b{background:var(--down)} .chip.down span{color:var(--down)}
+ .chip.price b{background:var(--ink)} .chip.na{border-style:dashed} .chip.na b{background:#B0B6C0}
+ .score{grid-template-columns:1fr 1fr}
+ .nd{padding:16px 14px 12px}
+ .mt .sp{display:none}
+ .mt tbody th{min-width:118px}
+ .conds li{grid-template-columns:1fr}
+ .conds .cs{grid-row:auto;justify-self:start}
+}
+
+/* 个股页 */
+.crumb{font-size:13px;color:var(--ink3);padding-top:22px}
+.crumb a{color:var(--ink2)}
+.shero{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-top:6px}
+.shero h1{margin:0}
+.shero h1 small{font:400 16px var(--sans);color:var(--ink3);margin-left:12px}
+.tags2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tags2 span{font-size:12px;padding:1px 10px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--ink2)}
+.tags2 .drv{background:var(--ink);border-color:var(--ink);color:#fff}
+.tags2 .cand{background:var(--warn-bg);border-color:var(--warn-bg);color:var(--warn)}
+.px{text-align:right}
+.px b{font:700 34px/1 var(--sans);display:block}
+.px span{font-weight:700;margin-right:8px}
+.px small{color:var(--ink3);font-size:12px}
+.up{color:var(--up)} .down{color:var(--down)}
+.tag.up,.tag.down{color:inherit}
+.tag.up{color:var(--up)} .tag.down{color:var(--down)}
+.lay th{width:72px;font-size:15px}
+.lay td:nth-child(2){width:96px}
+.soon2{font-size:12px;color:var(--ink3);margin-left:6px}
+.prior{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--link);border-radius:0 10px 10px 0;padding:12px 16px;margin:0;max-width:52em;font:500 16px/1.7 var(--serif)}
+.prior .src{display:block;font:12px var(--sans);color:var(--ink3);margin-top:4px}
+.fm .why{color:var(--ink2);font-size:13px;min-width:180px}
+.fm .now{font-size:13px;min-width:200px}
+.fm .now.na{color:var(--ink3)} .fm .now.flat{color:var(--ink2)}
+.lv{display:inline-block;font-size:12px;font-weight:700;padding:0 8px;border-radius:4px}
+.lv.hi{background:var(--ink);color:#fff} .lv.mid{background:#C9CED6;color:var(--ink)} .lv.lo{background:var(--flat-bg);color:var(--ink3)}
+.ndlist{margin-top:16px}
+.h3s{margin:0 0 6px;font:600 18px var(--serif)}
+.ann{list-style:none;margin:0;padding:0;font-size:14px}
+.ann li{padding:5px 0;border-top:1px solid var(--line2)}
+.ann li:first-child{border-top:0}
+.ann .evd{display:inline-block;width:92px;color:var(--ink3);font-size:12px}
+/* 个股列表 */
+.slist{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.srow{display:grid;grid-template-columns:1.4fr 1fr .8fr .9fr .9fr 1.6fr;gap:12px;align-items:center;padding:14px 18px;border-top:1px solid var(--line2);color:var(--ink)}
+.srow:first-child{border-top:0}
+.srow:hover{background:#FAFBFC}
+.srow .nm{font-weight:700;font-size:16px}
+.srow .nm small{display:block;font-weight:400;font-size:12px;color:var(--ink3)}
+.srow .px2 b{display:block;font-size:16px}
+.srow .px2 span{font-size:13px;font-weight:600}
+.srow .kv{font-size:12px;color:var(--ink3)} .srow .kv b{display:block;font-size:15px;color:var(--ink)}
+.srow .kv b.up{color:var(--up)} .srow .kv b.down{color:var(--down)}
+.lys{display:flex;gap:4px;flex-wrap:wrap}
+.lys .tag{margin:0}
+/* 报告 */
+.rplist{display:grid;gap:10px}
+.rp{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;color:var(--ink)}
+.rp:hover{border-color:var(--link)}
+.rp b{font:600 17px var(--serif);display:block}
+.rp .rh{display:block;color:var(--ink);font-size:14px;margin-top:2px}
+.rp .rd{display:block;color:var(--ink3);font-size:13px}
+@media (max-width:760px){
+ .srow{grid-template-columns:1fr 1fr;gap:6px 12px}
+ .srow .lys{grid-column:1/-1}
+ .px{text-align:left}
+ .fm .why{min-width:140px}
+}
+.lc2{color:#fff!important}
+@media (max-width:760px){
+ .lay tr{display:grid;grid-template-columns:64px 1fr;padding:8px 0;border-top:1px solid var(--line2)}
+ .lay th,.lay td{border:0;padding:2px 8px}
+ .lay td:last-child{grid-column:1/-1}
+}
+.chip2{display:inline-block;font-size:12px;padding:1px 10px;border-radius:20px;background:var(--link-bg);color:var(--link);margin-right:4px}
+.sum2{font-size:15px;color:var(--ink2);margin:14px 0 0}
+.sum2 b{font-size:18px}
+.brow{grid-template-columns:1.6fr .7fr .9fr .9fr 1fr 1.4fr}
+.sc .sk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--flat-bg);color:var(--ink2);font-size:11px;font-weight:700}
+@media (max-width:760px){.sc.total{grid-column:1/-1!important}}
+@media (max-width:760px){.score .sc:nth-last-child(2):nth-child(odd){grid-column:1/-1}}
+.lls{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:22px}
+.ll{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.ll p{margin:6px 0 0;font-size:14px}
+.llh{display:flex;align-items:center;gap:8px}
+.llh b{font:600 17px var(--serif)}
+.llh .v{margin-left:auto;font:700 18px var(--sans)}
+.star{font-size:11px;font-weight:700;background:var(--link);color:#fff;padding:1px 7px;border-radius:4px}
+.kv2{color:var(--ink3);font-size:12px!important}
+.scr td,.scr th{white-space:nowrap;font-size:13px}
+.scr tr.hl{background:#F7F9FE}
+@media (max-width:760px){.lls{grid-template-columns:1fr}}
+.gh{margin:22px 0 8px;display:flex;align-items:baseline;gap:10px}
+.gh small{font:13px var(--sans);color:var(--ink3)}
+.tags2 .st2{background:var(--link-bg);border-color:var(--link-bg);color:var(--link)}
+
+/* v2 research cards: preserve readable columns, scroll tables on narrow screens. */
+#research{scroll-margin-top:110px}
+#research table{min-width:920px}
+#research th:first-child{min-width:85px}
+#research td{vertical-align:top}
+@media(max-width:600px){
+ header.top .wrap{height:auto;min-height:72px;flex-wrap:wrap;gap:6px;padding-top:10px;padding-bottom:8px}
+ .brand{white-space:nowrap}
+ header nav{width:100%;justify-content:space-between;white-space:nowrap}
+ header nav a{padding:5px 8px}
+}
+
+/* HK market navigation and observation cards */
+.market-switch{display:flex;gap:6px;padding-top:26px;align-items:center}
+.market-switch a{padding:8px 24px;border:1px solid var(--line,#dedbd5);border-radius:5px;text-decoration:none;color:inherit;font-weight:600}
+.market-switch a[aria-current="page"]{background:#293e50;color:#fff;border-color:#293e50}
+.market-switch+.hero{padding-top:30px}
+.hk-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.hk-node{border:1px solid var(--line);border-left:3px solid currentColor;border-radius:10px;padding:13px 15px;text-decoration:none;display:flex;flex-direction:column;gap:6px;color:var(--ink3);background:var(--surface)}
+.hk-node b{font:700 20px/1 var(--serif)}.hk-node span{font-weight:600;color:var(--ink);font-size:14px}.hk-node small{font-size:11px;color:var(--ink3)}
+.hk-notice{border-left:3px solid var(--warn);padding:8px 18px;background:var(--warn-bg);font-size:13px;border-radius:0 8px 8px 0}
+.hk-diagram{width:100%;display:block}.hk-diagram text{font-family:inherit;fill:var(--ink2)}.hk-diagram .small{font-size:10px;fill:var(--ink3)}
+@media(min-width:761px){.hk-diagram+.hk-map{display:none}}
+@media(max-width:760px){.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}.hk-diagram{display:none}.hk-node{padding:12px}.market-switch{padding-top:18px}}
+
+.hk-node.fx,.lc2.fx{color:#3478db;border-color:#4e91ff;background:#eef5ff}
+.lc2.fx{background:#3478db;color:#fff}
+.hk-node.price{background:#172333;color:#fff}.hk-node.price span,.hk-node.price small{color:#fff}
+@media(max-width:760px){.hk-map{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.hk-call{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#f0f3f7;padding:16px;margin-bottom:18px;border-radius:6px}.hk-call small{color:#64748b}.hk-scope{display:block;color:#64748b;font-size:11px;line-height:1.6;margin-top:6px}.hk-evidence p{line-height:1.9}.hk-evidence .mt th:first-child{min-width:100px}.hk-evidence .mt td:last-child{white-space:nowrap}
+@media(max-width:760px){.hk-evidence .mt{min-width:640px}.hk-evidence .tblwrap{overflow-x:auto}.hk-call{padding:12px}}
+
+.hk-mobilehint{display:none}@media(max-width:760px){.hk-mobilehint{display:block;font-size:12px;color:#64748b}}
+
+/* ---- 半年名单 /picks/ ---- */
+.pkbar{width:100%;height:auto;margin:8px 0 0}
+.pkb{fill:#fff;font:600 13px var(--sans)}
+.pkbl{fill:var(--ink2);font:12px var(--sans)}
+.pklegend{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 0;font-size:13px;color:var(--ink2)}
+.pkleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+table.pk td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.pk td.pkjudge{font-size:13px;color:var(--ink2);min-width:260px}
+.pkh3{font:600 17px/1.4 var(--serif);margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
+.pkh3:first-of-type{margin-top:8px}
+.pkh3 span{font:13px var(--sans);color:var(--ink3)}
+.pkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.pkcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 12px;border-top:3px solid var(--line)}
+.pkcard.tA{border-top-color:var(--link)}
+.pkcard.tB{border-top-color:var(--ink3)}
+.pkcard.tC{border-top-color:var(--up)}
+.pkh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.pkh a{font:600 18px/1.3 var(--serif);color:var(--ink)}
+.pkw{font:700 15px var(--sans);color:var(--link)}
+.pkmeta{margin:2px 0 8px;font-size:12px;color:var(--ink3)}
+.pkmini{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pkmini span{font-size:12px;color:var(--ink2);background:var(--line2);border-radius:6px;padding:2px 8px}
+.pkmini b{color:var(--ink);font-weight:700}
+.pkass{margin:0 0 8px;font-size:13.5px;line-height:1.65;color:var(--ink)}
+.pklab{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--ink);border-radius:4px;padding:0 6px;margin-right:6px}
+.pklab2{display:block;margin:0 0 4px;background:var(--warn-bg);color:var(--warn)}
+.pkfals{margin:0;padding-left:18px;font-size:13px;color:var(--ink2)}
+.pkfals li{margin:2px 0}
+.pknote{margin:8px 0 0;font-size:12px;color:var(--ink3)}
+.pkrules{margin:0;padding-left:22px;font-size:14.5px}
+.pkrules li{margin:6px 0}
+
+/* 今天变了什么：结论先行（A 股与港股共用） */
+.lead{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ink);border-radius:12px;padding:15px 20px 13px;margin:0 0 14px}
+.lead-k{font:700 11px var(--sans);letter-spacing:.14em;color:var(--ink3);margin:0 0 6px}
+.lead-main{font:600 19px/1.62 var(--serif);margin:0 0 9px;max-width:46em}
+.lead-points{margin:0;padding-left:18px;font-size:14px;line-height:1.78;color:var(--ink2)}
+.lead-points li{margin:2px 0}
+.lead-points b{color:var(--ink)}
+@media(max-width:760px){.lead-main{font-size:17px}}
+.v.na{color:var(--ink3)} .v.fx{color:var(--link)} .v.price{color:var(--ink2)}
+
+/* 信号时效分析 */
+.hz-lead{border-left-color:var(--link)}
+.hz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:32px}
+.hz-col{background:var(--surface);padding:18px 20px}
+.hz-head{font:600 16px/1.3 var(--serif);margin:-18px -20px 12px;padding:12px 20px;background:var(--flat-bg);display:flex;align-items:center;gap:6px}
+.hz-head span{font-size:20px}
+.hz-s{border-bottom:3px solid var(--up)} .hz-m{border-bottom:3px solid #D88B1F} .hz-l{border-bottom:3px solid var(--down)}
+.hz-tbl{font-size:13px}
+.hz-tbl td.note{font-size:12px}
+.hz-col > .note{font-size:13px;margin:0 0 10px}
+.hz-col .tblwrap .mt td{padding:7px 8px}
+.chip2{display:inline-block;font-size:11px;font-weight:700;background:var(--flat-bg);color:var(--ink2);padding:1px 6px;border-radius:4px;margin-left:4px;vertical-align:1px}
+.chip2:hover{background:var(--link-bg);color:var(--link)}
+@media(max-width:760px){.hz-grid{grid-template-columns:1fr}}
+/* 板块选入理由 */
+.reason-block{padding:14px 20px}
+.reason-label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.hz-badge{display:inline-block;margin-left:8px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;vertical-align:middle}
+.hz-struct{background:#dbeafe;color:#1e40af}
+.hz-cycle{background:#fef3c7;color:#92400e}
+
+.reason-link{font-size:11.5px;color:var(--ink2)}
+.reason-link a{color:var(--link)}
+/* 股性卡 */
+.gx-block{background:var(--surface)}
+.gx-char{font-size:13.5px;color:var(--ink);line-height:1.6;margin-bottom:12px;padding:12px 16px;background:white;border-radius:8px;border:1px solid var(--line)}
+
+/* 半年板块推断 */
+.ol-lead{border-left-color:var(--link)}
+.ol-lead .lead-points li{margin-bottom:6px}
+.ol-tier{margin:0 0 22px}
+.ol-th{display:flex;align-items:center;gap:4px;margin:0 0 10px}
+.ol-desc{font-size:13px;color:var(--ink2)}
+.ol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ol-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 16px}
+.ol-ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;font-size:15px}
+.ol-ch a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.ol-hz{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--link-bg);color:var(--link);font-weight:600}
+.ol-new{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-weight:600}
+.ol-stat{font-size:12px;color:var(--ink3);margin:0 0 6px;line-height:1.5}
+.ol-p{font-size:13px;line-height:1.6;margin:4px 0;color:var(--ink)}
+.ol-lab{display:inline-block;font-size:11px;font-weight:700;color:var(--ink2);background:var(--flat-bg);border-radius:4px;padding:0 6px;margin-right:6px}
+.ol-scs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 24px}
+.ol-sc{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--ink3);border-radius:12px;padding:12px 16px;font-size:13px;line-height:1.6}
+.ol-sc.up{border-top-color:var(--up)} .ol-sc.down{border-top-color:var(--down)}
+.ol-sc p{margin:6px 0 0}
+@media(max-width:760px){.ol-scs{grid-template-columns:1fr}}
+
+/* 大盘页一级折叠 */
+.l1nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+.l1nav a{font-size:13px;padding:4px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--line);color:var(--ink2);text-decoration:none}
+details.l1{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px 22px;margin:0 0 18px}
+details.l1[open]{padding-bottom:18px}
+details.l1>summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:14px 0}
+details.l1>summary::-webkit-details-marker{display:none}
+details.l1>summary h2{margin:0;font:600 22px/1.3 var(--serif)}
+details.l1>summary h2::before{content:"▸";display:inline-block;margin-right:10px;color:var(--ink3);transition:transform .15s}
+details.l1[open]>summary h2::before{transform:rotate(90deg)}
+details.l1[open]>summary{border-bottom:1px solid var(--line2);margin-bottom:12px}
+.l1hint{font-size:13px;color:var(--ink3)}
+details.sub2{margin:14px 0;border:1px solid var(--line2);border-radius:10px;padding:8px 14px;background:#FAFBFC}
+details.sub2>summary{cursor:pointer;font-weight:600;color:var(--link);font-size:14px}
+details.sub2[open]>summary{margin-bottom:10px}
+body:has(.stock-decisions) .wrap{max-width:1700px;padding-left:32px;padding-right:32px}
+.stock-decisions{padding:20px 0 46px;font-family:var(--sans)}
+.stock-decisions .hero{padding:20px 0}.stock-decisions .hero h1{font-size:30px}.stock-decisions .hero .sum{max-width:none;font-size:16px;line-height:1.9}
+.sd-nav{position:sticky;top:57px;z-index:5;display:flex;gap:10px;padding:12px 0;background:var(--bg);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.sd-nav a{padding:7px 13px;border-radius:6px;background:#eaf0f6;color:#304e69;font-size:14px}
+.stock-decisions h2{font-size:22px;margin:24px 0 14px}.stock-decisions h3{font-size:17px;margin:0 0 10px}.stock-decisions p,.stock-decisions li{line-height:1.85;font-size:14px;overflow-wrap:anywhere}.stock-decisions li{margin-bottom:9px}
+.stock-decisions [id]{scroll-margin-top:136px}.stock-decisions small{display:block;font-size:12px;line-height:1.8;color:#657487;font-weight:400}
+.sd-panel{border:1px solid #d5dfeb;background:#fff;border-radius:10px;padding:22px 25px;margin:20px 0;min-width:0}.sd-panel h2:first-child{margin-top:0}
+.sd-note{color:#536478;font-size:13px!important}.sd-lead{font-size:17px!important;font-weight:600}
+.sd-flow{display:grid;grid-template-columns:1fr 32px 1fr 32px 1fr;align-items:center;gap:10px;margin:14px 0}
+.sd-flow>div{border:1px solid #b8cbdd;background:#eff4f9;padding:18px 20px;border-radius:8px;min-width:0}
+.sd-flow b{display:block;font-size:18px;margin-bottom:7px}.sd-flow span{font-size:13px;color:#4d6277}.sd-flow i{text-align:center;font-style:normal;font-size:24px;color:#6b8095}
+.sd-stats,.sd-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:24px 0}
+.sd-stats>div,.sd-three>a{padding:18px 22px;border:1px solid #d3deea;background:#fff;border-radius:8px;display:block;color:var(--ink)}
+.sd-stats b{display:block;font-size:28px;margin-bottom:7px}.sd-stats span{font-size:13px;color:#617286}.sd-three b{display:block;margin-bottom:12px;font-size:17px}
+.sd-pools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.sd-pools>.sd-panel{margin:0}
+.sd-badge{display:inline-block;padding:3px 8px;border:1px solid #c6d5e3;background:#edf3f8;border-radius:5px;font:500 12px/1.8 var(--sans);color:#34546d}
+.sd-contract{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:16px 0;padding:16px;background:#f5f8fb;border-radius:8px}
+.sd-contract p{margin:4px 0}.sd-table-wrap{overflow-x:auto;border:1px solid #d9e2ed;border-radius:8px;margin:16px 0}
+.sd-table{border-collapse:collapse;width:100%;font-size:14px;table-layout:fixed;min-width:900px}.sd-table th,.sd-table td{padding:16px 18px;border-bottom:1px solid #dfe6ee;text-align:left;vertical-align:top;line-height:1.8;overflow-wrap:anywhere}
+.sd-table thead th{background:#edf3f8;color:#5b6f85;font-size:13px}.sd-table tbody th{font-weight:500}.sd-table th>a{font-size:16px;font-weight:600}.sd-table p{margin:8px 0}.sd-comp th:first-child{width:18%}.sd-comp td{width:27.33%}
+.sd-roles{border-top:1px solid #d5dfeb;padding-top:20px;margin-top:30px}.sd-roles summary,.sd-panel summary,.sd-archive summary{cursor:pointer;font-weight:600;font-size:15px}
+.sd-archive{background:#f4f7fa;padding:16px 20px;border-radius:7px}.sd-roles .sd-table th:first-child{width:70px}.sd-roles .sd-table th:nth-child(2){width:240px}
+@media(max-width:1000px){.sd-pools{grid-template-columns:1fr}.sd-contract{grid-template-columns:1fr;gap:10px}.sd-flow{gap:5px}.sd-flow>div{padding:14px}.sd-flow b{font-size:15px}}
+@media(max-width:700px){body:has(.stock-decisions) .wrap{padding-left:16px;padding-right:16px}.sd-nav{position:static}.sd-flow{grid-template-columns:1fr}.sd-flow i{transform:rotate(90deg)}.sd-stats,.sd-three{grid-template-columns:1fr;gap:10px}.sd-panel{padding:18px 16px}.stock-decisions .hero h1{font-size:26px}.stock-decisions [id]{scroll-margin-top:75px}}
+.secondary-nav{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:16px;font-size:13px}.secondary-nav a{color:#536b82}
+body:has(.market-research) .wrap{max-width:1500px}.market-research{display:block!important}.market-rail{display:none}.market-content .l1nav{display:none!important}
+.market-content details.l1{margin-bottom:16px}.market-content .hero{padding:18px 0}.market-content .hero h1{font-size:30px}
+.overview-decisions,.overview-evidence{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin:15px 0 22px}
+.overview-decisions article{border:1px solid #c8d8e7;border-top:3px solid #3d5c77;border-radius:8px;background:#f3f7fb;padding:20px;min-width:0}
+.overview-decisions span{font-size:12px;color:#60758b}.overview-decisions h3{font:600 19px/1.55 var(--sans);margin:10px 0}.overview-decisions p{font-size:14px;line-height:1.9;margin:10px 0 0}
+.overview-change{font-size:13px!important;color:#5d7185;border-bottom:1px solid #dce4ed;padding-bottom:16px}
+.overview-evidence article{padding:0 18px 0 0;border-right:1px solid #e0e6ed;min-width:0}.overview-evidence article:last-child{border:0}.overview-evidence h4{font:600 16px/1.6 var(--sans);margin:0 0 10px}.overview-evidence p{font-size:14px;line-height:1.85}.overview-evidence .src{font-size:11px;line-height:1.6}
+.overview-conditions{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:18px 20px;background:#f7f8fa;border-radius:7px;margin:22px 0}.overview-conditions b{font-size:14px}.overview-conditions p{font-size:14px;line-height:1.8;margin:8px 0 0}
+.next-step{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:20px 0;border-top:1px solid #dce4ed}.next-step p{font-size:13px;margin:6px 0}.next-step>a{white-space:nowrap;font-size:14px;padding:10px 18px;border-radius:6px;background:#26455f;color:white}
+.deep-research{border:1px solid #d4dfea;border-radius:8px;padding:16px 20px;margin:18px 0;background:#fff}.deep-research>summary{font:600 15px/1.8 var(--sans);cursor:pointer;color:#395872}.deep-research[open]>summary{border-bottom:1px solid #e0e7ef;padding-bottom:12px;margin-bottom:18px}
+.macro-flow{display:block;width:100%;max-width:1000px;margin:auto}.macro-flow-wrap{overflow-x:auto}.sector-factor-notes{border-top:1px solid #dce4ed;margin-top:18px;padding-top:15px}.sector-factor-notes summary{cursor:pointer;font-size:14px;color:#4a647b}
+.research-rail .factor-links{display:none}.research-content .takeaway-grid{display:none}.research-content .final-panel .factor-balance{margin-bottom:0}.research-content .hero-meta{font-size:12px}.sd-nav{position:static!important;justify-content:space-between}.sd-nav details{font-size:13px;color:#536b82}.sd-nav details a{background:transparent;padding:6px 8px;font-size:12px}.sd-summary-line{font-size:13px;color:#596e84;padding:12px 0;border-bottom:1px solid #dbe3ec}
+@media(max-width:900px){.overview-decisions,.overview-evidence,.overview-conditions{grid-template-columns:1fr}.overview-evidence article{border-right:0;border-bottom:1px solid #e0e6ed;padding-bottom:12px}.next-step{align-items:start;flex-direction:column}.macro-flow{min-width:760px}}
+/* 2026-11-26 排版整理：首屏只留结论与候选，参考内容折叠，文字层级统一 */
+.hero .sum{font-size:16px;line-height:1.8;max-width:46em;margin:8px 0 4px}.hero-meta{font-size:12.5px;color:#6b7c8c;margin:4px 0 0}
+p.note{font-size:13px;line-height:1.75;color:#52687b;max-width:60em}
+details.ref{border:1px solid #e1e8ef;border-radius:10px;background:#fff;padding:4px 18px;margin:14px 0}
+details.ref>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}details.ref>summary::-webkit-details-marker{display:none}
+details.ref>summary h2{display:inline;font-size:18px;margin:10px 0;color:#2f4a63}details.ref>summary::before{content:"▸";color:#8a9aab;font-size:13px}details.ref[open]>summary::before{content:"▾"}
+details.ref>summary::after{content:"参考，点击展开";font-size:12px;color:#8a9aab;margin-left:auto}details.ref[open]>summary::after{content:"收起"}
+details.more>summary{cursor:pointer;font-size:13px;color:#2f4f6f;margin:6px 0}
+.lp-jump{margin:10px 0 18px}
+details.sub{margin:16px 0}details.sub>summary{cursor:pointer;font-size:16px;font-weight:600;color:#2f4a63;padding:6px 0}details.sub>summary::marker{color:#8a9aab}
+.lp-map{margin:8px 0 0;font-size:13px}.lp-map a{color:#2f4f6f}
+</style></head><body>
+<header class="top"><div class="wrap"><a class="brand" href="../index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="../index.html">总览</a><a href="../boards/index.html">板块</a><a href="../stocks/index.html" aria-current="page">个股</a><a href="../news.html">新闻</a><a href="../framework.html">框架</a></nav></div></header>
+<main class="wrap"><style>
+.l2-hr{background:#f6f8fa;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13.5px;line-height:1.8}.l2-hr p{margin:2px 0}
+.lens-ul{font-size:13px;line-height:1.75;padding-left:18px}
+.l2-groups{display:flex;flex-direction:column;gap:6px;margin:10px 0 12px}.l2-g{font-size:14px;line-height:1.8}.l2j-table{min-width:1250px}.l2-why{display:block;color:#52687b;font-size:12px;line-height:1.6;margin-top:4px;max-width:260px}.l2-ref{background:#fafbfc}.lp-view.bad,.ov-c.bad{background:#f1f1f1;color:#777}#l2-judge{margin:24px 0}
+#weekly{margin:20px 0;border:1px solid #d4dfeb;border-radius:10px;padding:14px 20px;background:#fff}.wk-alert{background:#fff4dc;border-radius:8px;padding:8px 12px;font-size:14px}.wk-table{min-width:520px}
+#price-rules,#box-rules{margin:30px 0;border:1px solid #d4dfeb;border-radius:10px;padding:16px 20px;background:#fff}.pr-table{min-width:880px}.pr-table td small{font-size:12.5px;color:#455a6e;line-height:1.7}.pr-dl{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:6px 14px;margin:8px 0;font-size:14px;line-height:1.8}.pr-dl dt{font-weight:600;color:#223e57}.pr-dl dd{margin:0}.pr-in{margin-top:10px}.pr-in summary{cursor:pointer}
+@media(max-width:640px){.pr-dl{grid-template-columns:1fr}.pr-dl dd{margin-bottom:6px}}
+.plan{border:1px dashed #b8c8d8;border-radius:8px;padding:10px 14px;margin:10px 0}.plan-h{margin:0 0 4px}.plan ul{margin:2px 0 8px;padding-left:18px;font-size:13.5px;line-height:1.75}.plan-table{min-width:760px}.ov-c small+small{color:#9b3d27}
+.lp-mkt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 8px}.lp-mkt a{border:1px solid #c9d6e3;border-radius:10px;padding:12px 18px;background:#f6f8fa;text-decoration:none;color:#223e57}.lp-mkt a[aria-current]{background:#223e57;color:#fff;border-color:#223e57}.lp-mkt a[aria-current] span{color:#d5e0ea}.lp-mkt b{display:block;font-size:18px}.lp-mkt span{font-size:12.5px;color:#64798d}
+.lp-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 14px}.lp-tabs a{border:1px solid #d4dfeb;border-radius:10px;padding:12px 16px;background:#fff;text-decoration:none;color:#223e57}.lp-tabs a[aria-current]{border-color:#365875;box-shadow:inset 0 -3px 0 #365875}.lp-tabs b{display:block;font-size:16px}.lp-tabs span{font-size:12.5px;color:#64798d}
+.lp-jump{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px;position:sticky;top:56px;z-index:5;background:var(--paper,#f2f4f7);padding:8px 0}@media(max-width:760px){.lp-jump{position:static}.lp-tabs b{font-size:14.5px}.lp-tabs a{padding:10px 12px}}.lp-jump a{font-size:13px;padding:4px 10px;border-radius:14px;background:#eef2f6;text-decoration:none}
+.ov-c{display:inline-block;margin:3px 6px 3px 0;padding:4px 9px;border-radius:8px;background:#f3f6f9;font-size:13px;text-decoration:none;color:#223e57}.ov-c small{display:block;font-size:11px;color:#64798d}.ov-c.go{background:#fbe9e4}.ov-c.wait{background:#e8eef6}
+.lens{background:#f6f8fa;border-radius:8px;padding:10px 14px;margin:8px 0}.lens ul{margin:4px 0 6px;padding-left:18px}.lens li,.lens p{font-size:13.5px;line-height:1.75;margin:2px 0}
+.ly{display:inline-block;padding:1px 7px;border-radius:9px;font-size:12px}.ly-g{background:#e9f5ef;color:#2f6f53}.ly-m{background:#eef2f6;color:#455a6e}.ly-b{background:#fbe9e4;color:#9b3d27}
+.lp-sum{font-size:13px;color:#52687b;margin-left:10px}details.lp-sec>summary{cursor:pointer}details.lp-sec>summary h3{display:inline}
+.lp-table thead tr:first-child th{text-align:center;background:#f3f6f9}
+.lp-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:20px 0}.lp-two article{border:1px solid #d4dfeb;border-radius:10px;padding:18px 22px;background:#fff}.lp-two span{font-size:13px;color:#64798d;font-weight:600}.lp-two h2{font-size:20px;margin:6px 0 12px}.lp-two p{font-size:14.5px;line-height:1.85;margin:0 0 8px}
+.lp-funnel{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}.lp-funnel li{background:#f3f6f9;border-radius:8px;padding:8px 12px;font-size:13.5px;line-height:1.6}
+.lp-sec{border-top:1px solid #e1e8f0;padding:14px 0}.lp-sec h3{font-size:18px;margin:6px 0;display:inline}details.lp-sec>summary{cursor:pointer;list-style-position:outside}.lp-rule{font-size:13.5px;color:#455a6e;line-height:1.8}
+.lp-badge{font-size:12.5px;padding:2px 9px;border-radius:12px;margin-left:6px}.lp-up{background:#fbe9e4;color:#9b3d27}.lp-early{background:#fff4dc;color:#8a5a00}.lp-wait{background:#e8eef6;color:#2f4f6f}
+.lp-table{width:100%;min-width:900px}.lp-table td,.lp-table th{font-size:13.5px;line-height:1.7;vertical-align:top}.lp-table th small{display:block;font-weight:400;color:#6b7c8c;font-size:11.5px}
+.lp-view{font-size:12.5px;padding:2px 8px;border-radius:10px;background:#eef2f6;white-space:nowrap}.lp-view.go{background:#fbe9e4;color:#9b3d27}.lp-view.wait{background:#e8eef6;color:#2f4f6f}
+.l2-intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:center}.l2-intro p{font-size:14.5px;line-height:1.9}.l2-svg{width:100%;height:auto}
+.l2-act{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.l2-act p{margin:0;background:#f6f8fa;border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.8}.l2-sw{grid-column:1/-1}.l2-sw.off{background:#eef2f6!important}.l2-sw.on{background:#e9f5ef!important}
+.l2-bt p{font-size:14.5px;line-height:1.9}.l2-con{background:#fff4dc;border-radius:8px;padding:10px 14px}
+#logic1,#logic2{margin:34px 0}
+@media(max-width:900px){.lp-two,.l2-intro,.l2-act{grid-template-columns:1fr}}
+
+.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0 6px}
+.ab-col{background:#fff;border:1px solid #dfe6ee;border-radius:10px;padding:12px 14px;border-top:4px solid #c8d3df}
+.ab-col h3{font-size:15px;margin:0 0 2px;display:flex;justify-content:space-between;align-items:center}.ab-col h3 span{font-size:13px;color:#64798d;font-weight:600}
+.ab-col p{font-size:12px;color:#6b7c8c;margin:0 0 8px;line-height:1.5}.ab-col ul{list-style:none;margin:0;padding:0}
+.ab-col li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #eef2f6;font-size:13.5px}.ab-col li small{color:#6b7c8c;font-size:12px;text-align:right}
+.ab-col a{text-decoration:none;color:#1f3b57;font-weight:600}.ab-empty{color:#9aa8b5}
+.ab-wide{grid-column:1/-1}.ab-wide ul{display:flex;flex-wrap:wrap;gap:6px}.ab-wide li{border:none;background:#f3f6f9;border-radius:8px;padding:4px 10px;gap:6px}.ab-wide li small{text-align:left}.sc-dim{opacity:.72}
+.ab-buy{border-top-color:#3f8a64}.ab-high{border-top-color:#d1a23d}.ab-low{border-top-color:#9aa8b5}.ab-sell{border-top-color:#c4572a}.ab-wait{border-top-color:#5a7ea6}.ab-bad{border-top-color:#8c8c8c}
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:12px;margin:12px 0}
+.sc{background:#fff;border:1px solid #dfe6ee;border-radius:12px;padding:14px 16px;scroll-margin-top:90px;align-self:start}
+.sc header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.sc header b{font-size:16.5px;color:#1b324a}.sc header small{display:block;color:#6b7c8c;font-size:12px;margin-top:2px}
+.sc-px{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:13.5px;color:#455a6e}.sc-px b{font-size:17px;color:#1b324a}
+.st{font-size:12.5px;padding:2px 9px;border-radius:10px;font-weight:600}.st-buy{background:#e3f3ea;color:#2f6f53}.st-high{background:#fff3d9;color:#8a5a00}.st-sell{background:#fbe3dc;color:#9b3d27}.st-low,.st-na{background:#eef1f4;color:#5b6b7a}.st-stop{background:#ececec;color:#555}.st-wait{background:#e6eef7;color:#2f4f6f}
+.sc-plan span{display:inline-block;margin-right:18px}.sc-plan{display:block;margin:8px 0;font-size:13.5px;font-weight:600;color:#1b324a;font-variant-numeric:tabular-nums}.sc-plan em{font-style:normal;font-weight:400;color:#6b7c8c;font-size:12px;margin-right:5px}.sc-plan small{font-weight:400;color:#6b7c8c;font-size:11.5px}
+.sc-more{margin-top:6px;border-top:1px solid #eef2f6;padding-top:6px}.sc-more>summary{cursor:pointer;font-size:12.5px;color:#52687b;list-style:none}.sc-more>summary::before{content:"▸ ";color:#8a9aab}.sc-more[open]>summary::before{content:"▾ "}.sc-more[open]>summary{margin-bottom:6px}
+.ab-none{font-size:12.5px;color:#7a8794;margin:2px 0 0}
+.ch{list-style:none;display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 6px;padding:0}.ch li{display:flex;align-items:center;gap:4px;font-size:12px;border-radius:7px;padding:3px 7px;background:#eef1f4;color:#5b6b7a}.ch li span{opacity:.8}.ch li b{font-weight:600}
+.ch-ok{background:#e3f3ea!important;color:#2f6f53!important}.ch-no{background:#fbe3dc!important;color:#9b3d27!important}.ch-tip{background:#f3f0e6!important;color:#6b5a2e!important}
+.ch-d{margin:0 0 8px;font-size:12.5px;line-height:1.65;color:#3a4c5e}.ch-d div{display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:6px;padding:2px 0}.ch-d dt{color:#6b7c8c}.ch-d dd{margin:0}
+.sc-ly{list-style:none;margin:0;padding:0}.sc-ly li{display:grid;grid-template-columns:4.6em 3.1em minmax(0,1fr);align-items:baseline;gap:6px;padding:5px 0;border-top:1px solid #f0f3f6;font-size:13px;line-height:1.6}
+.sc-k{color:#455a6e;font-weight:600}.sc-v{color:#3a4c5e}.sc-note{font-size:12.5px;color:#6b5a2e;background:#fbf6e9;border-radius:8px;padding:6px 10px;margin:8px 0 0;line-height:1.6}.sc-na{color:#7a8794;font-size:13px}
+.pb{margin:6px 0 2px}.pb-track{position:relative;height:10px;background:#eef1f4;border-radius:5px}
+.pb-track i,.pb-track b{position:absolute;top:0;height:10px}.pb-rng{background:#dde5ee;border-radius:5px}.pb-buy{background:#7cc19a;border-radius:3px}
+.pb-sell{width:3px;background:#c4572a}.pb-stop{width:3px;background:#555}.pb-cur{width:4px;margin-left:-2px;top:-4px!important;height:18px!important;background:#1b324a;border-radius:2px}
+.pb-lab{display:flex;justify-content:space-between;font-size:11.5px;color:#6b7c8c;margin-top:4px}
+.sec-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.sec-meta{font-size:13px;color:#52687b}
+.sec-lens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.sec-lens div{background:#f6f8fa;border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.6;color:#3a4c5e}.sec-lens b{display:block;color:#1f3b57;font-size:13px}
+.sec-rule{font-size:12.5px;color:#455a6e;background:#f9fafb;border:1px dashed #cfd9e3;border-radius:8px;padding:8px 12px;line-height:1.7}
+details.more{margin:8px 0}details.more>summary{cursor:pointer;font-size:13px;color:#2f4f6f}
+.wk{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.wk-i{background:#fff;border:1px solid #dfe6ee;border-radius:8px;padding:6px 10px;font-size:13px}.wk-i a{font-weight:600;text-decoration:none;color:#1f3b57}.wk-i em{font-style:normal;color:#6b7c8c}
+.wk-sum{display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px;color:#52687b}.wk-sum span{background:#eef2f6;border-radius:10px;padding:2px 9px}
+@media(max-width:760px){.sec-lens{grid-template-columns:1fr}}
+</style><nav class="lp-mkt" aria-label="市场"><a href="index.html"><b>A股</b><span>4条选股逻辑：景气顺势、业绩反转、红利高股息、估值修复</span></a><a href="hk.html" aria-current="page"><b>港股</b><span>4条选股逻辑：景气顺势、业绩反转、红利高股息、回购与私有化</span></a></nav><p class="lp-map"><a href="logic-map.html">选股逻辑地图：12条逻辑的定义、上涨动力与本站覆盖 →</a></p><nav class="lp-tabs" aria-label="港股选股逻辑"><a href="hk.html"><b>分子 · 景气顺势</b><span>大盘→板块→个股：能源、油运、硬件</span></a><a href="hk-turn.html"><b>分子 · 业绩反转</b><span>行业预期上调＋空头不加仓</span></a><a href="hk-dividend.html"><b>分母 · 红利高股息</b><span>税后股息率；含A股与H股比价</span></a><a href="hk-event.html" aria-current="page"><b>事件 · 回购与私有化</b><span>公司真金白银买入</span></a></nav><div class="hero"><h1>港股 · 事件 · 回购与私有化</h1><p class="sum">公司用现金在二级市场买回自己的股票，或大股东提出私有化要约。有明确、持续的买方，上涨动力来自这个买方。</p><p class="hero-meta">价格截至2026-11-25，回购数据截至2026-11-25</p></div><nav class="lp-jump"><a href="#overview">行动看板</a><a href="#cards">回购候选</a><a href="#priv">私有化</a><a href="#e-rules">规则</a><a href="#e-bt">回测</a></nav><section id="overview"><h2>行动看板</h2><p class="note">回测（21个检验日）：近13周回购≥0.5%且已站上26周均线，56个样本，13周超额收益均值+6.8%、中位数+6.4%、跑赢61%；未站上26周均线的同类股票中位数−1.9%。样本小，每季度滚动复核。</p><div class="ab"><section class="ab-col ab-high"><h3>价格到位·待核<span>1</span></h3><p>回购持续、已站上26周均线、价格在公司回购均价附近</p><ul><li><a href="#e-01919">中远海控</a><small>3.11% · 价格到位·待核</small></li></ul></section><section class="ab-col ab-wait ab-wide"><h3>观察<span>11</span></h3><p>未站上26周均线，或价格低于回购均价</p><ul><li><a href="#e-01415">高伟电子</a><small>2.08% · 未站上26周均线</small></li><li><a href="#e-06936">顺丰控股</a><small>1.69% · 未站上26周均线</small></li><li><a href="#e-06098">碧桂园服务</a><small>1.27% · 未站上26周均线</small></li><li><a href="#e-01044">恒安国际</a><small>0.89% · 未站上26周均线</small></li><li><a href="#e-02096">先声药业</a><small>0.72% · 未站上26周均线</small></li><li><a href="#e-00189">东岳集团</a><small>0.68% · 未站上26周均线</small></li><li><a href="#e-02015">理想汽车-W</a><small>0.68% · 未站上26周均线</small></li><li><a href="#e-09973">奇瑞汽车</a><small>0.63% · 未站上26周均线</small></li><li><a href="#e-01316">耐世特</a><small>0.56% · 未站上26周均线</small></li><li><a href="#e-02869">绿城服务</a><small>0.56% · 未站上26周均线</small></li><li><a href="#e-02460">华润饮料</a><small>0.56% · 未站上26周均线</small></li></ul></section><section class="ab-col ab-sell ab-wide"><h3>不买<span>12</span></h3><p>空头在增加，或价格低于公司回购均价15%以上</p><ul><li><a href="#e-09896">名创优品</a><small>2.60% · 空头在增加</small></li><li><a href="#e-01519">极兔速递-W</a><small>1.42% · 空头在增加</small></li><li><a href="#e-01378">中国宏桥</a><small>1.35% · 低于回购均价15%以上</small></li><li><a href="#e-01860">汇量科技</a><small>1.13% · 低于回购均价15%以上</small></li><li><a href="#e-00151">中国旺旺</a><small>1.07% · 低于回购均价15%以上</small></li><li><a href="#e-01024">快手-W</a><small>1.02% · 空头在增加</small></li><li><a href="#e-00914">海螺水泥</a><small>0.96% · 空头在增加</small></li><li><a href="#e-00772">阅文集团</a><small>0.88% · 空头在增加</small></li><li><a href="#e-01530">三生制药</a><small>0.84% · 低于回购均价15%以上</small></li><li><a href="#e-02333">长城汽车</a><small>0.73% · 空头在增加</small></li><li><a href="#e-09992">泡泡玛特</a><small>0.59% · 空头在增加</small></li><li><a href="#e-02331">李宁</a><small>0.56% · 空头在增加</small></li></ul></section></div><p class="ab-none">暂无：等回落</p><p class="note">按近13周回购占市值排序。</p></section><section id="cards"><h2>回购候选（24只）</h2><p class="note">港股通可买、港股市值≥100亿港元；近13周回购金额占港股市值≥0.5%。</p><div class="sc-grid"><article class="sc" id="e-01919"><header><div><b>中远海控</b><small>01919 · 工用运输 · 港股市值454亿</small></div><span class="lp-view wait">价格到位·待核</span></header><div class="sc-px"><span>现价 <b>16.73</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:49.8%;width:46.4%"></i><i class="pb-sell" style="left:92.4%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:59.7%"></b></div><div class="pb-lab"><span>止损 14.64</span><span>现价 16.73</span><span>一年高点 17.95</span></div></div><p class="sc-plan"><span><em>买入</em>16.36–18.09</span><span><em>卖出</em>17.95</span><span><em>止损</em>14.64</span><span><em>盈亏比</em>0.3<small>（现价 0.6）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>工用运输：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-g">≥1%</span><span class="sc-v">近13周回购占港股市值 3.11% · 回购均价 17.23 · 回购天数 18</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">已站上</span><span class="sc-v">相对26周均线 +5% · 距一年高点 -7%</span></li></ul></details></article><article class="sc sc-dim" id="e-09896"><header><div><b>名创优品</b><small>09896 · 专业零售 · 港股市值241亿</small></div><span class="lp-view bad">不买：空头在增加</span></header><div class="sc-px"><span>现价 <b>19.84</b></span><span class="st st-high">高于买入区15%</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:9.8%;width:6.1%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:25.6%"></b></div><div class="pb-lab"><span>止损 13.93</span><span>现价 19.84</span><span>一年高点 38.86</span></div></div><p class="sc-plan"><span><em>买入</em>15.57–17.21</span><span><em>卖出</em>38.86</span><span><em>止损</em>13.93</span><span><em>盈亏比</em>9.1<small>（现价 3.2）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-chk"><span>价格</span><b>未到</b></li><li class="ch-no"><span>筹码</span><b>未通过</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>专业零售：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-g">≥1%</span><span class="sc-v">近13周回购占港股市值 2.60% · 回购均价 16.39 · 回购天数 43</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -8% · 距一年高点 -49%</span></li></ul></details></article><article class="sc" id="e-01415"><header><div><b>高伟电子</b><small>01415 · 资讯科技器材 · 港股市值163亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>19.05</b></span><span class="st st-low">低于买入区6%</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:18.0%;width:14.2%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:9.8%"></b></div><div class="pb-lab"><span>止损 18.14</span><span>现价 19.05</span><span>一年高点 31.98</span></div></div><p class="sc-plan"><span><em>买入</em>20.28–22.41</span><span><em>卖出</em>31.98</span><span><em>止损</em>18.14</span><span><em>盈亏比</em>3.3<small>（现价 14.2）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-chk"><span>价格</span><b>低于区间</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>资讯科技器材：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-g">≥1%</span><span class="sc-v">近13周回购占港股市值 2.08% · 回购均价 21.34 · 回购天数 42</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -16% · 距一年高点 -40%</span></li></ul></details></article><article class="sc" id="e-06936"><header><div><b>顺丰控股</b><small>06936 · 工用运输 · 港股市值132亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>29.18</b></span><span class="st st-low">低于买入区0%</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:30.2%;width:26.6%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:29.7%"></b></div><div class="pb-lab"><span>止损 26.16</span><span>现价 29.18</span><span>一年高点 36.88</span></div></div><p class="sc-plan"><span><em>买入</em>29.23–32.31</span><span><em>卖出</em>36.88</span><span><em>止损</em>26.16</span><span><em>盈亏比</em>1.3<small>（现价 2.5）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-chk"><span>价格</span><b>低于区间</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>工用运输：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-g">≥1%</span><span class="sc-v">近13周回购占港股市值 1.69% · 回购均价 30.77 · 回购天数 10</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -5% · 距一年高点 -21%</span></li></ul></details></article><article class="sc sc-dim" id="e-01519"><header><div><b>极兔速递-W</b><small>01519 · 工用运输 · 港股市值748亿</small></div><span class="lp-view bad">不买：空头在增加</span></header><div class="sc-px"><span>现价 <b>8.74</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:23.0%;width:19.6%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:26.2%"></b></div><div class="pb-lab"><span>止损 7.70</span><span>现价 8.74</span><span>一年高点 12.00</span></div></div><p class="sc-plan"><span><em>买入</em>8.60–9.51</span><span><em>卖出</em>12.00</span><span><em>止损</em>7.70</span><span><em>盈亏比</em>2.2<small>（现价 3.1）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-no"><span>筹码</span><b>未通过</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>工用运输：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-g">≥1%</span><span class="sc-v">近13周回购占港股市值 1.42% · 回购均价 9.05 · 回购天数 48</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -5% · 距一年高点 -27%</span></li></ul></details></article><article class="sc sc-dim" id="e-01378"><header><div><b>中国宏桥</b><small>01378 · 一般金属及矿石 · 港股市值1,561亿</small></div><span class="lp-view bad">不买：低于回购均价15%以上</span></header><div class="sc-px"><span>现价 <b>16.07</b></span><span class="st st-stop">已跌破止损价</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:13.6%;width:7.7%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:5.9%"></i><b class="pb-cur" style="left:3.7%"></b></div><div class="pb-lab"><span>止损 16.62</span><span>现价 16.07</span><span>一年高点 39.52</span></div></div><p class="sc-plan"><span><em>买入</em>18.58–20.53</span><span><em>卖出</em>39.52</span><span><em>止损</em>16.62</span><span><em>盈亏比</em>6.8</span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-no"><span>价格</span><b>跌破止损</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>一般金属及矿石：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-g">≥1%</span><span class="sc-v">近13周回购占港股市值 1.35% · 回购均价 19.56 · 回购天数 6</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -26% · 距一年高点 -59%</span></li></ul></details></article><article class="sc" id="e-06098"><header><div><b>碧桂园服务</b><small>06098 · 地产 · 港股市值156亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>4.68</b></span><span class="st st-low">低于买入区1%</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:23.9%;width:20.2%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:21.3%"></b></div><div class="pb-lab"><span>止损 4.25</span><span>现价 4.68</span><span>一年高点 6.54</span></div></div><p class="sc-plan"><span><em>买入</em>4.75–5.25</span><span><em>卖出</em>6.54</span><span><em>止损</em>4.25</span><span><em>盈亏比</em>2.1<small>（现价 4.3）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-chk"><span>价格</span><b>低于区间</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>地产：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-g">≥1%</span><span class="sc-v">近13周回购占港股市值 1.27% · 回购均价 5.00 · 回购天数 60</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -11% · 距一年高点 -28%</span></li></ul></details></article><article class="sc sc-dim" id="e-01860"><header><div><b>汇量科技</b><small>01860 · 媒体及娱乐 · 港股市值133亿</small></div><span class="lp-view bad">不买：低于回购均价15%以上</span></header><div class="sc-px"><span>现价 <b>7.84</b></span><span class="st st-stop">已跌破止损价</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:25.7%;width:9.7%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:16.1%"></i><b class="pb-cur" style="left:3.7%"></b></div><div class="pb-lab"><span>止损 9.23</span><span>现价 7.84</span><span>一年高点 18.20</span></div></div><p class="sc-plan"><span><em>买入</em>10.31–11.40</span><span><em>卖出</em>18.20</span><span><em>止损</em>9.23</span><span><em>盈亏比</em>4.5</span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-no"><span>价格</span><b>跌破止损</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>媒体及娱乐：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-g">≥1%</span><span class="sc-v">近13周回购占港股市值 1.13% · 回购均价 10.85 · 回购天数 31</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -28% · 距一年高点 -57%</span></li></ul></details></article><article class="sc sc-dim" id="e-00151"><header><div><b>中国旺旺</b><small>00151 · 食物饮品 · 港股市值277亿</small></div><span class="lp-view bad">不买：低于回购均价15%以上</span></header><div class="sc-px"><span>现价 <b>2.38</b></span><span class="st st-stop">已跌破止损价</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:14.9%;width:9.9%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:4.6%"></i><b class="pb-cur" style="left:3.7%"></b></div><div class="pb-lab"><span>止损 2.41</span><span>现价 2.38</span><span>一年高点 4.99</span></div></div><p class="sc-plan"><span><em>买入</em>2.70–2.98</span><span><em>卖出</em>4.99</span><span><em>止损</em>2.41</span><span><em>盈亏比</em>5.0</span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-no"><span>价格</span><b>跌破止损</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>食物饮品：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-g">≥1%</span><span class="sc-v">近13周回购占港股市值 1.07% · 回购均价 2.84 · 回购天数 41</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -25% · 距一年高点 -52%</span></li></ul></details></article><article class="sc sc-dim" id="e-01024"><header><div><b>快手-W</b><small>01024 · 媒体及娱乐 · 港股市值711亿</small></div><span class="lp-view bad">不买：空头在增加</span></header><div class="sc-px"><span>现价 <b>19.52</b></span><span class="st st-stop">已跌破止损价</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:8.7%;width:3.6%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:5.1%"></i><b class="pb-cur" style="left:3.7%"></b></div><div class="pb-lab"><span>止损 20.47</span><span>现价 19.52</span><span>一年高点 81.25</span></div></div><p class="sc-plan"><span><em>买入</em>22.87–25.28</span><span><em>卖出</em>81.25</span><span><em>止损</em>20.47</span><span><em>盈亏比</em>15.9</span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-no"><span>价格</span><b>跌破止损</b></li><li class="ch-no"><span>筹码</span><b>未通过</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>媒体及娱乐：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-g">≥1%</span><span class="sc-v">近13周回购占港股市值 1.02% · 回购均价 24.08 · 回购天数 21</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -44% · 距一年高点 -76%</span></li></ul></details></article><article class="sc sc-dim" id="e-00914"><header><div><b>海螺水泥</b><small>00914 · 建筑 · 港股市值218亿</small></div><span class="lp-view bad">不买：空头在增加</span></header><div class="sc-px"><span>现价 <b>17.08</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:18.1%;width:14.5%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:27.7%"></b></div><div class="pb-lab"><span>止损 14.28</span><span>现价 17.08</span><span>一年高点 25.08</span></div></div><p class="sc-plan"><span><em>买入</em>15.96–17.65</span><span><em>卖出</em>25.08</span><span><em>止损</em>14.28</span><span><em>盈亏比</em>3.3<small>（现价 2.9）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-no"><span>筹码</span><b>未通过</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>建筑：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.96% · 回购均价 16.80 · 回购天数 40</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 +0% · 距一年高点 -32%</span></li></ul></details></article><article class="sc" id="e-01044"><header><div><b>恒安国际</b><small>01044 · 消费者主要零售商 · 港股市值242亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>21.12</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:22.7%;width:19.0%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:26.1%"></b></div><div class="pb-lab"><span>止损 18.55</span><span>现价 21.12</span><span>一年高点 29.18</span></div></div><p class="sc-plan"><span><em>买入</em>20.73–22.91</span><span><em>卖出</em>29.18</span><span><em>止损</em>18.55</span><span><em>盈亏比</em>2.3<small>（现价 3.1）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>消费者主要零售商：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.89% · 回购均价 21.82 · 回购天数 13</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -4% · 距一年高点 -28%</span></li></ul></details></article><article class="sc sc-dim" id="e-00772"><header><div><b>阅文集团</b><small>00772 · 媒体及娱乐 · 港股市值214亿</small></div><span class="lp-view bad">不买：空头在增加</span></header><div class="sc-px"><span>现价 <b>21.28</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:12.4%;width:8.7%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:19.4%"></b></div><div class="pb-lab"><span>止损 17.54</span><span>现价 21.28</span><span>一年高点 39.50</span></div></div><p class="sc-plan"><span><em>买入</em>19.60–21.66</span><span><em>卖出</em>39.50</span><span><em>止损</em>17.54</span><span><em>盈亏比</em>6.1<small>（现价 4.9）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-no"><span>筹码</span><b>未通过</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>媒体及娱乐：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.88% · 回购均价 20.63 · 回购天数 42</span></li><li><span class="sc-k">位置</span><span class="ly ly-g">已站上</span><span class="sc-v">相对26周均线 +1% · 距一年高点 -46%</span></li></ul></details></article><article class="sc sc-dim" id="e-01530"><header><div><b>三生制药</b><small>01530 · 药品及生物科技 · 港股市值307亿</small></div><span class="lp-view bad">不买：低于回购均价15%以上</span></header><div class="sc-px"><span>现价 <b>12.21</b></span><span class="st st-stop">已跌破止损价</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:15.7%;width:7.5%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:8.2%"></i><b class="pb-cur" style="left:3.7%"></b></div><div class="pb-lab"><span>止损 13.13</span><span>现价 12.21</span><span>一年高点 31.26</span></div></div><p class="sc-plan"><span><em>买入</em>14.68–16.22</span><span><em>卖出</em>31.26</span><span><em>止损</em>13.13</span><span><em>盈亏比</em>6.8</span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-no"><span>价格</span><b>跌破止损</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>药品及生物科技：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.84% · 回购均价 15.45 · 回购天数 13</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -23% · 距一年高点 -61%</span></li></ul></details></article><article class="sc sc-dim" id="e-02333"><header><div><b>长城汽车</b><small>02333 · 汽车 · 港股市值124亿</small></div><span class="lp-view bad">不买：空头在增加</span></header><div class="sc-px"><span>现价 <b>5.39</b></span><span class="st st-stop">已跌破止损价</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:20.5%;width:7.0%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:13.5%"></i><b class="pb-cur" style="left:3.7%"></b></div><div class="pb-lab"><span>止损 6.44</span><span>现价 5.39</span><span>一年高点 15.30</span></div></div><p class="sc-plan"><span><em>买入</em>7.20–7.95</span><span><em>卖出</em>15.30</span><span><em>止损</em>6.44</span><span><em>盈亏比</em>6.8</span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-no"><span>价格</span><b>跌破止损</b></li><li class="ch-no"><span>筹码</span><b>未通过</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>汽车：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.73% · 回购均价 7.58 · 回购天数 11</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -32% · 距一年高点 -65%</span></li></ul></details></article><article class="sc" id="e-02096"><header><div><b>先声药业</b><small>02096 · 药品及生物科技 · 港股市值263亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>10.24</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:25.1%;width:21.2%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:25.7%"></b></div><div class="pb-lab"><span>止损 9.13</span><span>现价 10.24</span><span>一年高点 13.79</span></div></div><p class="sc-plan"><span><em>买入</em>10.21–11.28</span><span><em>卖出</em>13.79</span><span><em>止损</em>9.13</span><span><em>盈亏比</em>1.9<small>（现价 3.2）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>药品及生物科技：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.72% · 回购均价 10.74 · 回购天数 16</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -8% · 距一年高点 -26%</span></li></ul></details></article><article class="sc" id="e-00189"><header><div><b>东岳集团</b><small>00189 · 原材料 · 港股市值143亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>8.22</b></span><span class="st st-low">低于买入区1%</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:9.6%;width:6.0%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:9.0%"></b></div><div class="pb-lab"><span>止损 7.45</span><span>现价 8.22</span><span>一年高点 21.08</span></div></div><p class="sc-plan"><span><em>买入</em>8.32–9.20</span><span><em>卖出</em>21.08</span><span><em>止损</em>7.45</span><span><em>盈亏比</em>9.4<small>（现价 16.6）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-chk"><span>价格</span><b>低于区间</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>原材料：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.68% · 回购均价 8.76 · 回购天数 14</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -36% · 距一年高点 -61%</span></li></ul></details></article><article class="sc" id="e-02015"><header><div><b>理想汽车-W</b><small>02015 · 汽车 · 港股市值728亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>42.40</b></span><span class="st st-low">低于买入区4%</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:15.6%;width:11.9%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:11.3%"></b></div><div class="pb-lab"><span>止损 39.41</span><span>现价 42.40</span><span>一年高点 75.60</span></div></div><p class="sc-plan"><span><em>买入</em>44.05–48.69</span><span><em>卖出</em>75.60</span><span><em>止损</em>39.41</span><span><em>盈亏比</em>4.2<small>（现价 11.1）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-chk"><span>价格</span><b>低于区间</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>汽车：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.68% · 回购均价 46.37 · 回购天数 14</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -11% · 距一年高点 -44%</span></li></ul></details></article><article class="sc" id="e-09973"><header><div><b>奇瑞汽车</b><small>09973 · 汽车 · 港股市值474亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>20.26</b></span><span class="st st-low">低于买入区3%</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:18.8%;width:15.1%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:13.9%"></b></div><div class="pb-lab"><span>止损 18.77</span><span>现价 20.26</span><span>一年高点 32.30</span></div></div><p class="sc-plan"><span><em>买入</em>20.98–23.19</span><span><em>卖出</em>32.30</span><span><em>止损</em>18.77</span><span><em>盈亏比</em>3.1<small>（现价 8.1）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-chk"><span>价格</span><b>低于区间</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>汽车：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.63% · 回购均价 22.08 · 回购天数 19</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -18% · 距一年高点 -37%</span></li></ul></details></article><article class="sc sc-dim" id="e-09992"><header><div><b>泡泡玛特</b><small>09992 · 家庭电器及用品 · 港股市值1,834亿</small></div><span class="lp-view bad">不买：空头在增加</span></header><div class="sc-px"><span>现价 <b>137.70</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:13.7%;width:10.0%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:17.5%"></b></div><div class="pb-lab"><span>止损 118.43</span><span>现价 137.70</span><span>一年高点 247.40</span></div></div><p class="sc-plan"><span><em>买入</em>132.36–146.29</span><span><em>卖出</em>247.40</span><span><em>止损</em>118.43</span><span><em>盈亏比</em>5.2<small>（现价 5.7）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-no"><span>筹码</span><b>未通过</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>家庭电器及用品：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.59% · 回购均价 139.33 · 回购天数 18</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -10% · 距一年高点 -44%</span></li></ul></details></article><article class="sc sc-dim" id="e-02331"><header><div><b>李宁</b><small>02331 · 纺织及服饰 · 港股市值329亿</small></div><span class="lp-view bad">不买：空头在增加</span></header><div class="sc-px"><span>现价 <b>12.72</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:12.8%;width:9.1%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:20.4%"></b></div><div class="pb-lab"><span>止损 10.46</span><span>现价 12.72</span><span>一年高点 23.00</span></div></div><p class="sc-plan"><span><em>买入</em>11.69–12.92</span><span><em>卖出</em>23.00</span><span><em>止损</em>10.46</span><span><em>盈亏比</em>5.8<small>（现价 4.5）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-no"><span>筹码</span><b>未通过</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>纺织及服饰：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.56% · 回购均价 12.30 · 回购天数 6</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -11% · 距一年高点 -45%</span></li></ul></details></article><article class="sc" id="e-01316"><header><div><b>耐世特</b><small>01316 · 汽车 · 港股市值112亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>4.46</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:13.8%;width:10.3%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:19.1%"></b></div><div class="pb-lab"><span>止损 3.79</span><span>现价 4.46</span><span>一年高点 7.81</span></div></div><p class="sc-plan"><span><em>买入</em>4.23–4.68</span><span><em>卖出</em>7.81</span><span><em>止损</em>3.79</span><span><em>盈亏比</em>5.0<small>（现价 5.0）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>汽车：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.56% · 回购均价 4.46 · 回购天数 10</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 +0% · 距一年高点 -43%</span></li></ul></details></article><article class="sc" id="e-02869"><header><div><b>绿城服务</b><small>02869 · 地产 · 港股市值127亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>4.11</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:34.5%;width:30.8%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:44.4%"></b></div><div class="pb-lab"><span>止损 3.55</span><span>现价 4.11</span><span>一年高点 4.81</span></div></div><p class="sc-plan"><span><em>买入</em>3.97–4.39</span><span><em>卖出</em>4.81</span><span><em>止损</em>3.55</span><span><em>盈亏比</em>1.0<small>（现价 1.3）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>地产：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.56% · 回购均价 4.18 · 回购天数 58</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -2% · 距一年高点 -15%</span></li></ul></details></article><article class="sc" id="e-02460"><header><div><b>华润饮料</b><small>02460 · 食物饮品 · 港股市值175亿</small></div><span class="lp-view ">观察：未站上26周均线</span></header><div class="sc-px"><span>现价 <b>7.29</b></span><span class="st st-buy">在买入区</span></div><div class="pb" aria-hidden="true"><div class="pb-track"><i class="pb-buy" style="left:19.1%;width:15.4%"></i><i class="pb-sell" style="left:96.2%"></i><i class="pb-stop" style="left:3.7%"></i><b class="pb-cur" style="left:27.0%"></b></div><div class="pb-lab"><span>止损 6.19</span><span>现价 7.29</span><span>一年高点 10.58</span></div></div><p class="sc-plan"><span><em>买入</em>6.92–7.65</span><span><em>卖出</em>10.58</span><span><em>止损</em>6.19</span><span><em>盈亏比</em>3.0<small>（现价 3.0）</small></span></p><ol class="ch"><li class="ch-tip"><span>板块</span><b>提示</b></li><li class="ch-ok"><span>初筛</span><b>通过</b></li><li class="ch-chk"><span>核验</span><b>待核</b></li><li class="ch-chk"><span>估值</span><b>待核</b></li><li class="ch-ok"><span>价格</span><b>到位</b></li><li class="ch-tip"><span>筹码</span><b>提示</b></li></ol><details class="sc-more"><summary>判断依据</summary><dl class="ch-d"><div><dt>板块</dt><dd>食物饮品：回购逻辑不依赖板块档位，但板块逆风时回购只能托底、难以推动上涨</dd></div><div><dt>核验</dt><dd>回购资金来自自由现金流还是借款、回购后是否注销、是否有未用完的回购授权，需逐家核对公告</dd></div><div><dt>估值</dt><dd>港股五年估值分位未接入</dd></div></dl><ul class="sc-ly"><li><span class="sc-k">回购力度</span><span class="ly ly-m">0.5%—1%</span><span class="sc-v">近13周回购占港股市值 0.56% · 回购均价 7.28 · 回购天数 52</span></li><li><span class="sc-k">位置</span><span class="ly ly-m">未站上</span><span class="sc-v">相对26周均线 -2% · 距一年高点 -31%</span></li></ul></details></article></div></section><section id="priv"><h2>私有化：逐单记录</h2><p class="note">私有化要约有确定的要约价和时间表，赚的是现价到要约价的空间，风险是被小股东否决或撤回。东方财富没有港股私有化数据表，需按港交所公告逐单登记：公告日、要约价、条件（如需75%独立股东批准、反对不超过10%）、预计完成时间、结果。</p><p class="note">目前没有记录在册的私有化要约。东方财富数据中心没有港股私有化数据表，需要按港交所公告人工登记。</p></section><section id="e-rules"><details class="ref"><summary><h2>规则</h2></summary><dl class="pr-dl"><dt>定义</dt><dd>公司用现金在二级市场买回自己的股票，或大股东提出私有化要约。有明确、持续的买方，上涨动力来自这个买方。</dd><dt>上涨动力</dt><dd>公司或大股东真金白银买入；回购注销还会提高每股利润。</dd><dt>候选范围</dt><dd>港股通可买、港股市值≥100亿港元；近13周回购金额占港股市值≥0.5%。</dd><dt>价格</dt><dd>只在股价站上26周均线后买（回测中下跌趋势里的回购只是托底、随后跑输）；参考买入＝公司近13周回购均价上下5%；止损＝回购均价下方15%；卖出参考＝一年高点。买入区、止损和卖出位为本站设定，回测只验证了“回购≥0.5%＋站上26周均线”。</dd><dt>什么时候失效</dt><dd>回购只是公告、执行很少；回购资金靠借款；股价处在下跌趋势（回购托不住）；空头在增加。</dd><dt>私有化</dt><dd>私有化要约有确定的要约价和时间表，赚的是现价到要约价的空间，风险是被小股东否决或撤回。东方财富没有港股私有化数据表，需按港交所公告逐单登记：公告日、要约价、条件（如需75%独立股东批准、反对不超过10%）、预计完成时间、结果。</dd></dl></details></section><section id="e-bt"><details class="ref"><summary><h2>回测</h2></summary><p class="note">2025-02-07至2026-08-28每4周一个检验日，共21个；样本为当前港股通可买、港股市值≥100亿港元的股票（含幸存者偏差）；持有13周；超额收益＝个股涨跌−同期全部样本等权平均；回购只用检验日之前已发生的成交。</p><div class="tblwrap"><table class="mt lp-table"><thead><tr><th>分组</th><th>样本</th><th>13周超额收益均值（%）</th><th>中位数（%）</th><th>跑赢比例（%）</th></tr></thead><tbody><tr><th scope="row">全部股票（基准）</th><td>4621</td><td>+0.0</td><td>-1.9</td><td>45</td></tr><tr><th scope="row">近13周没有回购</th><td>4019</td><td>+0.1</td><td>-1.9</td><td>45</td></tr><tr><th scope="row">近13周有回购</th><td>602</td><td>-0.4</td><td>-1.9</td><td>44</td></tr><tr><th scope="row">回购占市值0—0.5%</th><td>389</td><td>-1.0</td><td>-2.8</td><td>42</td></tr><tr><th scope="row">回购占市值0.5%—1%</th><td>119</td><td>+1.2</td><td>-0.8</td><td>47</td></tr><tr><th scope="row">回购占市值≥1%</th><td>94</td><td>+0.4</td><td>+0.9</td><td>50</td></tr><tr><th scope="row">回购≥0.5%＋已站上26周均线（本页规则）</th><td>56</td><td>+6.8</td><td>+6.4</td><td>61</td></tr><tr><th scope="row">回购≥0.5%＋未站上26周均线</th><td>157</td><td>-1.3</td><td>-1.9</td><td>44</td></tr><tr><th scope="row">回购≥0.5%＋距一年高点回撤≥30%</th><td>111</td><td>-2.1</td><td>-3.5</td><td>41</td></tr></tbody></table></div><p class="note"><b>回测说明了什么：</b>回购本身不带来超额收益：下跌中的公司回购往往只是托底。公司在买、同时股价已站上26周均线（市场也认可），随后明显跑赢。这和港股动量市的结论一致。</p><p class="note">回购：东方财富港股回购日表（RPT_HK_BUYBACK，只计港元成交；回购均价＝近13周回购金额÷回购股数，含人民币或美元成交的公司均价仅供参考）；港股市值＝港股股本×周收盘价（在美国等地同时上市的公司港股股本可能少于总股本，占比会偏高；近13周回购占市值超过5%的视为数据异常剔除，如哔哩哔哩）；空头：证监会每周淡仓合计。</p></details></section></main>
+<footer><div class="wrap"><nav class="secondary-nav" aria-label="资料与记录"><a href="../reports/index.html">研究报告</a><a href="../trades.html">操作记录</a><a href="../stocks/selection-rules.html">筛选规则</a><a href="../stocks/portfolio.html">组合约束详情</a></nav><p>个股研究仅使用赛道归属、兑现质量、价格反映三个决策维度；D/G归组合层。资料与规则日期分别标注，旧候选身份不代表已入池，研究短名单不是交易指令。</p>
+<p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer><script>
+function revealAnchor(){var id=decodeURIComponent(location.hash.slice(1)),el=document.getElementById(id);if(!el)return;for(var p=el;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;requestAnimationFrame(function(){el.scrollIntoView();});}
+window.addEventListener('hashchange',revealAnchor);if(location.hash)revealAnchor();
+document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(a){var el=document.getElementById(a.getAttribute('href').slice(1));for(;el;el=el.parentElement)if(el.tagName==='DETAILS')el.open=true;}});
+</script></body></html>

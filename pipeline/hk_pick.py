@@ -201,8 +201,8 @@ def page(ctx):
     head = SP.head(3)
     if not L:
         return head + '<div class="hero"><h1>个股 · 港股</h1><p>港股数据尚未取得。</p></div>'
-    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 逻辑一 · 顺势选股</h1><p class="sum">大盘 → 板块 → 个股。港股是动量市，买点是“上升趋势中回调到12周均线附近”，不在接近一年低点时买。港股大盘已下调为偏弱；互联网为逆风，不研究个股。</p><p class="hero-meta">价格截至' + E(D['asof']) + '，每周更新</p></div>')
-    out += '<nav class="lp-jump"><a href="hk-ah.html">高息资产 → 逻辑三</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#hk-price">港股价格规则</a><a href="#hk-data">数据口径</a></nav>'
+    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 分子 · 景气顺势</h1><p class="sum">大盘 → 板块 → 个股。港股是动量市，买点是“上升趋势中回调到12周均线附近”，不在接近一年低点时买。港股大盘已下调为偏弱；互联网为逆风，不研究个股。</p><p class="hero-meta">价格截至' + E(D['asof']) + '，每周更新</p></div>')
+    out += '<nav class="lp-jump"><a href="hk-dividend.html">高息资产 → 红利高股息</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#hk-price">港股价格规则</a><a href="#hk-data">数据口径</a></nav>'
     B = {}
     for sid, r in L.items():
         for x in r['picks']:
@@ -234,7 +234,7 @@ def price_section(root):
     L = hk_turn.load(root) or {}
     bt = L.get('logic1_bt')
     out = ('<section id="hk-price"><h2>港股价格规则</h2><dl class="pr-dl"><dt>买入</dt><dd>' + E(HK_PRICE['buy']) + '</dd><dt>卖出</dt><dd>' + E(HK_PRICE['sell']) + '</dd><dt>止损</dt><dd>' + E(HK_PRICE['stop']) +
-           '</dd><dt>为什么</dt><dd>' + E(HK_PRICE['why']) + '</dd><dt>高息资产</dt><dd>仍按税后股息率定价，归入逻辑三。</dd></dl>')
+           '</dd><dt>为什么</dt><dd>' + E(HK_PRICE['why']) + '</dd><dt>高息资产</dt><dd>按税后股息率定价，见“港股 · 分母 · 红利高股息”页。</dd></dl>')
     if bt:
         out += '<p class="note">' + E(bt['setup']) + '</p>' + hk_turn.bt_table(L['backtest']['cols'], bt['rows'])
     return out + '</section>'
