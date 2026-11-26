@@ -50,17 +50,18 @@ class HKPick(unittest.TestCase):
     def test_logic2_list_follows_rules(self):
         import hk_turn
         L = hk_turn.load(ROOT)
-        self.assertEqual(L['version'], 'momentum')
+        self.assertEqual(L['version'], 'revision')
         for x in L['list']:
-            self.assertGreaterEqual(x[hk_turn.MC], 100, x[1])
-            self.assertGreater(x[hk_turn.DD], -hk_turn.DD_MAX - 0.5, x[1])
-            self.assertTrue(hk_turn.short_ok(x[hk_turn.SH]), x[1])
-        G = hk_turn.groups(L)
-        for x in G['go']:
-            self.assertTrue(hk_turn.ENTRY[0] <= x[hk_turn.V12] <= hk_turn.ENTRY[1])
-            self.assertTrue(hk_turn.verdict(x)[0].startswith('买点'))
-        self.assertEqual(sum(len(v) for v in G.values()), len(L['list']))
-        self.assertIn('只验证了买点', L['rules']['exit'])
+            self.assertGreaterEqual(x[hk_turn.MC], hk_turn.MC_MIN, x[1])
+            self.assertGreaterEqual(x[hk_turn.REV], hk_turn.REV_MIN, x[1])
+            self.assertGreaterEqual(x[hk_turn.ORGS], hk_turn.MIN_ORGS, x[1])
+            r = L['research'][x[hk_turn.C]]
+            for _, k in hk_turn.RES_KEYS:
+                self.assertTrue(r.get(k), (x[1], k))
+            self.assertNotEqual(hk_turn.verdict(x, L['research'])[0], '可买', '高频指标未验证前不能可买')
+        codes = {x[0] for x in L['list']}
+        self.assertFalse(codes & {c for c, _, _ in L['excluded']})
+        self.assertNotIn('银行', {x[hk_turn.IND] for x in L['list']})
 
     def test_industry_table(self):
         R, asof = H.industry_rows(ROOT)

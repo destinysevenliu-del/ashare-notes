@@ -398,7 +398,7 @@ def rules_page(root):
     return out
 
 MARKETS={'a':{'name':'A股','href':'index.html','sub':[(1,'index.html','逻辑一 · 顺势选股','大盘→板块→个股'),(2,'box.html','逻辑二 · 国资箱体','地板、天花板、烟花（只适用A股国资股）')]},
-         'hk':{'name':'港股','href':'hk.html','sub':[(3,'hk.html','逻辑一 · 顺势选股','大盘→板块→个股：能源、油运、硬件'),(4,'hk-turn.html','逻辑二 · 动量＋空头下降','离高点近、空头少或回补、回调到均线买'),(5,'hk-ah.html','逻辑三 · 两地比价','A股与H股比价、南向定价（只保留逻辑）')]}}
+         'hk':{'name':'港股','href':'hk.html','sub':[(3,'hk.html','逻辑一 · 顺势选股','大盘→板块→个股：能源、油运、硬件'),(4,'hk-turn.html','逻辑二 · 业绩反转','机构上调预测＋空头不加仓＋研究核验'),(5,'hk-ah.html','逻辑三 · 两地比价','A股与H股比价、南向定价（只保留逻辑）')]}}
 def head(active):
     """两层导航：先选市场（A股／港股），再选该市场下的选股逻辑。A股两条逻辑，港股一条。"""
     m='hk' if active>=3 else 'a'
@@ -409,7 +409,7 @@ def head(active):
 def page(ctx):
     root=Path(ctx['ROOT']);S=json.loads((root/'data/sector_selection.json').read_text());P=json.loads((root/'data/stock_pick.json').read_text())
     sec={s['id']:s for s in S['sectors']};L1=logic1_data(root,S)
-    out='<style>'+CSS+SC.CSS+'</style>'+head(1)+'<div class="hero"><h1>A股 · 逻辑一 · 顺势选股</h1><p class="sum">A股有两条选股逻辑：逻辑一顺着大盘和板块选（本页）；逻辑二利用A股国资股的箱体特征。港股有三条（顺势选股、动量＋空头下降、两地比价），在“港股”标签下。价格截至'+asof(root)+'（每周更新），本页只提候选，不做买卖决定。</p></div>'
+    out='<style>'+CSS+SC.CSS+'</style>'+head(1)+'<div class="hero"><h1>A股 · 逻辑一 · 顺势选股</h1><p class="sum">A股有两条选股逻辑：逻辑一顺着大盘和板块选（本页）；逻辑二利用A股国资股的箱体特征。港股有三条（顺势选股、业绩反转、两地比价），在“港股”标签下。价格截至'+asof(root)+'（每周更新），本页只提候选，不做买卖决定。</p></div>'
     out+='<nav class="lp-jump"><a href="#weekly">本周变化</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#price-rules">价格规则</a></nav>'
     out+=weekly_cards(root)+board_l1(L1,sec)+logic1_cards(root,S,sec,L1)+rules_html()
     return out+'<p class="note">'+E(P['source'])+' 位置与筹码数据：'+E(json.loads((root/'data/raw/stock_pick/l1_enrich.json').read_text())['_meta']['source'])+'。</p>'

@@ -201,7 +201,7 @@ def page(ctx):
     head = SP.head(3)
     if not L:
         return head + '<div class="hero"><h1>个股 · 港股</h1><p>港股数据尚未取得。</p></div>'
-    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 逻辑一 · 顺势选股</h1><p class="sum">港股有三条选股逻辑：顺势选股（本页）、动量＋空头下降、两地比价（只保留逻辑；原高息资产板块归入这条）。国资箱体利用的是A股国资股的特征，不适用港股。格式与A股逻辑一相同：大盘 → 板块 → 个股，判断链为板块、初筛、核验、估值、价格、筹码。价格截至' + E(D['asof']) +
+    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 逻辑一 · 顺势选股</h1><p class="sum">港股有三条选股逻辑：顺势选股（本页）、业绩反转、两地比价（只保留逻辑；原高息资产板块归入这条）。国资箱体利用的是A股国资股的特征，不适用港股。格式与A股逻辑一相同：大盘 → 板块 → 个股，判断链为板块、初筛、核验、估值、价格、筹码。价格截至' + E(D['asof']) +
            '（每周更新）。港股按事先写明的规则已下调为偏弱；互联网为逆风，不研究个股。</p><p class="sum"><b>港股买点与A股不同：</b>港股是动量市，买点改为“上升趋势中回调到12周均线附近”，不在接近一年低点时买（回测见<a href="#hk-price">港股价格规则</a>）。当前能源、油运、半导体候选都还没有确认上升趋势。</p></div>')
     out += '<nav class="lp-jump"><a href="hk-ah.html">高息资产 → 逻辑三</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#hk-price">港股价格规则</a><a href="#hk-data">数据口径</a></nav>'
     B = {}

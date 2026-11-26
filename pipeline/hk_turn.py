@@ -1,6 +1,6 @@
-"""港股逻辑二（动量＋空头下降）与逻辑三（两地比价，只保留逻辑）的页面。
+"""港股逻辑二（业绩反转：预期上调＋空头未上升＋研究核验）与逻辑三（两地比价，只保留逻辑）的页面。
 数据：data/raw/stock_pick/hk_logic2.json（浏览器执行 pipeline/weekly/hk_momentum.js 取数与回测，口径见文件内 source、rules、backtest）。
-旧版“业绩拐点”数据留档：data/raw/stock_pick/hk_logic2_reversal_2026-11-25.json。
+留档：hk_logic2_reversal_2026-11-25.json（财报拐点版）、hk_logic2_momentum_2026-11-26.json（动量版）。
 """
 import json
 from pathlib import Path
@@ -8,14 +8,13 @@ from html import escape as E
 import stockpick as SP
 import stockcards as SC
 
-DD_MAX = 15        # 距一年高点不超过15%
-SHORT_HIGH = 3.0   # 空头占港股股本≥3%视为高空头
-SHORT_STEP = 0.5   # 近8周变化≥0.5个百分点视为上升或下降
-ENTRY = (0, 8)     # 买点：高于12周均线0%—8%
-NO_CHASE = 15      # 高于12周均线15%以上不追，持有者减仓
+REV_MIN = 10       # 一致预期8周上调≥10%
+MIN_ORGS = 2       # 至少2家机构
+MC_MIN = 100       # 港股市值≥100亿港元
+RES_KEYS = (('反转动力', 'driver'), ('高频指标', 'hf'), ('可持续性', 'sustain'), ('证伪条件', 'falsify'))
 
 # list 列下标
-C, N, IND, MC, PX, DD, V12, V26, R26, NPUP, FALL, SH, FIN = range(13)
+C, N, IND, MC, PX, DD, V12, V26, R26, REV, ORGS, F27, F27_OLD, F26, REV26 = range(15)
 
 
 def load(root):
@@ -23,49 +22,35 @@ def load(root):
     return json.loads(p.read_text()) if p.exists() else None
 
 
-def short_ok(s):
-    """s=[现在%, 8周前%]；None表示该股不在证监会名单（无可报告淡仓），按低空头处理。"""
-    if not s:
-        return True
-    now, ago = s
-    if now - ago >= SHORT_STEP:
-        return False
-    return now < SHORT_HIGH or ago - now >= SHORT_STEP
+def verdict(x, res):
+    """数据信号已满足；研究层四项写清且没有保留意见，仍需验证高频指标，所以最高到“研究待核”。"""
+    r = res.get(x[C], {})
+    if r.get('flag', '').startswith('只有') or x[ORGS] < 3:
+        return '暂不纳入：覆盖不足', 'bad'
+    if not all(r.get(k) for _, k in RES_KEYS):
+        return '研究未写', 'wait'
+    return '候选：研究待核', 'wait'
 
 
-def verdict(x):
-    v = x[V12]
-    if v is None:
-        return '数据缺', 'wait'
-    if v > NO_CHASE:
-        return '不追：高于12周均线' + format(v, '.0f') + '%', 'wait'
-    if v > ENTRY[1]:
-        return '等回调：高于12周均线' + format(v, '.0f') + '%', 'wait'
-    if v < ENTRY[0]:
-        return '等站回12周均线（低' + format(-v, '.0f') + '%）', 'wait'
-    return '买点：回调到均线附近', 'go'
-
-
-def groups(L):
-    g = {'go': [], 'pull': [], 'back': []}
+def table(L):
+    f = SP.f; res = L['research']
+    out = ('<div class="tblwrap"><table class="mt lp-table l2t-table"><thead><tr><th>股票</th><th>港股市值<br>（亿港元）</th><th>距一年高点</th><th>相对26周均线</th>'
+           '<th>下一财年利润预测<br>8周上调</th><th>覆盖机构</th><th>预测：8周前 → 现在<br><small>亿元，报告货币</small></th><th>判断</th></tr></thead><tbody>')
     for x in L['list']:
-        v = x[V12]
-        g['go' if ENTRY[0] <= v <= ENTRY[1] else ('pull' if v > ENTRY[1] else 'back')].append(x)
-    return g
-
-
-def table(rows):
-    f = SP.f
-    out = ('<div class="tblwrap"><table class="mt lp-table l2t-table"><thead><tr><th>股票</th><th>港股市值<br>（亿港元）</th><th>现价</th><th>距一年高点</th><th>相对12周均线</th><th>相对26周均线</th><th>26周涨跌</th>'
-           '<th>空头占港股股本<br>（11-13 / 8周前）</th><th>最近一期利润同比<br><small>营收同比</small></th><th>利润不低于上一期</th><th>判断</th></tr></thead><tbody>')
-    for x in rows:
-        v, cls = verdict(x)
-        sh = '不在名单' if x[SH] is None else (f(x[SH][0], '.2f', '%') + ' / ' + f(x[SH][1], '.2f', '%') + ('<br><small>下降</small>' if x[FALL] else ''))
-        fin = x[FIN] or [None, None, None]
-        out += ('<tr><th scope="row">' + E(x[N]) + '<small>' + x[C] + ' · ' + E(x[IND]) + '</small></th><td>' + format(x[MC], ',') + '</td><td>' + format(x[PX], 'g') + '</td><td>' + f(x[DD], '.0f', '%') +
-                '</td><td>' + f(x[V12], '+.0f', '%') + '</td><td>' + f(x[V26], '+.0f', '%') + '</td><td>' + f(x[R26], '+.0f', '%') + '</td><td>' + sh + '</td><td>' + f(fin[1], '+.1f', '%') + '<br><small>' + E(fin[0] or '') + ' · ' + f(fin[2], '+.1f', '%') +
-                '</small></td><td>' + {1: '是', 0: '否'}.get(x[NPUP], '—') + '</td><td><span class="lp-view ' + cls + '">' + E(v) + '</span></td></tr>')
+        v, cls = verdict(x, res)
+        out += ('<tr><th scope="row"><a href="#r-' + x[C] + '">' + E(x[N]) + '</a><small>' + x[C] + ' · ' + E(x[IND]) + '</small></th><td>' + format(x[MC], ',') + '</td><td>' + f(x[DD], '.0f', '%') + '</td><td>' + f(x[V26], '+.0f', '%') +
+                '</td><td><b>' + f(x[REV], '+.0f', '%') + '</b></td><td>' + str(x[ORGS]) + '</td><td>' + f(x[F27_OLD], '.1f') + ' → ' + f(x[F27], '.1f') + '</td><td><span class="lp-view ' + cls + '">' + E(v) + '</span></td></tr>')
     return out + '</tbody></table></div>'
+
+
+def cards(L):
+    res = L['research']; out = '<div class="l2r-grid">'
+    for x in L['list']:
+        r = res.get(x[C], {}); v, cls = verdict(x, res)
+        out += ('<article class="l2r-card" id="r-' + x[C] + '"><h3>' + E(x[N]) + ' <small>' + x[C] + '</small> <span class="lp-view ' + cls + '">' + E(v) + '</span></h3><dl>' +
+                ''.join('<dt>' + k + '</dt><dd>' + E(r.get(key, '—')) + '</dd>' for k, key in RES_KEYS) + '</dl>' +
+                ('<p class="l2r-flag">' + E(r['flag']) + '</p>' if r.get('flag') else '') + '</article>')
+    return out + '</div>'
 
 
 def bt_table(cols, rows):
@@ -76,25 +61,30 @@ def bt_table(cols, rows):
 
 def page2(root):
     L = load(root)
-    if not L or L.get('version') != 'momentum':
-        return SP.head(4) + '<div class="hero"><h1>港股 · 逻辑二 · 动量＋空头下降</h1><p>数据尚未取得。</p></div>'
-    R = L['rules']; B = L['backtest']; G = groups(L)
+    if not L or L.get('version') != 'revision':
+        return SP.head(4) + '<div class="hero"><h1>港股 · 逻辑二 · 业绩反转</h1><p>数据尚未取得。</p></div>'
+    R = L['rules']; B = L['backtest']; f = SP.f
     out = '<style>' + SP.CSS + SC.CSS + CSS + '</style>' + SP.head(4)
-    out += ('<div class="hero"><h1>港股 · 逻辑二 · 动量＋空头下降</h1><p class="sum">港股由机构定价、可以做空。过去一年的数据显示：离一年高点越近的股票越强，空头在增加的股票随后越弱，空头在回补或本来就少的股票更强。'
-            '所以这条逻辑找“离高点近、空头少或在回补”的股票，等它回调到12周均线附近再买。价格截至' + E(L['asof']) + '，空头数据截至' + E(L['short_asof']) + '（证监会每周公布，滞后约两周）。</p></div>')
-    out += '<nav class="lp-jump"><a href="#l2t-status">结论</a><a href="#l2t-go">买点名单</a><a href="#l2t-wait">等待名单</a><a href="#l2t-rules">规则</a><a href="#l2t-bt">回测</a><a href="#l2t-old">旧版为何放弃</a></nav>'
-    out += ('<section id="l2t-status"><h2>结论</h2><div class="l2t-box"><p><b>状态：</b>' + E(R['status']) + '</p><p><b>名单构成：</b>' + E(R['note']) +
-            '</p><p><b>当前：</b>' + str(len(L['list'])) + '只入选，其中' + str(len(G['go'])) + '只在买点（高于12周均线0%—8%），' + str(len(G['pull'])) + '只等回调，' + str(len(G['back'])) + '只等站回均线。</p></div></section>')
-    out += ('<section id="l2t-go"><h2>买点名单（' + str(len(G['go'])) + '只）</h2><p class="note">按港股市值排序。优势来自分散，回测中单只股票跑赢的比例只有56%左右，不要集中押一两只。</p>' + table(G['go']) + '</section>')
-    out += ('<section id="l2t-wait"><h2>等待名单（' + str(len(G['pull']) + len(G['back'])) + '只）</h2><p class="note">满足“离高点近＋空头条件”，价格还不在买点。</p>' + table(G['pull'] + G['back']))
-    ex = '；'.join(E(n) + '（' + c + '，' + E(w) + '）' for c, n, w in L['excluded'])
-    out += '<p class="note"><b>离高点近但因空头条件剔除：</b>' + ex + '。</p></section>'
+    out += ('<div class="hero"><h1>港股 · 逻辑二 · 业绩反转</h1><p class="sum">找业绩正在反转、而且反转动力强、能持续的公司。港股由机构按盈利预期定价，等财报公布时反转往往已被交易完，'
+            '所以这条逻辑用“机构上调盈利预测”提前发现反转，用“空头没有加仓”确认市场认可，再由人工写清反转动力、高频验证指标和证伪条件。价格截至' + E(L['asof']) +
+            '，机构预测截至' + E(L['fc_asof']) + '，空头数据截至' + E(L['short_asof']) + '。</p></div>')
+    out += '<nav class="lp-jump"><a href="#l2t-status">结论</a><a href="#l2t-list">候选</a><a href="#l2t-research">研究卡</a><a href="#l2t-watch">观察</a><a href="#l2t-rules">规则</a><a href="#l2t-bt">回测</a><a href="#l2t-old">旧版本</a></nav>'
+    out += ('<section id="l2t-status"><h2>结论</h2><div class="l2t-box"><p><b>状态：</b>' + E(R['status']) + '</p><p><b>当前：</b>' + str(len(L['list'])) +
+            '只满足数据信号，全部处于“研究待核”或“暂不纳入”：研究卡的内容摘自机构研报标题，高频指标还没有逐一验证，验证通过才可买。</p><p><b>仓位：</b>' + E(R['size']) + '</p></div></section>')
+    out += ('<section id="l2t-list"><h2>候选（' + str(len(L['list'])) + '只）</h2><p class="note">按预测上调幅度排序。“下一财年”指2027年（阿里巴巴为截至2027年3月的财年）。</p>' + table(L))
+    ex = '；'.join(E(n) + '（' + c + '，上调' + str(r) + '%）' for c, n, r in L['excluded'])
+    out += '<p class="note"><b>预测上调但因空头条件剔除：</b>' + ex + '。</p></section>'
+    out += '<section id="l2t-research"><h2>研究卡</h2><p class="note">每只写清四项。“高频指标”就是下一步要核对的数字。</p>' + cards(L) + '</section>'
+    out += ('<section id="l2t-watch"><h2>观察：有反转故事、数据信号未出现</h2><ul class="lens-ul">' + ''.join('<li><b>' + E(w['name']) + '（' + w['code'] + '）</b>：距一年高点' + format(w['dd'], '.0f') + '%，2027年预测8周变化' +
+            format(w['rev'], '+.0f') + '%（' + str(w['n']) + '家机构）。' + E(w['note']) + '</li>' for w in L['watch']) + '</ul></section>')
     out += ('<section id="l2t-rules"><h2>规则</h2><dl class="pr-dl">' + ''.join('<dt>' + k + '</dt><dd>' + E(R[key]) + '</dd>' for k, key in
-            (('候选范围', 'universe'), ('趋势', 'trend'), ('空头', 'short'), ('买点', 'entry'), ('卖出与止损', 'exit'), ('业绩上修', 'earnings'))) + '</dl></section>')
-    out += ('<section id="l2t-bt"><h2>回测</h2><p class="note">' + E(B['setup']) + '</p>' + bt_table(B['cols'], B['rows']) +
-            '<h3>买点组逐个检验日</h3>' + bt_table(B['by_date_cols'], B['by_date']) + '<p class="note"><b>回测说明了什么：</b>' + E(B['read']) + '</p></section>')
-    O = L['reversal']
-    out += ('<section id="l2t-old"><h2>' + E(O['title']) + '</h2><p class="note">' + E(O['read']) + '</p>' + bt_table(B['cols'], O['rows']) + '<p class="note">' + E(L['source']) + '</p></section>')
+            (('候选范围', 'universe'), ('反转信号', 'signal'), ('空头', 'short'), ('研究核验', 'research'), ('退出', 'exit'), ('仓位', 'size'))) + '</dl></section>')
+    P = B['pub']
+    out += ('<section id="l2t-bt"><h2>回测</h2><p class="note">' + E(B['setup']) + '</p>' + bt_table(B['cols'], B['rows']) + '<h3>本页规则逐个检验日</h3>' + bt_table(B['by_date_cols'], B['by_date']) +
+            '<p class="note"><b>回测说明了什么：</b>' + E(B['read']) + '</p><h3>' + E(P['title']) + '</h3><p class="note">' + E(P['read']) + '</p>' + bt_table(B['cols'], P['rows']) + '</section>')
+    O = L['reversal']; M = L['momentum']
+    out += ('<section id="l2t-old"><h2>旧版本</h2><h3>' + E(M['title']) + '</h3><p class="note">' + E(M['read']) + '</p><h3>' + E(O['title']) + '</h3><p class="note">' + E(O['read']) + '</p>' +
+            bt_table(B['cols'], O['rows']) + '<p class="note">' + E(L['source']) + '</p></section>')
     return out
 
 
@@ -109,11 +99,15 @@ def page3(root):
 
 def build(ctx):
     site = Path(ctx['SITE']); root = ctx['ROOT']
-    (site/'stocks/hk-turn.html').write_text(ctx['page']('港股 · 动量＋空头下降 | A 股框架笔记', 'gg', page2(root), '../'), encoding='utf-8')
+    (site/'stocks/hk-turn.html').write_text(ctx['page']('港股 · 业绩反转 | A 股框架笔记', 'gg', page2(root), '../'), encoding='utf-8')
     (site/'stocks/hk-ah.html').write_text(ctx['page']('港股 · 两地比价 | A 股框架笔记', 'gg', page3(root), '../'), encoding='utf-8')
 
 
 CSS = """
 .l2t-box{background:#f3f6f9;border-radius:10px;padding:14px 18px;margin:10px 0}.l2t-box p{font-size:14.5px;line-height:1.9;margin:4px 0}
-.l2t-table{min-width:1100px}.l2t-table td,.l2t-table th{vertical-align:top;font-size:13.5px}
+.l2t-table{min-width:900px}.l2t-table td,.l2t-table th{vertical-align:top;font-size:13.5px}
+.l2r-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin:12px 0}
+.l2r-card{border:1px solid #dfe5ec;border-radius:10px;padding:12px 16px;background:#fff}.l2r-card h3{font-size:16px;margin:0 0 8px}.l2r-card h3 small{color:#789;font-weight:400}
+.l2r-card dt{font-weight:600;font-size:13px;color:#456;margin-top:6px}.l2r-card dd{margin:2px 0 0;font-size:14px;line-height:1.7}
+.l2r-flag{background:#fff6e5;border-radius:6px;padding:6px 10px;font-size:13.5px;margin:8px 0 0}
 """

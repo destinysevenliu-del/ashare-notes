@@ -30,3 +30,24 @@ function hkFeat(c, wi) {
   const s = (window._fin[c] || []).filter(x => avail(x[0]) <= d); const npUp = s.length >= 2 ? s.at(-1)[3] >= s.at(-2)[3] && s.at(-1)[3] > 0 : null;
   return { p0, dd: p0 / hi - 1, pos: (p0 - lo) / (hi - lo), vs12: p0 / avg(m12) - 1, vs26: p0 / avg(m26) - 1, r26: p26 ? p0 / p26 - 1 : null, npUp, mc: (window._sh[c] || 0) * p0 / 1e8 };
 }
+
+// ---- 逻辑二（业绩反转）：机构盈利预测上调 ----
+// await hkFcLoad('2025-03-01')：取港股研报盈利预测（RPT_HK_ORGPREDICT，约2分钟），存 window._FC
+// hkRev(代码, 日期, 财年)：一致预期＝每家机构120天内最新一篇的中位数；返回8周变化（(新−旧)÷|旧|），覆盖少于2家返回null
+async function hkFcLoad(from) {
+  const fc = []; let p = 1;
+  for (;;) { let d; for (let i = 0; i < 5; i++) { try { d = await fetch('/api/data/v1/get?' + new URLSearchParams({ reportName: 'RPT_HK_ORGPREDICT', columns: 'SECURITY_CODE,PUBLISH_DATE,ORG_CODE,PREDICT_YEAR1,PNP_YEAR1,PREDICT_YEAR2,PNP_YEAR2,PREDICT_YEAR3,PNP_YEAR3', pageSize: 500, pageNumber: p, sortColumns: 'PUBLISH_DATE', sortTypes: 1, filter: `(PUBLISH_DATE>='${from}')` })).then(r => r.json()); break } catch (e) { await new Promise(r => setTimeout(r, 2000)) } }
+    for (const x of d.result.data) fc.push([x.SECURITY_CODE, x.PUBLISH_DATE.slice(0, 10), x.ORG_CODE, x.PREDICT_YEAR1, x.PNP_YEAR1, x.PREDICT_YEAR2, x.PNP_YEAR2, x.PREDICT_YEAR3, x.PNP_YEAR3]);
+    window._fcs = 'p' + p + '/' + d.result.pages; if (p >= d.result.pages) break; p++ }
+  const FC = {}; for (const x of fc) (FC[x[0]] ??= []).push(x); window._FC = FC; window._fcs = 'done';
+}
+function hkCons(c, d, Y) {
+  const rs = window._FC[c]; if (!rs) return null; const t = new Date(d + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() - 120); const lo = t.toISOString().slice(0, 10), by = {};
+  for (const x of rs) { if (x[1] > d || x[1] < lo) continue; let v = null; for (const k of [3, 5, 7]) if (x[k] == Y) v = x[k + 1]; if (v != null) by[x[2]] = v }
+  const v = Object.values(by).sort((a, b) => a - b); return v.length ? { m: v[Math.floor(v.length / 2)], n: v.length } : null;
+}
+function hkRev(c, d, Y, w = 56) {
+  const t = new Date(d + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() - w); const a = hkCons(c, d, Y), b = hkCons(c, t.toISOString().slice(0, 10), Y);
+  return (!a || !b || a.n < 2 || !b.m) ? null : (a.m - b.m) / Math.abs(b.m);
+}
+// 筛选：港股市值≥100亿；hkRev(下一财年)≥0.10；空头条件同交接文档（证监会页面算出的分档字符串）。下一财年＝当年7月起取下一年。
