@@ -27,6 +27,49 @@ RULES = {
 FAC = {'np': ('最近一期利润同比', lambda x: x.get('np_yoy') or 0), 'rev': ('营收同比', lambda x: x.get('rev_yoy') or 0),
        'cheap': ('估值低（PE）', lambda x: -(x.get('pe') or 999)), 'dy': ('税后股息率', lambda x: x.get('dy_net') or 0)}
 SB_LINE = 2.0  # 南向持股占比20日上升≥2个百分点视为资金快速涌入（本站设定）
+# 港股价格规则（2026-11-26改）：港股是动量市，买点从“一年区间下部”改为“上升趋势中回调到12周均线附近”。
+# 回测见 data/raw/stock_pick/hk_logic2.json 的 logic1_bt；高息（crowded）类型仍按股息率定价。
+HK_PRICE = {'buy': '先确认上升趋势（站上26周均线且26周涨幅>0），再在12周均线下方3%至上方5%之间买入',
+            'sell': '高于12周均线15%以上减仓（回测中追高组13周超额中位数约−8%）',
+            'stop': '收盘跌破26周均线离场（趋势结束）；若26周均线高于买入区下沿，则以买入区下沿下方3%为止损',
+            'why': '过去一年港股离一年高点越近越强，一年区间下部的股票平均跑输；上升趋势中回调到12周均线附近买入的组合跑赢最多。卖出与止损为本站设定，回测只验证了买点。'}
+
+
+def load_trend(root):
+    p = Path(root)/'data/raw/stock_pick/hk_trend.json'
+    return json.loads(p.read_text()) if p.exists() else None
+
+
+def hk_levels(t, x, T):
+    """港股价格：上升趋势中回调到12周均线附近买。T=hk_trend.json；缺数据时不给价格。"""
+    if t == 'crowded':
+        return LR.price_levels(t, x)
+    tr = (T or {}).get('stocks', {}).get(x['code'])
+    if not tr:
+        return None
+    c = x['close']; _, m12, m26, r26 = tr
+    b1, b2 = round(m12*0.97, 2), round(m12*1.05, 2)
+    sell = round(m12*1.15, 2); stop = round(m26 if m26 < b1 else b1*0.97, 2)
+    mid = (b1+b2)/2
+    out = {'close': c, 'buy': (b1, b2), 'sell': sell, 'stop': stop, 'ma12': m12, 'ma26': m26, 'r26': r26, 'note': '',
+           'rr': round((sell-mid)/(mid-stop), 1) if mid > stop else None}
+    out['rr_now'] = round((sell-c)/(c-stop), 1) if stop < c < sell else None
+    trend = c > m26 and r26 is not None and r26 > 0
+    out['trend'] = trend
+    if not trend:
+        why = []
+        if c <= m26: why.append('股价在26周均线（' + format(m26, '.2f') + '）下方')
+        if r26 is None or r26 <= 0: why.append('26周涨跌' + ('—' if r26 is None else format(r26, '+.0f') + '%'))
+        out['where'] = '未确认：上升趋势未确认（' + '，'.join(why) + '）'
+    elif c >= sell:
+        out['where'] = '已在卖出区（高于12周均线15%以上，持有者减仓）'
+    elif b1 <= c <= b2:
+        out['where'] = '在买入区'
+    elif c > b2:
+        out['where'] = '高于买入区' + format((c/b2-1)*100, '.0f') + '%'
+    else:
+        out['where'] = '低于买入区' + format((1-c/b1)*100, '.0f') + '%（跌破12周均线，等重新站上）'
+    return out
 
 
 def load(root):
@@ -67,7 +110,7 @@ def select(root, S):
     if not D:
         return {}, None
     sec = {s['id']: s for s in S['sectors']}
-    allr = rows(D); res = {}
+    allr = rows(D); res = {}; T = load_trend(root)
     LR.CN10Y = LR.cn10y(root)['value']
     for sid, R in RULES.items():
         s = sec[sid]
@@ -88,7 +131,7 @@ def select(root, S):
         ok.sort(key=lambda x: -x['total'])
         picks = ok[:R['n']] if s['rating'] != '逆风' else []
         for x in picks:
-            x['pl'] = LR.price_levels(t, x)
+            x['pl'] = hk_levels(t, x, T)
             ch = SP.chain(sid, s, t, x, {})
             if x['code'] in HK_SUB and s['rating'] != '等开关':
                 st, stx = SP.sub_state(s, {'sub': HK_SUB[x['code']]})
@@ -139,14 +182,14 @@ def card(sid, s, r, x, i):
 
 
 def sector_html(sid, s, r):
-    t = r['type']; Lz = r['lens']; R = LR.PRICE_RULES[t]
+    t = r['type']; Lz = r['lens']; R = LR.PRICE_RULES[t] if t == 'crowded' else HK_PRICE
     nb = sum(1 for x in r['picks'] if SC.status(x.get('pl'))[0] == '买入')
     out = ('<details class="lp-sec" id="l1-' + sid + '"' + ('' if s['rating'] == '等开关' else ' open') + '><summary><span class="sec-h"><h3>' + E(s['title']) +
            '</h3><span class="lp-badge lp-' + SP.BADGE[s['rating']] + '">' + E(s['rating']) + '</span><span class="sec-meta">' + str(len(r['picks'])) + '只 · 在买入区' + str(nb) + '只 · ' + E(Lz['name']) + '</span></span></summary>')
     out += '<div class="sec-lens">' + ''.join('<div><b>' + k + '看什么</b>' + E(Lz[key]) + '</div>' for k, key in (('基本面', 'fund'), ('位置', 'pos'))) + '<div><b>筹码看什么</b>南向持股占比（港股通持股占港股股本）及其20日变化：20日上升≥2个百分点视为资金快速涌入（本站设定，未回测）。</div></div>'
     buy = R['buy'] if t != 'crowded' else '税后股息率达到“中国10年国债+2.5个百分点”对应的价格及以下（每股分红×(1−20%)÷(10年国债+2.5%)）'
     sell = R['sell'] if t != 'crowded' else '税后股息率降到“10年国债+2.0个百分点”对应的价格'
-    out += ('<p class="sec-rule"><b>价格规则：</b>买入 ' + E(buy) + '；卖出 ' + E(sell) + '；止损 ' + E(R['stop']) + '。<a href="index.html#price-rules">为什么这样定 →</a><br><b>门槛：</b>' + E(r['gate']) +
+    out += ('<p class="sec-rule"><b>价格规则：</b>买入 ' + E(buy) + '；卖出 ' + E(sell) + '；止损 ' + E(R['stop']) + '。<a href="#hk-price">为什么这样定 →</a><br><b>门槛：</b>' + E(r['gate']) +
             '（通过' + str(r['passed']) + ' / ' + str(r['pool']) + '家）　<a href="../boards/' + sid + '.html">板块依据 →</a></p>')
     out += '<div class="sc-grid">' + ''.join(card(sid, s, r, x, i) for i, x in enumerate(r['picks'])) + '</div>'
     return out + '<p class="note">进入个股研究时还要比较：' + E('；'.join(s['handoff'])) + '</p></details>'
@@ -158,9 +201,9 @@ def page(ctx):
     head = SP.head(3)
     if not L:
         return head + '<div class="hero"><h1>个股 · 港股</h1><p>港股数据尚未取得。</p></div>'
-    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 逻辑一 · 顺势选股</h1><p class="sum">港股有三条选股逻辑：顺势选股（本页）、业绩拐点（观察）、两地比价（只保留逻辑；原高息资产板块归入这条）。国资箱体利用的是A股国资股的特征，不适用港股。格式与A股逻辑一相同：大盘 → 板块 → 个股，判断链为板块、初筛、核验、估值、价格、筹码。价格截至' + E(D['asof']) +
-           '（每周更新）。港股按事先写明的规则已下调为偏弱；互联网为逆风，不研究个股。</p><p class="sum"><b>需要复核：</b>业绩拐点页的回测显示，过去一年港股离一年高点越近的股票越强、回撤越深越弱；本页能源、油运沿用A股“一年区间下部买入”的规则，与这一结论相反，买入前要先复核。</p></div>')
-    out += '<nav class="lp-jump"><a href="hk-ah.html">高息资产 → 逻辑三</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#hk-data">数据口径</a></nav>'
+    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 逻辑一 · 顺势选股</h1><p class="sum">港股有三条选股逻辑：顺势选股（本页）、动量＋空头下降、两地比价（只保留逻辑；原高息资产板块归入这条）。国资箱体利用的是A股国资股的特征，不适用港股。格式与A股逻辑一相同：大盘 → 板块 → 个股，判断链为板块、初筛、核验、估值、价格、筹码。价格截至' + E(D['asof']) +
+           '（每周更新）。港股按事先写明的规则已下调为偏弱；互联网为逆风，不研究个股。</p><p class="sum"><b>港股买点与A股不同：</b>港股是动量市，买点改为“上升趋势中回调到12周均线附近”，不在接近一年低点时买（回测见<a href="#hk-price">港股价格规则</a>）。当前能源、油运、半导体候选都还没有确认上升趋势。</p></div>')
+    out += '<nav class="lp-jump"><a href="hk-ah.html">高息资产 → 逻辑三</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#hk-price">港股价格规则</a><a href="#hk-data">数据口径</a></nav>'
     B = {}
     for sid, r in L.items():
         for x in r['picks']:
@@ -169,7 +212,7 @@ def page(ctx):
             elif k == '不买': sm += ' · ' + x['chain']['view'].replace('不买：', '')
             B.setdefault(k, []).append(('s-'+x['code'], x['name'], sm))
     out += ('<section id="overview"><h2>行动看板</h2><p class="note">按“现在该做什么”把候选分组。港股的核验（资本开支、资本充足率）与五年估值分位尚未接入，所以价格到了买入区也只到“价格到位·待核”，不直接买。</p>' +
-            SC.board(B, SP.L1_ORDER, '价格截至' + D['asof'] + '；规则见A股个股页“价格规则”。', wide=('等开关',)) + '</section>')
+            SC.board(B, SP.L1_ORDER, '价格截至' + D['asof'] + '；规则见本页“港股价格规则”。', wide=('等开关',)) + '</section>')
     order = ['顺风', '前半段', '等开关', '逆风']
     out += '<section id="logic1"><h2>按板块展开</h2><p class="note">每个板块按自己的类型看三层：基本面、位置、筹码。卡片结构与A股相同。</p>'
     for sid in sorted(L, key=lambda k: order.index(sec[k]['rating'])):
@@ -177,13 +220,25 @@ def page(ctx):
     si = sec['hk-internet']
     out += ('<article class="lp-sec" id="l1-hk-internet"><h3>' + E(si['title']) + ' <span class="lp-badge lp-wait">' + E(si['rating']) + '</span></h3><p>' + E(si['verdict']) +
             '</p><p class="note">逆风板块本轮不研究个股；恢复为等开关后再按成长类规则选股。<a href="../boards/hk-internet.html">板块依据 →</a></p></article></section>')
+    out += price_section(root)
     out += ('<section id="hk-data"><h2>数据口径</h2><ul class="lens-ul"><li>候选范围：截止日港股通（南向）可买股票，按东方财富港股行业分组。</li>'
-            '<li>价格与一年区间：东方财富南向持股日表的每日收盘价与涨跌幅，复权方法与A股相同。</li>'
+            '<li>价格与一年区间：东方财富南向持股日表的每日收盘价与涨跌幅，复权方法与A股相同。12周、26周均线用每周最后一个交易日收盘价（未复权）计算（data/raw/stock_pick/hk_trend.json）。</li>'
             '<li>财务：东方财富港股主要指标最新一期（港元口径），利润与营收同比为报告期累计，不是单季。</li>'
             '<li>分红：2025年度（中期＋末期）每股分红合计，港元；股息率＝分红÷现价。高息资产的买卖价用税后股息率（港股通个人投资者H股、红筹股红利税按20%计；机构与A+H差异需另算）。</li>'
             '<li>筹码：南向持股占港股股本比例及20日变化；港股没有融资余额与股东户数的同口径数据。</li>'
             '<li>尚未接入：银行资本充足率与不良率、资本开支与自由现金流、五年估值分位。这些都影响“核验”和“估值”，所以港股候选目前最多到“价格到位·待核”。</li></ul></section>')
     return out
+
+
+def price_section(root):
+    import hk_turn
+    L = hk_turn.load(root) or {}
+    bt = L.get('logic1_bt')
+    out = ('<section id="hk-price"><h2>港股价格规则</h2><dl class="pr-dl"><dt>买入</dt><dd>' + E(HK_PRICE['buy']) + '</dd><dt>卖出</dt><dd>' + E(HK_PRICE['sell']) + '</dd><dt>止损</dt><dd>' + E(HK_PRICE['stop']) +
+           '</dd><dt>为什么</dt><dd>' + E(HK_PRICE['why']) + '</dd><dt>高息资产</dt><dd>仍按税后股息率定价，归入逻辑三。</dd></dl>')
+    if bt:
+        out += '<p class="note">' + E(bt['setup']) + '</p>' + hk_turn.bt_table(L['backtest']['cols'], bt['rows'])
+    return out + '</section>'
 
 
 def build(ctx):

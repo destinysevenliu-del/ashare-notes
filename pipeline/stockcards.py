@@ -15,7 +15,7 @@ def status(pl):
     """价格状态 → (类别, 显示文字, 颜色类)"""
     if not pl: return ('无', '价格数据不足', 'st-na')
     w = pl['where']; c = pl['close']
-    if '未确认' in w: return ('未确认', '未确认：需先站上60日均线', 'st-wait')
+    if '未确认' in w: return ('未确认', w.split('（')[0], 'st-wait')
     if '跌破止损' in w or (pl.get('stop') and c <= pl['stop']): return ('止损', '已跌破止损价', 'st-stop')
     if '卖出区' in w or c >= pl['sell']: return ('卖出', '已到卖出价', 'st-sell')
     if '在买入区' in w: return ('买入', '在买入区', 'st-buy')
