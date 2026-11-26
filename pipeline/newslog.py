@@ -64,7 +64,7 @@ def grade(item, rx):
     if item.get('path_change'):
         return 'B', '官方决定或数据改变了跟踪变量的预期路径'
     if item.get('react') is None:
-        return 'C', '只是确认已知读数，没有新增信息'
+        return 'C', item.get('no_react_reason') or '只是确认已知读数，没有新增信息'
     if rx is None:
         return '待数据', '反应日数据尚未进站，下次更新自动计算'
     if rx['z'] is not None and abs(rx['z']) >= Z_LINE:

@@ -2298,6 +2298,10 @@
         {
           "date": "2026-11-24",
           "value": 4.91
+        },
+        {
+          "date": "2026-11-25",
+          "value": 4.85
         }
       ],
       "source": "https://fred.stlouisfed.org/series/DGS10",

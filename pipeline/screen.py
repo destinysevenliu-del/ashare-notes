@@ -53,6 +53,40 @@ elif MODE == "kline":
         if time.time() - t0 > 140: break
     save("klines", have); print(len(have), "/", len(boards))
 
+elif MODE == "mkt":
+    # 只更新行情侧（估值、相对强弱、回撤、拥挤度），财务侧沿用季度结果。
+    # 输入由浏览器计算（口径与 score 完全一致，见 pipeline/weekly/screen_market.js）：
+    #   data/raw/screen/bv_<日期>.json  {bk: [市值加权PE(TTM), 总市值(百万元), 一年前PE]}
+    #   data/raw/screen/bk_<日期>.json  {bk: [K线最后日期, rs20, rs60, rs250, 距一年高点%, 成交占比5日均值%, 拥挤度分位]}
+    d = sys.argv[3]; bv = load("bv_" + d); bk = load("bk_" + d)
+    clip = lambda x: max(-2, min(2, int(x + 0.5) if x >= 0 else -int(-x + 0.5)))
+    out = load("result"); stale = []
+    for r in out:
+        v = bv.get(r["bk"]); k = bk.get(r["bk"])
+        if v:
+            r["pe"], r["pe1"] = v[0], v[2]; r["mc"] = v[1] * 1e6 if v[1] else r["mc"]
+            r["peg"] = r["pe"] / r["cum_yoy"] if r["pe"] and r["cum_yoy"] and r["cum_yoy"] > 0 else None
+        if k:
+            r["rs20"], r["rs60"], r["rs250"], r["dd"], r["sh5"], r["sh_pct"] = k[1:]
+            r["mkt_date"] = k[0]
+        else:
+            stale.append(r["bk"])
+        sc = r["sc"]; pe, peg = r["pe"], r["peg"]
+        if pe is None: sc["F"] = -1
+        elif peg is not None: sc["F"] = 1 if peg < 1 else -1 if peg > 2 else 0
+        else: sc["F"] = -1 if pe > 25 else 0
+        sc["G"] = -1 if r["sh_pct"] >= 85 else 0
+        r["sc"] = {kk: clip(vv) for kk, vv in sc.items()}; r["total"] = sum(r["sc"].values())
+    save("result", out)
+    pub = os.path.join(ROOT, "docs", "data", "sector-screen.json")
+    j = json.load(open(pub, encoding="utf-8"))
+    keys = list(j["rows"][0].keys())
+    j["rows"] = [{kk: r.get(kk) for kk in keys} for r in out]
+    j["as_of_val"] = d
+    j["method"] = j["method"].split("估值为")[0] + "估值为市值加权PE（TTM），" + d + "对比一年前同日；拥挤度为行业成交占全市场比例（5日均值）在近300个交易日内的分位；相对强弱以沪深300为基准。宽行业口径不等于细分方向，细分证据另列来源。"
+    json.dump(j, open(pub, "w", encoding="utf-8"), ensure_ascii=False)
+    print("updated", len(out), "stale", stale)
+
 elif MODE == "score":
     import analyze as A
     D = A.Data(os.path.join(ROOT, "data", "raw"))

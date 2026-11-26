@@ -1,0 +1,54 @@
+{
+ "date": "2026-11-25",
+ "total": -1,
+ "scores": {
+  "ext": 0,
+  "glob": -1,
+  "econ": -2,
+  "pol": 0,
+  "liq": 1,
+  "val": 2,
+  "funds": -1
+ },
+ "nodes": {
+  "A": "down",
+  "B": "flat",
+  "C": "down",
+  "D": "up",
+  "E": "na",
+  "F": "up",
+  "G": "down",
+  "H": "price"
+ },
+ "conds": {
+  "score": false,
+  "margin5": true,
+  "us10": true,
+  "cn10": false,
+  "pe": false,
+  "pmi": true
+ },
+ "changes": [
+  {
+   "dir": "up",
+   "text": "打分卡「估值」从 +1 变为 +2",
+   "node": "F"
+  },
+  {
+   "dir": "down",
+   "node": "G",
+   "text": "两融单日净偿还 208 亿元（11-25）"
+  },
+  {
+   "dir": "up",
+   "node": "F",
+   "text": "全 A 估值分位从 41% 变为 33%"
+  },
+  {
+   "dir": "alert",
+   "node": "",
+   "text": "关注条件触发：美国 10 年国债收益率一周内变化超过 ±20bp（-22bp，现在 4.85%）"
+  }
+ ],
+ "rules_version": "2026-11-10 v3（新增全球环境、实际利率、杠杆拥挤度、盈利分位）"
+}

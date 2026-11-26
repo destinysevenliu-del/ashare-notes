@@ -31,7 +31,7 @@ def box_svg(ref):
     out+='<text x="36" y="32" font-size="13" fill="#9b3d27">天花板：箱顶（90%分位）· 卖出区</text><text x="36" y="218" font-size="13" fill="#2f6f53">地板：箱底（10%分位）· 买入区</text><text x="36" y="250" font-size="13" fill="#2f6f53">止损线：跌破箱底15%</text><text x="168" y="62" font-size="13" fill="#455a6e">事件脉冲</text></svg>'
     return out
 
-BADGE={'顺风':'up','前半段':'early','等开关':'wait'}
+BADGE={'顺风':'up','前半段':'early','等开关':'wait','逆风':'wait'}
 LAY={'好':'g','中':'m','差':'b'}
 def lay(v):return '<span class="ly ly-'+LAY[v]+'">'+v+'</span>'
 
@@ -103,6 +103,7 @@ def chain(sid,s,t,x,V):
     elif D['板块']=='暂停':view='不买：板块拥挤，暂停新增'
     elif D['估值']=='否决':view='不买：估值否决'
     elif D['核验']=='未通过':view='不买：核验未通过'
+    elif DEFENSE.get('on') and s.get('market','a')=='a':view='不买：大盘转防守，暂停新增'
     elif c=='买入':view='可执行' if all(D[k]=='通过' for k in ('板块','核验','估值')) else '价格到位·待核'
     elif c=='高于':view='等回落'+('（业务待核）' if D['板块']=='待核' else '')
     else:view='观察：低于买入区'
@@ -133,7 +134,10 @@ def fund_cells(t,x):
     return [f(e.get('gmChg'),'+.1f'),f(x['np_yoy'],'+.0f','%'),f(x['rev_yoy'],'+.0f','%'),f(e.get('cashEps'),'.2f')]
 FH={'crowded':['股息率','单季利润同比','PB','前三季ROE'],'upstream':['单季利润同比','股息率','经营现金流覆盖（前三季）','毛利率变化'],'growth':['单季利润同比','加速（百分点）','营收同比','经营现金流覆盖（前三季）'],'cost':['毛利率变化','单季利润同比','营收同比','经营现金流覆盖（前三季）']}
 
+DEFENSE={}
 def logic1_data(root,S):
+    global DEFENSE
+    DEFENSE=json.loads((Path(root)/'data/market_thesis.json').read_text())['macro_regime']['markets']['a'].get('defense') or {}
     logic1_rules.CN10Y=logic1_rules.cn10y(root)['value']
     r=logic1_rules.select_v2(root,S['sectors']);V=verify_data(root);sec={s['id']:s for s in S['sectors']}
     for sid,v in r.items():
@@ -300,7 +304,7 @@ def l1_bucket(rating,x):
     if v.startswith('等回落'):return '等回落'
     return '观察'
 
-L1_ORDER=[('可执行','ab-buy','板块、核验、估值都通过，价格在买入区'),('价格到位·待核','ab-high','价格已在买入区，但核验或估值没完成，不直接买'),('等回落','ab-high','高于买入区，等价格回到区间'),('观察','ab-low','低于买入区或接近止损，先观察区间是否失效'),('不买','ab-sell','已到卖出价、估值否决、核验未通过，或板块拥挤暂停新增'),('等开关','ab-wait','板块开关未打开，任何价格都不买')]
+L1_ORDER=[('可执行','ab-buy','板块、核验、估值都通过，价格在买入区'),('价格到位·待核','ab-high','价格已在买入区，但核验或估值没完成，不直接买'),('等回落','ab-high','高于买入区，等价格回到区间'),('观察','ab-low','低于买入区或接近止损，先观察区间是否失效'),('不买','ab-sell','已到卖出价、估值否决、核验未通过、板块拥挤暂停新增，或大盘转防守暂停新增'),('等开关','ab-wait','板块开关未打开，任何价格都不买')]
 
 def board_l1(L1,sec):
     B={}
@@ -308,7 +312,7 @@ def board_l1(L1,sec):
         for x in r['picks']:
             k=l1_bucket(sec[sid]['rating'],x);sm=short(sec[sid]['title'])
             if k=='等开关':sm+=' · '+('价格已确认' if SC.status(x.get('pl'))[0]!='未确认' else '未确认')
-            elif k=='不买':sm+=' · '+x['chain']['view'].replace('不买：','').replace('板块拥挤，暂停新增','拥挤暂停')
+            elif k=='不买':sm+=' · '+x['chain']['view'].replace('不买：','').replace('板块拥挤，暂停新增','拥挤暂停').replace('大盘转防守，暂停新增','大盘防守')
             B.setdefault(k,[]).append(('s-'+x['code'],x['name'],sm))
     return '<section id="overview"><h2>行动看板</h2><p class="note">按“现在该做什么”把候选分组，点名字跳到它的卡片。判断顺序：板块 → 初筛 → 核验 → 估值 → 价格 → 筹码。进入候选只表示值得研究；价格到了买入区，核验或估值没完成时仍是“待核”，不直接买。</p>'+SC.board(B,L1_ORDER,'价格截至最近一次每周更新；规则见页面底部“价格规则”。',wide=('等开关',))+'</section>'
 

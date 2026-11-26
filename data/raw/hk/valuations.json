@@ -370,6 +370,16 @@
         "market_turnover_million_hkd": 212633,
         "earnings_proxy": 1786.1454983922831,
         "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhsi%2Fidx_24Nov26.csv"
+      },
+      {
+        "date": "2026-11-25",
+        "close": 21966.01,
+        "pe_ratio": 12.3,
+        "dividend_yield_pct": 3.33,
+        "index_turnover_million_hkd": 98178,
+        "market_turnover_million_hkd": 229976,
+        "earnings_proxy": 1785.8544715447151,
+        "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhsi%2Fidx_25Nov26.csv"
       }
     ],
     "hscei": [
@@ -742,6 +752,16 @@
         "market_turnover_million_hkd": null,
         "earnings_proxy": 675.6627379873074,
         "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhscei%2Fidx_24Nov26.csv"
+      },
+      {
+        "date": "2026-11-25",
+        "close": 7384.94,
+        "pe_ratio": 10.93,
+        "dividend_yield_pct": 3.16,
+        "index_turnover_million_hkd": null,
+        "market_turnover_million_hkd": null,
+        "earnings_proxy": 675.6578225068619,
+        "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhscei%2Fidx_25Nov26.csv"
       }
     ],
     "hstech": [
@@ -1114,6 +1134,16 @@
         "market_turnover_million_hkd": null,
         "earnings_proxy": null,
         "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhstech%2Fidx_24Nov26.csv"
+      },
+      {
+        "date": "2026-11-25",
+        "close": 3378.26,
+        "pe_ratio": null,
+        "dividend_yield_pct": null,
+        "index_turnover_million_hkd": null,
+        "market_turnover_million_hkd": null,
+        "earnings_proxy": null,
+        "source": "https://www.hsi.com.hk/api/wsit-hsi-ddoc-ea-public-website-proxy/v1/content/gcs/download?resource=%2Fpublic-website%2Fwebapp%2Fcontents%2Fen%2Findexes%2Freport%2Fhstech%2Fidx_25Nov26.csv"
       }
     ]
   },

@@ -1,15 +1,15 @@
 {
- "as_of": "2026-11-24",
+ "as_of": "2026-11-25",
  "source": "中证指数公司 index-perf（上证指数000001日度收盘与市盈率）；分解用东方财富数据中心 RPT_VALUEANALYSIS_DET 沪市个股总市值与收盘价",
- "close": 3548.37,
- "pe": 14.24,
+ "close": 3476.47,
+ "pe": 13.97,
  "level_pct": {
-  "since2005": 84,
-  "since2016": 83
+  "since2005": 82,
+  "since2016": 79
  },
  "pe_pct": {
-  "since2011": 62,
-  "since2016": 60
+  "since2011": 58,
+  "since2016": 54
  },
  "pe_range_since2011": [
   9.27,
@@ -31,68 +31,69 @@
   "2025-12-31": 3968.84,
   "2026-05-13": 4242.57,
   "2026-10-30": 3599.02,
-  "2026-11-24": 3548.37
+  "2026-11-24": 3548.37,
+  "2026-11-25": 3476.47
  },
  "decomp": [
   {
    "from": "2024-09-23",
    "label": "“9·24”政策底以来",
    "sse0": 2748.92,
-   "actual": 29.1,
-   "approx": 29.6,
+   "actual": 26.5,
+   "approx": 27.7,
    "bank_w": 20.8,
-   "bank_ret": 53.1,
-   "bank_pts": 304,
-   "semi_ret": 145.5,
-   "semi_pts": 159,
-   "exbank_ret": 23.4,
-   "exbank_level": 3391,
-   "other_ret": 16.9
+   "bank_ret": 53.5,
+   "bank_pts": 307,
+   "semi_ret": 129.3,
+   "semi_pts": 141,
+   "exbank_ret": 20.9,
+   "exbank_level": 3325,
+   "other_ret": 15.2
   },
   {
    "from": "2024-12-31",
    "label": "2025年初以来",
    "sse0": 3351.76,
-   "actual": 5.9,
-   "approx": 6.5,
+   "actual": 3.7,
+   "approx": 5.0,
    "bank_w": 20.4,
-   "bank_ret": 28.3,
-   "bank_pts": 194,
-   "semi_ret": 39.4,
-   "semi_pts": 76,
-   "exbank_ret": 0.9,
-   "exbank_level": 3382,
-   "other_ret": -2.1
+   "bank_ret": 28.7,
+   "bank_pts": 196,
+   "semi_ret": 30.1,
+   "semi_pts": 58,
+   "exbank_ret": -1.1,
+   "exbank_level": 3316,
+   "other_ret": -3.5
   },
   {
    "from": "2025-12-31",
    "label": "2026年初以来",
    "sse0": 3968.84,
-   "actual": -10.6,
-   "approx": -8.5,
+   "actual": -12.4,
+   "approx": -9.9,
    "bank_w": 19.5,
-   "bank_ret": 15.3,
-   "bank_pts": 118,
-   "semi_ret": -8.3,
-   "semi_pts": -27,
-   "exbank_ret": -14.3,
-   "exbank_level": 3401,
-   "other_ret": -15.0
+   "bank_ret": 15.6,
+   "bank_pts": 121,
+   "semi_ret": -14.6,
+   "semi_pts": -47,
+   "exbank_ret": -16.1,
+   "exbank_level": 3330,
+   "other_ret": -16.3
   },
   {
    "from": "2026-05-13",
    "label": "5月13日高点以来",
    "sse0": 4242.57,
-   "actual": -16.4,
-   "approx": -14.1,
+   "actual": -18.1,
+   "approx": -15.4,
    "bank_w": 17.0,
-   "bank_ret": 22.6,
-   "bank_pts": 163,
-   "semi_ret": -31.6,
-   "semi_pts": -144,
-   "exbank_ret": -21.6,
-   "exbank_level": 3327,
-   "other_ret": -20.1
+   "bank_ret": 22.9,
+   "bank_pts": 166,
+   "semi_ret": -36.3,
+   "semi_pts": -166,
+   "exbank_ret": -23.2,
+   "exbank_level": 3257,
+   "other_ret": -21.3
   }
  ],
  "monthly": [
@@ -283,13 +284,13 @@
   ],
   [
    "2026-11",
-   3548.37,
-   14.24
+   3476.47,
+   13.97
   ]
  ],
  "method_pct": "分位＝样本内收盘（或市盈率）低于当前值的交易日占比，四舍五入；中证指数公司 index-perf 日度数据，剔除周末与重复行。按此口径重算11月11日为点位88%/89%、市盈率67%/65%，与旧版（88%/88%、67%/63%）相差0—2个百分点。",
  "exbank_level_pct_since2016": [
-  65,
-  74
+  55,
+  65
  ]
 }
