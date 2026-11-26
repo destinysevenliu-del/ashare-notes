@@ -34,9 +34,9 @@ def hub(d,rows,market):
     secs=[s for s in d['sectors'] if s['market']==market];name='A股' if market=='a' else '港股'
     home='../index.html' if market=='a' else '../hk/index.html'
     out='<style>'+CSS+'</style><nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if market=='a' else '')+'><b>A股板块</b><span>顺风、前半段、等开关</span></a><a href="hk.html"'+(' aria-current="page"' if market=='hk' else '')+'><b>港股板块</b><span>高息、能源、油运、互联网、硬件</span></a></nav><div class="hero"><div><h1>'+name+'板块 · 按大盘风向选出</h1><p class="stamp">选板块 '+E(d['as_of'])+' · 窗口 '+E(d['window'])+'</p></div><div class="hero-meta">上游是<a href="'+home+'#horizon">大盘未来半年判断</a>；下游是个股研究（本轮暂不选股）。</div></div>'
-    out+='<section class="ss-sum" id="conclusion"><h2>结论</h2><div class="tblwrap"><table class="mt ss-table"><thead><tr><th>板块</th><th>档位</th><th>对应的大盘驱动</th><th>一句话</th><th>开关或降级信号</th><th>变化</th></tr></thead><tbody>'
+    out+='<section class="ss-sum" id="conclusion"><h2>结论</h2><div class="tblwrap"><table class="mt ss-table"><thead><tr><th>板块</th><th>档位</th><th>对应的大盘驱动</th><th>一句话</th></tr></thead><tbody>'
     for s in sorted(secs,key=lambda s:ORDER.index(s['rating'])):
-        out+='<tr data-sector="'+s['id']+'"><td><a href="'+s['id']+'.html"><b>'+E(s['title'])+'</b></a></td><td>'+badge(s['rating'])+'</td><td>'+E(s['driver'])+'</td><td>'+E(s['verdict'])+'</td><td>'+E(s['switch'])+'</td><td><small>'+E(s['prev'])+'</small></td></tr>'
+        out+='<tr data-sector="'+s['id']+'"><td><a href="'+s['id']+'.html"><b>'+E(s['title'])+'</b></a></td><td>'+badge(s['rating'])+'</td><td>'+E(s['driver'])+'</td><td>'+E(s['verdict'])+'<details class="more"><summary>开关或降级信号、最近变化</summary><p class="note">'+E(s['switch'])+'</p><p class="note"><b>变化：</b>'+E(s['prev'])+'</p></details></td></tr>'
     out+='</tbody></table></div><div class="ss-legend">'+''.join('<p>'+badge(r['key'])+E(r['desc'])+'</p>' for r in d['ratings'])+'</div></section>'
     out+='<section id="excluded"><h2>未入选的方向与原因</h2><ul class="ss-ex">'
     for x in d['excluded']:

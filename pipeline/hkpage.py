@@ -371,7 +371,7 @@ def build(ctx):
     body += newslog.home_card(root, '../')
     body += '<nav class="l1nav"><a href="#horizon">未来半年判断</a><a href="#tracking">跟踪与更新</a><a href="../framework.html">研究框架</a></nav>'
     body += '<details class="l1" id="horizon" open><summary><h2>未来半年判断</h2><span class="l1hint">结论 · 三件事 · 板块 · 证伪</span></summary>'+framework_review.render(ctx,'hk')+'</details>'
-    body += '<details class="l1" id="tracking" open><summary><h2>跟踪与更新</h2><span class="l1hint">定期数据 · 排期事件 · 突发事件 · 改判规则</span></summary>'+overview_page.render_tracking(ctx,'hk')+'</details>'
+    body += '<details class="l1" id="tracking"><summary><h2>跟踪与更新</h2><span class="l1hint">定期数据 · 排期事件 · 突发事件 · 改判规则</span></summary>'+overview_page.render_tracking(ctx,'hk')+'</details>'
     body += '''<script>function openTo(id){var el=document.getElementById(id);for(;el;el=el.parentElement)if(el.tagName==="DETAILS")el.open=true;}document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(a)openTo(a.getAttribute("href").slice(1));});if(location.hash)openTo(location.hash.slice(1));</script>'''
     (out/'index.html').write_text(page('港股大盘 | A 股框架笔记','hk',body,'../'),encoding='utf-8')
     snapshot={'date':asof,'observed_at':now.isoformat(),'rules_version':VERSION,'scores':scores,'proxy_signals':proxy_signals,'research_reviewed_at':research.get('reviewed_at'),'qualitative_states':{key:entry.get('state') for key,entry in reviewed.items()},'net5':net5,'net20':net20,'hibor_20obs_bp':delta,'sources':{k:rows[-1]['date'] for k,rows in indices.items()}}

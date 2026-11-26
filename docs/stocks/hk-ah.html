@@ -433,6 +433,16 @@ body:has(.market-research) .wrap{max-width:1500px}.market-research{display:block
 .macro-flow{display:block;width:100%;max-width:1000px;margin:auto}.macro-flow-wrap{overflow-x:auto}.sector-factor-notes{border-top:1px solid #dce4ed;margin-top:18px;padding-top:15px}.sector-factor-notes summary{cursor:pointer;font-size:14px;color:#4a647b}
 .research-rail .factor-links{display:none}.research-content .takeaway-grid{display:none}.research-content .final-panel .factor-balance{margin-bottom:0}.research-content .hero-meta{font-size:12px}.sd-nav{position:static!important;justify-content:space-between}.sd-nav details{font-size:13px;color:#536b82}.sd-nav details a{background:transparent;padding:6px 8px;font-size:12px}.sd-summary-line{font-size:13px;color:#596e84;padding:12px 0;border-bottom:1px solid #dbe3ec}
 @media(max-width:900px){.overview-decisions,.overview-evidence,.overview-conditions{grid-template-columns:1fr}.overview-evidence article{border-right:0;border-bottom:1px solid #e0e6ed;padding-bottom:12px}.next-step{align-items:start;flex-direction:column}.macro-flow{min-width:760px}}
+/* 2026-11-26 排版整理：首屏只留结论与候选，参考内容折叠，文字层级统一 */
+.hero .sum{font-size:16px;line-height:1.8;max-width:46em;margin:8px 0 4px}.hero-meta{font-size:12.5px;color:#6b7c8c;margin:4px 0 0}
+p.note{font-size:13px;line-height:1.75;color:#52687b;max-width:60em}
+details.ref{border:1px solid #e1e8ef;border-radius:10px;background:#fff;padding:4px 18px;margin:14px 0}
+details.ref>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}details.ref>summary::-webkit-details-marker{display:none}
+details.ref>summary h2{display:inline;font-size:18px;margin:10px 0;color:#2f4a63}details.ref>summary::before{content:"▸";color:#8a9aab;font-size:13px}details.ref[open]>summary::before{content:"▾"}
+details.ref>summary::after{content:"参考，点击展开";font-size:12px;color:#8a9aab;margin-left:auto}details.ref[open]>summary::after{content:"收起"}
+details.more>summary{cursor:pointer;font-size:13px;color:#2f4f6f;margin:6px 0}
+.lp-jump{margin:10px 0 18px}
+details.sub{margin:16px 0}details.sub>summary{cursor:pointer;font-size:16px;font-weight:600;color:#2f4a63;padding:6px 0}details.sub>summary::marker{color:#8a9aab}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="../index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="../index.html">总览</a><a href="../boards/index.html">板块</a><a href="../stocks/index.html" aria-current="page">个股</a><a href="../news.html">新闻</a><a href="../framework.html">框架</a></nav></div></header>
 <main class="wrap"><style>
@@ -463,7 +473,7 @@ body:has(.market-research) .wrap{max-width:1500px}.market-research{display:block
 #logic1,#logic2{margin:34px 0}
 @media(max-width:900px){.lp-two,.l2-intro,.l2-act{grid-template-columns:1fr}}
 
-.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px;margin:12px 0 6px}
+.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0 6px}
 .ab-col{background:#fff;border:1px solid #dfe6ee;border-radius:10px;padding:12px 14px;border-top:4px solid #c8d3df}
 .ab-col h3{font-size:15px;margin:0 0 2px;display:flex;justify-content:space-between;align-items:center}.ab-col h3 span{font-size:13px;color:#64798d;font-weight:600}
 .ab-col p{font-size:12px;color:#6b7c8c;margin:0 0 8px;line-height:1.5}.ab-col ul{list-style:none;margin:0;padding:0}
@@ -471,13 +481,14 @@ body:has(.market-research) .wrap{max-width:1500px}.market-research{display:block
 .ab-col a{text-decoration:none;color:#1f3b57;font-weight:600}.ab-empty{color:#9aa8b5}
 .ab-wide{grid-column:1/-1}.ab-wide ul{display:flex;flex-wrap:wrap;gap:6px}.ab-wide li{border:none;background:#f3f6f9;border-radius:8px;padding:4px 10px;gap:6px}.ab-wide li small{text-align:left}.sc-dim{opacity:.72}
 .ab-buy{border-top-color:#3f8a64}.ab-high{border-top-color:#d1a23d}.ab-low{border-top-color:#9aa8b5}.ab-sell{border-top-color:#c4572a}.ab-wait{border-top-color:#5a7ea6}.ab-bad{border-top-color:#8c8c8c}
-.sc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:12px;margin:12px 0}
-.sc{background:#fff;border:1px solid #dfe6ee;border-radius:12px;padding:14px 16px;scroll-margin-top:90px}
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:12px;margin:12px 0}
+.sc{background:#fff;border:1px solid #dfe6ee;border-radius:12px;padding:14px 16px;scroll-margin-top:90px;align-self:start}
 .sc header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.sc header b{font-size:16.5px;color:#1b324a}.sc header small{display:block;color:#6b7c8c;font-size:12px;margin-top:2px}
 .sc-px{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:13.5px;color:#455a6e}.sc-px b{font-size:17px;color:#1b324a}
 .st{font-size:12.5px;padding:2px 9px;border-radius:10px;font-weight:600}.st-buy{background:#e3f3ea;color:#2f6f53}.st-high{background:#fff3d9;color:#8a5a00}.st-sell{background:#fbe3dc;color:#9b3d27}.st-low,.st-na{background:#eef1f4;color:#5b6b7a}.st-stop{background:#ececec;color:#555}.st-wait{background:#e6eef7;color:#2f4f6f}
-.sc-plan{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:8px 0 10px}.sc-plan div{background:#f5f7fa;border-radius:8px;padding:6px 8px}
-.sc-plan dt{font-size:11.5px;color:#6b7c8c}.sc-plan dd{margin:1px 0 0;font-size:14px;font-weight:600;color:#1b324a;font-variant-numeric:tabular-nums}.sc-plan dd small{font-weight:400;color:#6b7c8c;font-size:11px;margin-left:4px}
+.sc-plan span{display:inline-block;margin-right:18px}.sc-plan{display:block;margin:8px 0;font-size:13.5px;font-weight:600;color:#1b324a;font-variant-numeric:tabular-nums}.sc-plan em{font-style:normal;font-weight:400;color:#6b7c8c;font-size:12px;margin-right:5px}.sc-plan small{font-weight:400;color:#6b7c8c;font-size:11.5px}
+.sc-more{margin-top:6px;border-top:1px solid #eef2f6;padding-top:6px}.sc-more>summary{cursor:pointer;font-size:12.5px;color:#52687b;list-style:none}.sc-more>summary::before{content:"▸ ";color:#8a9aab}.sc-more[open]>summary::before{content:"▾ "}.sc-more[open]>summary{margin-bottom:6px}
+.ab-none{font-size:12.5px;color:#7a8794;margin:2px 0 0}
 .ch{list-style:none;display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 6px;padding:0}.ch li{display:flex;align-items:center;gap:4px;font-size:12px;border-radius:7px;padding:3px 7px;background:#eef1f4;color:#5b6b7a}.ch li span{opacity:.8}.ch li b{font-weight:600}
 .ch-ok{background:#e3f3ea!important;color:#2f6f53!important}.ch-no{background:#fbe3dc!important;color:#9b3d27!important}.ch-tip{background:#f3f0e6!important;color:#6b5a2e!important}
 .ch-d{margin:0 0 8px;font-size:12.5px;line-height:1.65;color:#3a4c5e}.ch-d div{display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:6px;padding:2px 0}.ch-d dt{color:#6b7c8c}.ch-d dd{margin:0}
@@ -493,10 +504,10 @@ body:has(.market-research) .wrap{max-width:1500px}.market-research{display:block
 details.more{margin:8px 0}details.more>summary{cursor:pointer;font-size:13px;color:#2f4f6f}
 .wk{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.wk-i{background:#fff;border:1px solid #dfe6ee;border-radius:8px;padding:6px 10px;font-size:13px}.wk-i a{font-weight:600;text-decoration:none;color:#1f3b57}.wk-i em{font-style:normal;color:#6b7c8c}
 .wk-sum{display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px;color:#52687b}.wk-sum span{background:#eef2f6;border-radius:10px;padding:2px 9px}
-@media(max-width:760px){.sec-lens{grid-template-columns:1fr}.sc-plan{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.sec-lens{grid-template-columns:1fr}}
 
 .l2t-box{background:#f3f6f9;border-radius:10px;padding:14px 18px;margin:10px 0}.l2t-box p{font-size:14.5px;line-height:1.9;margin:4px 0}
-</style><nav class="lp-mkt" aria-label="市场"><a href="index.html"><b>A股</b><span>2条选股逻辑：顺势选股、国资箱体</span></a><a href="hk.html" aria-current="page"><b>港股</b><span>3条选股逻辑：顺势选股、业绩反转、两地比价</span></a></nav><nav class="lp-tabs" aria-label="港股选股逻辑"><a href="hk.html"><b>逻辑一 · 顺势选股</b><span>大盘→板块→个股：能源、油运、硬件</span></a><a href="hk-turn.html"><b>逻辑二 · 业绩反转</b><span>机构上调预测＋空头不加仓＋研究核验</span></a><a href="hk-ah.html" aria-current="page"><b>逻辑三 · 两地比价</b><span>A股与H股比价、南向定价（只保留逻辑）</span></a></nav><div class="hero"><h1>港股 · 逻辑三 · A股与H股比价＋南向定价</h1><p class="sum">只保留逻辑，暂不选股。原“高息资产（中资银行、电信）”板块归入这条逻辑。</p></div><section><h2>规则</h2><div class="l2t-box"><p>只看两地上市公司：H股较A股折价≥30%且南向持股比例上升时入选；折价收窄到15%以内卖出；高息股按税后股息率比较A股与H股（内地个人买H股红利缴20%，持有A股超过一年免税），同一公司有时直接买A股更划算。</p></div><p class="note">高息资产（中资银行、电信）的板块判断仍在<a href="../boards/hk-telecom.html">港股板块页</a>。</p></section></main>
+</style><nav class="lp-mkt" aria-label="市场"><a href="index.html"><b>A股</b><span>2条选股逻辑：顺势选股、国资箱体</span></a><a href="hk.html" aria-current="page"><b>港股</b><span>3条选股逻辑：顺势选股、业绩反转、两地比价</span></a></nav><nav class="lp-tabs" aria-label="港股选股逻辑"><a href="hk.html"><b>逻辑一 · 顺势选股</b><span>大盘→板块→个股：能源、油运、硬件</span></a><a href="hk-turn.html"><b>逻辑二 · 业绩反转</b><span>机构上调预测＋空头不加仓＋研究核验</span></a><a href="hk-ah.html" aria-current="page"><b>逻辑三 · 两地比价</b><span>A股与H股比价、南向定价（只保留逻辑）</span></a></nav><div class="hero"><h1>港股 · 逻辑三 · A股与H股比价＋南向定价</h1><p class="sum">只保留逻辑，暂不选股。原“高息资产（中资银行、电信）”板块归入这条逻辑。</p></div><section><details class="ref"><summary><h2>规则</h2></summary><div class="l2t-box"><p>只看两地上市公司：H股较A股折价≥30%且南向持股比例上升时入选；折价收窄到15%以内卖出；高息股按税后股息率比较A股与H股（内地个人买H股红利缴20%，持有A股超过一年免税），同一公司有时直接买A股更划算。</p></div><p class="note">高息资产（中资银行、电信）的板块判断仍在<a href="../boards/hk-telecom.html">港股板块页</a>。</p></details></section></main>
 <footer><div class="wrap"><nav class="secondary-nav" aria-label="资料与记录"><a href="../reports/index.html">研究报告</a><a href="../trades.html">操作记录</a><a href="../stocks/selection-rules.html">筛选规则</a><a href="../stocks/portfolio.html">组合约束详情</a></nav><p>个股研究仅使用赛道归属、兑现质量、价格反映三个决策维度；D/G归组合层。资料与规则日期分别标注，旧候选身份不代表已入池，研究短名单不是交易指令。</p>
 <p>本站只呈现框架下各项信号的状态和理由，是个人学习用的辅助判断工具，不构成投资建议。</p></div></footer><script>
 function revealAnchor(){var id=decodeURIComponent(location.hash.slice(1)),el=document.getElementById(id);if(!el)return;for(var p=el;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;requestAnimationFrame(function(){el.scrollIntoView();});}

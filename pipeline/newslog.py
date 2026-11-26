@@ -206,10 +206,11 @@ def build(ctx):
     root = Path(ctx['ROOT']); d, weeks, flags = evaluate(root)
     body = ('<div class="hero"><p class="date">每周更新 · 最近一周 ' + E(weeks[-1]['start']) + ' 至 ' + E(weeks[-1]['end']) +
             '</p><h1>新闻归类</h1><p class="sum">' + E(d['intro']) + '</p></div>')
-    body += '<style>' + CSS + '</style>' + rules_html(d)
+    body += '<style>' + CSS + '</style>'
     if flags:
         body += ('<div class="nw-alert"><b>需复核（同一读数、同一方向，4周内2条进入跟踪）：</b>' +
                  '；'.join(E(f[0]) + '：' + E('、'.join(f[2])) for f in flags) + '</div>')
     for w in reversed(weeks):
         body += week_html(w)
+    body += '<details class="ref"><summary><h2>归类规则</h2></summary>' + rules_html(d) + '</details>'
     (root/'docs/news.html').write_text(ctx['page']('新闻归类 | A 股框架笔记', 'nw', body), encoding='utf-8')

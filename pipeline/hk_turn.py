@@ -94,13 +94,19 @@ def card(L, x):
 
 
 def breadth_table(L):
+    """反转中、被下调的行业直接列出；中性行业折叠。"""
     f = SP.f
-    out = '<div class="tblwrap"><table class="mt ss-table"><thead><tr>' + ''.join('<th>' + E(c) + '</th>' for c in L['breadth_cols']) + '<th>判断</th></tr></thead><tbody>'
-    for b in L['breadth']:
+    head = '<div class="tblwrap"><table class="mt ss-table"><thead><tr>' + ''.join('<th>' + E(c) + '</th>' for c in L['breadth_cols']) + '<th>判断</th></tr></thead><tbody>'
+    def row(b):
         j = '反转中' if b[4] > BREADTH_MIN else ('被下调' if b[4] < -BREADTH_MIN else '中性')
-        out += ('<tr><th scope="row">' + E(b[0]) + '</th><td>' + str(b[1]) + '</td><td>' + str(b[2]) + '</td><td>' + str(b[3]) + '</td><td><b>' + format(b[4], '+.2f') + '</b></td><td>' + f(b[5], '+.1f') +
-                '</td><td><small>' + E(b[6]) + '</small></td><td>' + j + '</td></tr>')
-    return out + '</tbody></table></div>'
+        return ('<tr><th scope="row">' + E(b[0]) + '</th><td>' + str(b[1]) + '</td><td>' + str(b[2]) + '</td><td>' + str(b[3]) + '</td><td><b>' + format(b[4], '+.2f') + '</b></td><td>' + f(b[5], '+.1f') +
+                '</td><td><small>' + E(b[6]) + '</small></td><td style="white-space:nowrap">' + j + '</td></tr>')
+    key = [b for b in L['breadth'] if abs(b[4]) > BREADTH_MIN]
+    mid = [b for b in L['breadth'] if abs(b[4]) <= BREADTH_MIN]
+    out = head + ''.join(row(b) for b in key) + '</tbody></table></div>'
+    if mid:
+        out += '<details class="more"><summary>其余' + str(len(mid)) + '个行业（上调广度在±0.2以内，判断为中性）</summary>' + head + ''.join(row(b) for b in mid) + '</tbody></table></div></details>'
+    return out
 
 
 def page2(root):
@@ -109,8 +115,7 @@ def page2(root):
         return SP.head(4) + '<div class="hero"><h1>港股 · 逻辑二 · 业绩反转</h1><p>数据尚未取得。</p></div>'
     R = L['rules']; B = L['backtest']
     out = '<style>' + SP.CSS + SC.CSS + CSS + '</style>' + SP.head(4)
-    out += ('<div class="hero"><h1>港股 · 逻辑二 · 业绩反转</h1><p class="sum">从大盘到板块到个股，预测哪些公司可能业绩反转：先找盈利周期正在反转的行业（同行的盈利预测在被上调），再找行业里利润还在下降、反转尚未体现在财报里的公司，'
-            '等股价站上26周均线再买。格式与逻辑一相同：判断链为板块、初筛、核验、估值、价格、筹码。价格截至' + E(L['asof']) + '，机构预测截至' + E(L['fc_asof']) + '，空头数据截至' + E(L['short_asof']) + '。</p></div>')
+    out += ('<div class="hero"><h1>港股 · 逻辑二 · 业绩反转</h1><p class="sum">从大盘到板块到个股，预测哪些公司可能业绩反转：盈利周期正在反转的行业里，利润还在下降、反转尚未体现在财报里的公司；股价站上26周均线再买。</p><p class="hero-meta">价格截至' + E(L['asof']) + '，机构预测截至' + E(L['fc_asof']) + '，空头数据截至' + E(L['short_asof']) + '</p></div>')
     out += '<nav class="lp-jump"><a href="#overview">行动看板</a><a href="#sectors">板块：哪些行业在反转</a><a href="#logic2">按板块展开</a><a href="#l2t-rules">规则</a><a href="#l2t-bt">回测</a></nav>'
     cands = [x for x in L['cand'] if x[MC] >= MC_MIN]
     Bk = {}

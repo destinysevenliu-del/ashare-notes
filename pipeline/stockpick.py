@@ -179,7 +179,7 @@ def logic1_html(root,S,sec,L1):
         for i,x in enumerate(r['picks']):
             e=x['en'] or {};v,c=view_of(s['rating'],sid,x,i)
             out+='<tr><th scope="row">'+E(x['name'])+'<small>'+x['code']+'</small></th>'+''.join('<td>'+v_+'</td>' for v_ in fund_cells(t,x))+'<td>'+lay(x['fund'])+'</td><td>'+f(e.get('pos52'),'.2f')+'</td><td>'+f(e.get('dd'),'.0f','%')+'</td><td>'+f(e.get('vsMA60'),'+.0f','%')+'</td><td>'+lay(x['pos'])+'</td><td>'+f(e.get('holdersChg'),'+.0f','%')+'<small>'+E(e.get('hdate') or '')+'</small></td><td>'+f(e.get('margin20'),'+.0f','%')+'</td><td>'+f(e.get('marginPct'),'.1f','%')+'</td><td>'+f(e.get('lift6m'),'.1f','%')+'</td><td>'+lay(x['chip'])+'</td><td><small>'+E('；'.join(([x['flag']] if x['flag'] else [])+x['notes']))+'</small></td><td><span class="lp-view '+c+'">'+E(v)+'</span></td></tr>'
-        out+='</tbody></table></div>'+plan_table(t,r['picks'],asof(root))+'<p class="note">进入个股研究时还要比较：'+E('；'.join(s['handoff']))+'</p></details>'
+        out+='</tbody></table></div>'+plan_table(t,r['picks'],asof(root))+'<details class="more"><summary>进入个股研究时还要比较什么</summary><p class="note">'+E('；'.join(s['handoff']))+'</p></details></details>'
     return out+'</section>'
 
 def box_px(x):
@@ -326,10 +326,10 @@ def sector_l1(root,sid,s,r):
     t=r['type'];Lz=r['lens'];R=logic1_rules.PRICE_RULES[t]
     nb=sum(1 for x in r['picks'] if SC.status(x.get('pl'))[0]=='买入')
     out='<details class="lp-sec" id="l1-'+sid+'"'+('' if s['rating']=='等开关' else ' open')+'><summary><span class="sec-h"><h3>'+E(s['title'])+'</h3><span class="lp-badge lp-'+BADGE[s['rating']]+'">'+E(s['rating'])+'</span><span class="sec-meta">'+str(len(r['picks']))+'只 · 在买入区'+str(nb)+'只 · '+E(Lz['name'])+'</span></span></summary>'
-    out+='<div class="sec-lens">'+''.join('<div><b>'+k+'看什么</b>'+E(Lz[key])+'</div>' for k,key in (('基本面','fund'),('位置','pos'),('筹码','chip')))+'</div>'
-    out+='<p class="sec-rule"><b>价格规则：</b>买入 '+E(R['buy'])+'；卖出 '+E(R['sell'])+'；止损 '+E(R['stop'])+'。<a href="#price-rules">为什么这样定 →</a><br><b>门槛：</b>'+E(r['gate'])+'（通过'+str(r['passed'])+' / '+str(r['pool'])+'家）　<a href="../boards/'+sid+'.html">板块依据 →</a></p>'
+    out+='<details class="more"><summary>看什么、价格规则与门槛</summary><div class="sec-lens">'+''.join('<div><b>'+k+'看什么</b>'+E(Lz[key])+'</div>' for k,key in (('基本面','fund'),('位置','pos'),('筹码','chip')))+'</div>'
+    out+='<p class="sec-rule"><b>价格规则：</b>买入 '+E(R['buy'])+'；卖出 '+E(R['sell'])+'；止损 '+E(R['stop'])+'。<a href="#price-rules">为什么这样定 →</a><br><b>门槛：</b>'+E(r['gate'])+'（通过'+str(r['passed'])+' / '+str(r['pool'])+'家）　<a href="../boards/'+sid+'.html">板块依据 →</a></p></details>'
     out+='<div class="sc-grid">'+''.join(card_l1(sid,s,r,x,i) for i,x in enumerate(r['picks']))+'</div>'
-    return out+'<p class="note">进入个股研究时还要比较：'+E('；'.join(s['handoff']))+'</p></details>'
+    return out+'<details class="more"><summary>进入个股研究时还要比较什么</summary><p class="note">'+E('；'.join(s['handoff']))+'</p></details></details>'
 
 def logic1_cards(root,S,sec,L1):
     order=['顺风','前半段','等开关']
@@ -346,7 +346,7 @@ def weekly_cards(root):
     out='<section id="weekly"><h2>本周变化</h2><p class="note">截止'+E(W['asof'])+(('，与'+E(W['prev'])+'相比，只列状态有变化的股票。') if W['prev'] else '（首次建立基准快照）。')+'</p>'
     out+=''.join('<p class="wk-alert">'+E(a)+'</p>' for a in W['alerts'])
     if W['prev']:
-        out+='<div class="wk">'+(''.join('<span class="wk-i"><a href="'+('#s-' if x['logic']=='逻辑一' else 'box.html#j-')+x['code']+'">'+E(x['name'])+'</a> <em>'+E(x['from'])+' → </em><b>'+E(x['to'])+'</b> <em>'+money(x['close'])+'</em></span>' for x in W['items']) or '<span class="wk-i">本周没有股票改变状态</span>')+'</div>'
+        out+='<details class="more"'+(' open' if len(W['items'])<=8 else '')+'><summary>'+str(len(W['items']))+'只股票状态有变化</summary><div class="wk">'+(''.join('<span class="wk-i"><a href="'+('#s-' if x['logic']=='逻辑一' else 'box.html#j-')+x['code']+'">'+E(x['name'])+'</a> <em>'+E(x['from'])+' → </em><b>'+E(x['to'])+'</b> <em>'+money(x['close'])+'</em></span>' for x in W['items']) or '<span class="wk-i">本周没有股票改变状态</span>')+'</div></details>'
     return out+'<div class="wk-sum">'+''.join('<span>'+E(k)+' '+str(v)+'只</span>' for k,v in W['summary'].items())+'</div></section>'
 
 L2_ORDER=[('优先','ab-buy','在买入区，四层里至少两层为好'),('备选','ab-high','在买入区，有一两层一般'),('观察：筹码不稳','ab-wait','在买入区，但有解禁或散户涌入'),('等回到买入区','ab-low','在箱体中部'),('等收回箱底','ab-low','跌到箱底下方、未到止损'),('剔除：地板不牢','ab-bad','净资产快速缩水或触及退市红线')]
@@ -409,14 +409,14 @@ def head(active):
 def page(ctx):
     root=Path(ctx['ROOT']);S=json.loads((root/'data/sector_selection.json').read_text());P=json.loads((root/'data/stock_pick.json').read_text())
     sec={s['id']:s for s in S['sectors']};L1=logic1_data(root,S)
-    out='<style>'+CSS+SC.CSS+'</style>'+head(1)+'<div class="hero"><h1>A股 · 逻辑一 · 顺势选股</h1><p class="sum">A股有两条选股逻辑：逻辑一顺着大盘和板块选（本页）；逻辑二利用A股国资股的箱体特征。港股有三条（顺势选股、业绩反转、两地比价），在“港股”标签下。价格截至'+asof(root)+'（每周更新），本页只提候选，不做买卖决定。</p></div>'
+    out='<style>'+CSS+SC.CSS+'</style>'+head(1)+'<div class="hero"><h1>A股 · 逻辑一 · 顺势选股</h1><p class="sum">大盘 → 板块 → 个股，顺着大盘和板块选。只提候选，不做买卖决定。</p><p class="hero-meta">价格截至'+asof(root)+'，每周更新</p></div>'
     out+='<nav class="lp-jump"><a href="#weekly">本周变化</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#price-rules">价格规则</a></nav>'
     out+=weekly_cards(root)+board_l1(L1,sec)+logic1_cards(root,S,sec,L1)+rules_html()
     return out+'<p class="note">'+E(P['source'])+' 位置与筹码数据：'+E(json.loads((root/'data/raw/stock_pick/l1_enrich.json').read_text())['_meta']['source'])+'。</p>'
 
 def box_page(ctx):
     root=Path(ctx['ROOT']);P=json.loads((root/'data/stock_pick.json').read_text());sw=switch_state(root)
-    out='<style>'+CSS+SC.CSS+'</style>'+head(2)+'<div class="hero"><h1>A股 · 逻辑二 · 国资箱体</h1><p class="sum">有地板、有天花板、偶尔放烟花的房间；只适用A股国资背景的箱体股，港股没有这条逻辑。规则、验证与候选都在本页。价格截至'+E(P['logic2'].get('px_asof','2026-11-13'))+'（每周更新；箱底箱顶每季度重算）。</p></div>'
+    out='<style>'+CSS+SC.CSS+'</style>'+head(2)+'<div class="hero"><h1>A股 · 逻辑二 · 国资箱体</h1><p class="sum">有地板、有天花板、偶尔放烟花的房间：只适用A股国资背景的箱体股。</p><p class="hero-meta">价格截至'+E(P['logic2'].get('px_asof','2026-11-13'))+'，每周更新；箱底箱顶每季度重算</p></div>'
     out+='<nav class="lp-jump"><a href="#l2-judge">逐只判断</a><a href="#logic2">箱体规则</a><a href="#box-rules">价格规则</a><a href="#l2-bt">回测</a><a href="#l2-list">候选名单</a></nav>'
     F=l2_fund(root)
     return out+l2_cards(P['logic2'],sw,F)+logic2_html(P['logic2'],sw,F).replace('<h3 id="l2-bt">',box_rules_html()+'<h3 id="l2-bt">',1)+'<p class="note">'+E(P['source'])+'</p>'

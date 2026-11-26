@@ -600,7 +600,36 @@ def outlook_section():
 CSS = open(os.path.join(ROOT, "pipeline", "style.css"), encoding="utf-8").read()
 
 
+REF_TITLES = ('规则', '回测', '数据口径', '港股价格规则', '价格规则', '旧版本', '筛选规则')
+
+
+def fold_reference(body):
+    """参考类小节（规则、回测、数据口径、价格规则、旧版本）默认折叠：首屏只留结论、看板和候选。
+    锚点跳转时页面脚本会自动展开所在折叠。"""
+    import re
+    out, i = [], 0
+    pat = re.compile(r'<section([^>]*)>\s*<h2>([^<]*)</h2>')
+    while True:
+        m = pat.search(body, i)
+        if not m:
+            out.append(body[i:]); break
+        title = m.group(2).strip()
+        if not title.startswith(REF_TITLES):
+            out.append(body[i:m.end()]); i = m.end(); continue
+        depth, j = 1, m.end()
+        while depth:
+            o = body.find('<section', j); c = body.find('</section>', j)
+            if c < 0: break
+            if 0 <= o < c: depth += 1; j = o + 8
+            else: depth -= 1; j = c + 10
+        inner = body[m.end():j-10]
+        out.append(body[i:m.start()] + '<section' + m.group(1) + '><details class="ref"><summary><h2>' + title + '</h2></summary>' + inner + '</details></section>')
+        i = j
+    return ''.join(out)
+
+
 def page(title, active, body, prefix=""):
+    body = fold_reference(body)
     page_css = CSS
     if active in ('dp', 'hk'):
         body = market_layout.shell(body, active, prefix)
@@ -655,7 +684,7 @@ def index():
     chips = "".join(f'<a href="#node-{k}" class="chip {N[k]["state"]}"><b>{k}</b>{E(NODE_NAME[k])}<span>{E(node_sub(k))}</span></a>' for k in "ABCDEFGH")
     body = f"""
 <div class="hero"><p class="date">结论复核 {_RV[0]}年{int(_RV[1])}月{int(_RV[2])}日 · 行情截至{cn_date(TODAY, True)}</p><h1>A股总览</h1>
-<p class="sum">先看分子（企业盈利）、分母（要求回报）与水龙头（资金与托底），再进入板块和公司。结论复核：{"-".join(_RV)}；数据保留各自原日期。</p><p class="stamp">{E(stamp)}</p></div>
+<p class="sum">先看分子（企业盈利）、分母（要求回报）与水龙头（资金与托底），再进入板块和公司。</p><p class="stamp">{E(stamp)}</p></div>
 
 {newslog.home_card(ROOT)}
 <nav class="l1nav"><a href="#horizon">未来半年判断</a><a href="#tracking">跟踪与更新</a><a href="framework.html">研究框架</a></nav>
@@ -663,7 +692,7 @@ def index():
 <details class="l1" id="horizon" open><summary><h2>未来半年判断</h2><span class="l1hint">结论 · 三件事 · 板块 · 证伪</span></summary>
 {outlook_section()}</details>
 
-<details class="l1" id="tracking" open><summary><h2>跟踪与更新</h2><span class="l1hint">定期数据 · 排期事件 · 突发事件 · 改判规则</span></summary>
+<details class="l1" id="tracking"><summary><h2>跟踪与更新</h2><span class="l1hint">定期数据 · 排期事件 · 突发事件 · 改判规则</span></summary>
 {overview_page.render_tracking(globals(), "a")}</details>
 
 <script>

@@ -186,13 +186,13 @@ def sector_html(sid, s, r):
     nb = sum(1 for x in r['picks'] if SC.status(x.get('pl'))[0] == '买入')
     out = ('<details class="lp-sec" id="l1-' + sid + '"' + ('' if s['rating'] == '等开关' else ' open') + '><summary><span class="sec-h"><h3>' + E(s['title']) +
            '</h3><span class="lp-badge lp-' + SP.BADGE[s['rating']] + '">' + E(s['rating']) + '</span><span class="sec-meta">' + str(len(r['picks'])) + '只 · 在买入区' + str(nb) + '只 · ' + E(Lz['name']) + '</span></span></summary>')
-    out += '<div class="sec-lens">' + ''.join('<div><b>' + k + '看什么</b>' + E(Lz[key]) + '</div>' for k, key in (('基本面', 'fund'), ('位置', 'pos'))) + '<div><b>筹码看什么</b>南向持股占比（港股通持股占港股股本）及其20日变化：20日上升≥2个百分点视为资金快速涌入（本站设定，未回测）。</div></div>'
+    out += '<details class="more"><summary>看什么、价格规则与门槛</summary><div class="sec-lens">' + ''.join('<div><b>' + k + '看什么</b>' + E(Lz[key]) + '</div>' for k, key in (('基本面', 'fund'), ('位置', 'pos'))) + '<div><b>筹码看什么</b>南向持股占比（港股通持股占港股股本）及其20日变化：20日上升≥2个百分点视为资金快速涌入（本站设定，未回测）。</div></div>'
     buy = R['buy'] if t != 'crowded' else '税后股息率达到“中国10年国债+2.5个百分点”对应的价格及以下（每股分红×(1−20%)÷(10年国债+2.5%)）'
     sell = R['sell'] if t != 'crowded' else '税后股息率降到“10年国债+2.0个百分点”对应的价格'
     out += ('<p class="sec-rule"><b>价格规则：</b>买入 ' + E(buy) + '；卖出 ' + E(sell) + '；止损 ' + E(R['stop']) + '。<a href="#hk-price">为什么这样定 →</a><br><b>门槛：</b>' + E(r['gate']) +
-            '（通过' + str(r['passed']) + ' / ' + str(r['pool']) + '家）　<a href="../boards/' + sid + '.html">板块依据 →</a></p>')
+            '（通过' + str(r['passed']) + ' / ' + str(r['pool']) + '家）　<a href="../boards/' + sid + '.html">板块依据 →</a></p></details>')
     out += '<div class="sc-grid">' + ''.join(card(sid, s, r, x, i) for i, x in enumerate(r['picks'])) + '</div>'
-    return out + '<p class="note">进入个股研究时还要比较：' + E('；'.join(s['handoff'])) + '</p></details>'
+    return out + '<details class="more"><summary>进入个股研究时还要比较什么</summary><p class="note">' + E('；'.join(s['handoff'])) + '</p></details></details>'
 
 
 def page(ctx):
@@ -201,8 +201,7 @@ def page(ctx):
     head = SP.head(3)
     if not L:
         return head + '<div class="hero"><h1>个股 · 港股</h1><p>港股数据尚未取得。</p></div>'
-    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 逻辑一 · 顺势选股</h1><p class="sum">港股有三条选股逻辑：顺势选股（本页）、业绩反转、两地比价（只保留逻辑；原高息资产板块归入这条）。国资箱体利用的是A股国资股的特征，不适用港股。格式与A股逻辑一相同：大盘 → 板块 → 个股，判断链为板块、初筛、核验、估值、价格、筹码。价格截至' + E(D['asof']) +
-           '（每周更新）。港股按事先写明的规则已下调为偏弱；互联网为逆风，不研究个股。</p><p class="sum"><b>港股买点与A股不同：</b>港股是动量市，买点改为“上升趋势中回调到12周均线附近”，不在接近一年低点时买（回测见<a href="#hk-price">港股价格规则</a>）。当前能源、油运、半导体候选都还没有确认上升趋势。</p></div>')
+    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 逻辑一 · 顺势选股</h1><p class="sum">大盘 → 板块 → 个股。港股是动量市，买点是“上升趋势中回调到12周均线附近”，不在接近一年低点时买。港股大盘已下调为偏弱；互联网为逆风，不研究个股。</p><p class="hero-meta">价格截至' + E(D['asof']) + '，每周更新</p></div>')
     out += '<nav class="lp-jump"><a href="hk-ah.html">高息资产 → 逻辑三</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#hk-price">港股价格规则</a><a href="#hk-data">数据口径</a></nav>'
     B = {}
     for sid, r in L.items():

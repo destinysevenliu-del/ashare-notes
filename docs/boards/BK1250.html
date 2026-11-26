@@ -408,6 +408,16 @@ body:has(.market-research) .wrap{max-width:1500px}.market-research{display:block
 .macro-flow{display:block;width:100%;max-width:1000px;margin:auto}.macro-flow-wrap{overflow-x:auto}.sector-factor-notes{border-top:1px solid #dce4ed;margin-top:18px;padding-top:15px}.sector-factor-notes summary{cursor:pointer;font-size:14px;color:#4a647b}
 .research-rail .factor-links{display:none}.research-content .takeaway-grid{display:none}.research-content .final-panel .factor-balance{margin-bottom:0}.research-content .hero-meta{font-size:12px}.sd-nav{position:static!important;justify-content:space-between}.sd-nav details{font-size:13px;color:#536b82}.sd-nav details a{background:transparent;padding:6px 8px;font-size:12px}.sd-summary-line{font-size:13px;color:#596e84;padding:12px 0;border-bottom:1px solid #dbe3ec}
 @media(max-width:900px){.overview-decisions,.overview-evidence,.overview-conditions{grid-template-columns:1fr}.overview-evidence article{border-right:0;border-bottom:1px solid #e0e6ed;padding-bottom:12px}.next-step{align-items:start;flex-direction:column}.macro-flow{min-width:760px}}
+/* 2026-11-26 排版整理：首屏只留结论与候选，参考内容折叠，文字层级统一 */
+.hero .sum{font-size:16px;line-height:1.8;max-width:46em;margin:8px 0 4px}.hero-meta{font-size:12.5px;color:#6b7c8c;margin:4px 0 0}
+p.note{font-size:13px;line-height:1.75;color:#52687b;max-width:60em}
+details.ref{border:1px solid #e1e8ef;border-radius:10px;background:#fff;padding:4px 18px;margin:14px 0}
+details.ref>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}details.ref>summary::-webkit-details-marker{display:none}
+details.ref>summary h2{display:inline;font-size:18px;margin:10px 0;color:#2f4a63}details.ref>summary::before{content:"▸";color:#8a9aab;font-size:13px}details.ref[open]>summary::before{content:"▾"}
+details.ref>summary::after{content:"参考，点击展开";font-size:12px;color:#8a9aab;margin-left:auto}details.ref[open]>summary::after{content:"收起"}
+details.more>summary{cursor:pointer;font-size:13px;color:#2f4f6f;margin:6px 0}
+.lp-jump{margin:10px 0 18px}
+details.sub{margin:16px 0}details.sub>summary{cursor:pointer;font-size:16px;font-weight:600;color:#2f4a63;padding:6px 0}details.sub>summary::marker{color:#8a9aab}
 </style></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="../index.html">A 股框架笔记</a><nav aria-label="主导航"><a href="../index.html">总览</a><a href="../boards/index.html" aria-current="page">板块</a><a href="../stocks/index.html">个股</a><a href="../news.html">新闻</a><a href="../framework.html">框架</a></nav></div></header>
 <main class="wrap"><p class="hk-notice">旧宽行业统计资料，口径与当前细分方向不同。<a href="index.html">查看当前 A 股板块研究</a> · <a href="hk.html">港股板块研究</a></p>

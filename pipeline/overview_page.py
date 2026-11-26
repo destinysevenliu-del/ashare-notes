@@ -130,13 +130,13 @@ def regime(d,market,prefix,refs):
         out+='<article><b>'+E(s_['name'])+'</b><span>'+E(s_['prob'])+'</span><p>'+E(s_['text'])+'</p></article>'
     board=prefix+('boards/index.html' if market=='a' else 'boards/hk.html')
     if x.get('assumptions'):
-        out+='</div><section id="regime-assumptions"><h3 class="h3s">关键假设与薄弱环节</h3><div class="tblwrap"><table class="mt regime-table"><thead><tr><th>问题</th><th>证据现状</th><th>如果错了</th></tr></thead><tbody>'+''.join('<tr><th scope="row">'+E(a)+'</th><td>'+E(b)+'</td><td>'+E(c)+'</td></tr>' for a,b,c in x['assumptions'])+'</tbody></table></div></section><div>'
+        out+='</div><section id="regime-assumptions"><details class="sub"><summary>关键假设与薄弱环节</summary><div class="tblwrap"><table class="mt regime-table"><thead><tr><th>问题</th><th>证据现状</th><th>如果错了</th></tr></thead><tbody>'+''.join('<tr><th scope="row">'+E(a)+'</th><td>'+E(b)+'</td><td>'+E(c)+'</td></tr>' for a,b,c in x['assumptions'])+'</tbody></table></div></details></section><div>'
     out+='</div><section id="regime-sectors"><h3 class="h3s">从大盘到板块：每个驱动指向哪里</h3><div class="tblwrap"><table class="mt regime-table"><thead><tr><th>宏观驱动</th><th>半年方向</th><th>顺风</th><th>逆风或等待</th><th>站内板块分档</th></tr></thead><tbody>'
     for r in x['sectors']:out+='<tr>'+''.join('<td>'+E(c)+'</td>' for c in r)+'</tr>'
     out+='</tbody></table></div><p class="regime-next"><a href="'+board+'">进入'+('A股' if market=='a' else '港股')+'板块，查看分档与证据 →</a>'+('　<a href="'+board.replace('boards/hk.html','stocks/hk.html')+'">港股个股：顺势选股 →</a>' if market!='a' else '')+'</p></section>'
-    out+='<section id="regime-checks"><h3 class="h3s">可证伪清单：到期对账</h3><p class="note">每条都有现值、判定日期、证实线与证伪线；到期后在此标注对或错。</p><div class="tblwrap"><table class="mt regime-table regime-checks"><thead><tr><th>编号</th><th>命题</th><th>现值</th><th>判定日期</th><th>证实</th><th>证伪及后果</th><th>状态</th></tr></thead><tbody>'
+    out+='<section id="regime-checks"><details class="sub"><summary>可证伪清单：到期对账</summary><p class="note">每条都有现值、判定日期、证实线与证伪线；到期后在此标注对或错。</p><div class="tblwrap"><table class="mt regime-table regime-checks"><thead><tr><th>编号</th><th>命题</th><th>现值</th><th>判定日期</th><th>证实</th><th>证伪及后果</th><th>状态</th></tr></thead><tbody>'
     for c in x['checks']:out+='<tr>'+''.join('<td>'+E(v)+'</td>' for v in c)+'<td>待到期</td></tr>'
-    out+='</tbody></table></div></section><p class="note">'+E(g['limits'])+' <a href="'+prefix+g['research']+'">完整研究稿</a> · <a href="'+prefix+g['evidence']+'">计算底稿</a></p></section>'
+    out+='</tbody></table></div></details></section><p class="note">'+E(g['limits'])+' <a href="'+prefix+g['research']+'">完整研究稿</a> · <a href="'+prefix+g['evidence']+'">计算底稿</a></p></section>'
     return out
 
 def sse_block(root):
@@ -148,12 +148,12 @@ def sse_block(root):
     d0=v['decomp'][-1];d1=[x for x in v['decomp'] if x['from']=='2025-12-31'][0];ep=v.get('exbank_level_pct_since2016',[None,None]);gap=max(abs(x['actual']-x['approx']) for x in v['decomp'])
     lv=sorted(x['exbank_level'] for x in v['decomp'])
     out+=('</tbody></table></div><p class="note"><b>怎么读：</b>上证指数按总市值加权，银行约占沪市市值的两成。5月高点以来上证'+format(d0['actual'],'+.1f')+'%，但银行逆势'+format(d0['bank_ret'],'+.1f')+'%、托住约'+format(d0['bank_pts'],'.0f')+'点；剔除银行，其余股票相当于'+format(d0['exbank_ret'],'+.1f')+'%，上证约在'+format(d0['exbank_level'],',.0f')+'点。2026年以来同理：上证'+format(d1['actual'],'+.1f')+'%，剔除银行'+format(d1['exbank_ret'],'+.1f')+'%。剔除银行后的点位（约'+format(lv[0],',.0f')+'—'+format(lv[-1],',.0f')+'）在2016年以来的分位约'+str(ep[0])+'%—'+str(ep[1])+'%。点位分位会随名义增长自然上移，参考价值弱于市盈率分位（2011年以来'+str(v['pe_pct']['since2011'])+'%、2016年以来'+str(v['pe_pct']['since2016'])+'%）。</p>'
-         '<p class="note">方法：用沪市A股（60、688开头）每只股票的期初总市值×期间价格涨跌，按东方财富行业分成银行（银行Ⅱ）、半导体与其他，按期初总市值加权；近似结果与上证实际涨跌最多相差'+format(gap,'.1f')+'个百分点（新股纳入、分红除权与权重口径差异）。'+v.get('method_pct','')+v['source']+'。计算脚本 pipeline/weekly/sse_view.js。</p></section>')
+         '<details class="sub"><summary>计算方法</summary><p class="note">方法：用沪市A股（60、688开头）每只股票的期初总市值×期间价格涨跌，按东方财富行业分成银行（银行Ⅱ）、半导体与其他，按期初总市值加权；近似结果与上证实际涨跌最多相差'+format(gap,'.1f')+'个百分点（新股纳入、分红除权与权重口径差异）。'+v.get('method_pct','')+v['source']+'。计算脚本 pipeline/weekly/sse_view.js。</p></details></section>')
     return out
 
 def render(ctx,market):
     d,m,prefix,refs=load_context(ctx,market)
-    if market=='a':return sse_block(ctx['ROOT'])+regime(d,market,prefix,refs)
+    if market=='a':return regime(d,market,prefix,refs)+sse_block(ctx['ROOT'])
     return regime(d,market,prefix,refs)
 
 def render_tracking(ctx,market):
