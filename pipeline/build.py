@@ -600,7 +600,7 @@ def outlook_section():
 CSS = open(os.path.join(ROOT, "pipeline", "style.css"), encoding="utf-8").read()
 
 
-REF_TITLES = ('规则', '回测', '数据口径', '港股价格规则', '价格规则', '旧版本', '筛选规则')
+REF_TITLES = ('规则', '回测', '数据口径', '港股价格规则', '价格规则', '旧版本', '筛选规则', '来源')
 
 
 def fold_reference(body):

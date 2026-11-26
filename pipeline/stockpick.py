@@ -403,6 +403,7 @@ def head(active):
     """两层导航：先选市场（A股／港股），再选该市场下的选股逻辑。A股两条逻辑，港股一条。"""
     m='hk' if active>=3 else 'a'
     out='<nav class="lp-mkt" aria-label="市场">'+''.join('<a href="'+v['href']+'"'+(' aria-current="page"' if k==m else '')+'><b>'+v['name']+'</b><span>'+str(len(v['sub']))+'条选股逻辑：'+'、'.join(x[2].split(' · ')[-1] for x in v['sub'])+'</span></a>' for k,v in MARKETS.items())+'</nav>'
+    out+='<p class="lp-map"><a href="logic-map.html">选股逻辑地图：12条逻辑的定义、上涨动力与本站覆盖 →</a></p>' if active else ''
     out+='<nav class="lp-tabs" aria-label="'+MARKETS[m]['name']+'选股逻辑">'+''.join('<a href="'+h+'"'+(' aria-current="page"' if n==active else '')+'><b>'+E(t)+'</b><span>'+E(d)+'</span></a>' for n,h,t,d in MARKETS[m]['sub'])+'</nav>'
     return out
 
@@ -428,6 +429,7 @@ def build(ctx):
     (site/'stocks/selection-rules.html').write_text(ctx['page']('筛选规则 | A 股框架笔记','gg',rules_page(ctx['ROOT']),'../'),encoding='utf-8')
     import hk_pick;hk_pick.build(ctx)
     import hk_turn;hk_turn.build(ctx)
+    import logic_map;logic_map.build(ctx)
     vp=Path(ctx['ROOT'])/'data/raw/stock_pick/verify.json'
     if vp.exists():(site/'data/verify.json').write_text(vp.read_text(encoding='utf-8'),encoding='utf-8')
 
