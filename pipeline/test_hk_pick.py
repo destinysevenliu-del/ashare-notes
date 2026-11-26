@@ -48,20 +48,21 @@ class HKPick(unittest.TestCase):
                     self.assertNotIn(x['chain']['view'][:2], ('可执', '价格'), x['code'])
 
     def test_logic2_list_follows_rules(self):
-        import hk_turn
-        L = hk_turn.load(ROOT)
-        self.assertEqual(L['version'], 'revision')
-        for x in L['list']:
-            self.assertGreaterEqual(x[hk_turn.MC], hk_turn.MC_MIN, x[1])
-            self.assertGreaterEqual(x[hk_turn.REV], hk_turn.REV_MIN, x[1])
-            self.assertGreaterEqual(x[hk_turn.ORGS], hk_turn.MIN_ORGS, x[1])
-            r = L['research'][x[hk_turn.C]]
-            for _, k in hk_turn.RES_KEYS:
-                self.assertTrue(r.get(k), (x[1], k))
-            self.assertNotEqual(hk_turn.verdict(x, L['research'])[0], '可买', '高频指标未验证前不能可买')
-        codes = {x[0] for x in L['list']}
-        self.assertFalse(codes & {c for c, _, _ in L['excluded']})
-        self.assertNotIn('银行', {x[hk_turn.IND] for x in L['list']})
+        """预测反转：行业上调广度>0.2、利润仍下降、市值门槛；未站上26周均线不能出现“在买入区”；空头增加必须不买。"""
+        import hk_turn as T
+        L = T.load(ROOT)
+        self.assertEqual(L['version'], 'predict')
+        ok = {b[0] for b in T.turning(L)}
+        for x in L['cand']:
+            self.assertIn(x[T.IND], ok, x[1]); self.assertLess(x[T.G0], 0, x[1]); self.assertGreaterEqual(x[T.MC], T.MC_MIN, x[1])
+            pl = T.levels(L, x); v = T.view(x, pl)
+            if x[T.PX] < pl['m26']:
+                self.assertTrue(pl['where'].startswith('未确认'), x[1])
+            if x[T.SHORT] in ('rise', 'high'):
+                self.assertTrue(v.startswith('不买'), x[1])
+            self.assertNotEqual(v, '可执行')
+            self.assertIn(x[T.C], L['research'])
+        self.assertNotIn('银行', ok)
 
     def test_industry_table(self):
         R, asof = H.industry_rows(ROOT)
