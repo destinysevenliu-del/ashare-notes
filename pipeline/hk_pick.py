@@ -161,7 +161,7 @@ def page(ctx):
     head = SP.head(3)
     if not L:
         return head + '<div class="hero"><h1>个股 · 港股</h1><p>港股数据尚未取得。</p></div>'
-    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>个股 · 港股顺势选股</h1><p class="sum">和A股逻辑一同一套格式：大盘 → 板块 → 个股，判断链为板块、初筛、核验、估值、价格、筹码。价格截至' + E(D['asof']) +
+    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 顺势选股</h1><p class="sum">港股目前只有这一条选股逻辑（国资箱体利用的是A股国资股的特征，不适用港股）。格式与A股逻辑一相同：大盘 → 板块 → 个股，判断链为板块、初筛、核验、估值、价格、筹码。价格截至' + E(D['asof']) +
            '（每周更新）。港股按事先写明的规则已下调为偏弱，只保留高息资产为顺风；互联网为逆风，不研究个股。</p></div>')
     out += '<nav class="lp-jump"><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#hk-data">数据口径</a></nav>'
     B = {}
@@ -191,7 +191,7 @@ def page(ctx):
 
 def build(ctx):
     site = Path(ctx['SITE'])
-    (site/'stocks/hk.html').write_text(ctx['page']('港股个股 | A 股框架笔记', 'gg', page(ctx), '../'), encoding='utf-8')
+    (site/'stocks/hk.html').write_text(ctx['page']('港股 · 顺势选股 | A 股框架笔记', 'gg', page(ctx), '../'), encoding='utf-8')
 
 
 SECTOR_INDS = {'hk-telecom': ['银行', '电讯'], 'hk-energy': ['石油及天然气', '煤炭'], 'hk-tanker': ['工用运输'], 'hk-internet': ['软件服务', '媒体及娱乐'], 'hk-hardware': ['半导体']}

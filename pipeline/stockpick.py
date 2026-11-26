@@ -396,20 +396,26 @@ def rules_page(root):
     out+='<section id="legacy"><h2>旧版说明</h2><p class="note">2026-11-13版的“子池合同与研究席位、A–H职能、追/等/不追”已停用。保留两条：辅助估值高于五年95%分位否决（现为估值层否决规则，仍未回测）；正常化自由现金流的思路（现为核验层的分红覆盖检查）。旧版个股研究页和组合约束页只作历史资料。</p></section>'
     return out
 
+MARKETS={'a':{'name':'A股','href':'index.html','sub':[(1,'index.html','逻辑一 · 顺势选股','大盘→板块→个股'),(2,'box.html','逻辑二 · 国资箱体','地板、天花板、烟花（只适用A股国资股）')]},
+         'hk':{'name':'港股','href':'hk.html','sub':[(3,'hk.html','顺势选股','大盘→板块→个股：高息、能源、油运、硬件')]}}
 def head(active):
-    return '<nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if active==1 else '')+'><b>逻辑一 · 顺势选股</b><span>大盘→板块→个股</span></a><a href="box.html"'+(' aria-current="page"' if active==2 else '')+'><b>逻辑二 · 国资箱体</b><span>地板、天花板、烟花</span></a><a href="hk.html"'+(' aria-current="page"' if active==3 else '')+'><b>港股 · 顺势选股</b><span>高息、能源、油运、硬件</span></a></nav>'
+    """两层导航：先选市场（A股／港股），再选该市场下的选股逻辑。A股两条逻辑，港股一条。"""
+    m='hk' if active==3 else 'a'
+    out='<nav class="lp-mkt" aria-label="市场">'+''.join('<a href="'+v['href']+'"'+(' aria-current="page"' if k==m else '')+'><b>'+v['name']+'</b><span>'+str(len(v['sub']))+'条选股逻辑：'+'、'.join(x[2].split(' · ')[-1] for x in v['sub'])+'</span></a>' for k,v in MARKETS.items())+'</nav>'
+    out+='<nav class="lp-tabs" aria-label="'+MARKETS[m]['name']+'选股逻辑">'+''.join('<a href="'+h+'"'+(' aria-current="page"' if n==active else '')+'><b>'+E(t)+'</b><span>'+E(d)+'</span></a>' for n,h,t,d in MARKETS[m]['sub'])+'</nav>'
+    return out
 
 def page(ctx):
     root=Path(ctx['ROOT']);S=json.loads((root/'data/sector_selection.json').read_text());P=json.loads((root/'data/stock_pick.json').read_text())
     sec={s['id']:s for s in S['sectors']};L1=logic1_data(root,S)
-    out='<style>'+CSS+SC.CSS+'</style><div class="hero"><h1>个股</h1><p class="sum">两条逻辑分开看：逻辑一顺着大盘和板块选；逻辑二利用A股国资股的箱体特征。价格截至'+asof(root)+'（每周更新），本页只提候选，不做买卖决定。</p></div>'+head(1)
+    out='<style>'+CSS+SC.CSS+'</style>'+head(1)+'<div class="hero"><h1>A股 · 逻辑一 · 顺势选股</h1><p class="sum">A股有两条选股逻辑：逻辑一顺着大盘和板块选（本页）；逻辑二利用A股国资股的箱体特征。港股目前只有顺势选股一条，在“港股”标签下。价格截至'+asof(root)+'（每周更新），本页只提候选，不做买卖决定。</p></div>'
     out+='<nav class="lp-jump"><a href="#weekly">本周变化</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#price-rules">价格规则</a></nav>'
     out+=weekly_cards(root)+board_l1(L1,sec)+logic1_cards(root,S,sec,L1)+rules_html()
     return out+'<p class="note">'+E(P['source'])+' 位置与筹码数据：'+E(json.loads((root/'data/raw/stock_pick/l1_enrich.json').read_text())['_meta']['source'])+'。</p>'
 
 def box_page(ctx):
     root=Path(ctx['ROOT']);P=json.loads((root/'data/stock_pick.json').read_text());sw=switch_state(root)
-    out='<style>'+CSS+SC.CSS+'</style><div class="hero"><h1>个股 · 国资箱体</h1><p class="sum">有地板、有天花板、偶尔放烟花的房间。规则、验证与候选都在本页。价格截至'+E(P['logic2'].get('px_asof','2026-11-13'))+'（每周更新；箱底箱顶每季度重算）。</p></div>'+head(2)
+    out='<style>'+CSS+SC.CSS+'</style>'+head(2)+'<div class="hero"><h1>A股 · 逻辑二 · 国资箱体</h1><p class="sum">有地板、有天花板、偶尔放烟花的房间；只适用A股国资背景的箱体股，港股没有这条逻辑。规则、验证与候选都在本页。价格截至'+E(P['logic2'].get('px_asof','2026-11-13'))+'（每周更新；箱底箱顶每季度重算）。</p></div>'
     out+='<nav class="lp-jump"><a href="#l2-judge">逐只判断</a><a href="#logic2">箱体规则</a><a href="#box-rules">价格规则</a><a href="#l2-bt">回测</a><a href="#l2-list">候选名单</a></nav>'
     F=l2_fund(root)
     return out+l2_cards(P['logic2'],sw,F)+logic2_html(P['logic2'],sw,F).replace('<h3 id="l2-bt">',box_rules_html()+'<h3 id="l2-bt">',1)+'<p class="note">'+E(P['source'])+'</p>'
@@ -431,7 +437,8 @@ CSS="""
 #price-rules,#box-rules{margin:30px 0;border:1px solid #d4dfeb;border-radius:10px;padding:16px 20px;background:#fff}.pr-table{min-width:880px}.pr-table td small{font-size:12.5px;color:#455a6e;line-height:1.7}.pr-dl{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:6px 14px;margin:8px 0;font-size:14px;line-height:1.8}.pr-dl dt{font-weight:600;color:#223e57}.pr-dl dd{margin:0}.pr-in{margin-top:10px}.pr-in summary{cursor:pointer}
 @media(max-width:640px){.pr-dl{grid-template-columns:1fr}.pr-dl dd{margin-bottom:6px}}
 .plan{border:1px dashed #b8c8d8;border-radius:8px;padding:10px 14px;margin:10px 0}.plan-h{margin:0 0 4px}.plan ul{margin:2px 0 8px;padding-left:18px;font-size:13.5px;line-height:1.75}.plan-table{min-width:760px}.ov-c small+small{color:#9b3d27}
-.lp-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0 14px}.lp-tabs a{border:1px solid #d4dfeb;border-radius:10px;padding:12px 16px;background:#fff;text-decoration:none;color:#223e57}.lp-tabs a[aria-current]{border-color:#365875;box-shadow:inset 0 -3px 0 #365875}.lp-tabs b{display:block;font-size:16px}.lp-tabs span{font-size:12.5px;color:#64798d}
+.lp-mkt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 8px}.lp-mkt a{border:1px solid #c9d6e3;border-radius:10px;padding:12px 18px;background:#f6f8fa;text-decoration:none;color:#223e57}.lp-mkt a[aria-current]{background:#223e57;color:#fff;border-color:#223e57}.lp-mkt a[aria-current] span{color:#d5e0ea}.lp-mkt b{display:block;font-size:18px}.lp-mkt span{font-size:12.5px;color:#64798d}
+.lp-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 14px}.lp-tabs a{border:1px solid #d4dfeb;border-radius:10px;padding:12px 16px;background:#fff;text-decoration:none;color:#223e57}.lp-tabs a[aria-current]{border-color:#365875;box-shadow:inset 0 -3px 0 #365875}.lp-tabs b{display:block;font-size:16px}.lp-tabs span{font-size:12.5px;color:#64798d}
 .lp-jump{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px;position:sticky;top:56px;z-index:5;background:var(--paper,#f2f4f7);padding:8px 0}@media(max-width:760px){.lp-jump{position:static}.lp-tabs b{font-size:14.5px}.lp-tabs a{padding:10px 12px}}.lp-jump a{font-size:13px;padding:4px 10px;border-radius:14px;background:#eef2f6;text-decoration:none}
 .ov-c{display:inline-block;margin:3px 6px 3px 0;padding:4px 9px;border-radius:8px;background:#f3f6f9;font-size:13px;text-decoration:none;color:#223e57}.ov-c small{display:block;font-size:11px;color:#64798d}.ov-c.go{background:#fbe9e4}.ov-c.wait{background:#e8eef6}
 .lens{background:#f6f8fa;border-radius:8px;padding:10px 14px;margin:8px 0}.lens ul{margin:4px 0 6px;padding-left:18px}.lens li,.lens p{font-size:13.5px;line-height:1.75;margin:2px 0}
