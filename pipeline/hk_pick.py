@@ -14,9 +14,6 @@ FOREIGN = {'00005', '02888', '00023', '00440', '02356'}
 # 能源公司利润主要来自哪项业务（决定“板块”一格是否适用前半段；与A股同一做法）
 HK_SUB = {'00883': '上游原油', '00857': '一体化（上游为主）', '00386': '一体化（炼化为主）', '01088': '动力煤', '01898': '煤种结构待核', '01171': '煤种结构待核', '03668': '煤种结构待核'}
 RULES = {
- 'hk-telecom': {'type': 'crowded', 'inds': ['银行', '电讯'], 'n': 5,
-   'gate': '港股通可买的中资银行与电讯股（不含汇丰、渣打、东亚、大新等外资或本地银行）；港股市值≥500亿港元；最近一期归母利润同比≥0；有2025年度分红',
-   'filter': lambda x: x['code'] not in FOREIGN and (x.get('mc') or 0) >= 500 and (x.get('np_yoy') or -1) >= 0 and x.get('dps'), 'factors': ['dy', 'np']},
  'hk-energy': {'type': 'upstream', 'inds': ['石油及天然气', '煤炭'], 'n': 4,
    'gate': '港股通可买的石油与煤炭股；港股市值≥300亿港元；最近一期归母利润同比>0；市盈率（TTM）0—20倍（与A股煤炭门槛一致）',
    'filter': lambda x: (x.get('mc') or 0) >= 300 and (x.get('np_yoy') or -1) > 0 and 0 < (x.get('pe') or 99) <= 20, 'factors': ['np', 'dy', 'cheap']},
@@ -161,9 +158,9 @@ def page(ctx):
     head = SP.head(3)
     if not L:
         return head + '<div class="hero"><h1>个股 · 港股</h1><p>港股数据尚未取得。</p></div>'
-    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 顺势选股</h1><p class="sum">港股目前只有这一条选股逻辑（国资箱体利用的是A股国资股的特征，不适用港股）。格式与A股逻辑一相同：大盘 → 板块 → 个股，判断链为板块、初筛、核验、估值、价格、筹码。价格截至' + E(D['asof']) +
-           '（每周更新）。港股按事先写明的规则已下调为偏弱，只保留高息资产为顺风；互联网为逆风，不研究个股。</p></div>')
-    out += '<nav class="lp-jump"><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#hk-data">数据口径</a></nav>'
+    out = ('<style>' + SP.CSS + SC.CSS + '</style>' + head + '<div class="hero"><h1>港股 · 逻辑一 · 顺势选股</h1><p class="sum">港股有三条选股逻辑：顺势选股（本页）、业绩拐点（观察）、两地比价（只保留逻辑；原高息资产板块归入这条）。国资箱体利用的是A股国资股的特征，不适用港股。格式与A股逻辑一相同：大盘 → 板块 → 个股，判断链为板块、初筛、核验、估值、价格、筹码。价格截至' + E(D['asof']) +
+           '（每周更新）。港股按事先写明的规则已下调为偏弱；互联网为逆风，不研究个股。</p><p class="sum"><b>需要复核：</b>业绩拐点页的回测显示，过去一年港股离一年高点越近的股票越强、回撤越深越弱；本页能源、油运沿用A股“一年区间下部买入”的规则，与这一结论相反，买入前要先复核。</p></div>')
+    out += '<nav class="lp-jump"><a href="hk-ah.html">高息资产 → 逻辑三</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#hk-data">数据口径</a></nav>'
     B = {}
     for sid, r in L.items():
         for x in r['picks']:

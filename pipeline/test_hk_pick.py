@@ -30,10 +30,19 @@ class HKPick(unittest.TestCase):
             self.assertNotEqual(self.sec[sid]['rating'], '逆风') if self.L[sid]['picks'] else None
         self.assertNotIn('hk-internet', [sid for sid, r in self.L.items() if r['picks']])
 
-    def test_after_tax_yield(self):
-        for x in self.L['hk-telecom']['picks']:
-            self.assertAlmostEqual(x['dy_net'], round(x['dy']*(1-H.TAX), 2), places=2)
-            self.assertAlmostEqual(x['en']['dy'], x['dy_net'])
+    def test_high_yield_moved_to_logic3(self):
+        self.assertNotIn('hk-telecom', self.L)
+
+    def test_logic2_list_follows_rules(self):
+        import hk_turn
+        L = hk_turn.load(ROOT)
+        for x in L['list']:
+            self.assertLessEqual(x[5], -40); self.assertGreaterEqual(x[3], 100)
+            self.assertTrue(x[8] or x[9])
+            self.assertLess(x[15][0] - x[15][2], hk_turn.SHORT_RISE, x[1])
+        for c, n, s in L['excluded_short_rising']:
+            self.assertGreaterEqual(s[0] - s[2], hk_turn.SHORT_RISE, n)
+        self.assertIn('不买', L['rules']['enable'] + L['rules']['status'])
 
     def test_industry_table(self):
         R, asof = H.industry_rows(ROOT)
