@@ -2,7 +2,7 @@
 // （https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_VALUEANALYSIS_DET&pageSize=1）。
 // 步骤：1) await hkLoad('2026-11-25')  取港股通名单、港股股本、近两年周收盘、财务（约5—6分钟，进度看 window._hst）
 //       2) 在证监会页面算出空头占比分档字符串（见 交接文档 2026-11-26），粘贴为 window._enc
-//       3) hkBacktest() 回测；hkScreen(short) 按当前空头占比筛选，short={代码:[现在%,8周前%]}
+//       3) 回测与筛选用 hkFeat(代码, 周序号) 逐股计算（步骤与分组定义见 更新流程.md 5a、hk_logic2.json backtest）
 // 口径：周收盘取每周最后一个交易日；超额收益＝个股13周涨跌−同期全部样本等权平均；财务可见日＝期末+62天（年报+90天）。
 async function hkLoad(asof) {
   const all = async q => { let out = [], p = 1; for (;;) { let d; for (let i = 0; i < 5; i++) { try { d = await fetch('/api/data/v1/get?' + new URLSearchParams({ ...q, pageNumber: p })).then(r => r.json()); break } catch (e) { await new Promise(r => setTimeout(r, 2000)) } } const r = (d && d.result) || { data: [], pages: 1 }; out = out.concat(r.data || []); if (p >= (r.pages || 1)) break; p++ } return out };
