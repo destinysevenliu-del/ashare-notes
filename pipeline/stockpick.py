@@ -179,9 +179,7 @@ def logic1_html(root,S,sec,L1):
             e=x['en'] or {};v,c=view_of(s['rating'],sid,x,i)
             out+='<tr><th scope="row">'+E(x['name'])+'<small>'+x['code']+'</small></th>'+''.join('<td>'+v_+'</td>' for v_ in fund_cells(t,x))+'<td>'+lay(x['fund'])+'</td><td>'+f(e.get('pos52'),'.2f')+'</td><td>'+f(e.get('dd'),'.0f','%')+'</td><td>'+f(e.get('vsMA60'),'+.0f','%')+'</td><td>'+lay(x['pos'])+'</td><td>'+f(e.get('holdersChg'),'+.0f','%')+'<small>'+E(e.get('hdate') or '')+'</small></td><td>'+f(e.get('margin20'),'+.0f','%')+'</td><td>'+f(e.get('marginPct'),'.1f','%')+'</td><td>'+f(e.get('lift6m'),'.1f','%')+'</td><td>'+lay(x['chip'])+'</td><td><small>'+E('；'.join(([x['flag']] if x['flag'] else [])+x['notes']))+'</small></td><td><span class="lp-view '+c+'">'+E(v)+'</span></td></tr>'
         out+='</tbody></table></div>'+plan_table(t,r['picks'],asof(root))+'<p class="note">进入个股研究时还要比较：'+E('；'.join(s['handoff']))+'</p></details>'
-    out+='<article class="lp-sec" id="l1-hk"><h3>港股（规则待数据）</h3><p class="note">港股尚无同口径公司数据，暂按板块列出代表公司，不排序。</p><ul>'
-    for sid,names in HK.items():out+='<li><b>'+E(sec[sid]['title'])+'（'+E(sec[sid]['rating'])+'）</b>：'+E('、'.join(names))+'</li>'
-    return out+'</ul></article></section>'
+    return out+'</section>'
 
 def box_px(x):
     b=logic1_rules.box_levels(x)
@@ -337,9 +335,8 @@ def logic1_cards(root,S,sec,L1):
     out='<section id="logic1"><h2>按板块展开</h2><p class="note">每个板块按自己的类型看三层：基本面、位置、筹码。每张卡片从上到下是：结论、现价与价格状态、位置条（绿色为买入区，红线为卖出价，黑线为止损）、价格计划、判断链（板块、初筛、核验、估值、价格、筹码各一格）、初筛的三层指标。等开关的板块默认收起。</p>'
     for sid in sorted(L1,key=lambda k:order.index(sec[k]['rating'])):out+=sector_l1(root,sid,sec[sid],L1[sid])
     out+='<details class="more"><summary>查看全部指标表（逐板块）</summary>'+logic1_html(root,S,sec,L1).replace('<section id="logic1">','<div>').replace('</section>','</div>')+'</details>'
-    out+='<article class="lp-sec" id="l1-hk"><h3>港股（规则待数据）</h3><p class="note">港股尚无同口径公司数据，暂按板块列出代表公司，不排序。</p><ul>'
-    for sid,names in HK.items():out+='<li><b>'+E(sec[sid]['title'])+'（'+E(sec[sid]['rating'])+'）</b>：'+E('、'.join(names))+'</li>'
-    return out+'</ul></article></section>'
+    out+='<article class="lp-sec" id="l1-hk"><h3>港股</h3><p>港股候选按同一格式单独成页：<a href="hk.html">港股 · 顺势选股 →</a></p></article>'
+    return out+'</section>'
 
 def weekly_cards(root):
     p=Path(root)/'data/weekly_changes.json'
@@ -400,7 +397,7 @@ def rules_page(root):
     return out
 
 def head(active):
-    return '<nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if active==1 else '')+'><b>逻辑一 · 顺势选股</b><span>大盘→板块→个股</span></a><a href="box.html"'+(' aria-current="page"' if active==2 else '')+'><b>逻辑二 · 国资箱体</b><span>地板、天花板、烟花</span></a></nav>'
+    return '<nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if active==1 else '')+'><b>逻辑一 · 顺势选股</b><span>大盘→板块→个股</span></a><a href="box.html"'+(' aria-current="page"' if active==2 else '')+'><b>逻辑二 · 国资箱体</b><span>地板、天花板、烟花</span></a><a href="hk.html"'+(' aria-current="page"' if active==3 else '')+'><b>港股 · 顺势选股</b><span>高息、能源、油运、硬件</span></a></nav>'
 
 def page(ctx):
     root=Path(ctx['ROOT']);S=json.loads((root/'data/sector_selection.json').read_text());P=json.loads((root/'data/stock_pick.json').read_text())
@@ -422,6 +419,7 @@ def build(ctx):
     (site/'stocks/index.html').write_text(ctx['page']('个股 | A 股框架笔记','gg',page(ctx),'../'),encoding='utf-8')
     (site/'stocks/box.html').write_text(ctx['page']('国资箱体 | A 股框架笔记','gg',box_page(ctx),'../'),encoding='utf-8')
     (site/'stocks/selection-rules.html').write_text(ctx['page']('筛选规则 | A 股框架笔记','gg',rules_page(ctx['ROOT']),'../'),encoding='utf-8')
+    import hk_pick;hk_pick.build(ctx)
     vp=Path(ctx['ROOT'])/'data/raw/stock_pick/verify.json'
     if vp.exists():(site/'data/verify.json').write_text(vp.read_text(encoding='utf-8'),encoding='utf-8')
 
@@ -433,7 +431,7 @@ CSS="""
 #price-rules,#box-rules{margin:30px 0;border:1px solid #d4dfeb;border-radius:10px;padding:16px 20px;background:#fff}.pr-table{min-width:880px}.pr-table td small{font-size:12.5px;color:#455a6e;line-height:1.7}.pr-dl{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:6px 14px;margin:8px 0;font-size:14px;line-height:1.8}.pr-dl dt{font-weight:600;color:#223e57}.pr-dl dd{margin:0}.pr-in{margin-top:10px}.pr-in summary{cursor:pointer}
 @media(max-width:640px){.pr-dl{grid-template-columns:1fr}.pr-dl dd{margin-bottom:6px}}
 .plan{border:1px dashed #b8c8d8;border-radius:8px;padding:10px 14px;margin:10px 0}.plan-h{margin:0 0 4px}.plan ul{margin:2px 0 8px;padding-left:18px;font-size:13.5px;line-height:1.75}.plan-table{min-width:760px}.ov-c small+small{color:#9b3d27}
-.lp-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 14px}.lp-tabs a{border:1px solid #d4dfeb;border-radius:10px;padding:12px 16px;background:#fff;text-decoration:none;color:#223e57}.lp-tabs a[aria-current]{border-color:#365875;box-shadow:inset 0 -3px 0 #365875}.lp-tabs b{display:block;font-size:16px}.lp-tabs span{font-size:12.5px;color:#64798d}
+.lp-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0 14px}.lp-tabs a{border:1px solid #d4dfeb;border-radius:10px;padding:12px 16px;background:#fff;text-decoration:none;color:#223e57}.lp-tabs a[aria-current]{border-color:#365875;box-shadow:inset 0 -3px 0 #365875}.lp-tabs b{display:block;font-size:16px}.lp-tabs span{font-size:12.5px;color:#64798d}
 .lp-jump{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px;position:sticky;top:56px;z-index:5;background:var(--paper,#f2f4f7);padding:8px 0}@media(max-width:760px){.lp-jump{position:static}.lp-tabs b{font-size:14.5px}.lp-tabs a{padding:10px 12px}}.lp-jump a{font-size:13px;padding:4px 10px;border-radius:14px;background:#eef2f6;text-decoration:none}
 .ov-c{display:inline-block;margin:3px 6px 3px 0;padding:4px 9px;border-radius:8px;background:#f3f6f9;font-size:13px;text-decoration:none;color:#223e57}.ov-c small{display:block;font-size:11px;color:#64798d}.ov-c.go{background:#fbe9e4}.ov-c.wait{background:#e8eef6}
 .lens{background:#f6f8fa;border-radius:8px;padding:10px 14px;margin:8px 0}.lens ul{margin:4px 0 6px;padding-left:18px}.lens li,.lens p{font-size:13.5px;line-height:1.75;margin:2px 0}

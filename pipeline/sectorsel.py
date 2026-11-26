@@ -29,10 +29,11 @@ def screen_table(rows,bks):
 
 def badge(r):return '<span class="ss-badge ss-'+{'顺风':'up','前半段':'early','等开关':'wait','逆风':'down'}[r]+'">'+E(r)+'</span>'
 
+ROOT_HK=['.']
 def hub(d,rows,market):
     secs=[s for s in d['sectors'] if s['market']==market];name='A股' if market=='a' else '港股'
     home='../index.html' if market=='a' else '../hk/index.html'
-    out='<style>'+CSS+'</style><div class="hero"><div><h1>'+name+'板块 · 按大盘风向选出</h1><p class="stamp">选板块 '+E(d['as_of'])+' · 窗口 '+E(d['window'])+'</p></div><div class="hero-meta">上游是<a href="'+home+'#horizon">大盘未来半年判断</a>；下游是个股研究（本轮暂不选股）。</div></div>'
+    out='<style>'+CSS+'</style><nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if market=='a' else '')+'><b>A股板块</b><span>顺风、前半段、等开关</span></a><a href="hk.html"'+(' aria-current="page"' if market=='hk' else '')+'><b>港股板块</b><span>高息、能源、油运、互联网、硬件</span></a></nav><div class="hero"><div><h1>'+name+'板块 · 按大盘风向选出</h1><p class="stamp">选板块 '+E(d['as_of'])+' · 窗口 '+E(d['window'])+'</p></div><div class="hero-meta">上游是<a href="'+home+'#horizon">大盘未来半年判断</a>；下游是个股研究（本轮暂不选股）。</div></div>'
     out+='<section class="ss-sum" id="conclusion"><h2>结论</h2><div class="tblwrap"><table class="mt ss-table"><thead><tr><th>板块</th><th>档位</th><th>对应的大盘驱动</th><th>一句话</th><th>开关或降级信号</th><th>变化</th></tr></thead><tbody>'
     for s in sorted(secs,key=lambda s:ORDER.index(s['rating'])):
         out+='<tr data-sector="'+s['id']+'"><td><a href="'+s['id']+'.html"><b>'+E(s['title'])+'</b></a></td><td>'+badge(s['rating'])+'</td><td>'+E(s['driver'])+'</td><td>'+E(s['verdict'])+'</td><td>'+E(s['switch'])+'</td><td><small>'+E(s['prev'])+'</small></td></tr>'
@@ -45,7 +46,8 @@ def hub(d,rows,market):
         bks=[b for s in secs for b in s['bks']]+[b for x in d['excluded'] if x['market']=='a' for b in x['bks']]
         out+='<h3>入选与未入选行业的同口径数据</h3>'+screen_table(rows,bks)
     else:
-        out+='<p>港股尚无全行业同口径财务数据；本轮只在大盘驱动明确指向、且已有行业证据的方向内选择，数据缺口在各板块页标明。</p>'
+        import hk_pick
+        out+='<p>港股只汇总入选方向所在的行业（港股通可买股票）；全行业同口径数据尚未接入。</p>'+hk_pick.industry_table(ROOT_HK[0],{x['id']:x for x in d['sectors']})
     out+='<p class="note">'+E(d['data_note'])+' <a href="../data/sector-screen.json">全部120个行业数据</a></p></details>'
     return out
 
@@ -82,7 +84,7 @@ def removed(text,back):
     return '<style>'+CSS+'</style><div class="hero"><h1>该板块已移出</h1><p class="sum">'+E(text)+'</p><p><a href="'+back+'">返回板块结论 →</a></p></div>'
 
 def build(ctx):
-    root=Path(ctx['ROOT']);d,rows=load(root);out=Path(ctx['SITE'])/'boards';page=ctx['page']
+    root=Path(ctx['ROOT']);d,rows=load(root);out=Path(ctx['SITE'])/'boards';page=ctx['page'];ROOT_HK[0]=root
     for m,fn in [('a','index.html'),('hk','hk.html')]:
         (out/fn).write_text(page(('A股' if m=='a' else '港股')+'板块 | A 股框架笔记','bk',hub(d,rows,m),'../'),encoding='utf-8')
     for s in d['sectors']:
@@ -92,6 +94,7 @@ def build(ctx):
     (out/'screen.html').write_text(page('旧初筛页已停用 | 板块','bk',removed('旧的全市场初筛评分已停用；同口径数据与新的选板块方法见A股板块页。','index.html#method'),'../'),encoding='utf-8')
 
 CSS="""
+.lp-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0 14px}.lp-tabs a{border:1px solid #d4dfeb;border-radius:10px;padding:12px 16px;background:#fff;text-decoration:none;color:#223e57}.lp-tabs a[aria-current]{border-color:#365875;box-shadow:inset 0 -3px 0 #365875}.lp-tabs b{display:block;font-size:16px}.lp-tabs span{font-size:12.5px;color:#64798d}
 .ss-badge{display:inline-block;font-size:13px;font-weight:600;padding:2px 10px;border-radius:12px;vertical-align:middle;margin-right:8px;white-space:nowrap}.ss-up{background:#fbe9e4;color:#9b3d27}.ss-early{background:#fff4dc;color:#8a5a00}.ss-wait{background:#e8eef6;color:#2f4f6f}.ss-down{background:#e9f5ef;color:#2f6f53}
 .ss-table{width:100%;min-width:900px}.ss-table td,.ss-table th{vertical-align:top;font-size:13.5px;line-height:1.75}.ss-table th small{display:block;font-weight:400;color:#6b7c8c;font-size:11px}
 .ss-legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 20px;margin:14px 0;font-size:13.5px;line-height:1.8}.ss-legend p{margin:0}
