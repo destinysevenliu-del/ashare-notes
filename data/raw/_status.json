@@ -1,1 +1,22 @@
-{"idx_sh": "ok", "idx_hs300": "ok", "idx_cyb": "ok", "idx_kc50": "ok", "idx_all": "ok", "usdcnh": "ok", "bond": "ok", "lpr": "ok", "money": "ok", "margin": "ok", "pmi": "ok", "cpi": "ok", "ppi": "ok", "exports": "ok", "indus": "ok", "retail": "ok", "gdp": "ok", "pe_all": "ok", "pe_hs300": "ok", "_fetched_at": "2026-11-26 浏览器通道（人民币汇率停在11-24）"}
+{
+ "idx_sh": "ok",
+ "idx_hs300": "ok",
+ "idx_cyb": "ok",
+ "idx_kc50": "ok",
+ "idx_all": "ok",
+ "usdcnh": "ok",
+ "bond": "ok",
+ "lpr": "ok",
+ "money": "ok",
+ "margin": "ok",
+ "pmi": "ok",
+ "cpi": "ok",
+ "ppi": "ok",
+ "exports": "ok",
+ "indus": "ok",
+ "retail": "ok",
+ "gdp": "ok",
+ "pe_all": "ok",
+ "pe_hs300": "ok",
+ "_fetched_at": "2026-11-27 收盘后更新（指数与汇率截至当日；估值、资金和财报保留各自实际数据日）"
+}

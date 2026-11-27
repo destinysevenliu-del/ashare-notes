@@ -129,6 +129,8 @@ def render(L, hid, mkt):
     out = '<style>' + SP.CSS + SC.CSS + '</style>' + SP.head(hid)
     out += ('<div class="hero"><h1>' + mkt + ' · 分母 · 红利高股息</h1><p class="sum">' + E(R['def']) + '</p><p class="hero-meta">价格截至' + E(L['asof']) + '；10年国债' + format(L['cn10y'], '.2f') +
             '%；买入线＝税后股息率≥国债+' + format(BUY_SPREAD, '.1f') + '个百分点，卖出线＝国债+' + format(SELL_SPREAD, '.1f') + '个百分点</p></div>')
+    if L.get('update_note'):
+        out += '<p class="note"><b>本次更新：</b>' + E(L['update_note']) + '</p>'
     out += '<nav class="lp-jump"><a href="#overview">行动看板</a><a href="#cards">按行业展开</a>' + ('<a href="#ah">买A还是买H</a>' if L.get('ah') else '') + '<a href="#d-rules">规则</a><a href="#d-bt">回测</a></nav>'
     Bk = {}
     for x in rows:

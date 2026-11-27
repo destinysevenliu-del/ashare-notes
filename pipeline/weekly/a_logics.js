@@ -17,7 +17,7 @@ function aPrep() { // 单季利润同比：累计数倒推单季，与上年同�
   for (const c in L) { const rs = L[c].sort((a, b) => a[1] < b[1] ? -1 : 1), by = {}; for (const r of rs) by[r[1]] = r;
     const out = rs.map(r => { const y = r[1].slice(0, 4), pm = { '03-31': null, '06-30': '03-31', '09-30': '06-30', '12-31': '09-30' }[r[1].slice(5)], pr = pm ? by[y + '-' + pm] : null; return [r[1], r[2] || r[1], pm ? (pr && r[3] != null && pr[3] != null ? r[3] - pr[3] : null) : r[3]] });
     const bq = {}; for (const o of out) bq[o[0]] = o;
-    Q[c] = out.map(o => { const ly = bq[(+o[0].slice(0, 4) - 1) + o[0].slice(4)]; let g = null; if (ly && o[2] != null && ly[2] != null && ly[2] !== 0) g = ly[2] > 0 ? (o[2] / ly[2] - 1) * 100 : (o[2] > ly[2] ? 50 : -50); return [o[0], o[1], o[2], g] }) }
+    Q[c] = out.map(o => { const ly = bq[(+o[0].slice(0, 4) - 1) + o[0].slice(4)]; let g = null; if (ly && o[2] != null && ly[2] != null && ly[2] !== 0) g = (o[2] - ly[2]) / Math.abs(ly[2]) * 100; return [o[0], o[1], o[2], g] }) }
   window._aq = Q; const D = {}; for (const r of window._abon) if (r[1] && r[2]) (D[r[0]] ??= []).push([r[1], r[2] / 10]); window._AD = D;
 }
 function aFeat(c, wi) { const W = window._awds, ser = window._apx[c] || {}, d = W[wi], p0 = ser[d]; if (!p0) return null; const h = W.slice(Math.max(0, wi - 51), wi + 1).map(w => ser[w]).filter(v => v); if (h.length < 20) return null;

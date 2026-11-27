@@ -76,4 +76,16 @@ class ChainTest(unittest.TestCase):
    ch=stockpick.chain('a-bank',s,'crowded',X(10.5),{})
    self.assertTrue(ch['view'].startswith('不买'),ch['view'])
   finally:stockpick.DEFENSE=old
+ def test12_box_requires_completed_market_recovery(self):
+  import tempfile
+  with tempfile.TemporaryDirectory() as tmp:
+   root=Path(tmp);(root/'data/raw').mkdir(parents=True)
+   idx=root/'data/raw/idx_all.json';thesis=root/'data/market_thesis.json'
+   def check(close, defense):
+    idx.write_text(json.dumps({'rows':[{'date':'2026-11-27','close':close}]}))
+    thesis.write_text(json.dumps({'macro_regime':{'markets':{'a':{'defense':{'on':defense}}}}}))
+    return stockpick.switch_state(root)['on']
+   self.assertFalse(check(4951.92,True),'单日站回但恢复未完成，箱体必须仍暂停')
+   self.assertTrue(check(4951.92,False),'恢复完成后才解除暂停')
+   self.assertFalse(check(4690,False),'跌破风控线始终暂停')
 if __name__=='__main__':unittest.main()

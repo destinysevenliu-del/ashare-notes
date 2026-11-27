@@ -53,8 +53,9 @@ class VerdictTests(unittest.TestCase):
    self.assertEqual(set(v['signals']),{'up','down','status'})
  def test_portfolio_reads_current_nodes(self):
   page=(ROOT/'docs/stocks/portfolio.html').read_text()
-  for m in self.data['markets'].values():
-   self.assertIn(m['macro_overview']['constraint']['title'],page)
-   for n in m['macro_nodes']:
-    if n['key'] in 'DG':self.assertIn(n['fact'],page)
+  from html import escape
+  for m in self.data['macro_regime']['markets'].values():
+   self.assertIn(escape(m['verdict']),page)
+   for n in m['parts']:
+    if n['key'] in ('den','tap'):self.assertIn(escape(n['text']),page)
 if __name__=='__main__':unittest.main()

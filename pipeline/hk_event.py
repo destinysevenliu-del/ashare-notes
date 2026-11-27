@@ -74,6 +74,8 @@ def page(root):
         return out + '<div class="hero"><h1>港股 · 事件 · 回购与私有化</h1><p>数据尚未取得。</p></div>'
     R = L['rules']; B = L['backtest']; rows = sorted(L['cand'], key=lambda x: -x[PCT])
     out += ('<div class="hero"><h1>港股 · 事件 · 回购与私有化</h1><p class="sum">' + E(R['def']) + '</p><p class="hero-meta">价格截至' + E(L['asof']) + '，回购数据截至' + E(L['bb_asof']) + '</p></div>')
+    if L.get('update_note'):
+        out += '<p class="note"><b>本次更新：</b>' + E(L['update_note']) + '</p>'
     out += '<nav class="lp-jump"><a href="#overview">行动看板</a><a href="#cards">回购候选</a><a href="#priv">私有化</a><a href="#e-rules">规则</a><a href="#e-bt">回测</a></nav>'
     Bk = {}
     for x in rows:
@@ -87,6 +89,8 @@ def page(root):
              ''.join('<tr><th scope="row">' + E(p['name']) + '<small>' + p['code'] + '</small></th><td>' + p['date'] + '</td><td>' + str(p['offer']) + '</td><td>' + str(p.get('px', '—')) + '</td><td>' +
                      (format((p['offer']/p['px']-1)*100, '+.1f') + '%' if p.get('px') else '—') + '</td><td>' + E(p['terms']) + '</td><td>' + E(p['status']) + '</td></tr>' for p in P) + '</tbody></table></div>'
              if P else '<p class="note">目前没有记录在册的私有化要约。东方财富数据中心没有港股私有化数据表，需要按港交所公告人工登记。</p>') + '</section>')
+    if P:
+        out += '<p class="note">登记来源：' + ' · '.join('<a href="' + E(p['source_url'], quote=True) + '">' + E(p.get('source_title', p['name'])) + '</a>' for p in P if p.get('source_url')) + '；现价截至' + E(L['asof']) + '。</p>'
     out += ('<section id="e-rules"><h2>规则</h2><dl class="pr-dl">' + ''.join('<dt>' + k + '</dt><dd>' + E(R[key]) + '</dd>' for k, key in
             (('定义', 'def'), ('上涨动力', 'drive'), ('候选范围', 'universe'), ('价格', 'price'), ('什么时候失效', 'fails'), ('私有化', 'priv'))) + '</dl></section>')
     out += ('<section id="e-bt"><h2>回测</h2><p class="note">' + E(B['setup']) + '</p><div class="tblwrap"><table class="mt lp-table"><thead><tr>' + ''.join('<th>' + E(c) + '</th>' for c in B['cols']) +

@@ -15,7 +15,10 @@ def switch_state(root):
     if p.exists():
         w=json.loads(p.read_text()).get('csi_all')
         if w and w['date']>last['date']:last={'close':w['close'],'date':w['date']}
-    return {**last,'on':last['close']>=4700}
+    # 防守状态由大盘按连续10个交易日恢复规则维护，单日站回不能解除暂停。
+    thesis=json.loads((Path(root)/'data/market_thesis.json').read_text())
+    defense=thesis['macro_regime']['markets']['a'].get('defense') or {}
+    return {**last,'on':last['close']>=4700 and not defense.get('on',False)}
 
 def asof(root):
     return json.loads((Path(root)/'data/raw/stock_pick/l1_enrich.json').read_text())['_meta']['as_of']
@@ -79,12 +82,13 @@ def verify_step(t,v):
     return ('待核' if why else '通过'),base+('；待核：'+'、'.join(why) if why else '')+tail
 
 def value_step(t,v,c):
-    if v and v['pb']>v['pb95']:return '否决','PB %.2f高于自身五年95%%分位%.2f（站内初始研究规则，未回测）'%(v['pb'],v['pb95'])
+    window=v.get('valuation_window','近五年') if v else '近五年'
+    if v and v['pb']>v['pb95']:return '否决','PB %.2f高于自身%s95%%分位%.2f（站内初始研究规则，未回测）'%(v['pb'],window,v['pb95'])
     if t=='crowded':
         return ('通过','股息率达到10年国债+2.5个百分点') if c=='买入' else (('否决','股息率低于10年国债+2.0个百分点') if c=='卖出' else ('未到','股息率还没到买入线'))
     if not v:return '待核','未做估值核验'
     pn='按五年平均利润约%.0f倍'%v['pe_norm'] if v.get('pe_norm') else '近五年平均利润为负，正常化PE不可用'
-    return '待核','PB %.2f（五年分位%d%%）未触发否决；PE(TTM) %s倍，%s，正常化估值待验证'%(v['pb'],v['pbpct5'],'—' if v['pe_ttm'] is None else format(v['pe_ttm'],'.1f'),pn)
+    return '待核','PB %.2f（%s分位%d%%）未触发否决；PE(TTM) %s倍，%s，正常化估值待验证'%(v['pb'],window,v['pbpct5'],'—' if v['pe_ttm'] is None else format(v['pe_ttm'],'.1f'),pn)
 
 def chain(sid,s,t,x,V):
     pl=x.get('pl');c=SC.status(pl)[0];v=V.get(x['code'])

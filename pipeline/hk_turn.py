@@ -88,7 +88,10 @@ def card(L, x):
     ly = [('初筛指标', fs, E(fund), {'好': '营收在增', '中': '营收未增'}),
           ('价格确认', '好' if x[V26] > 0 else '差', E(pos), {'好': '已站上', '差': '未站上'}),
           ('筹码', SHORT_TXT[x[SHORT]][0], E(SHORT_TXT[x[SHORT]][1]))]
-    note = '覆盖机构只有' + str(x[ORGS]) + '家，研报最新一篇在8月，反转动力的信息不足。' if x[ORGS] < 3 else ''
+    note = ('自身可比预测覆盖' + str(x[ORGS]) + '家，入池依据为行业广度；公司兑现条件单独验收。') if x[ORGS] < 3 else ''
+    research = L['research'].get(x[C], {})
+    if research.get('source_url'):
+        note += ' 核验来源：' + research.get('source_title', '公司公告')
     return SC.card('s-' + x[C], x[N], x[C] + ' · ' + x[IND], v, SP.VIEW_CLS(v), pl, ly,
                    SC.bar(pl['lo'], pl['hi'], pl['buy'], pl['sell'], pl['stop'], pl['close']), note, chain(L, x, pl))
 
@@ -120,6 +123,8 @@ def render(L, hid, mkt, market_note, uni_note):
     R = L['rules']; B = L['backtest']
     out = '<style>' + SP.CSS + SC.CSS + CSS + '</style>' + SP.head(hid)
     out += ('<div class="hero"><h1>' + mkt + ' · 分子 · 业绩反转</h1><p class="sum">从大盘到板块到个股，预测哪些公司可能业绩反转：盈利周期正在反转的行业里，利润还在下降、反转尚未体现在财报里的公司；股价站上26周均线再买。</p><p class="hero-meta">价格截至' + E(L['asof']) + '，机构预测截至' + E(L['fc_asof']) + '，空头数据截至' + E(L['short_asof']) + '</p></div>')
+    if L.get('update_note'):
+        out += '<p class="note"><b>本次更新：</b>' + E(L['update_note']) + '</p>'
     out += '<nav class="lp-jump"><a href="#overview">行动看板</a><a href="#sectors">板块：哪些行业在反转</a><a href="#logic2">按板块展开</a><a href="#l2t-rules">规则</a><a href="#l2t-bt">回测</a></nav>'
     cands = [x for x in L['cand'] if x[MC] >= MC_MIN]
     Bk = {}
@@ -137,6 +142,7 @@ def render(L, hid, mkt, market_note, uni_note):
         out += ('<div class="sc-grid">' + ''.join(card(L, x) for x in xs) + '</div>') if xs else '<p class="note">本行业没有利润仍在下降的大市值公司：反转已经体现在财报里，不属于“预测反转”。</p>'
         out += '</details>'
     out += ('<article class="lp-sec"><h3>观察</h3>' + ''.join('<p><b>' + E(w['name']) + '（' + w['code'] + '）</b>：' + E(w['note']) + '</p>' for w in L.get('watch', [])) + '</article></section>')
+    out += '<p class="note">新增候选核验来源：' + ' · '.join('<a href="' + E(L['research'][x[C]]['source_url'], quote=True) + '">' + E(L['research'][x[C]].get('source_title', x[N])) + '</a>' for x in cands if L['research'].get(x[C], {}).get('source_url')) + '</p>'
     out += ('<section id="l2t-rules"><h2>规则</h2><dl class="pr-dl">' + ''.join('<dt>' + k + '</dt><dd>' + E(R[key]) + '</dd>' for k, key in
             (('判断链', 'chain'), ('板块', 'sector'), ('个股', 'stock'), ('价格', 'price'), ('筹码', 'chip'), ('核验', 'verify'))) + '</dl></section>')
     out += ('<section id="l2t-bt"><h2>回测</h2><p class="note">' + E(B['setup']) + '</p>' + bt_table(B['cols'], B['rows']) + '<p class="note"><b>回测说明了什么：</b>' + E(B['read']) + '</p><p class="note">' + E(B['rev_note']) +

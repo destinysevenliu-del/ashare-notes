@@ -3,23 +3,23 @@
  "erp": {
   "pe_all": {
    "label": "中证全指",
-   "date": "2026-11-25",
-   "pe": 15.44,
-   "cn10y": 1.5914,
-   "erp_pct": 4.89,
-   "percentile": 93.9,
+   "date": "2026-11-26",
+   "pe": 15.46,
+   "cn10y": 1.5912,
+   "erp_pct": 4.88,
+   "percentile": 93.8,
    "sample_start": "2019-01-01",
-   "n": 1915
+   "n": 1916
   },
   "pe_hs300": {
    "label": "沪深300",
-   "date": "2026-11-25",
-   "pe": 12.9,
-   "cn10y": 1.5914,
-   "erp_pct": 6.16,
-   "percentile": 81.7,
+   "date": "2026-11-26",
+   "pe": 12.94,
+   "cn10y": 1.5912,
+   "erp_pct": 6.14,
+   "percentile": 81.1,
    "sample_start": "2016-01-01",
-   "n": 2646
+   "n": 2647
   }
  },
  "backtest": {
@@ -39,25 +39,25 @@
   }
  },
  "margin": {
-  "date": "2026-11-25",
-  "balance_trn": 2.15,
+  "date": "2026-11-26",
+  "balance_trn": 2.13,
   "peak_date": "2026-06-25",
   "peak_trn": 3.03,
-  "from_peak_pct": -29.1,
-  "share_of_float_pct": 2.52,
-  "share_percentile_since": "2022-09-19",
-  "share_percentile": 76.0
+  "from_peak_pct": -29.6,
+  "share_of_float_pct": 2.5,
+  "share_percentile_since": "2022-10-14",
+  "share_percentile": 72.0
  },
  "index": {
   "idx_all": {
    "label": "中证全指",
    "high_date": "2026-05-13",
    "high": 6686.87,
-   "low_date": "2026-11-25",
-   "low": 4676.89,
+   "low_date": "2026-11-26",
+   "low": 4672.96,
    "drawdown_pct": -30.1,
-   "last_date": "2026-11-25",
-   "last": 4676.89
+   "last_date": "2026-11-27",
+   "last": 4951.92
   },
   "idx_hs300": {
    "label": "沪深300",
@@ -66,8 +66,8 @@
    "low_date": "2026-11-25",
    "low": 3898.24,
    "drawdown_pct": -23.0,
-   "last_date": "2026-11-25",
-   "last": 3898.24
+   "last_date": "2026-11-27",
+   "last": 4063.06
   },
   "idx_cyb": {
    "label": "创业板指",
@@ -76,8 +76,8 @@
    "low_date": "2026-11-25",
    "low": 2183.58,
    "drawdown_pct": -50.1,
-   "last_date": "2026-11-25",
-   "last": 2183.58
+   "last_date": "2026-11-27",
+   "last": 2443.96
   },
   "idx_kc50": {
    "label": "科创50",
@@ -86,8 +86,8 @@
    "low_date": "2026-11-03",
    "low": 1151.28,
    "drawdown_pct": -47.9,
-   "last_date": "2026-11-25",
-   "last": 1186.14
+   "last_date": "2026-11-27",
+   "last": 1346.25
   },
   "hs300_longest_weekly_losing_streak_in_sample": 12
  },
@@ -107,15 +107,15 @@
   "avg_mom_needed_for_4_5pct": 0.42
  },
  "hk": {
-  "date": "2026-11-25",
-  "pe": 12.3,
-  "dividend_yield": 3.33,
-  "earnings_yield": 8.13,
+  "date": "2026-11-26",
+  "pe": 12.44,
+  "dividend_yield": 3.29,
+  "earnings_yield": 8.04,
   "us10y": 4.85,
   "us10y_date": "2026-11-25",
-  "gap_vs_us10y": 3.28,
-  "hibor_1m": 2.88,
-  "hibor_date": "2026-11-25",
+  "gap_vs_us10y": 3.19,
+  "hibor_1m": 2.94,
+  "hibor_date": "2026-11-26",
   "hsi_june_low": {
    "date": "2026-06-26",
    "close": 22671.86
@@ -134,8 +134,8 @@
   }
  },
  "rates": {
-  "cn10y_now": 1.5914,
-  "cn10y_now_date": "2026-11-25",
+  "cn10y_now": 1.5912,
+  "cn10y_now_date": "2026-11-26",
   "cn10y_year_ago": 1.8126,
   "us10y_year_ago": 4.11
  }

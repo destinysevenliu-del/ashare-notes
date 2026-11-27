@@ -196,7 +196,9 @@ def home_card(root, prefix=''):
     out = ('<style>' + CSS + '</style><div class="nw-home"><p><b>本周新闻归类（' + E(w['start'][5:]) + '至' + E(w['end'][5:]) + '）：</b>' +
            str(len(w['items'])) + '条新闻，' + str(nb) + '条进入跟踪，' + str(sum(1 for x in w['items'] if x['grade'] == '待数据')) + '条待数据，其余不改变判断。')
     for c in w['crossed']:
-        out += '读数越过阈值：' + E(c['name']) + '收盘' + format(c['close'], ',') + '（' + E(c['label'] or '') + '）。'
+        out += E(c['date'][5:]) + '曾越过阈值：' + E(c['name']) + '收盘' + format(c['close'], ',') + '（' + E(c['label'] or '') + '）。'
+    if w.get('crossed_action'):
+        out += '当前处理：' + E('；'.join(name+'：'+action for name,action in w['crossed_action'].items())) + '。'
     for n in w['near']:
         out += (E(n['name']) + '仍在' + format(n['line'], ',') + '另一侧（已触发）。') if n['past'] else ('接近阈值：' + E(n['name']) + '距' + format(n['line'], ',') + ('%+.1f' % n['gap']) + n['unit'] + '。')
     return out + '<a href="' + prefix + 'news.html">看归类与理由</a></p></div>'

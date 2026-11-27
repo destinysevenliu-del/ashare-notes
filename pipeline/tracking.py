@@ -29,7 +29,12 @@ def values(root):
     pp={r['TIME']:r['BASE_SAME'] for r in _j(root,'ppi.json')}
     M25={1:-0.2,2:-0.1,3:-0.4,4:-0.4,5:-0.4,6:-0.4,7:-0.2,8:0.0,9:0.0,10:0.1,11:0.1,12:0.2}
     last=max(k for k in pp if k.startswith('2026'));m=int(last[5:7]);prev=pp['2026年%02d月份'%(m-1)] if m>1 else pp['2025年12月份']
-    v['ppi_mom']=(round(pp[last]-prev+M25[m],1),last+'（推算）')
+    official=Path(root,'data','raw','ppi_mom_official.json')
+    if official.exists():
+        direct=json.loads(official.read_text())['rows'][-1]
+        v['ppi_mom']=(direct['value'],direct['date']+'（统计局公布）')
+    else:
+        v['ppi_mom']=('待核：需统计局直接公布环比',last)
     return v
 
 def status(row,val):

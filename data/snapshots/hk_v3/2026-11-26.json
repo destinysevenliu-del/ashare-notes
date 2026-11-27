@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-26",
+  "observed_at": "2026-11-27T17:55:47.995329+08:00",
+  "rules_version": "HK v3 · 2026-11-10",
+  "scores": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null,
+    "E": null,
+    "F": null,
+    "G": null,
+    "X": null
+  },
+  "proxy_signals": {
+    "hibor": 0,
+    "southbound": -1
+  },
+  "research_reviewed_at": "2026-11-10",
+  "qualitative_states": {
+    "A": "down",
+    "B": "flat",
+    "C": "flat",
+    "E": "na",
+    "F": "flat",
+    "D": "flat",
+    "G": "flat",
+    "X": "up"
+  },
+  "net5": -65.29030000000006,
+  "net20": 32.28329999999994,
+  "hibor_20obs_bp": 22.012000000000008,
+  "sources": {
+    "hsi": "2026-11-26",
+    "hscei": "2026-11-26",
+    "hstech": "2026-11-26"
+  }
+}

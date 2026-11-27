@@ -70,6 +70,8 @@ def page(root):
         return out + '<div class="hero"><h1>A股 · 分子 · 业绩反转</h1><p>数据尚未取得。</p></div>'
     R = L['rules']; B = L['backtest']; rows = sorted(L['cand'], key=lambda x: -x[MC])
     out += ('<div class="hero"><h1>A股 · 分子 · 业绩反转</h1><p class="sum">' + E(R['def']) + '</p><p class="hero-meta">价格截至' + E(L['asof']) + '；最新财报为2026年三季报</p></div>')
+    if L.get('update_note'):
+        out += '<p class="note"><b>本次更新：</b>' + E(L['update_note']) + '</p>'
     out += '<nav class="lp-jump"><a href="#overview">行动看板</a><a href="#cards">候选</a><a href="#t-rules">规则</a><a href="#t-bt">回测</a></nav>'
     Bk = {}
     for x in rows:

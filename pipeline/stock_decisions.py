@@ -300,12 +300,17 @@ def rules_page(model):
 def portfolio(root,model):
     d=read(root,'market_thesis.json');out=top('组合层 · D/G约束','利率与资金只影响整体仓位和执行节奏，不改变个股入池、兑现排名或主估值。')
     out+='<section class="sd-panel"><h2>使用顺序</h2><p>先得到各子池的研究短名单，再检查利率、市场流动性、拥挤度与共同风险。当前没有获授权的目标仓位或个股配置，本页不推算比例；不把市场约束平均拆成每只股票的扣分。</p><p>即使F标为“追”，也只表示价格门通过；组合约束可以要求延后执行，但不能把低质量公司改成高优先级。</p></section><div class="sd-pools">'
-    for market,m in d['markets'].items():
-        out+='<article class="sd-panel"><h2>'+m['label']+' · 组合环境</h2><p class="sd-note">研究复核 '+d['as_of']+'；各原始数据日期见大盘资料。</p>'
-        for k in 'DG':
-            n=next(n for n in m['macro_nodes'] if n['key']==k)
-            out+='<h3>'+k+' · '+E(n['title'])+'</h3><p>'+E(n['fact'])+'</p><p>'+E(n['limit'])+'</p>'
-        out+='<p><b>当前节奏：</b>'+E(m['macro_overview']['constraint']['title'])+'。'+E(m['macro_overview']['constraint']['text'])+'</p><a href="'+('../index.html' if market=='a' else '../hk/index.html')+'#thesis-D">查看市场证据与来源 →</a></article>'
+    regime=d['macro_regime']
+    for market,m in regime['markets'].items():
+        label='A股' if market=='a' else '港股'
+        out+='<article class="sd-panel"><h2>'+label+' · 组合环境</h2><p class="sd-note">研究复核 '+E(regime['reviewed_at'])+'；各原始数据日期见正文。</p>'
+        out+='<p><b>当前节奏：</b>'+E(m['verdict'])+'</p>'
+        for n in m['parts']:
+            if n['key'] not in ('den','tap'):continue
+            out+='<h3>'+E(n['name'])+'</h3><p>'+E(n['text'])+'</p><p>'+E(n['implication'])+'</p>'
+        if m.get('defense',{}).get('on'):
+            out+='<p><b>恢复条件：</b>'+E(m['defense']['recover'])+'</p>'
+        out+='<a href="'+('../index.html' if market=='a' else '../hk/index.html')+'#regime">查看市场证据与来源 →</a></article>'
     out+='</div><section class="sd-panel"><h2>集中度与容量</h2><p>最多10家发行人；同一公司A/H经营证据共用，不能算两个独立风险。另检查不同子池是否共同暴露于AI资本开支、油价或同一政策；共同标签仅作组合风险提示，不回流到个股分数。</p><p>研究席位不是仓位权重，未用席位不强制补满。涉及同一发行人跨池时，须明确唯一主子池后才能占用席位。</p></section>'
     return out+end()
 
