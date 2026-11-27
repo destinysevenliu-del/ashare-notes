@@ -1,3 +1,5 @@
+> WITHDRAWN: The three-sector-first scope was rejected by the user. Superseded by the market-first correction in research/macro-first-correction-2026-11-27.md. Retained only as history.
+
 # Focus decision interface Implementation Plan
 
 Approved scope: user accepted the preceding design and requested implementation and existing publication workflow.

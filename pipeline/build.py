@@ -686,13 +686,13 @@ def index():
     chips = "".join(f'<a href="#node-{k}" class="chip {N[k]["state"]}"><b>{k}</b>{E(NODE_NAME[k])}<span>{E(node_sub(k))}</span></a>' for k in "ABCDEFGH")
     body = f"""
 <div class="hero"><p class="date">结论复核 {_RV[0]}年{int(_RV[1])}月{int(_RV[2])}日 · 行情截至{cn_date(TODAY, True)}</p><h1>A股总览</h1>
-<p class="sum">先看三个重点方向的行动、位置与触发条件；完整宏观研究在下方展开。</p><p class="stamp">{E(stamp)}</p></div>
+<p class="sum">先分析A股的分子、分母与水龙头，再由大盘风向逐项筛选行业，最后得出板块结论。</p><p class="stamp">{E(stamp)}</p></div>
 
-{focus_decisions.home(ROOT)}
+<nav class="mp-order">① A股大盘分析 → ② 宏观风向与行业验收 → ③ 板块结论</nav>
 <details class="fd-archive"><summary>本周新闻与政策记录</summary>{newslog.home_card(ROOT)}</details>
 <nav class="l1nav"><a href="#horizon">未来半年判断</a><a href="#tracking">跟踪与更新</a><a href="framework.html">研究框架</a></nav>
 
-<details class="l1" id="horizon"><summary><h2>展开宏观研究与半年判断</h2><span class="l1hint">证据 · 传导 · 证伪</span></summary>
+<details class="l1" id="horizon" open><summary><h2>A股大盘分析与半年判断</h2><span class="l1hint">证据 · 传导 · 证伪</span></summary>
 {outlook_section()}</details>
 
 <details class="l1" id="tracking"><summary><h2>跟踪与更新</h2><span class="l1hint">定期数据 · 排期事件 · 突发事件 · 改判规则</span></summary>

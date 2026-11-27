@@ -34,6 +34,8 @@ def hub(d,rows,market):
     secs=[s for s in d['sectors'] if s['market']==market];name='A股' if market=='a' else '港股'
     home='../index.html' if market=='a' else '../hk/index.html'
     out='<style>'+CSS+'</style><nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if market=='a' else '')+'><b>A股板块</b><span>顺风、前半段、等开关</span></a><a href="hk.html"'+(' aria-current="page"' if market=='hk' else '')+'><b>港股板块</b><span>高息、能源、油运、互联网、硬件</span></a></nav><div class="hero"><div><h1>'+name+'板块 · 按大盘风向选出</h1><p class="stamp">选板块 '+E(d['as_of'])+' · 窗口 '+E(d['window'])+'</p></div><div class="hero-meta">上游是<a href="'+home+'#horizon">大盘未来半年判断</a>；下游是个股研究（本轮暂不选股）。</div></div>'
+    import market_path
+    out+='<style>'+market_path.CSS+'</style>'+market_path.upstream(ROOT_HK[0],market)
     out+='<section class="ss-sum" id="conclusion"><h2>结论</h2><div class="tblwrap"><table class="mt ss-table"><thead><tr><th>板块</th><th>档位</th><th>对应的大盘驱动</th><th>一句话</th></tr></thead><tbody>'
     for s in sorted(secs,key=lambda s:ORDER.index(s['rating'])):
         out+='<tr data-sector="'+s['id']+'"><td><a href="'+s['id']+'.html"><b>'+E(s['title'])+'</b></a></td><td>'+badge(s['rating'])+'</td><td>'+E(s['driver'])+'</td><td>'+E(s['verdict'])+'<details class="more"><summary>开关或降级信号、最近变化</summary><p class="note">'+E(s['switch'])+'</p><p class="note"><b>变化：</b>'+E(s['prev'])+'</p></details></td></tr>'
@@ -50,7 +52,7 @@ def hub(d,rows,market):
         out+='<p>港股只汇总入选方向所在的行业（港股通可买股票）；全行业同口径数据尚未接入。</p>'+hk_pick.industry_table(ROOT_HK[0],{x['id']:x for x in d['sectors']})
     out+='<p class="note">'+E(d['data_note'])+' <a href="../data/sector-screen.json">全部120个行业数据</a></p></details>'
     import focus_decisions
-    return focus_decisions.home(ROOT_HK[0],'../',market)+'<details class="fd-archive" id="archive"><summary>历史板块研究与风险记录 · 暂停主动扩展</summary>'+out+'</details>'
+    return out
 
 def detail(d,rows,s):
     mk='A股' if s['market']=='a' else '港股';back='index.html' if s['market']=='a' else 'hk.html'
@@ -80,7 +82,7 @@ def detail(d,rows,s):
     for r in s['checks']:out+='<tr>'+''.join('<td>'+E(x)+'</td>' for x in r)+'<td>待到期</td></tr>'
     out+='</tbody></table></div></section><section id="handoff"><h2>交给个股阶段：比较什么</h2><ul>'+''.join('<li>'+E(x)+'</li>' for x in s['handoff'])+'</ul><p class="note">个股的核验结果与价格计划见<a href="../stocks/index.html#l1-'+s['id']+'">个股页</a>；进入候选只表示值得研究，不等于可以买入。</p></section>'
     import focus_decisions
-    return '<style>'+focus_decisions.CSS+'</style>'+focus_decisions.archive_note(ROOT_HK[0],'../')+out
+    return out
 
 def removed(text,back):
     return '<style>'+CSS+'</style><div class="hero"><h1>该板块已移出</h1><p class="sum">'+E(text)+'</p><p><a href="'+back+'">返回板块结论 →</a></p></div>'

@@ -32,10 +32,21 @@ class FocusTests(unittest.TestCase):
   p={'close':10,'buy':(9,11),'sell':12,'stop':8,'rr':1,'where':'在买入区'}
   h=C.card('test','测试','','不买：核验未通过','bad',p,[])
   self.assertNotIn('class="st st-buy"',h);self.assertIn('暂停新增',h)
- def test_focus_outputs(self):
-  d=F.prepare(ROOT);self.assertEqual(len(d['items']),3)
-  for x in d['items']:
-   self.assertTrue(x['missing']);self.assertTrue(x['next']);self.assertTrue(x['invalidate']);self.assertNotEqual(x['decision']['status'],'条件满足')
-  a=(ROOT/'docs/index.html').read_text();self.assertLess(a.index('id="focus"'),a.index('id="horizon"'))
-  self.assertIn('id="horizon"',a);self.assertNotIn('id="horizon" open',a)
+ def test_withdrawn_preselection_cannot_be_rendered(self):
+  with self.assertRaises(ValueError):F.home(ROOT)
+ def test_market_first_outputs(self):
+  import market_path
+  for market,path in [('a','docs/index.html'),('hk','docs/hk/index.html')]:
+   html=(ROOT/path).read_text()
+   self.assertIn('id="horizon" open',html)
+   self.assertNotIn('id="focus"',html)
+   self.assertNotIn('只跟踪三个方向',html)
+   self.assertLess(html.index('class="regime-parts"'),html.index('id="regime-sectors"'))
+   d,sectors,routes=market_path.load(ROOT,market)
+   self.assertTrue(sectors);self.assertTrue(routes)
+   for sid in sectors:self.assertIn('data-derived-sector="'+sid+'"',html)
+   other=[x['id'] for x in json.loads((ROOT/'data/sector_selection.json').read_text())['sectors'] if x['market']!=market]
+   for sid in other:self.assertNotIn('data-derived-sector="'+sid+'"',html)
+  for f in ['focus-ai','focus-broker','focus-telecom']:
+   self.assertIn('三方向预选已撤销',(ROOT/'docs/boards'/(f+'.html')).read_text())
 if __name__=='__main__':unittest.main()

@@ -432,14 +432,14 @@ def head(active):
     out='<nav class="lp-mkt" aria-label="市场">'+''.join('<a href="'+v['href']+'"'+(' aria-current="page"' if k==m else '')+'><b>'+v['name']+'</b><span>'+str(len(v['sub']))+'条选股逻辑：'+'、'.join(x[2].split(' · ')[-1] for x in v['sub'])+'</span></a>' for k,v in MARKETS.items())+'</nav>'
     out+='<p class="lp-map"><a href="logic-map.html">选股逻辑地图：12条逻辑的定义、上涨动力与本站覆盖 →</a></p>' if active else ''
     out+='<nav class="lp-tabs" aria-label="'+MARKETS[m]['name']+'选股逻辑">'+''.join('<a href="'+h+'"'+(' aria-current="page"' if n==active else '')+'><b>'+E(t)+'</b><span>'+E(d)+'</span></a>' for n,h,t,d in MARKETS[m]['sub'])+'</nav>'
-    return '<details class="fd-archive"><summary>原策略导航与候选记录</summary>'+out+'</details>'
+    return out
 
 def page(ctx):
     root=Path(ctx['ROOT']);S=json.loads((root/'data/sector_selection.json').read_text());P=json.loads((root/'data/stock_pick.json').read_text())
     sec={s['id']:s for s in S['sectors']};L1=logic1_data(root,S)
     out='<style>'+CSS+SC.CSS+'</style>'+head(1)+'<div class="hero"><h1>A股 · 分子 · 景气顺势</h1><p class="sum">大盘 → 板块 → 个股，顺着大盘和板块选。只提候选，不做买卖决定。</p><p class="hero-meta">价格截至'+asof(root)+'，每周更新</p></div>'
     out+='<nav class="lp-jump"><a href="#weekly">本周变化</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#price-rules">价格规则</a></nav>'
-    out+='<details class="fd-archive"><summary>展开原景气顺势候选与持仓风险记录</summary>'+weekly_cards(root)+board_l1(L1,sec)+logic1_cards(root,S,sec,L1)+rules_html()+'</details>'
+    out+=weekly_cards(root)+board_l1(L1,sec)+logic1_cards(root,S,sec,L1)+rules_html()
     return out+'<p class="note">'+E(P['source'])+' 位置与筹码数据：'+E(json.loads((root/'data/raw/stock_pick/l1_enrich.json').read_text())['_meta']['source'])+'。</p>'
 
 def box_page(ctx):

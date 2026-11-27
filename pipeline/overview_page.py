@@ -119,9 +119,11 @@ CSS = """
 """
 
 
-def regime(d,market,prefix,refs):
+def regime(d,market,prefix,refs,root):
+    import market_path
     g=d['macro_regime'];x=g['markets'][market]
-    out='<style>'+REGIME_CSS+'</style><section id="regime" class="regime"><div class="regime-head"><span class="view-label">未来半年判断 · 复核 '+E(g['reviewed_at'])+' · 窗口 '+E(g['window'])+'</span><h3>'+E(x['verdict'])+'</h3><p>'+E(x['summary'])+'</p><p class="regime-why"><b>为什么重写：</b>'+E(x['why_new'])+'</p></div>'
+    out='<style>'+REGIME_CSS+market_path.CSS+'</style><section id="regime" class="regime"><div class="regime-head"><span class="view-label">未来半年判断 · 复核 '+E(g['reviewed_at'])+' · 窗口 '+E(g['window'])+'</span><h3>'+E(x['verdict'])+'</h3><p>'+E(x['summary'])+'</p><p class="regime-why"><b>推导主线：</b>'+E(x['why_new'])+'</p></div>'
+    out+=market_path.policy(x)
     out+='<p class="regime-frame"><b>分析框架</b>'+E(g['framework'])+' <a href="'+prefix+'framework.html">框架说明：如何用在大盘、板块和个股 →</a></p><div class="regime-parts">'
     for p_ in x['parts']:
         out+='<article class="part-'+p_['key']+'"><span class="part-name">'+E(p_['name'])+'</span><h4>'+E(p_['state'])+'</h4><p>'+E(p_['text'])+'</p><p class="part-imp"><b>推出：</b>'+E(p_['implication'])+'</p>'+refs(p_['refs'])+'</article>'
@@ -131,9 +133,8 @@ def regime(d,market,prefix,refs):
     board=prefix+('boards/index.html' if market=='a' else 'boards/hk.html')
     if x.get('assumptions'):
         out+='</div><section id="regime-assumptions"><details class="sub"><summary>关键假设与薄弱环节</summary><div class="tblwrap"><table class="mt regime-table"><thead><tr><th>问题</th><th>证据现状</th><th>如果错了</th></tr></thead><tbody>'+''.join('<tr><th scope="row">'+E(a)+'</th><td>'+E(b)+'</td><td>'+E(c)+'</td></tr>' for a,b,c in x['assumptions'])+'</tbody></table></div></details></section><div>'
-    out+='</div><section id="regime-sectors"><h3 class="h3s">从大盘到板块：每个驱动指向哪里</h3><div class="tblwrap"><table class="mt regime-table"><thead><tr><th>宏观驱动</th><th>半年方向</th><th>顺风</th><th>逆风或等待</th><th>站内板块分档</th></tr></thead><tbody>'
-    for r in x['sectors']:out+='<tr>'+''.join('<td>'+E(c)+'</td>' for c in r)+'</tr>'
-    out+='</tbody></table></div><p class="regime-next"><a href="'+board+'">进入'+('A股' if market=='a' else '港股')+'板块，查看分档与证据 →</a>'+('　<a href="'+board.replace('boards/hk.html','stocks/hk.html')+'">港股个股：顺势选股 →</a>' if market!='a' else '')+'</p></section>'
+    out+='</div>'+market_path.mapping(root,market,prefix)
+    out+='<section class="mp-execution" id="market-execution"><h3>执行纪律：单独约束新增节奏</h3><p>'+E(x['execution_verdict'])+'</p><p>上面的板块档位来自经营与定价分析；这里的恢复计数是既有风控纪律，不充当未来半年盈利的预测。</p></section>'
     out+='<section id="regime-checks"><details class="sub"><summary>可证伪清单：到期对账</summary><p class="note">每条都有现值、判定日期、证实线与证伪线；到期后在此标注对或错。</p><div class="tblwrap"><table class="mt regime-table regime-checks"><thead><tr><th>编号</th><th>命题</th><th>现值</th><th>判定日期</th><th>证实</th><th>证伪及后果</th><th>状态</th></tr></thead><tbody>'
     for c in x['checks']:out+='<tr>'+''.join('<td>'+E(v)+'</td>' for v in c)+'<td>待到期</td></tr>'
     out+='</tbody></table></div></details></section><p class="note">'+E(g['limits'])+' <a href="'+prefix+g['research']+'">完整研究稿</a> · <a href="'+prefix+g['evidence']+'">计算底稿</a></p></section>'
@@ -153,8 +154,8 @@ def sse_block(root):
 
 def render(ctx,market):
     d,m,prefix,refs=load_context(ctx,market)
-    if market=='a':return regime(d,market,prefix,refs)+sse_block(ctx['ROOT'])
-    return regime(d,market,prefix,refs)
+    if market=='a':return regime(d,market,prefix,refs,ctx['ROOT'])+sse_block(ctx['ROOT'])
+    return regime(d,market,prefix,refs,ctx['ROOT'])
 
 def render_tracking(ctx,market):
     import tracking

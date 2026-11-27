@@ -2,7 +2,7 @@
   "version": "focus-v1-2026-11-27",
   "as_of": "2026-11-27",
   "policy_date": "2026-11-27",
-  "scope": "三个重点研究方向；其他板块暂停主动扩展，原资料与持仓风险入口保留。",
+  "scope": "三方向预选已撤销。保留位置研究资料，当前结论以两地大盘推导及板块分档为准。",
   "items": [
     {
       "id": "focus-ai",
@@ -172,5 +172,6 @@
         "url": "https://www.sse.com.cn/lawandrules/sselawsrules2025/trade/specific/margin/c/c_20261122_10838633.shtml"
       }
     ]
-  }
+  },
+  "status": "withdrawn_preselection"
 }

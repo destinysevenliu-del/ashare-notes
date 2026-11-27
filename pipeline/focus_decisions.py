@@ -59,6 +59,8 @@ def positions_short(x):
     return '<div class="fd-mini">'+'</div><div class="fd-mini">'.join(out)+'</div>'
 
 def home(root,prefix='',market=None):
+    if read(root,'data/focus_decisions.json').get('status')=='withdrawn_preselection':
+        raise ValueError('三方向预选已撤销：先渲染本市场大盘推导，再进入行业验证。')
     d=prepare(root)
     out='<style>'+CSS+'</style><section id="focus" class="fd"><div class="fd-head"><div><span>当前决策 · '+E(d['as_of'])+' 收盘 · A股 / 港股</span><h2>只跟踪三个方向</h2></div><a href="'+prefix+'boards/index.html">重点板块与存档 →</a></div><p class="fd-intro">先看最终行动，再看位置、触发条件和失效条件。研究优先级不等于现在可以买；其他板块暂停主动扩展。</p>'
     out+='<div class="fd-context"><p><b>A股约束</b>'+E(d['markets']['a']['reason'])+'</p><p><b>港股约束</b>'+E(d['markets']['hk']['reason'])+'</p></div>'
@@ -76,7 +78,7 @@ def chart(p):
     return '<svg viewBox="0 0 640 140" class="fd-chart" role="img" aria-label="'+E(p['name'])+'收盘走势"><line x1="10" x2="630" y1="120" y2="120" stroke="#d5dce4"/><polyline points="'+pts+'" fill="none" stroke="#355a78" stroke-width="2.5"/></svg>'
 
 def detail(d,x):
-    out='<style>'+CSS+'</style><nav class="crumb"><a href="index.html#focus">三个重点方向</a> / '+E(x['title'])+'</nav><section class="fd"><div class="fd-head"><div><span>'+E(d['as_of'])+' · '+E(d['version'])+'</span><h1>'+E(x['title'])+'</h1></div>'+badge(x['decision']['status'])+'</div><p class="fd-lead">'+E(x['verdict'])+'</p><div class="fd-context"><p><b>行动原因</b>'+E(x['decision']['reason'])+'</p><p><b>下次复核</b>'+E(x['next'])+'</p></div>'
+    out='<style>'+CSS+'</style><nav class="crumb"><a href="index.html">板块研究</a> / '+E(x['title'])+'</nav><section class="fd"><div class="fd-head"><div><span>'+E(d['as_of'])+' · '+E(d['version'])+'</span><h1>'+E(x['title'])+'</h1></div>'+badge(x['decision']['status'])+'</div><p class="fd-lead">'+E(x['verdict'])+'</p><div class="fd-context"><p><b>行动原因</b>'+E(x['decision']['reason'])+'</p><p><b>下次复核</b>'+E(x['next'])+'</p></div>'
     out+='<h2>位置与潜在压力</h2><p>'+E(x['benchmark'])+'</p><div class="fd-positions">'
     for p in x['positions']:
         r=p['range_52'];u=p['upper']
@@ -93,11 +95,13 @@ def detail(d,x):
     return out
 
 def archive_note(root,prefix=''):
-    return '<div class="fd-archive-note"><b>当前研究范围已收敛。</b>本页保留原策略、候选与风险记录；主研究入口为 <a href="'+prefix+'boards/index.html#focus">AI硬件、券商、港股电信</a>。非重点方向不新增研究，已有持仓仍需按原规则跟踪风险。</div>'
+    return '<div class="fd-archive-note">研究顺序：<a href="'+prefix+'index.html#horizon">A股大盘</a>／<a href="'+prefix+'hk/index.html#horizon">港股大盘</a> → 各自板块 → 个股核验。个股名单不是上游板块结论的依据；当前仍执行既有风控与核验条件。</div>'
 
 def build(ctx):
     root=Path(ctx['ROOT']);d=prepare(root)
-    for x in d['items']:(root/'docs/boards'/f'{x["id"]}.html').write_text(ctx['page'](x['title']+' | 重点决策','bk',detail(d,x),'../'))
+    retired='<section class="mp-withdrawn"><h1>三方向预选已撤销</h1><p>本页仅保留上一版位置观察资料，不再代表当前研究优先级。当前结论按各市场大盘分析与行业验证得出。</p><p><a href="../index.html#horizon">A股大盘</a> · <a href="../hk/index.html#horizon">港股大盘</a> · <a href="index.html">A股板块</a> · <a href="hk.html">港股板块</a></p></section>'
+    import market_path
+    for x in d['items']:(root/'docs/boards'/f'{x["id"]}.html').write_text(ctx['page'](x['title']+' | 撤销预选 · 观察资料','bk','<style>'+market_path.CSS+'</style>'+retired+'<details><summary>展开上一版位置观察资料</summary>'+detail(d,x)+'</details>','../'))
     (root/'docs/data/focus-decisions.json').write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')
 
 CSS='''

@@ -349,12 +349,12 @@ def build(ctx):
     if fundscore is None:warnings.append('港元资金成本：有效历史不足、数据过期或接口缺失，暂停计分。')
     if net5 is None or net20 is None:warnings.append('南向合计：部分观察窗口缺日或遇到非互联互通交易日，不补零、不输出完整窗口合计。')
     conditions=[('港元成本明显变动', '已触发' if delta is not None and abs(delta)>=25 else '未触发' if delta is not None else '待数据','1 个月 HIBOR 较 20 个观测前变动至少 25bp。'),('南向短期转为净卖出','已触发' if net5 is not None and net5<0 else '未触发' if net5 is not None else '待数据','最近 5 个港股交易日合计净买入为负。'),('恒生跌破 60 日均线','已触发' if indices['hsi'][-1]['close']<sum(r['close'] for r in indices['hsi'][-60:])/60 else '未触发','只作趋势观察，不作为买卖指令。'),('盈利兑现与估值匹配','持续跟踪','比较权重样本的利润、现金流与预期差，结合三指数月末估值及融资环境复核。')]
-    stamp=f'三个指数统一截至 {asof} 收盘；页面生成于 {now.strftime("%Y-%m-%d %H:%M")}（香港 / 北京时间）。当日 17:00 前剔除当日 K 线；各数据源日期见下表。'
+    stamp=f'三指数共同序列截至 {asof} 收盘；正文采用的单项最新行情、估值、资金各列实际日期。页面生成于 {now.strftime("%Y-%m-%d %H:%M")}（香港 / 北京时间）。当日 17:00 前剔除当日 K 线；各数据源日期见下表。'
     verdict_txt=('内地需求与成本变化使盈利分化，美债收益率回落提供折现率支持，但波动率与信用利差抬升。'
                  '科技权重股的收入增长尚需现金回报验证。资金层同时出现整体成交降温、盈富份额轻微净发行和代表股淡仓变化分化，'
                  '后续要看盈利、融资与价格是否相互印证。')
     _rv=json.loads((root/'data/market_thesis.json').read_text())['macro_regime']['reviewed_at'];_ry,_rm,_rd=_rv.split('-')
-    body=f'<div class="hero"><p class="date">结论复核 {_ry}年{int(_rm)}月{int(_rd)}日 · 行情截至 {asof}</p><h1>港股总览</h1><p class="sum">先看三个重点方向的行动、位置与触发条件；港股电信单独核验现金分配。结论复核：{_rv}；数据保留各自原日期。</p><p class="stamp">{stamp}</p></div>'
+    body=f'<div class="hero"><p class="date">结论复核 {_ry}年{int(_rm)}月{int(_rd)}日 · 三指数共同序列截至 {asof}</p><h1>港股总览</h1><p class="sum">独立分析中国经营、美元与港元定价、南向及股票供给，再筛选港股行业。结论复核：{_rv}；数据保留各自原日期。</p><p class="stamp">{stamp}</p></div>'
     daily_notes = '<p class="stamp">日度资料留档复核截至 '+E(research.get('reviewed_at', ''))+'。月末估值、季度业绩和日行情按各自日期展示，定性判断随新证据复核。</p>'
     if warnings:daily_notes+='<div class="hk-notice">'+''.join('<p>'+E(w)+'</p>' for w in warnings)+'</div>'
     d1={k:change(rows,1) for k,rows in indices.items()}
@@ -369,10 +369,10 @@ def build(ctx):
     pts.append('<li>定性判断来自研究资料，具体事实、相反证据与验证条件见 A–G / X 各节。</li>')
     import newslog
     import focus_decisions
-    body += focus_decisions.home(root,'../','hk')
+    body += '<nav class="mp-order">① 港股大盘分析 → ② 港股风向与行业验收 → ③ 港股板块结论</nav>'
     body += '<details class="fd-archive"><summary>本周新闻与政策记录</summary>'+newslog.home_card(root, '../')+'</details>'
     body += '<nav class="l1nav"><a href="#horizon">未来半年判断</a><a href="#tracking">跟踪与更新</a><a href="../framework.html">研究框架</a></nav>'
-    body += '<details class="l1" id="horizon"><summary><h2>展开宏观研究与半年判断</h2><span class="l1hint">证据 · 传导 · 证伪</span></summary>'+framework_review.render(ctx,'hk')+'</details>'
+    body += '<details class="l1" id="horizon" open><summary><h2>港股大盘分析与半年判断</h2><span class="l1hint">证据 · 传导 · 证伪</span></summary>'+framework_review.render(ctx,'hk')+'</details>'
     body += '<details class="l1" id="tracking"><summary><h2>跟踪与更新</h2><span class="l1hint">定期数据 · 排期事件 · 突发事件 · 改判规则</span></summary>'+overview_page.render_tracking(ctx,'hk')+'</details>'
     body += '''<script>function openTo(id){var el=document.getElementById(id);for(;el;el=el.parentElement)if(el.tagName==="DETAILS")el.open=true;}document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(a)openTo(a.getAttribute("href").slice(1));});if(location.hash)openTo(location.hash.slice(1));</script>'''
     (out/'index.html').write_text(page('港股大盘 | A 股框架笔记','hk',body,'../'),encoding='utf-8')
