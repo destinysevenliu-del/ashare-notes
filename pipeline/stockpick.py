@@ -86,12 +86,21 @@ def value_step(t,v,c):
     if v and v['pb']>v['pb95']:return '否决','PB %.2f高于自身%s95%%分位%.2f（站内初始研究规则，未回测）'%(v['pb'],window,v['pb95'])
     if t=='crowded':
         return ('通过','股息率达到10年国债+2.5个百分点') if c=='买入' else (('否决','股息率低于10年国债+2.0个百分点') if c=='卖出' else ('未到','股息率还没到买入线'))
-    if not v:return '待核','未做估值核验'
-    pn='按五年平均利润约%.0f倍'%v['pe_norm'] if v.get('pe_norm') else '近五年平均利润为负，正常化PE不可用'
-    return '待核','PB %.2f（%s分位%d%%）未触发否决；PE(TTM) %s倍，%s，正常化估值待验证'%(v['pb'],window,v['pbpct5'],'—' if v['pe_ttm'] is None else format(v['pe_ttm'],'.1f'),pn)
+    metric='PB' if t=='upstream' else '正常化PE'
+    pending='补齐'+metric+'的分母口径、合理区间、来源、复核人及有效期；完成后按现价重算。下次价格更新时复核；缺口不自动视为通过。'
+    if not v:return '待核',pending
+    r=v.get('valuation_review') or {};date=v.get('val_date','');px=v.get('current_price')
+    fields=['denominator','buy_max','avoid_above','as_of','valid_until','source','basis','reviewer']
+    complete=r.get('status')=='approved' and r.get('metric')==metric and all(r.get(k) for k in fields)
+    numeric=lambda z:isinstance(z,(int,float)) and not isinstance(z,bool) and __import__('math').isfinite(z) and z>0
+    if complete and all(numeric(r[k]) for k in ['denominator','buy_max','avoid_above']) and numeric(px) and r['avoid_above']>=r['buy_max'] and r['as_of']<=date<=r['valid_until']:
+        value=px/r['denominator'];msg=metric+' %.2f；复核区间≤%.2f，否决>%.2f；有效至%s；%s'%(value,r['buy_max'],r['avoid_above'],r['valid_until'],r['basis'])
+        return ('否决' if value>r['avoid_above'] else '通过' if value<=r['buy_max'] else '未到'),msg
+    return '待核',pending+' 当前PB %.2f（%s分位%d%%）仅用于辅助否决，不代替主估值。'%(v['pb'],window,v['pbpct5'])
 
 def chain(sid,s,t,x,V):
     pl=x.get('pl');c=SC.status(pl)[0];v=V.get(x['code'])
+    if v:v={**v,'current_price':pl['close'] if pl else None}
     st=[]
     a,at=sub_state(s,v);st.append(('板块',a,at))
     st.append(('初筛','通过','进入候选（门槛与排序见本板块）'))
@@ -108,6 +117,7 @@ def chain(sid,s,t,x,V):
     elif D['估值']=='否决':view='不买：估值否决'
     elif D['核验']=='未通过':view='不买：核验未通过'
     elif DEFENSE.get('on') and s.get('market','a')=='a':view='不买：大盘转防守，暂停新增'
+    elif pl and pl.get('opportunity_valid') is False:view='不买：独立参考上行空间不足'
     elif c=='买入':view='可执行' if all(D[k]=='通过' for k in ('板块','核验','估值')) else '价格到位·待核'
     elif c=='高于':view='等回落'+('（业务待核）' if D['板块']=='待核' else '')
     elif c=='未确认':view='观察：上升趋势未确认'
@@ -422,14 +432,14 @@ def head(active):
     out='<nav class="lp-mkt" aria-label="市场">'+''.join('<a href="'+v['href']+'"'+(' aria-current="page"' if k==m else '')+'><b>'+v['name']+'</b><span>'+str(len(v['sub']))+'条选股逻辑：'+'、'.join(x[2].split(' · ')[-1] for x in v['sub'])+'</span></a>' for k,v in MARKETS.items())+'</nav>'
     out+='<p class="lp-map"><a href="logic-map.html">选股逻辑地图：12条逻辑的定义、上涨动力与本站覆盖 →</a></p>' if active else ''
     out+='<nav class="lp-tabs" aria-label="'+MARKETS[m]['name']+'选股逻辑">'+''.join('<a href="'+h+'"'+(' aria-current="page"' if n==active else '')+'><b>'+E(t)+'</b><span>'+E(d)+'</span></a>' for n,h,t,d in MARKETS[m]['sub'])+'</nav>'
-    return out
+    return '<details class="fd-archive"><summary>原策略导航与候选记录</summary>'+out+'</details>'
 
 def page(ctx):
     root=Path(ctx['ROOT']);S=json.loads((root/'data/sector_selection.json').read_text());P=json.loads((root/'data/stock_pick.json').read_text())
     sec={s['id']:s for s in S['sectors']};L1=logic1_data(root,S)
     out='<style>'+CSS+SC.CSS+'</style>'+head(1)+'<div class="hero"><h1>A股 · 分子 · 景气顺势</h1><p class="sum">大盘 → 板块 → 个股，顺着大盘和板块选。只提候选，不做买卖决定。</p><p class="hero-meta">价格截至'+asof(root)+'，每周更新</p></div>'
     out+='<nav class="lp-jump"><a href="#weekly">本周变化</a><a href="#overview">行动看板</a><a href="#logic1">按板块展开</a><a href="#price-rules">价格规则</a></nav>'
-    out+=weekly_cards(root)+board_l1(L1,sec)+logic1_cards(root,S,sec,L1)+rules_html()
+    out+='<details class="fd-archive"><summary>展开原景气顺势候选与持仓风险记录</summary>'+weekly_cards(root)+board_l1(L1,sec)+logic1_cards(root,S,sec,L1)+rules_html()+'</details>'
     return out+'<p class="note">'+E(P['source'])+' 位置与筹码数据：'+E(json.loads((root/'data/raw/stock_pick/l1_enrich.json').read_text())['_meta']['source'])+'。</p>'
 
 def box_page(ctx):

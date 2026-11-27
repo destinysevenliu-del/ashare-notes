@@ -9,6 +9,7 @@ import analyze as A  # noqa: E402
 import market_layout
 import overview_page
 import newslog
+import focus_decisions
 _RV = json.load(open(os.path.join(ROOT, "data", "market_thesis.json"), encoding="utf-8"))["macro_regime"]["reviewed_at"].split("-")
 
 RAW = os.path.join(ROOT, "data", "raw")
@@ -654,6 +655,7 @@ def page(title, active, body, prefix=""):
     sources = ('行情来自东方财富，估值来自恒生指数公司，利率与宏观数据来自金管局、FRED及统计机关，市场及参与者资料来自港交所、证监会和基金／公司官网。规则 HK v3，日期、口径与原始链接见各节。'
                if active == 'hk' else f"数据来自东方财富、中证指数公司的公开数据，外部环境和政策为人工整理。判定规则版本 {R['rules_version']}，每节的“怎么判的”里有完整规则。")
     if active == "gg":
+        body = "<style>"+focus_decisions.CSS+"</style>"+focus_decisions.archive_note(ROOT,prefix)+body
         sources = "个股研究仅使用赛道归属、兑现质量、价格反映三个决策维度；D/G归组合层。资料与规则日期分别标注，旧候选身份不代表已入池，研究短名单不是交易指令。"
     if active == "bk":
         sources = "当前板块研究仅使用宏观、行业与市场资料，统计范围和日期见各节点。个股材料在独立股票研究页面。旧宽行业页面仅为历史统计资料。"
@@ -684,12 +686,13 @@ def index():
     chips = "".join(f'<a href="#node-{k}" class="chip {N[k]["state"]}"><b>{k}</b>{E(NODE_NAME[k])}<span>{E(node_sub(k))}</span></a>' for k in "ABCDEFGH")
     body = f"""
 <div class="hero"><p class="date">结论复核 {_RV[0]}年{int(_RV[1])}月{int(_RV[2])}日 · 行情截至{cn_date(TODAY, True)}</p><h1>A股总览</h1>
-<p class="sum">先看分子（企业盈利）、分母（要求回报）与水龙头（资金与托底），再进入板块和公司。</p><p class="stamp">{E(stamp)}</p></div>
+<p class="sum">先看三个重点方向的行动、位置与触发条件；完整宏观研究在下方展开。</p><p class="stamp">{E(stamp)}</p></div>
 
-{newslog.home_card(ROOT)}
+{focus_decisions.home(ROOT)}
+<details class="fd-archive"><summary>本周新闻与政策记录</summary>{newslog.home_card(ROOT)}</details>
 <nav class="l1nav"><a href="#horizon">未来半年判断</a><a href="#tracking">跟踪与更新</a><a href="framework.html">研究框架</a></nav>
 
-<details class="l1" id="horizon" open><summary><h2>未来半年判断</h2><span class="l1hint">结论 · 三件事 · 板块 · 证伪</span></summary>
+<details class="l1" id="horizon"><summary><h2>展开宏观研究与半年判断</h2><span class="l1hint">证据 · 传导 · 证伪</span></summary>
 {outlook_section()}</details>
 
 <details class="l1" id="tracking"><summary><h2>跟踪与更新</h2><span class="l1hint">定期数据 · 排期事件 · 突发事件 · 改判规则</span></summary>
@@ -751,6 +754,7 @@ reportspage.build(globals())
 import sectorsel
 sectorsel.build(globals())
 newslog.build(globals())
+focus_decisions.build(globals())
 
 snap = {"date": TODAY, "total": R["total"], "scores": {r["key"]: r["score"] for r in R["score_rows"]},
         "nodes": {k: v["state"] for k, v in N.items()}, "conds": {c["id"]: c["hit"] for c in R["conds"]},

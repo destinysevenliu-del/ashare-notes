@@ -30,7 +30,7 @@ ASOF = arg("--asof") or BJ.date().isoformat()
 EN_P = ROOT / "data/raw/stock_pick/l1_enrich.json"; VX_P = ROOT / "data/raw/stock_pick/val_extra.json"
 SP_P = ROOT / "data/stock_pick.json"; ST_P = ROOT / "data/raw/weekly/state.json"
 SNAP = ROOT / "data/snapshots/prices"; CH_P = ROOT / "data/weekly_changes.json"
-RULES_VERSION = "2026-11-19 箱体加股东户数条件"  # 规则版本变化时，本周变化不比较结论（避免把改规则当成市场变化）
+RULES_VERSION = "price-reference-v2-2026-11-27"
 PRICE_FIELDS = ["close", "pxdate", "pos52", "dd", "ret60", "vsMA60", "marginPct", "margin20", "holdersChg", "hdate", "focus", "top10free", "lift6m"]
 
 def codes():
@@ -109,7 +109,7 @@ def step_snapshot(asof):
     for sid, r in L1.items():
         for i, x in enumerate(r["picks"]):
             p = x.get("pl"); v, _ = stockpick.view_of(sec[sid]["rating"], sid, x, i)
-            out["logic1"][x["code"]] = {"name": x["name"], "sector": sec[sid]["title"], "rating": sec[sid]["rating"], "type": r["type"], "view": v, "cat": cat(p), **({k: p.get(k) for k in ("close", "buy", "sell", "sell2", "stop", "rr", "where")} if p else {})}
+            out["logic1"][x["code"]] = {"name": x["name"], "sector": sec[sid]["title"], "rating": sec[sid]["rating"], "type": r["type"], "view": v, "cat": cat(p), **({k: p.get(k) for k in ("close", "buy", "sell", "sell2", "stop", "rr", "where", "opportunity_valid", "target_basis", "rule_version")} if p else {})}
     import logic2_box; F2 = stockpick.l2_fund(ROOT)
     for x in L2["top"]:
         b = logic1_rules.box_levels(x); J = logic2_box.judge(x, F2.get(x["code"]), x.get("en"), sw["on"])
@@ -162,6 +162,6 @@ if __name__ == "__main__":
     for x in ch["items"]: print("变化：[%s] %s %s：%s → %s（现价 %s）" % (x["logic"], x["name"], x["code"], x["from"], x["to"], x["close"]))
     if "--no-build" not in ARGS:
         run("build.py")
-        for t in ("test_stock_pick.py", "test_chain.py", "test_weekly.py", "test_sector_selection.py", "test_macro_regime.py", "test_hk.py", "test_newslog.py", "test_hk_pick.py", "test_new_logics.py"):
+        for t in ("test_stock_pick.py", "test_chain.py", "test_weekly.py", "test_sector_selection.py", "test_macro_regime.py", "test_hk.py", "test_newslog.py", "test_hk_pick.py", "test_new_logics.py", "test_focus_decisions.py"):
             print(t, run(t))
     print("完成。发布：python3 -I pipeline/publish_api.py <根目录> \"每周价格更新 %s\"" % asof)

@@ -1,6 +1,6 @@
 {
  "asof": "2026-11-27",
- "rules": "2026-11-19 箱体加股东户数条件",
+ "rules": "price-reference-v2-2026-11-27",
  "cn10y": {
   "value": 1.59,
   "date": "2026-11-26"
@@ -27,7 +27,10 @@
    "sell2": null,
    "stop": null,
    "rr": null,
-   "where": "等待：高于买入价3%"
+   "where": "等待：高于买入价3%",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "002142": {
    "name": "宁波银行",
@@ -45,7 +48,10 @@
    "sell2": null,
    "stop": null,
    "rr": null,
-   "where": "已在卖出区（股息率不足）"
+   "where": "已在卖出区（股息率不足）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "601169": {
    "name": "北京银行",
@@ -63,7 +69,10 @@
    "sell2": null,
    "stop": null,
    "rr": null,
-   "where": "在买入区（股息率达标）"
+   "where": "在买入区（股息率达标）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "601009": {
    "name": "南京银行",
@@ -81,7 +90,10 @@
    "sell2": null,
    "stop": null,
    "rr": null,
-   "where": "等待：高于买入价1%"
+   "where": "等待：高于买入价1%",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "601398": {
    "name": "工商银行",
@@ -99,7 +111,10 @@
    "sell2": null,
    "stop": null,
    "rr": null,
-   "where": "已在卖出区（股息率不足）"
+   "where": "已在卖出区（股息率不足）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "601101": {
    "name": "昊华能源",
@@ -117,7 +132,10 @@
    "sell2": null,
    "stop": 6.6,
    "rr": 1.7,
-   "where": "高于买入区5%"
+   "where": "高于买入区5%",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600985": {
    "name": "淮北矿业",
@@ -135,7 +153,10 @@
    "sell2": null,
    "stop": 10.38,
    "rr": 1.6,
-   "where": "高于买入区1%"
+   "where": "高于买入区1%",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600256": {
    "name": "广汇能源",
@@ -153,7 +174,10 @@
    "sell2": null,
    "stop": 4.4,
    "rr": 1.6,
-   "where": "高于买入区12%"
+   "where": "高于买入区12%",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600188": {
    "name": "兖矿能源",
@@ -171,7 +195,10 @@
    "sell2": null,
    "stop": 12.09,
    "rr": 1.7,
-   "where": "在买入区"
+   "where": "在买入区",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600028": {
    "name": "中国石化",
@@ -189,7 +216,10 @@
    "sell2": null,
    "stop": 4.14,
    "rr": 1.7,
-   "where": "高于买入区4%"
+   "where": "高于买入区4%",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "601857": {
    "name": "中国石油",
@@ -207,7 +237,10 @@
    "sell2": null,
    "stop": 7.99,
    "rr": 1.6,
-   "where": "高于买入区17%"
+   "where": "高于买入区17%",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "601872": {
    "name": "招商轮船",
@@ -225,7 +258,10 @@
    "sell2": null,
    "stop": 7.48,
    "rr": 1.8,
-   "where": "高于买入区14%"
+   "where": "高于买入区14%",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600026": {
    "name": "中远海能",
@@ -243,7 +279,10 @@
    "sell2": null,
    "stop": 10.33,
    "rr": 1.8,
-   "where": "高于买入区2%"
+   "where": "高于买入区2%",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "603893": {
    "name": "瑞芯微",
@@ -251,17 +290,20 @@
    "rating": "等开关",
    "type": "growth",
    "view": "等开关：不买",
-   "cat": "高于买入区",
+   "cat": "到达卖出价",
    "close": 211.72,
    "buy": [
     198.24,
     208.15
    ],
-   "sell": 251.96,
-   "sell2": 251.96,
+   "sell": 190.25,
+   "sell2": 223.23,
    "stop": 178.81,
-   "rr": 2.0,
-   "where": "价格已确认，高于买入区2%"
+   "rr": -0.5,
+   "where": "价格已确认，高于买入区2%",
+   "opportunity_valid": false,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "688008": {
    "name": "澜起科技",
@@ -275,11 +317,14 @@
     175.15,
     183.91
    ],
-   "sell": 222.62,
+   "sell": 213.44,
    "sell2": 299.07,
    "stop": 157.99,
-   "rr": 2.0,
-   "where": "未确认：需先站上60日均线（约175.15）"
+   "rr": 1.6,
+   "where": "未确认：需先站上60日均线（约175.15）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "688536": {
    "name": "思瑞浦",
@@ -293,11 +338,14 @@
     279.0,
     292.95
    ],
-   "sell": 354.61,
-   "sell2": 354.61,
+   "sell": 252.76,
+   "sell2": 346.07,
    "stop": 251.66,
-   "rr": 2.0,
-   "where": "未确认：需先站上60日均线（约279.00）"
+   "rr": -1.0,
+   "where": "未确认：需先站上60日均线（约279.00）",
+   "opportunity_valid": false,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "300661": {
    "name": "圣邦股份",
@@ -311,11 +359,14 @@
     94.91,
     99.65
    ],
-   "sell": 120.63,
+   "sell": 102.99,
    "sell2": 136.19,
    "stop": 85.61,
-   "rr": 2.0,
-   "where": "未确认：需先站上60日均线（约94.91）"
+   "rr": 0.5,
+   "where": "未确认：需先站上60日均线（约94.91）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "300604": {
    "name": "长川科技",
@@ -329,11 +380,14 @@
     219.74,
     230.72
    ],
-   "sell": 279.29,
+   "sell": 224.48,
    "sell2": 354.91,
    "stop": 198.2,
-   "rr": 2.0,
-   "where": "未确认：需先站上60日均线（约219.74）"
+   "rr": -0.0,
+   "where": "未确认：需先站上60日均线（约219.74）",
+   "opportunity_valid": false,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "001232": {
    "name": "嘉立创",
@@ -341,17 +395,20 @@
    "rating": "等开关",
    "type": "growth",
    "view": "等开关：不买",
-   "cat": "在买入区",
+   "cat": "到达卖出价",
    "close": 175.01,
    "buy": [
     171.08,
     179.63
    ],
-   "sell": 217.44,
-   "sell2": 217.44,
+   "sell": 175.01,
+   "sell2": 197.22,
    "stop": 154.31,
-   "rr": 2.0,
-   "where": "价格已确认，在买入区"
+   "rr": -0.0,
+   "where": "价格已确认，在买入区",
+   "opportunity_valid": false,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "300408": {
    "name": "三环集团",
@@ -365,11 +422,14 @@
     96.29,
     101.11
    ],
-   "sell": 122.39,
+   "sell": 106.24,
    "sell2": 162.09,
    "stop": 86.86,
-   "rr": 2.0,
-   "where": "未确认：需先站上60日均线（约96.29）"
+   "rr": 0.6,
+   "where": "未确认：需先站上60日均线（约96.29）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "601869": {
    "name": "长飞光纤",
@@ -383,11 +443,14 @@
     336.53,
     353.36
    ],
-   "sell": 427.74,
+   "sell": 329.98,
    "sell2": 547.83,
    "stop": 303.55,
-   "rr": 2.0,
-   "where": "未确认：需先站上60日均线（约336.53）"
+   "rr": -0.4,
+   "where": "未确认：需先站上60日均线（约336.53）",
+   "opportunity_valid": false,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600183": {
    "name": "生益科技",
@@ -401,11 +464,14 @@
     109.57,
     115.04
    ],
-   "sell": 139.26,
+   "sell": 119.6,
    "sell2": 178.07,
    "stop": 98.83,
-   "rr": 2.0,
-   "where": "未确认：需先站上60日均线（约109.57）"
+   "rr": 0.5,
+   "where": "未确认：需先站上60日均线（约109.57）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600601": {
    "name": "方正科技",
@@ -419,11 +485,14 @@
     11.31,
     11.87
    ],
-   "sell": 14.37,
+   "sell": 11.55,
    "sell2": 14.6,
    "stop": 10.2,
-   "rr": 2.0,
-   "where": "未确认：需先站上60日均线（约11.31）"
+   "rr": -0.0,
+   "where": "未确认：需先站上60日均线（约11.31）",
+   "opportunity_valid": false,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "688235": {
    "name": "百济神州",
@@ -431,17 +500,20 @@
    "rating": "等开关",
    "type": "growth",
    "view": "等开关：不买",
-   "cat": "高于买入区",
+   "cat": "到达卖出价",
    "close": 291.21,
    "buy": [
     264.02,
     277.22
    ],
-   "sell": 335.56,
-   "sell2": 335.56,
+   "sell": 260.48,
+   "sell2": 297.79,
    "stop": 238.14,
-   "rr": 2.0,
-   "where": "价格已确认，高于买入区5%"
+   "rr": -0.3,
+   "where": "价格已确认，高于买入区5%",
+   "opportunity_valid": false,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "002653": {
    "name": "海思科",
@@ -455,11 +527,14 @@
     60.06,
     63.06
    ],
-   "sell": 76.34,
-   "sell2": 76.34,
+   "sell": 60.32,
+   "sell2": 74.6,
    "stop": 54.18,
-   "rr": 2.0,
-   "where": "未确认：需先站上60日均线（约60.06）"
+   "rr": -0.2,
+   "where": "未确认：需先站上60日均线（约60.06）",
+   "opportunity_valid": false,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600276": {
    "name": "恒瑞医药",
@@ -473,11 +548,14 @@
     46.63,
     48.96
    ],
-   "sell": 59.27,
+   "sell": 53.41,
    "sell2": 61.01,
    "stop": 42.06,
-   "rr": 2.0,
-   "where": "价格已确认，在买入区"
+   "rr": 1.0,
+   "where": "价格已确认，在买入区",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "002422": {
    "name": "科伦药业",
@@ -485,17 +563,20 @@
    "rating": "等开关",
    "type": "growth",
    "view": "等开关：不买",
-   "cat": "高于买入区",
+   "cat": "到达卖出价",
    "close": 45.05,
    "buy": [
     41.41,
     43.48
    ],
-   "sell": 52.63,
-   "sell2": 52.63,
+   "sell": 39.82,
+   "sell2": 48.63,
    "stop": 37.35,
-   "rr": 2.0,
-   "where": "价格已确认，高于买入区4%"
+   "rr": -0.5,
+   "where": "价格已确认，高于买入区4%",
+   "opportunity_valid": false,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "688676": {
    "name": "金盘科技",
@@ -513,7 +594,10 @@
    "sell2": null,
    "stop": 42.69,
    "rr": 1.9,
-   "where": "低于买入区8%（接近一年低点，靠近止损）"
+   "where": "低于买入区8%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "300001": {
    "name": "特锐德",
@@ -531,7 +615,10 @@
    "sell2": null,
    "stop": 23.84,
    "rr": 1.7,
-   "where": "在买入区"
+   "where": "在买入区",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "688248": {
    "name": "南网科技",
@@ -549,7 +636,10 @@
    "sell2": null,
    "stop": 32.37,
    "rr": 1.8,
-   "where": "低于买入区5%（接近一年低点，靠近止损）"
+   "where": "低于买入区5%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "002028": {
    "name": "思源电气",
@@ -567,7 +657,10 @@
    "sell2": null,
    "stop": 94.96,
    "rr": 1.9,
-   "where": "低于买入区10%（接近一年低点，靠近止损）"
+   "where": "低于买入区10%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "002648": {
    "name": "卫星化学",
@@ -585,7 +678,10 @@
    "sell2": null,
    "stop": 15.0,
    "rr": 1.8,
-   "where": "高于买入区17%"
+   "where": "高于买入区17%",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "603225": {
    "name": "新凤鸣",
@@ -603,7 +699,10 @@
    "sell2": null,
    "stop": 14.53,
    "rr": 1.5,
-   "where": "在买入区"
+   "where": "在买入区",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600989": {
    "name": "宝丰能源",
@@ -621,7 +720,10 @@
    "sell2": null,
    "stop": 16.28,
    "rr": 1.8,
-   "where": "在买入区"
+   "where": "在买入区",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "002064": {
    "name": "华峰化学",
@@ -639,7 +741,10 @@
    "sell2": null,
    "stop": 8.19,
    "rr": 1.6,
-   "where": "低于买入区2%（接近一年低点，靠近止损）"
+   "where": "低于买入区2%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600111": {
    "name": "北方稀土",
@@ -657,7 +762,10 @@
    "sell2": null,
    "stop": 29.25,
    "rr": 2.8,
-   "where": "低于买入区13%（接近一年低点，靠近止损）"
+   "where": "低于买入区13%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "000831": {
    "name": "中国稀土",
@@ -675,7 +783,10 @@
    "sell2": null,
    "stop": 34.52,
    "rr": 1.7,
-   "where": "低于买入区8%（接近一年低点，靠近止损）"
+   "where": "低于买入区8%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600392": {
    "name": "盛和资源",
@@ -693,7 +804,10 @@
    "sell2": null,
    "stop": 12.09,
    "rr": 2.7,
-   "where": "低于买入区20%（接近一年低点，靠近止损）"
+   "where": "低于买入区20%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600259": {
    "name": "中稀有色",
@@ -711,7 +825,10 @@
    "sell2": null,
    "stop": 44.25,
    "rr": 2.4,
-   "where": "低于买入区17%（接近一年低点，靠近止损）"
+   "where": "低于买入区17%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "600366": {
    "name": "宁波韵升",
@@ -729,7 +846,10 @@
    "sell2": null,
    "stop": 7.98,
    "rr": 1.8,
-   "where": "低于买入区8%（接近一年低点，靠近止损）"
+   "where": "低于买入区8%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "300748": {
    "name": "金力永磁",
@@ -747,7 +867,10 @@
    "sell2": null,
    "stop": 19.62,
    "rr": 1.8,
-   "where": "低于买入区7%（接近一年低点，靠近止损）"
+   "where": "低于买入区7%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "000970": {
    "name": "中科三环",
@@ -765,7 +888,10 @@
    "sell2": null,
    "stop": 7.85,
    "rr": 1.8,
-   "where": "低于买入区8%（接近一年低点，靠近止损）"
+   "where": "低于买入区8%（接近一年低点，靠近止损）",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   },
   "300224": {
    "name": "正海磁材",
@@ -783,7 +909,10 @@
    "sell2": null,
    "stop": 9.86,
    "rr": 1.8,
-   "where": "在买入区"
+   "where": "在买入区",
+   "opportunity_valid": true,
+   "target_basis": "历史区间参考，非盈利估值目标；不用于保证最低盈亏比",
+   "rule_version": "price-reference-v2-2026-11-27"
   }
  },
  "logic2": {

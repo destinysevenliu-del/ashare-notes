@@ -45,18 +45,26 @@ def plan(pl, rr_note=True):
     rr = '—' if pl.get('rr') is None else format(pl['rr'], '.1f')
     if pl.get('rr_now') is not None: rr += '<small>（现价 ' + format(pl['rr_now'], '.1f') + '）</small>'
     cells = [('买入', money(pl['buy'][0]) + '–' + money(pl['buy'][1])),
-             ('卖出', money(pl['sell']) + ((' / ' + money(pl['sell2'])) if pl.get('sell2') else '')),
+             ('参考上沿', money(pl['sell']) + ((' / ' + money(pl['sell2'])) if pl.get('sell2') else '')),
              ('止损', money(pl.get('stop')) if pl.get('stop') is not None else '看分红'),
              ('盈亏比', rr)]
     return '<p class="sc-plan">' + ''.join('<span><em>' + a + '</em>' + b + '</span>' for a, b in cells) + '</p>'
 
+def final_action(view):
+    if view.startswith('剔除') or view=='移出关注':return '移出关注','bad'
+    if view.startswith('不买') or '暂停' in view or '已破位' in view:return '暂停新增','bad'
+    if '待核' in view:return '待核','wait'
+    if view=='可执行':return '条件满足','go'
+    return '等待','wait'
+
 def card(cid, name, sub, view, vcls, pl, layers, bar_html='', note='', chain=''):
     """个股卡片：首屏只留结论、现价、位置条、价格计划和判断链；判断依据与分层指标折叠。"""
     st = status(pl)
+    action, action_cls = final_action(view)
     chips, _, det = chain.partition('<dl class="ch-d">')
     det = ('<dl class="ch-d">' + det) if det else ''
-    out = '<article class="sc' + (' sc-dim' if vcls == 'bad' else '') + '" id="' + cid + '"><header><div><b>' + E(name) + '</b><small>' + E(sub) + '</small></div><span class="lp-view ' + vcls + '">' + E(view) + '</span></header>'
-    out += '<div class="sc-px"><span>现价 <b>' + money(pl['close'] if pl else None) + '</b></span><span class="st ' + st[2] + '">' + E(st[1]) + '</span></div>'
+    out = '<article class="sc' + (' sc-dim' if vcls == 'bad' else '') + '" id="' + cid + '"><header><div><b>' + E(name) + '</b><small>' + E(sub) + '</small></div><span class="lp-view ' + action_cls + '">' + E(action) + '</span></header><p class="sc-decision-reason">' + E(view) + '</p>'
+    out += '<div class="sc-px"><span>现价 <b>' + money(pl['close'] if pl else None) + '</b></span><span class="sc-position">价格位置：' + E(st[1].replace('在买入区','落在参考区间').replace('价格已确认，','')) + '</span></div>'
     out += bar_html + plan(pl) + chips
     if note: out += '<p class="sc-note">' + E(note) + '</p>'
     out += '<details class="sc-more"><summary>判断依据</summary>' + det
@@ -89,7 +97,7 @@ CSS = """
 .sc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:12px;margin:12px 0}
 .sc{background:#fff;border:1px solid #dfe6ee;border-radius:12px;padding:14px 16px;scroll-margin-top:90px;align-self:start}
 .sc header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.sc header b{font-size:16.5px;color:#1b324a}.sc header small{display:block;color:#6b7c8c;font-size:12px;margin-top:2px}
-.sc-px{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:13.5px;color:#455a6e}.sc-px b{font-size:17px;color:#1b324a}
+.sc-decision-reason{font-size:13px;color:#52687b;margin:6px 0}.sc-position{font-size:12px;color:#62788b}.sc-px{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:13.5px;color:#455a6e}.sc-px b{font-size:17px;color:#1b324a}
 .st{font-size:12.5px;padding:2px 9px;border-radius:10px;font-weight:600}.st-buy{background:#e3f3ea;color:#2f6f53}.st-high{background:#fff3d9;color:#8a5a00}.st-sell{background:#fbe3dc;color:#9b3d27}.st-low,.st-na{background:#eef1f4;color:#5b6b7a}.st-stop{background:#ececec;color:#555}.st-wait{background:#e6eef7;color:#2f4f6f}
 .sc-plan span{display:inline-block;margin-right:18px}.sc-plan{display:block;margin:8px 0;font-size:13.5px;font-weight:600;color:#1b324a;font-variant-numeric:tabular-nums}.sc-plan em{font-style:normal;font-weight:400;color:#6b7c8c;font-size:12px;margin-right:5px}.sc-plan small{font-weight:400;color:#6b7c8c;font-size:11.5px}
 .sc-more{margin-top:6px;border-top:1px solid #eef2f6;padding-top:6px}.sc-more>summary{cursor:pointer;font-size:12.5px;color:#52687b;list-style:none}.sc-more>summary::before{content:"▸ ";color:#8a9aab}.sc-more[open]>summary::before{content:"▾ "}.sc-more[open]>summary{margin-bottom:6px}

@@ -49,7 +49,8 @@ def hub(d,rows,market):
         import hk_pick
         out+='<p>港股只汇总入选方向所在的行业（港股通可买股票）；全行业同口径数据尚未接入。</p>'+hk_pick.industry_table(ROOT_HK[0],{x['id']:x for x in d['sectors']})
     out+='<p class="note">'+E(d['data_note'])+' <a href="../data/sector-screen.json">全部120个行业数据</a></p></details>'
-    return out
+    import focus_decisions
+    return focus_decisions.home(ROOT_HK[0],'../',market)+'<details class="fd-archive" id="archive"><summary>历史板块研究与风险记录 · 暂停主动扩展</summary>'+out+'</details>'
 
 def detail(d,rows,s):
     mk='A股' if s['market']=='a' else '港股';back='index.html' if s['market']=='a' else 'hk.html'
@@ -78,7 +79,8 @@ def detail(d,rows,s):
     out+='</tbody></table></div></section><section id="checks"><h2>证伪单</h2><div class="tblwrap"><table class="mt ss-table"><thead><tr><th>命题</th><th>现值</th><th>判定日</th><th>证实</th><th>证伪及动作</th><th>状态</th></tr></thead><tbody>'
     for r in s['checks']:out+='<tr>'+''.join('<td>'+E(x)+'</td>' for x in r)+'<td>待到期</td></tr>'
     out+='</tbody></table></div></section><section id="handoff"><h2>交给个股阶段：比较什么</h2><ul>'+''.join('<li>'+E(x)+'</li>' for x in s['handoff'])+'</ul><p class="note">个股的核验结果与价格计划见<a href="../stocks/index.html#l1-'+s['id']+'">个股页</a>；进入候选只表示值得研究，不等于可以买入。</p></section>'
-    return out
+    import focus_decisions
+    return '<style>'+focus_decisions.CSS+'</style>'+focus_decisions.archive_note(ROOT_HK[0],'../')+out
 
 def removed(text,back):
     return '<style>'+CSS+'</style><div class="hero"><h1>该板块已移出</h1><p class="sum">'+E(text)+'</p><p><a href="'+back+'">返回板块结论 →</a></p></div>'

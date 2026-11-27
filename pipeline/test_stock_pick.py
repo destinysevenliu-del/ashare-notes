@@ -29,7 +29,9 @@ class PickTest(unittest.TestCase):
   for k,v in r.items():
    for x in v['picks']:
     pl=logic1_rules.price_levels(v['type'],x);self.assertTrue(pl,(k,x['code']))
-    self.assertLessEqual(pl['buy'][0],pl['buy'][1]);self.assertGreater(pl['sell'],pl['buy'][1])
+    self.assertLessEqual(pl['buy'][0],pl['buy'][1])
+    self.assertEqual(pl['opportunity_valid'],pl['sell']>pl['buy'][1])
+    if v['type']!='growth':self.assertGreater(pl['sell'],pl['buy'][1])
     if pl.get('stop'):self.assertLess(pl['stop'],pl['buy'][0])
   P=json.loads((ROOT/'data/stock_pick.json').read_text())['logic2']
   for x in P['top']:
