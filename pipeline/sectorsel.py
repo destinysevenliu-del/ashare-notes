@@ -34,16 +34,20 @@ def hub(d,rows,market):
     secs=[s for s in d['sectors'] if s['market']==market];name='A股' if market=='a' else '港股'
     home='../index.html' if market=='a' else '../hk/index.html'
     out='<style>'+CSS+'</style><nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if market=='a' else '')+'><b>A股板块</b><span>顺风、前半段、等开关</span></a><a href="hk.html"'+(' aria-current="page"' if market=='hk' else '')+'><b>港股板块</b><span>高息、能源、油运、互联网、硬件</span></a></nav><div class="hero"><div><h1>'+name+'板块 · 按大盘风向选出</h1><p class="stamp">选板块 '+E(d['as_of'])+' · 窗口 '+E(d['window'])+'</p></div><div class="hero-meta">上游是<a href="'+home+'#horizon">大盘未来半年判断</a>；下游按业务入池、财务兑现与价格时机更新候选。</div></div>'
-    import market_path
-    out+='<style>'+market_path.CSS+'</style>'+market_path.upstream(ROOT_HK[0],market)
+    import market_path, research_shortlist
+    shortlist,_=research_shortlist.load(ROOT_HK[0]);decisions={x['sector_id']:x for x in shortlist['sector_decisions']}
+    out+='<style>'+market_path.CSS+'</style>'+market_path.upstream(ROOT_HK[0],market)+research_shortlist.sustain(ROOT_HK[0],market)
     out+='<section class="ss-sum" id="conclusion"><h2>结论</h2><div class="tblwrap"><table class="mt ss-table"><thead><tr><th>板块</th><th>档位</th><th>对应的大盘驱动</th><th>一句话</th></tr></thead><tbody>'
-    for s in sorted(secs,key=lambda s:ORDER.index(s['rating'])):
-        out+='<tr data-sector="'+s['id']+'"><td><a href="'+s['id']+'.html"><b>'+E(s['title'])+'</b></a></td><td>'+badge(s['rating'])+'</td><td>'+E(s['driver'])+'</td><td>'+E(s['verdict'])+'<details class="more"><summary>开关或降级信号、最近变化</summary><p class="note">'+E(s['switch'])+'</p><p class="note"><b>变化：</b>'+E(s['prev'])+'</p></details></td></tr>'
+    for s in sorted([s for s in secs if decisions[s['id']]['status']=='重点'],key=lambda s:ORDER.index(s['rating'])):
+        out+='<tr data-sector="'+s['id']+'"><td><a href="'+s['id']+'.html"><b>'+E(s['title'])+'</b></a></td><td>'+badge(s['rating'])+'</td><td>'+E(s['driver'])+'</td><td>'+E(decisions[s['id']]['why'])+'<p class="note">'+E(decisions[s['id']]['sustainability'])+'</p><details class="more"><summary>开关或降级信号、最近变化</summary><p class="note">'+E(s['switch'])+'</p><p class="note"><b>变化：</b>'+E(s['prev'])+'</p></details></td></tr>'
     out+='</tbody></table></div><div class="ss-legend">'+''.join('<p>'+badge(r['key'])+E(r['desc'])+'</p>' for r in d['ratings'])+'</div></section>'
-    out+='<section id="excluded"><h2>未入选的方向与原因</h2><ul class="ss-ex">'
+    out+='<section id="excluded"><h2>暂不分配个股研究席位</h2><details class="more"><summary>查看其余方向的原因与重启条件</summary><ul class="ss-ex">'
+    for s in secs:
+        z=decisions[s['id']]
+        if z['status']!='重点':out+='<li><a href="'+s['id']+'.html">'+E(s['title'])+'</a>：'+E(z['why'])+'<p class="note">重启：'+E(z['next'])+'</p></li>'
     for x in d['excluded']:
         if x['market']==market:out+='<li><b>'+E(x['name'])+'</b>：'+E(x['reason'])+'</li>'
-    out+='</ul></section><details class="deep-research" id="method"><summary>选板块的方法与数据口径</summary>'+('<ul class="ss-ex">'+''.join('<li>'+E(x)+'</li>' for x in d.get('principles',[]))+'</ul>')+'<ol class="ss-steps">'+''.join('<li><b>'+E(x['name'])+'</b>：'+E(x['text'])+'</li>' for x in d['steps'])+'</ol>'
+    out+='</ul></details></section><details class="deep-research" id="method"><summary>选板块的方法与数据口径</summary>'+('<ul class="ss-ex">'+''.join('<li>'+E(x)+'</li>' for x in d.get('principles',[]))+'</ul>')+'<ol class="ss-steps">'+''.join('<li><b>'+E(x['name'])+'</b>：'+E(x['text'])+'</li>' for x in d['steps'])+'</ol>'
     if market=='a':
         bks=[b for s in secs for b in s['bks']]+[b for x in d['excluded'] if x['market']=='a' for b in x['bks']]
         out+='<h3>入选与未入选行业的同口径数据</h3>'+screen_table(rows,bks)
@@ -80,7 +84,10 @@ def detail(d,rows,s):
     for r in s['tracking']:out+='<tr>'+''.join('<td>'+E(x)+'</td>' for x in r)+('<td>—</td>' if role and len(r)==5 else '')+'</tr>'
     out+='</tbody></table></div></section><section id="checks"><h2>证伪单</h2><div class="tblwrap"><table class="mt ss-table"><thead><tr><th>命题</th><th>现值</th><th>判定日</th><th>证实</th><th>证伪及动作</th><th>状态</th></tr></thead><tbody>'
     for r in s['checks']:out+='<tr>'+''.join('<td>'+E(x)+'</td>' for x in r)+'<td>待到期</td></tr>'
-    out+='</tbody></table></div></section><section id="handoff"><h2>交给个股阶段：比较什么</h2><ul>'+''.join('<li>'+E(x)+'</li>' for x in s['handoff'])+'</ul><p class="note">个股的核验结果与价格计划见<a href="../stocks/'+('dividend.html' if s['id']=='a-bank' else 'hk-dividend.html' if s['id']=='hk-telecom' else 'index.html' if s['market']=='a' else 'hk.html')+('' if s['id'] in ('a-bank','hk-telecom') else '#l1-'+s['id'])+'">个股页</a>；进入候选只表示值得研究，不等于可以买入。</p></section>'
+    import research_shortlist
+    shortlist,_=research_shortlist.load(ROOT_HK[0]);names=[x for x in shortlist['companies'] if s['id'] in [x['sector_id']]+x.get('related_sectors',[])]
+    out+='</tbody></table></div></section><section id="handoff"><h2>交给个股阶段</h2><ul>'+''.join('<li>'+E(x)+'</li>' for x in s['handoff'])+'</ul><p>'+('本方向保留：'+ ' · '.join('<a href="../stocks/research-'+x['issuer_id']+'.html">'+E(x['name'])+'</a>' for x in names) if names else '当前不分配个股深研席位，先等待上方行业开关。')+'</p><p class="note"><a href="../stocks/index.html">两市合计最多10家，查看完整收敛结果 →</a></p></section>'
+
     import focus_decisions
     return out
 

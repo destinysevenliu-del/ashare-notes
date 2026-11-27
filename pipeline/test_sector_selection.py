@@ -22,7 +22,10 @@ class SelTest(unittest.TestCase):
    body=(ROOT/'docs/boards'/(s['id']+'.html')).read_text();self.assertIn(s['verdict'],body)
   hub=(ROOT/'docs/boards/index.html').read_text()
   for s in D['sectors']:
-   if s['market']=='a':self.assertIn('data-sector="'+s['id']+'"',hub)
+   if s['market']=='a':
+    choices={x['sector_id']:x['status'] for x in json.loads((ROOT/'data/research_shortlist.json').read_text())['sector_decisions']}
+    self.assertIn('href="'+s['id']+'.html"',hub)
+    self.assertEqual(('data-sector="'+s['id']+'"') in hub,choices[s['id']]=='重点')
   macro=json.loads((ROOT/'data/market_thesis.json').read_text())['macro_regime']['markets']
   for m in ['a','hk']:
    text=json.dumps(macro[m]['sectors'],ensure_ascii=False)

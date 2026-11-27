@@ -30,7 +30,8 @@ def policy(x):
 
 def mapping(root,market,prefix):
     d,sectors,routes=load(root,market);name='A股' if market=='a' else '港股';board=prefix+('boards/index.html' if market=='a' else 'boards/hk.html')
-    out='<section id="regime-sectors" data-market="'+market+'"><h3>从'+name+'大盘到行业筛选：证据通过后才确定板块</h3>'+flow(market)+'<div class="tblwrap"><table class="mt regime-table mp-table"><thead><tr><th>大盘风向与来源</th><th>行业必须证明什么</th><th>验收结果与板块档位</th></tr></thead><tbody>'
+    import research_shortlist
+    out=research_shortlist.sustain(root,market,prefix)+'<section id="regime-sectors" data-market="'+market+'"><h3>从'+name+'大盘到行业筛选：证据通过后才确定板块</h3>'+flow(market)+'<div class="tblwrap"><table class="mt regime-table mp-table"><thead><tr><th>大盘风向与来源</th><th>行业必须证明什么</th><th>验收结果与板块档位</th></tr></thead><tbody>'
     for r in routes:
         out+='<tr><th><b>'+E(r['name'])+'</b><small>'+E(r['part'])+'</small><p>'+E(r['wind'])+'</p></th><td>'+E(r['verify'])+'</td><td><p>'+E(r['result'])+'</p>'
         for sid in r['sector_ids']:

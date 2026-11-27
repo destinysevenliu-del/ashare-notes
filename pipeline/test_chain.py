@@ -42,7 +42,7 @@ class ChainTest(unittest.TestCase):
   self.assertAlmostEqual(p['rr_now'],round((p['sell']-12.0)/(12.0-p['stop']),1))
  def test7_pages_consistent_after_build(self):
   idx=(ROOT/'docs/stocks/index.html').read_text();rules=(ROOT/'docs/stocks/selection-rules.html').read_text()
-  self.assertIn('class="ch"',idx);self.assertIn('现价盈亏比',idx);self.assertIn('价格到位·待核',idx)
+  self.assertIn('class="ch"',idx);self.assertIn('盈亏比',idx);self.assertIn('暂停新增',idx);self.assertIn('研究席位',idx)
   self.assertIn('当前生效',rules);self.assertNotIn('子池合同与研究席位</h2>',rules)
   for sid in ('a-coal','a-oil'):
    b=(ROOT/'docs/boards'/(sid+'.html')).read_text();self.assertIn('id="subs"',b);self.assertIn('性质',b)

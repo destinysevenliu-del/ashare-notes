@@ -81,8 +81,9 @@ def rows(D):
         if not s.get('close'):
             continue
         x = {'code': c, **s}
-        x['pe'] = round(s['close']/s['eps_ttm'], 1) if s.get('eps_ttm') and s['eps_ttm'] > 0 else None
-        x['pb'] = round(s['close']/s['bps'], 2) if s.get('bps') and s['bps'] > 0 else None
+        financial_px=s['close']*D['cnyPerHkd'] if s.get('financial_currency')=='CNY' else s['close']
+        x['pe'] = round(financial_px/s['eps_ttm'], 1) if s.get('eps_ttm') and s['eps_ttm'] > 0 else None
+        x['pb'] = round(financial_px/s['bps'], 2) if s.get('bps') and s['bps'] > 0 else None
         x['dy'] = round(s['dps']/s['close']*100, 2) if s.get('dps') else None
         x['dy_net'] = round(x['dy']*(1-TAX), 2) if x['dy'] else None
         x['cash'] = round(s['ocfps']/s['beps'], 2) if s.get('ocfps') is not None and s.get('beps') and s['beps'] > 0 else None

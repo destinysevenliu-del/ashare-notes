@@ -41,7 +41,8 @@ class Downstream(unittest.TestCase):
    h=(ROOT/'docs'/f).read_text()
    for t in ['class="sc-grid"','class="ch"','赛道归属','兑现质量','价格反映','D/G']:self.assertIn(t,h)
    for t in ['三分之一','三层合成排序','综合排名＝']:self.assertNotIn(t,h)
-   self.assertEqual(h.count('id="l1-a-oil"'),1 if f=='stocks/index.html' else 0)
+   self.assertEqual(h.count('id="l1-a-oil"'),0) # broad sector lists moved to coverage archive
+   self.assertEqual(h.count('<article class="sc"'),4 if f=='stocks/index.html' else 2)
   for sid in SEC:
    h=(ROOT/'docs/boards'/(sid+'.html')).read_text()
    self.assertIn('id="parts"',h);self.assertIn('id="tracking"',h);self.assertIn('id="handoff"',h)

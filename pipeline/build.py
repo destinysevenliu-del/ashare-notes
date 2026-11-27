@@ -755,6 +755,8 @@ import sectorsel
 sectorsel.build(globals())
 newslog.build(globals())
 focus_decisions.build(globals())
+import research_shortlist
+research_shortlist.build(globals())
 
 snap = {"date": TODAY, "total": R["total"], "scores": {r["key"]: r["score"] for r in R["score_rows"]},
         "nodes": {k: v["state"] for k, v in N.items()}, "conds": {c["id"]: c["hit"] for c in R["conds"]},
