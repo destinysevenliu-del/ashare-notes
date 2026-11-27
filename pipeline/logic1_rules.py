@@ -3,36 +3,34 @@ Inputs: company Q3 single-quarter financials (data/raw/screen/fin_*), valuation 
 import json
 from pathlib import Path
 
-ACC=lambda x:(x['np_yoy'] or 0)-(x['h1_yoy'] or 0)
-F={'np':('单季利润同比',lambda x:x['np_yoy'] or 0),'acc':('较上半年加速',ACC),'rev':('营收同比',lambda x:x['rev_yoy'] or 0),'cheap':('估值低（PE）',lambda x:-(x['pe'] or 999)),'dy':('股息率',lambda x:x.get('dy') or 0),'qual':('利润增长有营收支撑',lambda x:-max(0,(x['np_yoy'] or 0)-3*max(x['rev_yoy'] or 0,10)))}
 RULES={
- 'a-bank':{'gate':'市值≥1000亿；三季度单季利润同比≥0','factors':['dy','np'],'n':5,'filter':lambda x:x['mc']>=1000 and (x['np_yoy'] or -1)>=0},
- 'a-coal':{'gate':'市值≥100亿；三季度单季利润≥3亿且同比为正；PE 0—20','factors':['np','acc','dy','cheap','qual'],'n':4,'filter':lambda x:x['mc']>=100 and x['q_np']>=3 and (x['np_yoy'] or -1)>0 and 0<(x['pe'] or 99)<=20},
- 'a-oil':{'gate':'一体化油企（油价弹性来自上游，板块其余为炼化）','factors':['np','dy'],'n':2,'filter':lambda x:x['code'] in ('601857','600028')},
- 'a-rare-earth':{'gate':'稀土冶炼分离公司（稀土业务为主，按分产品毛利确认；市值≥150亿）','factors':['np','cheap','qual'],'n':4,'filter':lambda x:x['code'] in ('600111','000831','600259','600392')},
- 'a-magnet':{'gate':'钕铁硼占主营毛利≥70%、市值≥100亿','factors':['np','rev','cheap','qual'],'n':4,'filter':lambda x:x['code'] in ('300748','300224','600366','000970')},
- 'a-tanker':{'gate':'只保留纯油运公司（板块含港口与集运）；三季度单季利润同比为正','factors':['np','cheap'],'n':3,'filter':lambda x:x['code'] in ('601872','600026','601975') and (x['np_yoy'] or -1)>0},
- 'a-semiconductor':{'gate':'市值≥300亿；三季度单季利润≥3亿且同比≥30%；PE 0—60','factors':['np','acc','rev','cheap','qual'],'n':5,'filter':lambda x:x['mc']>=300 and x['q_np']>=3 and (x['np_yoy'] or 0)>=30 and 0<(x['pe'] or 999)<=60},
- 'a-computing':{'gate':'市值≥300亿；三季度单季利润≥3亿且同比≥30%；PE 0—40','factors':['np','acc','rev','cheap','qual'],'n':5,'filter':lambda x:x['mc']>=300 and x['q_np']>=3 and (x['np_yoy'] or 0)>=30 and 0<(x['pe'] or 999)<=40},
- 'a-pharma':{'gate':'市值≥200亿；三季度单季利润≥2亿且同比≥30%；PE 0—70','factors':['np','acc','rev','cheap','qual'],'n':4,'filter':lambda x:x['mc']>=200 and x['q_np']>=2 and (x['np_yoy'] or 0)>=30 and 0<(x['pe'] or 999)<=70},
- 'a-grid':{'gate':'市值≥200亿；三季度单季利润同比>0且营收同比≥15%（没有被成本挤压的）','factors':['rev','np','cheap'],'n':4,'filter':lambda x:x['mc']>=200 and (x['np_yoy'] or -1)>0 and (x['rev_yoy'] or 0)>=15},
- 'a-chemical':{'gate':'市值≥150亿；三季度单季利润≥3亿且同比≥30%；PE 0—15','factors':['np','acc','rev','cheap','qual'],'n':4,'filter':lambda x:x['mc']>=150 and x['q_np']>=3 and (x['np_yoy'] or 0)>=30 and 0<(x['pe'] or 99)<=15},
+ 'a-bank':{'gate':'市值≥1000亿；三季度单季利润同比≥0','n':5,'filter':lambda x:x['mc']>=1000 and (x['np_yoy'] or -1)>=0},
+ 'a-coal':{'gate':'市值≥100亿；三季度单季利润≥3亿且同比为正；估值另作时机判断','n':4,'filter':lambda x:x['mc']>=100 and x['q_np']>=3 and (x['np_yoy'] or -1)>0},
+ 'a-oil':{'gate':'油气公司财务初筛；再按上游利润贡献验证，炼化为主不自动入池','n':2,'filter':lambda x:x['code'] in ('601857','600028','600938')},
+ 'a-rare-earth':{'gate':'稀土冶炼分离公司（稀土业务为主，按分产品毛利确认；市值≥150亿）','n':4,'filter':lambda x:x['code'] in ('600111','000831','600259','600392')},
+ 'a-magnet':{'gate':'钕铁硼占主营毛利≥70%、市值≥100亿','n':4,'filter':lambda x:x['code'] in ('300748','300224','600366','000970')},
+ 'a-tanker':{'gate':'只保留纯油运公司（板块含港口与集运）；三季度单季利润同比为正','n':3,'filter':lambda x:x['code'] in ('601872','600026','601975') and (x['np_yoy'] or -1)>0},
+ 'a-semiconductor':{'gate':'市值≥300亿；三季度单季利润≥3亿且同比≥30%；估值另作时机判断','n':5,'filter':lambda x:x['mc']>=300 and x['q_np']>=3 and (x['np_yoy'] or 0)>=30},
+ 'a-computing':{'gate':'市值≥300亿；三季度单季利润≥3亿且同比≥30%；估值另作时机判断','n':5,'filter':lambda x:x['mc']>=300 and x['q_np']>=3 and (x['np_yoy'] or 0)>=30},
+ 'a-pharma':{'gate':'市值≥200亿；三季度单季利润≥2亿且同比≥30%；估值另作时机判断','n':4,'filter':lambda x:x['mc']>=200 and x['q_np']>=2 and (x['np_yoy'] or 0)>=30},
+ 'a-grid':{'gate':'市值≥200亿；三季度单季利润同比>0且营收同比≥15%（没有被成本挤压的）','n':4,'filter':lambda x:x['mc']>=200 and (x['np_yoy'] or -1)>0 and (x['rev_yoy'] or 0)>=15},
+ 'a-chemical':{'gate':'市值≥150亿；三季度单季利润≥3亿且同比≥30%；估值另作时机判断','n':4,'filter':lambda x:x['mc']>=150 and x['q_np']>=3 and (x['np_yoy'] or 0)>=30},
 }
 
 def rows(root,bks):
-    L=lambda f:{r['SECURITY_CODE']:r for r in json.load(open(Path(root)/'data/raw/screen'/f))}
-    F={k:L('fin_'+k+'.json') for k in ['2026-09-30','2026-06-30','2025-09-30','2025-06-30']};V=L('val_2026-11-09.json')
+    L=lambda f:{r['SECURITY_CODE']:r for r in json.loads((Path(root)/'data/raw/screen'/f).read_text())}
+    F={k:L('fin_'+k+'.json') for k in ['2026-09-30','2026-06-30','2025-09-30','2025-06-30']};V=L(sorted((Path(root)/'data/raw/screen').glob('val_*.json'))[-1].name)
     ex={};p=Path(root)/'data/raw/stock_pick/val_extra.json'
     if p.exists():ex=json.loads(p.read_text())
     g=lambda a,b:(a/b-1)*100 if b and b>0 and a is not None else None
     out=[]
     for c,r in F['2026-09-30'].items():
-        if r['BOARD_CODE'] not in bks or not all(c in F[k] for k in F) or 'ST' in r['SECURITY_NAME_ABBR']:continue
+        if (r['BOARD_CODE'] not in bks and not (c=='600938' and 'BK1274' in bks)) or not all(c in F[k] for k in F) or 'ST' in r['SECURITY_NAME_ABBR']:continue
         n=lambda k,f:F[k][c][f] or 0
         q=n('2026-09-30','PARENT_NETPROFIT')-n('2026-06-30','PARENT_NETPROFIT');ql=n('2025-09-30','PARENT_NETPROFIT')-n('2025-06-30','PARENT_NETPROFIT')
         rv=n('2026-09-30','TOTAL_OPERATE_INCOME')-n('2026-06-30','TOTAL_OPERATE_INCOME');rvl=n('2025-09-30','TOTAL_OPERATE_INCOME')-n('2025-06-30','TOTAL_OPERATE_INCOME')
         v=V.get(c,{});e=ex.get(c,{})
-        out.append({'code':c,'name':r['SECURITY_NAME_ABBR'],'industry':r['BOARD_NAME'],'q_np':round(q/1e8,1),'np_yoy':g(q,ql),'rev_yoy':g(rv,rvl),'h1_yoy':g(n('2026-06-30','PARENT_NETPROFIT'),n('2025-06-30','PARENT_NETPROFIT')),'pe':v.get('PE_TTM'),'mc':round((v.get('TOTAL_MARKET_CAP') or 0)/1e8),'pb':e.get('pb'),'dy':e.get('dy'),'close':e.get('close')})
+        out.append({'code':c,'name':r['SECURITY_NAME_ABBR'],'industry':r['BOARD_NAME'],'q_np':round(q/1e8,1),'np_yoy':g(q,ql),'rev_yoy':g(rv,rvl),'h1_yoy':g(n('2026-06-30','PARENT_NETPROFIT'),n('2025-06-30','PARENT_NETPROFIT')),'pe':v.get('PE_TTM'),'mc':round((v.get('TOTAL_MARKET_CAP') or 0)/1e8),'pb':e.get('pb'),'dy':e.get('dy'),'close':v.get('CLOSE_PRICE') or e.get('close'),'valuation_date':v.get('TRADE_DATE')})
     return out
 
 def flag(x):
@@ -42,16 +40,7 @@ def flag(x):
     return ''
 
 def select(root,sectors):
-    res={}
-    for s in sectors:
-        if s['id'] not in RULES:continue
-        R=RULES[s['id']];pool=rows(root,s['bks']);ok=[x for x in pool if R['filter'](x)]
-        for k in R['factors']:
-            vals=sorted(F[k][1](x) for x in ok)
-            for x in ok:x['pct_'+k]=(sum(v<F[k][1](x) for v in vals)+0.5*sum(v==F[k][1](x) for v in vals))/len(vals)
-        for x in ok:x['score']=round(sum(x['pct_'+k] for k in R['factors'])/len(R['factors']),2);x['flag']=flag(x)
-        res[s['id']]={'gate':R['gate'],'rank':'综合排名＝以下各项在通过门槛的公司中的百分位平均：'+'、'.join(F[k][0] for k in R['factors'])+'。市值只用作门槛，不参与排名。','pool':len(pool),'passed':len(ok),'picks':sorted(ok,key=lambda x:-x['score'])[:R['n']]}
-    return res
+    return {k:{**v,'picks':v['all'][:RULES[k]['n']]} for k,v in select_all(root,sectors).items()}
 
 # ---------- 2026-11-15：按板块类型看三层（基本面 / 位置 / 筹码） ----------
 TYPE={'a-bank':'crowded','a-coal':'upstream','a-oil':'upstream','a-tanker':'upstream','a-semiconductor':'growth','a-computing':'growth','a-pharma':'growth','a-grid':'cost','a-chemical':'cost','a-rare-earth':'upstream','a-magnet':'cost'}
@@ -85,39 +74,52 @@ def _layers(t,x):
     if t=='cost' and e.get('gmChg') is not None and e['gmChg']<0:fb.append('毛利率同比下降'+format(e['gmChg'],'.1f')+'个百分点')
     if t=='growth' and e.get('cashEps') is not None and e['cashEps']<0.5:fb.append('经营现金流明显低于利润')
     if t=='cost' and e.get('cashEps') is not None and e['cashEps']<0:fb.append('经营现金流为负')
-    fund='差' if fb else '好' if x.get('score',0)>=0.6 else '中'
+    fund='差' if fb else '好' if x.get('rank_value') is not None else '中'
     return {'fund':fund,'pos':pos,'chip':chip,'notes':fb+bad+good}
 
 def select_v2(root,sectors):
-    import json
     p=Path(root)/'data/raw/stock_pick/l1_enrich.json';en=json.loads(p.read_text()) if p.exists() else {}
-    base=select_all(root,sectors);out={}
-    V={'好':1,'中':.5,'差':0}
-    sp=Path(root)/'data/stock_pick.json';fixed=(json.loads(sp.read_text()).get('logic1_list') or {}).get('sectors',{}) if sp.exists() else {}
-    for sid,r in base.items():
-        t=TYPE[sid];rows=[]
+    out={}
+    for sid,r in select_all(root,sectors).items():
+        t=TYPE[sid];items=[]
         for x in r['all']:
-            x['en']=en.get(x['code'],{});L=_layers(t,x);x.update(L)
-            x['total']=round((x['score']+V[L['pos']]+V[L['chip']])/3*(0.5 if L['fund']=='差' else 1),2)
-            rows.append(x)
-        rows.sort(key=lambda x:-x['total'])
-        # 名单季度固定（stock_pick.json 的 logic1_list）；没有固定名单时按三层总分取前N
-        picks=[x for x in rows if x['code'] in fixed[sid]] if fixed.get(sid) else rows[:R_N.get(sid,5)]
-        out[sid]={**{k:v for k,v in r.items() if k!='all'},'type':t,'lens':LENS[t],'picks':picks}
+            x['en']=en.get(x['code'],{});x.update(_layers(t,x))
+            # Display order is financial quality within one reason and period.
+            # Price, valuation and funding never enter this ordering.
+            items.append(x)
+        picks=items[:R_N.get(sid,5)]
+        out[sid]={**{k:v for k,v in r.items() if k!='all'},'type':t,'lens':LENS[t],'picks':picks,'remaining':items[len(picks):]}
     return out
 
-R_N={'a-bank':5,'a-coal':4,'a-oil':2,'a-tanker':2,'a-semiconductor':5,'a-computing':5,'a-pharma':4,'a-grid':4,'a-chemical':4,'a-rare-earth':4,'a-magnet':4}
+R_N={'a-bank':5,'a-coal':4,'a-oil':3,'a-tanker':2,'a-semiconductor':5,'a-computing':5,'a-pharma':4,'a-grid':4,'a-chemical':4,'a-rare-earth':4,'a-magnet':4}
+
+def quality_key(x):
+    # Distinct cohorts are not assigned a common score. Code only breaks exact ties.
+    return (0 if x.get('rank_value') is not None else 1, 0 if x.get('financial_covered') else 1, -(x.get('rank_value') if x.get('rank_value') is not None else 0), x['code'])
 
 def select_all(root,sectors):
-    res=select(root,sectors)
+    import downstream
+    V=json.loads((Path(root)/'data/raw/stock_pick/verify.json').read_text())
+    res={}
     for s in sectors:
-        if s['id'] not in RULES:continue
-        R=RULES[s['id']];pool=rows(root,s['bks']);ok=[x for x in pool if R['filter'](x)]
-        for k in R['factors']:
-            vals=sorted(F[k][1](x) for x in ok)
-            for x in ok:x['pct_'+k]=(sum(v<F[k][1](x) for v in vals)+0.5*sum(v==F[k][1](x) for v in vals))/len(vals)
-        for x in ok:x['score']=round(sum(x['pct_'+k] for k in R['factors'])/len(R['factors']),2);x['flag']=flag(x)
-        res[s['id']]['all']=ok
+        sid=s['id']
+        if sid not in RULES:continue
+        R=RULES[sid];pool=rows(root,s['bks']);ok=[x for x in pool if R['filter'](x)]
+        for x in ok:
+            v=V.get(x['code'],{});state,why=downstream.admission(s,v)
+            x['admission']=state;x['admission_reason']=why
+            metric=s['stock_contract']['primary_rank']
+            rv=v.get('np_yoy') if sid=='a-bank' else v.get('ocf_np')
+            from stockpick import verify_step
+            financial_ok=verify_step(TYPE[sid],v)[0]=='通过'
+            x['financial_covered']=bool(v)
+            x['cohort']=('0 已匹配业务' if state=='通过' else '1 业务待核')+(' · 财务覆盖' if financial_ok and rv is not None else ' · 补证观察')
+            # Missing admission evidence has no pool rank.
+            x['rank_value']=rv if state=='通过' and financial_ok else None
+            x['flag']=flag(x)
+            x['rank_note']=('同理由财务比较：'+metric+' '+format(rv,'.2f')) if x['rank_value'] is not None else '补证观察：'+why+('；财务核验未通过或未完成' if not financial_ok else '')+'；不参与已验证候选排序'
+        ok.sort(key=quality_key)
+        res[sid]={'gate':R['gate'],'rank':'赛道归属：'+s['stock_contract']['admission']+'。兑现质量：'+s['stock_contract']['primary_rank']+'；只在业务通过且同报告期的子池比较。估值、位置、筹码不计分。','pool':len(pool),'passed':len(ok),'all':ok}
     return res
 
 # ---------- 2026-11-16：参考买入价、卖出价与止损价（研究规则，未回测） ----------

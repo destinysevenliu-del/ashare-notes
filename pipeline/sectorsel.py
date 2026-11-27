@@ -33,7 +33,7 @@ ROOT_HK=['.']
 def hub(d,rows,market):
     secs=[s for s in d['sectors'] if s['market']==market];name='A股' if market=='a' else '港股'
     home='../index.html' if market=='a' else '../hk/index.html'
-    out='<style>'+CSS+'</style><nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if market=='a' else '')+'><b>A股板块</b><span>顺风、前半段、等开关</span></a><a href="hk.html"'+(' aria-current="page"' if market=='hk' else '')+'><b>港股板块</b><span>高息、能源、油运、互联网、硬件</span></a></nav><div class="hero"><div><h1>'+name+'板块 · 按大盘风向选出</h1><p class="stamp">选板块 '+E(d['as_of'])+' · 窗口 '+E(d['window'])+'</p></div><div class="hero-meta">上游是<a href="'+home+'#horizon">大盘未来半年判断</a>；下游是个股研究（本轮暂不选股）。</div></div>'
+    out='<style>'+CSS+'</style><nav class="lp-tabs"><a href="index.html"'+(' aria-current="page"' if market=='a' else '')+'><b>A股板块</b><span>顺风、前半段、等开关</span></a><a href="hk.html"'+(' aria-current="page"' if market=='hk' else '')+'><b>港股板块</b><span>高息、能源、油运、互联网、硬件</span></a></nav><div class="hero"><div><h1>'+name+'板块 · 按大盘风向选出</h1><p class="stamp">选板块 '+E(d['as_of'])+' · 窗口 '+E(d['window'])+'</p></div><div class="hero-meta">上游是<a href="'+home+'#horizon">大盘未来半年判断</a>；下游按业务入池、财务兑现与价格时机更新候选。</div></div>'
     import market_path
     out+='<style>'+market_path.CSS+'</style>'+market_path.upstream(ROOT_HK[0],market)
     out+='<section class="ss-sum" id="conclusion"><h2>结论</h2><div class="tblwrap"><table class="mt ss-table"><thead><tr><th>板块</th><th>档位</th><th>对应的大盘驱动</th><th>一句话</th></tr></thead><tbody>'
@@ -67,7 +67,7 @@ def detail(d,rows,s):
         out+='<section id="subs"><h2>按业务分开判断</h2><p class="note">板块档位只适用于标为“前半段”的业务；标为“待核”的业务缺少关键数据，相关公司不进入可执行。</p><div class="ss-subs">'
         for b in s['subs']:
             st=b['state'];cls={'前半段':'early','顺风':'up','等开关':'wait','逆风':'down'}.get(st,'chk')
-            out+='<article><h3>'+E(b['name'])+' <span class="ss-badge ss-'+cls+'">'+E(st)+'</span></h3><p><b>看什么：</b>'+E(b['driver'])+'</p><p><b>证据：</b>'+E(b['evidence'])+'</p><p class="ss-miss"><b>缺口：</b>'+E(b['missing'])+'</p><p><b>相关公司：</b>'+E(b['companies'])+'</p>'+refs(d,b.get('refs',[]),'../')+'</article>'
+            out+='<article><h3>'+E(b['name'])+' <span class="ss-badge ss-'+cls+'">'+E(st)+'</span></h3><p><b>看什么：</b>'+E(b['driver'])+'</p><p><b>证据：</b>'+E(b['evidence'])+'</p><p class="ss-miss"><b>缺口：</b>'+E(b['missing'])+'</p>'+refs(d,b.get('refs',[]),'../')+'</article>'
         out+='</div></section>'
     out+='<section id="parts"><h2>板块自身的三件事</h2><div class="ss-parts">'
     for k in ['num','den','tap']:
@@ -80,7 +80,7 @@ def detail(d,rows,s):
     for r in s['tracking']:out+='<tr>'+''.join('<td>'+E(x)+'</td>' for x in r)+('<td>—</td>' if role and len(r)==5 else '')+'</tr>'
     out+='</tbody></table></div></section><section id="checks"><h2>证伪单</h2><div class="tblwrap"><table class="mt ss-table"><thead><tr><th>命题</th><th>现值</th><th>判定日</th><th>证实</th><th>证伪及动作</th><th>状态</th></tr></thead><tbody>'
     for r in s['checks']:out+='<tr>'+''.join('<td>'+E(x)+'</td>' for x in r)+'<td>待到期</td></tr>'
-    out+='</tbody></table></div></section><section id="handoff"><h2>交给个股阶段：比较什么</h2><ul>'+''.join('<li>'+E(x)+'</li>' for x in s['handoff'])+'</ul><p class="note">个股的核验结果与价格计划见<a href="../stocks/index.html#l1-'+s['id']+'">个股页</a>；进入候选只表示值得研究，不等于可以买入。</p></section>'
+    out+='</tbody></table></div></section><section id="handoff"><h2>交给个股阶段：比较什么</h2><ul>'+''.join('<li>'+E(x)+'</li>' for x in s['handoff'])+'</ul><p class="note">个股的核验结果与价格计划见<a href="../stocks/'+('dividend.html' if s['id']=='a-bank' else 'hk-dividend.html' if s['id']=='hk-telecom' else 'index.html' if s['market']=='a' else 'hk.html')+('' if s['id'] in ('a-bank','hk-telecom') else '#l1-'+s['id'])+'">个股页</a>；进入候选只表示值得研究，不等于可以买入。</p></section>'
     import focus_decisions
     return out
 

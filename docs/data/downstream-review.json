@@ -1,0 +1,701 @@
+{
+  "as_of": "2026-11-27",
+  "schema": "role-separated-v3",
+  "markets": {
+    "a-bank": {
+      "contract": {
+        "reason": "稳定现金分红",
+        "admission": "盈利、资本与拨备支撑分红；银行同口径比较",
+        "primary_rank": "前三季度归母利润同比",
+        "primary_valuation": "股息率",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "002142",
+          "name": "宁波银行",
+          "admission": "通过",
+          "admission_reason": "银行独立分红子池；资本与拨备在财务核验中验收",
+          "cohort": "0 已匹配业务 · 财务覆盖",
+          "rank_value": 12.05,
+          "rank_note": "同理由财务比较：前三季度归母利润同比 12.05"
+        },
+        {
+          "code": "601009",
+          "name": "南京银行",
+          "admission": "通过",
+          "admission_reason": "银行独立分红子池；资本与拨备在财务核验中验收",
+          "cohort": "0 已匹配业务 · 财务覆盖",
+          "rank_value": 8.03,
+          "rank_note": "同理由财务比较：前三季度归母利润同比 8.03"
+        },
+        {
+          "code": "601169",
+          "name": "北京银行",
+          "admission": "通过",
+          "admission_reason": "银行独立分红子池；资本与拨备在财务核验中验收",
+          "cohort": "0 已匹配业务 · 财务覆盖",
+          "rank_value": 6.1,
+          "rank_note": "同理由财务比较：前三季度归母利润同比 6.10"
+        },
+        {
+          "code": "601398",
+          "name": "工商银行",
+          "admission": "通过",
+          "admission_reason": "银行独立分红子池；资本与拨备在财务核验中验收",
+          "cohort": "0 已匹配业务 · 财务覆盖",
+          "rank_value": 5.83,
+          "rank_note": "同理由财务比较：前三季度归母利润同比 5.83"
+        },
+        {
+          "code": "600000",
+          "name": "浦发银行",
+          "admission": "通过",
+          "admission_reason": "银行独立分红子池；资本与拨备在财务核验中验收",
+          "cohort": "0 已匹配业务 · 财务覆盖",
+          "rank_value": 4.52,
+          "rank_note": "同理由财务比较：前三季度归母利润同比 4.52"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 10
+    },
+    "a-coal": {
+      "contract": {
+        "reason": "动力煤价格兑现",
+        "admission": "利润主要来自动力煤，长协与区域售价能承接价格水平",
+        "primary_rank": "滚动12个月经营现金流／归母净利润",
+        "primary_valuation": "PB",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "601101",
+          "name": "昊华能源",
+          "admission": "通过",
+          "admission_reason": "动力煤业务与本窗口理由匹配；煤炭占2026年上半年毛利92%（以动力煤为主），煤化工7%",
+          "cohort": "0 已匹配业务 · 财务覆盖",
+          "rank_value": 2.85,
+          "rank_note": "同理由财务比较：滚动12个月经营现金流／归母净利润 2.85"
+        },
+        {
+          "code": "600188",
+          "name": "兖矿能源",
+          "admission": "待核",
+          "admission_reason": "动力煤与焦煤的利润贡献尚未分清",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：动力煤与焦煤的利润贡献尚未分清；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "600256",
+          "name": "广汇能源",
+          "admission": "待核",
+          "admission_reason": "煤炭毛利占41%，煤化工与天然气合计更大；不能直接套动力煤理由",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：煤炭毛利占41%，煤化工与天然气合计更大；不能直接套动力煤理由；不参与已验证候选排序"
+        },
+        {
+          "code": "600985",
+          "name": "淮北矿业",
+          "admission": "待核",
+          "admission_reason": "焦煤：行业证据待核，先放观察",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：焦煤：行业证据待核，先放观察；财务核验未通过或未完成；不参与已验证候选排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 9
+    },
+    "a-oil": {
+      "contract": {
+        "reason": "上游油气价格兑现",
+        "admission": "上游开采贡献主要利润；炼化、贸易单独核验",
+        "primary_rank": "滚动12个月经营现金流／归母净利润",
+        "primary_valuation": "PB",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "601857",
+          "name": "中国石油",
+          "admission": "通过",
+          "admission_reason": "上游开采业务与本窗口理由匹配；油气和新能源分部贡献前三季度经营利润七成以上；炼化分部经营利润231亿元",
+          "cohort": "0 已匹配业务 · 财务覆盖",
+          "rank_value": 2.39,
+          "rank_note": "同理由财务比较：滚动12个月经营现金流／归母净利润 2.39"
+        },
+        {
+          "code": "600938",
+          "name": "中国海油",
+          "admission": "通过",
+          "admission_reason": "上游开采业务与本窗口理由匹配；纯上游：前三季度实现油价86.32美元/桶，桶油主要成本30.57美元",
+          "cohort": "0 已匹配业务 · 财务覆盖",
+          "rank_value": 1.7,
+          "rank_note": "同理由财务比较：滚动12个月经营现金流／归母净利润 1.70"
+        },
+        {
+          "code": "600028",
+          "name": "中国石化",
+          "admission": "待核",
+          "admission_reason": "需要按上游、炼化与贸易分部核对主利润来源",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：需要按上游、炼化与贸易分部核对主利润来源；不参与已验证候选排序"
+        }
+      ],
+      "added": [
+        "600938"
+      ],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 0
+    },
+    "a-tanker": {
+      "contract": {
+        "reason": "油轮运价兑现",
+        "admission": "油轮贡献主要利润；不把港口、集运和干散货混入",
+        "primary_rank": "滚动12个月经营现金流／归母净利润",
+        "primary_valuation": "PB",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "601872",
+          "name": "招商轮船",
+          "admission": "通过",
+          "admission_reason": "油轮业务与本窗口理由匹配；2026年上半年毛利：油轮运输70.1%、干散货12.3%、集装箱6.2%、滚装2.6%",
+          "cohort": "0 已匹配业务 · 财务覆盖",
+          "rank_value": 1.15,
+          "rank_note": "同理由财务比较：滚动12个月经营现金流／归母净利润 1.15"
+        },
+        {
+          "code": "600026",
+          "name": "中远海能",
+          "admission": "通过",
+          "admission_reason": "油轮业务与本窗口理由匹配；2026年上半年毛利：油品运输87.4%（外贸原油59.6%）、LNG运输11.3%",
+          "cohort": "0 已匹配业务 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：油轮业务与本窗口理由匹配；2026年上半年毛利：油品运输87.4%（外贸原油59.6%）、LNG运输11.3%；财务核验未通过或未完成；不参与已验证候选排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 0
+    },
+    "a-semiconductor": {
+      "contract": {
+        "reason": "AI订单转化为持续利润",
+        "admission": "验证AI相关产品订单、交付与利润贡献，消费链单独观察",
+        "primary_rank": "滚动12个月经营现金流／归母净利润",
+        "primary_valuation": "正常化PE",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "300604",
+          "name": "长川科技",
+          "admission": "待核",
+          "admission_reason": "验证AI相关产品订单、交付与利润贡献，消费链单独观察；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：验证AI相关产品订单、交付与利润贡献，消费链单独观察；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "300661",
+          "name": "圣邦股份",
+          "admission": "待核",
+          "admission_reason": "验证AI相关产品订单、交付与利润贡献，消费链单独观察；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：验证AI相关产品订单、交付与利润贡献，消费链单独观察；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "603893",
+          "name": "瑞芯微",
+          "admission": "待核",
+          "admission_reason": "验证AI相关产品订单、交付与利润贡献，消费链单独观察；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：验证AI相关产品订单、交付与利润贡献，消费链单独观察；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "688008",
+          "name": "澜起科技",
+          "admission": "待核",
+          "admission_reason": "验证AI相关产品订单、交付与利润贡献，消费链单独观察；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：验证AI相关产品订单、交付与利润贡献，消费链单独观察；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "688536",
+          "name": "思瑞浦",
+          "admission": "待核",
+          "admission_reason": "验证AI相关产品订单、交付与利润贡献，消费链单独观察；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：验证AI相关产品订单、交付与利润贡献，消费链单独观察；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 18
+    },
+    "a-computing": {
+      "contract": {
+        "reason": "算力交付转化为持续利润",
+        "admission": "光模块、PCB等真实订单与交付支撑；整机概念不自动入池",
+        "primary_rank": "滚动12个月经营现金流／归母净利润",
+        "primary_valuation": "正常化PE",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "001232",
+          "name": "嘉立创",
+          "admission": "待核",
+          "admission_reason": "光模块、PCB等真实订单与交付支撑；整机概念不自动入池；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：光模块、PCB等真实订单与交付支撑；整机概念不自动入池；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "300408",
+          "name": "三环集团",
+          "admission": "待核",
+          "admission_reason": "光模块、PCB等真实订单与交付支撑；整机概念不自动入池；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：光模块、PCB等真实订单与交付支撑；整机概念不自动入池；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "600183",
+          "name": "生益科技",
+          "admission": "待核",
+          "admission_reason": "光模块、PCB等真实订单与交付支撑；整机概念不自动入池；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：光模块、PCB等真实订单与交付支撑；整机概念不自动入池；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "600601",
+          "name": "方正科技",
+          "admission": "待核",
+          "admission_reason": "光模块、PCB等真实订单与交付支撑；整机概念不自动入池；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：光模块、PCB等真实订单与交付支撑；整机概念不自动入池；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "601869",
+          "name": "长飞光纤",
+          "admission": "待核",
+          "admission_reason": "光模块、PCB等真实订单与交付支撑；整机概念不自动入池；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：光模块、PCB等真实订单与交付支撑；整机概念不自动入池；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 25
+    },
+    "a-pharma": {
+      "contract": {
+        "reason": "持续销售利润兑现",
+        "admission": "持续药品销售支撑利润；一次性授权和公允价值收益分开",
+        "primary_rank": "滚动12个月经营现金流／归母净利润",
+        "primary_valuation": "正常化PE",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "002422",
+          "name": "科伦药业",
+          "admission": "待核",
+          "admission_reason": "持续药品销售支撑利润；一次性授权和公允价值收益分开；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：持续药品销售支撑利润；一次性授权和公允价值收益分开；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "002653",
+          "name": "海思科",
+          "admission": "待核",
+          "admission_reason": "持续药品销售支撑利润；一次性授权和公允价值收益分开；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：持续药品销售支撑利润；一次性授权和公允价值收益分开；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "600276",
+          "name": "恒瑞医药",
+          "admission": "待核",
+          "admission_reason": "持续药品销售支撑利润；一次性授权和公允价值收益分开；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：持续药品销售支撑利润；一次性授权和公允价值收益分开；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "688235",
+          "name": "百济神州",
+          "admission": "待核",
+          "admission_reason": "持续药品销售支撑利润；一次性授权和公允价值收益分开；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：持续药品销售支撑利润；一次性授权和公允价值收益分开；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 1
+    },
+    "a-grid": {
+      "contract": {
+        "reason": "电网订单兑现",
+        "admission": "分产品核对订单、交付、回款与成本，订单金额不等于收入",
+        "primary_rank": "滚动12个月经营现金流／归母净利润",
+        "primary_valuation": "正常化PE",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "002028",
+          "name": "思源电气",
+          "admission": "待核",
+          "admission_reason": "分产品核对订单、交付、回款与成本，订单金额不等于收入；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：分产品核对订单、交付、回款与成本，订单金额不等于收入；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "300001",
+          "name": "特锐德",
+          "admission": "待核",
+          "admission_reason": "分产品核对订单、交付、回款与成本，订单金额不等于收入；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：分产品核对订单、交付、回款与成本，订单金额不等于收入；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "688248",
+          "name": "南网科技",
+          "admission": "待核",
+          "admission_reason": "分产品核对订单、交付、回款与成本，订单金额不等于收入；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：分产品核对订单、交付、回款与成本，订单金额不等于收入；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "688676",
+          "name": "金盘科技",
+          "admission": "待核",
+          "admission_reason": "分产品核对订单、交付、回款与成本，订单金额不等于收入；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：分产品核对订单、交付、回款与成本，订单金额不等于收入；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 3
+    },
+    "a-chemical": {
+      "contract": {
+        "reason": "产品价差兑现",
+        "admission": "有供给约束且产品减原料的价差改善，涨价本身不算通过",
+        "primary_rank": "滚动12个月经营现金流／归母净利润",
+        "primary_valuation": "PB",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "002064",
+          "name": "华峰化学",
+          "admission": "待核",
+          "admission_reason": "有供给约束且产品减原料的价差改善，涨价本身不算通过；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：有供给约束且产品减原料的价差改善，涨价本身不算通过；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "002648",
+          "name": "卫星化学",
+          "admission": "待核",
+          "admission_reason": "有供给约束且产品减原料的价差改善，涨价本身不算通过；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：有供给约束且产品减原料的价差改善，涨价本身不算通过；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "600989",
+          "name": "宝丰能源",
+          "admission": "待核",
+          "admission_reason": "有供给约束且产品减原料的价差改善，涨价本身不算通过；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：有供给约束且产品减原料的价差改善，涨价本身不算通过；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "603225",
+          "name": "新凤鸣",
+          "admission": "待核",
+          "admission_reason": "有供给约束且产品减原料的价差改善，涨价本身不算通过；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：有供给约束且产品减原料的价差改善，涨价本身不算通过；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 2
+    },
+    "a-rare-earth": {
+      "contract": {
+        "reason": "稀土冶炼价差兑现",
+        "admission": "区分自有矿、外购原料与贸易；政策标签单列事件观察",
+        "primary_rank": "滚动12个月经营现金流／归母净利润",
+        "primary_valuation": "PB",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "000831",
+          "name": "中国稀土",
+          "admission": "待核",
+          "admission_reason": "区分自有矿、外购原料与贸易；政策标签单列事件观察；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：区分自有矿、外购原料与贸易；政策标签单列事件观察；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "600111",
+          "name": "北方稀土",
+          "admission": "待核",
+          "admission_reason": "区分自有矿、外购原料与贸易；政策标签单列事件观察；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：区分自有矿、外购原料与贸易；政策标签单列事件观察；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "600259",
+          "name": "中稀有色",
+          "admission": "待核",
+          "admission_reason": "区分自有矿、外购原料与贸易；政策标签单列事件观察；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：区分自有矿、外购原料与贸易；政策标签单列事件观察；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "600392",
+          "name": "盛和资源",
+          "admission": "待核",
+          "admission_reason": "区分自有矿、外购原料与贸易；政策标签单列事件观察；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：区分自有矿、外购原料与贸易；政策标签单列事件观察；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 0
+    },
+    "a-magnet": {
+      "contract": {
+        "reason": "永磁订单与毛利兑现",
+        "admission": "出口许可落到订单、收入与毛利；许可本身不等于盈利",
+        "primary_rank": "滚动12个月经营现金流／归母净利润",
+        "primary_valuation": "正常化PE",
+        "period": "2026Q3滚动12个月",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "000970",
+          "name": "中科三环",
+          "admission": "待核",
+          "admission_reason": "出口许可落到订单、收入与毛利；许可本身不等于盈利；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 补证观察",
+          "rank_value": null,
+          "rank_note": "补证观察：出口许可落到订单、收入与毛利；许可本身不等于盈利；行业分类和财务初筛不代替业务证据；财务核验未通过或未完成；不参与已验证候选排序"
+        },
+        {
+          "code": "300224",
+          "name": "正海磁材",
+          "admission": "待核",
+          "admission_reason": "出口许可落到订单、收入与毛利；许可本身不等于盈利；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：出口许可落到订单、收入与毛利；许可本身不等于盈利；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "300748",
+          "name": "金力永磁",
+          "admission": "待核",
+          "admission_reason": "出口许可落到订单、收入与毛利；许可本身不等于盈利；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：出口许可落到订单、收入与毛利；许可本身不等于盈利；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        },
+        {
+          "code": "600366",
+          "name": "宁波韵升",
+          "admission": "待核",
+          "admission_reason": "出口许可落到订单、收入与毛利；许可本身不等于盈利；行业分类和财务初筛不代替业务证据",
+          "cohort": "1 业务待核 · 财务覆盖",
+          "rank_value": null,
+          "rank_note": "补证观察：出口许可落到订单、收入与毛利；许可本身不等于盈利；行业分类和财务初筛不代替业务证据；不参与已验证候选排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 0
+    },
+    "hk-energy": {
+      "contract": {
+        "reason": "能源价格兑现",
+        "admission": "上游原油、动力煤分池；煤种不明及炼化为主先观察",
+        "primary_rank": "同报告期经营现金流／归母净利润",
+        "primary_valuation": "PB",
+        "period": "按披露报告期分组，不跨期比较",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "00883",
+          "name": "中国海洋石油",
+          "admission": "通过",
+          "admission_reason": "上游原油业务与本窗口理由匹配；",
+          "cohort": "上游原油 · 2026年三季报",
+          "rank_value": 1.67,
+          "rank_note": "上游原油 · 2026年三季报：同口径现金覆盖 1.67 倍"
+        },
+        {
+          "code": "01088",
+          "name": "中国神华",
+          "admission": "通过",
+          "admission_reason": "动力煤业务与本窗口理由匹配；",
+          "cohort": "动力煤 · 2026年三季报",
+          "rank_value": 1.94,
+          "rank_note": "动力煤 · 2026年三季报：同口径现金覆盖 1.94 倍"
+        },
+        {
+          "code": "00857",
+          "name": "中国石油股份",
+          "admission": "待核",
+          "admission_reason": "需要按上游、炼化与贸易分部核对主利润来源",
+          "cohort": "一体化（上游为主） · 2026年三季报",
+          "rank_value": null,
+          "rank_note": "一体化（上游为主） · 2026年三季报：补证观察，不参加已验证排序"
+        },
+        {
+          "code": "00386",
+          "name": "中国石油化工股份",
+          "admission": "待核",
+          "admission_reason": "需要按上游、炼化与贸易分部核对主利润来源",
+          "cohort": "一体化（炼化为主） · 2026年三季报",
+          "rank_value": null,
+          "rank_note": "一体化（炼化为主） · 2026年三季报：补证观察，不参加已验证排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 2
+    },
+    "hk-tanker": {
+      "contract": {
+        "reason": "油轮运价兑现",
+        "admission": "油轮利润贡献与运价敞口需核验，工用运输行业标签不算证据",
+        "primary_rank": "同报告期经营现金流／归母净利润",
+        "primary_valuation": "PB",
+        "period": "按披露报告期分组，不跨期比较",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "01138",
+          "name": "中远海能",
+          "admission": "待核",
+          "admission_reason": "油轮利润贡献与运价敞口需核验，工用运输行业标签不算证据；行业分类和财务初筛不代替业务证据",
+          "cohort": " · 2026年三季报",
+          "rank_value": null,
+          "rank_note": " · 2026年三季报：补证观察，不参加已验证排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 0
+    },
+    "hk-hardware": {
+      "contract": {
+        "reason": "硬件订单与利润兑现",
+        "admission": "晶圆代工、设计、封测分池核对利用率、订单与毛利",
+        "primary_rank": "同报告期经营现金流／归母净利润",
+        "primary_valuation": "正常化PE",
+        "period": "按披露报告期分组，不跨期比较",
+        "version": "2026-11-27-role-separated"
+      },
+      "picks": [
+        {
+          "code": "00522",
+          "name": "ASMPT",
+          "admission": "待核",
+          "admission_reason": "晶圆代工、设计、封测分池核对利用率、订单与毛利；行业分类和财务初筛不代替业务证据",
+          "cohort": " · 2026年三季报",
+          "rank_value": null,
+          "rank_note": " · 2026年三季报：补证观察，不参加已验证排序"
+        },
+        {
+          "code": "00981",
+          "name": "中芯国际",
+          "admission": "待核",
+          "admission_reason": "晶圆代工、设计、封测分池核对利用率、订单与毛利；行业分类和财务初筛不代替业务证据",
+          "cohort": " · 2026年三季报",
+          "rank_value": null,
+          "rank_note": " · 2026年三季报：补证观察，不参加已验证排序"
+        },
+        {
+          "code": "01347",
+          "name": "华虹宏力",
+          "admission": "待核",
+          "admission_reason": "晶圆代工、设计、封测分池核对利用率、订单与毛利；行业分类和财务初筛不代替业务证据",
+          "cohort": " · 2026年三季报",
+          "rank_value": null,
+          "rank_note": " · 2026年三季报：补证观察，不参加已验证排序"
+        },
+        {
+          "code": "09903",
+          "name": "天数智芯",
+          "admission": "待核",
+          "admission_reason": "晶圆代工、设计、封测分池核对利用率、订单与毛利；行业分类和财务初筛不代替业务证据",
+          "cohort": " · 2026年中报",
+          "rank_value": null,
+          "rank_note": " · 2026年中报：补证观察，不参加已验证排序"
+        }
+      ],
+      "added": [],
+      "previous_no_longer_cards": [],
+      "financial_screen_remaining": 0
+    }
+  },
+  "sources": [
+    {
+      "title": "中国海油2026年三季报（业务与财务核验）",
+      "url": "https://www.cnoocltd.com/tzzgx/dqbg/jb/202610/P020261030624515059877.pdf"
+    }
+  ]
+}

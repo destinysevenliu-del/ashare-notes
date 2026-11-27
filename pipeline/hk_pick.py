@@ -15,17 +15,15 @@ FOREIGN = {'00005', '02888', '00023', '00440', '02356'}
 HK_SUB = {'00883': '上游原油', '00857': '一体化（上游为主）', '00386': '一体化（炼化为主）', '01088': '动力煤', '01898': '煤种结构待核', '01171': '煤种结构待核', '03668': '煤种结构待核'}
 RULES = {
  'hk-energy': {'type': 'upstream', 'inds': ['石油及天然气', '煤炭'], 'n': 4,
-   'gate': '港股通可买的石油与煤炭股；港股市值≥300亿港元；最近一期归母利润同比>0；市盈率（TTM）0—20倍（与A股煤炭门槛一致）',
-   'filter': lambda x: (x.get('mc') or 0) >= 300 and (x.get('np_yoy') or -1) > 0 and 0 < (x.get('pe') or 99) <= 20, 'factors': ['np', 'dy', 'cheap']},
+   'gate': '港股通可买的石油与煤炭股；港股市值≥300亿港元；最近一期归母利润同比>0；估值另作时机判断',
+   'filter': lambda x: (x.get('mc') or 0) >= 300 and (x.get('np_yoy') or -1) > 0},
  'hk-tanker': {'type': 'upstream', 'inds': ['工用运输'], 'n': 2,
    'gate': '只保留纯油运公司（港股通行业“工用运输”中名称含油运或能源运输的公司）',
-   'filter': lambda x: any(k in x['name'] for k in ('油运', '能源运输', '远海能')), 'factors': ['np', 'cheap']},
+   'filter': lambda x: any(k in x['name'] for k in ('油运', '能源运输', '远海能'))},
  'hk-hardware': {'type': 'growth', 'inds': ['半导体'], 'n': 4,
-   'gate': '港股通可买的半导体股；港股市值≥300亿港元；最近一期归母利润同比≥30%；市盈率（TTM）0—100倍（港股半导体以晶圆代工为主，估值普遍高于A股门槛，单独设定）',
-   'filter': lambda x: (x.get('mc') or 0) >= 300 and (x.get('np_yoy') or 0) >= 30 and 0 < (x.get('pe') or 999) <= 100, 'factors': ['np', 'rev', 'cheap']},
+   'gate': '港股通可买的半导体股；港股市值≥300亿港元；最近一期归母利润同比≥30%；按代工、设计和封测业务核验，估值另作时机判断',
+   'filter': lambda x: (x.get('mc') or 0) >= 300 and (x.get('np_yoy') or 0) >= 30},
 }
-FAC = {'np': ('最近一期利润同比', lambda x: x.get('np_yoy') or 0), 'rev': ('营收同比', lambda x: x.get('rev_yoy') or 0),
-       'cheap': ('估值低（PE）', lambda x: -(x.get('pe') or 999)), 'dy': ('税后股息率', lambda x: x.get('dy_net') or 0)}
 SB_LINE = 2.0  # 南向持股占比20日上升≥2个百分点视为资金快速涌入（本站设定）
 # 港股价格规则（2026-11-26改）：港股是动量市，买点从“一年区间下部”改为“上升趋势中回调到12周均线附近”。
 # 回测见 data/raw/stock_pick/hk_logic2.json 的 logic1_bt；高息（crowded）类型仍按股息率定价。
@@ -94,7 +92,7 @@ def rows(D):
 
 def layers(t, x, score):
     e = x['en']
-    L = LR._layers(t, {'en': e, 'score': score})
+    L = LR._layers(t, {'en': e, 'rank_value': x.get('rank_value')})
     chg = x.get('sb20')
     if chg is not None and chg >= SB_LINE:
         L['chip'] = '差'; L['notes'].append('南向持股20日+%.1f个百分点' % chg)
@@ -116,20 +114,20 @@ def select(root, S):
         s = sec[sid]
         pool = [x for x in allr if x['ind'] in R['inds']]
         ok = [x for x in pool if R['filter'](x)]
-        for k in R['factors']:
-            vals = sorted(FAC[k][1](x) for x in ok)
-            for x in ok:
-                v = FAC[k][1](x); x['pct_'+k] = (sum(a < v for a in vals)+0.5*sum(a == v for a in vals))/len(vals)
-        t = R['type']; V = {'好': 1, '中': .5, '差': 0}
+        import downstream
+        t=R['type']
         for x in ok:
-            x['score'] = round(sum(x['pct_'+k] for k in R['factors'])/len(R['factors']), 2)
-            x['en'] = {'close': x['close'], 'pos52': x.get('pos52'), 'dd': x.get('dd'), 'vsMA60': x.get('vsMA60'), 'ret60': x.get('ret60'),
-                       'dy': x['dy_net'] if t == 'crowded' else x.get('dy'), 'cashEps': x.get('cash')}
-            L = layers(t, x, x['score']); x.update(L)
-            x['total'] = round((x['score']+V[L['pos']]+V[L['chip']])/3*(0.5 if L['fund'] == '差' else 1), 2)
-            x['flag'] = ''
-        ok.sort(key=lambda x: -x['total'])
-        picks = ok[:R['n']] if s['rating'] != '逆风' else []
+            v={'sub':HK_SUB.get(x['code'],'')}
+            state,why=downstream.admission(s,v)
+            x['admission']=state;x['admission_reason']=why
+            # Energy businesses and report periods are separate comparison pools.
+            x['cohort']=v['sub']+' · '+x.get('rpt','报告期缺失')
+            x['rank_value']=x.get('cash') if state=='通过' else None
+            x['en']={'close':x['close'],'pos52':x.get('pos52'),'dd':x.get('dd'),'vsMA60':x.get('vsMA60'),'ret60':x.get('ret60'),'dy':x.get('dy'),'cashEps':x.get('cash')}
+            x.update(layers(t,x,0));x['flag']=''
+            x['rank_note']=x['cohort']+'：'+('同口径现金覆盖 %.2f 倍'%x['rank_value'] if x['rank_value'] is not None else '补证观察，不参加已验证排序')
+        ok.sort(key=lambda x:(0 if x['admission']=='通过' else 1,x['cohort'],-(x['rank_value'] if x['rank_value'] is not None else -1e99),x['code']))
+        picks=ok[:R['n']] if s['rating']!='逆风' else []
         for x in picks:
             x['pl'] = hk_levels(t, x, T)
             ch = SP.chain(sid, s, t, x, {})
@@ -141,7 +139,7 @@ def select(root, S):
             ch['steps'] = [(a, b, hk_text(a, b, tx, t, x)) for a, b, tx in ch['steps']]
             x['chain'] = ch
         res[sid] = {'gate': R['gate'], 'type': t, 'lens': LR.LENS[t], 'pool': len(pool), 'passed': len(ok), 'picks': picks,
-                    'rank': '综合排名＝以下各项在通过门槛的公司中的百分位平均：'+'、'.join(FAC[k][0] for k in R['factors'])+'。市值只用作门槛。'}
+                    'rank': '同业务、同报告期内按现金覆盖比较；估值与资金不计分。', 'remaining':ok[len(picks):]}
     return res, D
 
 
@@ -152,7 +150,7 @@ def hk_text(step, state, txt, t, x):
             return '港股核验未接入资本充足率、拨备覆盖率与不良率；' + cv + '；分红为2025年度合计每股' + format(x['dps'], '.3f') + '港元'
         return '港股核验未接入资本开支与自由现金流；' + cv
     if step == '估值' and t != 'crowded':
-        return '市盈率（TTM）%s倍、市净率%s倍；港股五年估值分位未接入，正常化估值待验证' % ('—' if x.get('pe') is None else format(x['pe'], '.1f'), '—' if x.get('pb') is None else format(x['pb'], '.2f'))
+        return ('主估值PB '+SP.f(x.get('pb'),'.2f')+'倍；历史分位与合理区间待核' if t=='upstream' else '主估值正常化PE：持续利润分母待核，TTM PE '+SP.f(x.get('pe'),'.1f')+'倍仅作已实现利润参考')
     if step == '估值' and t == 'crowded':
         return txt + '（按港股通个人投资者20%红利税后的股息率计算）'
     if step == '筹码':
@@ -174,7 +172,7 @@ def card(sid, s, r, x, i):
     t = r['type']; v, c = SP.view_of(s['rating'], sid, x, i); f = SP.f
     pos = '一年位置 ' + f(x.get('pos52'), '.2f') + ' · 距一年高点 ' + f(x.get('dd'), '.0f', '%') + ' · 相对60日线 ' + f(x.get('vsMA60'), '+.0f', '%')
     chip = '南向持股 ' + f(x.get('sb'), '.1f', '%') + ' · 20日变化 ' + f(x.get('sb20'), '+.1f') + '个百分点'
-    note = '；'.join(n for n in x.get('notes', []) if not n.startswith('南向'))
+    note = x.get('rank_note','')+'；'+'；'.join(n for n in x.get('notes', []) if not n.startswith('南向'))
     posk = '回撤条件' if t == 'upstream' else '位置'
     plab = {'好': '达标', '中': '一般', '差': '未达标'} if t == 'upstream' else None
     return SC.card('s-'+x['code'], x['name'], x['code'] + ' · ' + SP.short(s['title']), v, c, x.get('pl'),
@@ -191,8 +189,10 @@ def sector_html(sid, s, r):
     sell = R['sell'] if t != 'crowded' else '税后股息率降到“10年国债+2.0个百分点”对应的价格'
     out += ('<p class="sec-rule"><b>价格规则：</b>买入 ' + E(buy) + '；卖出 ' + E(sell) + '；止损 ' + E(R['stop']) + '。<a href="#hk-price">为什么这样定 →</a><br><b>门槛：</b>' + E(r['gate']) +
             '（通过' + str(r['passed']) + ' / ' + str(r['pool']) + '家）　<a href="../boards/' + sid + '.html">板块依据 →</a></p></details>')
+    import downstream
+    out += downstream.contract_html(s)
     out += '<div class="sc-grid">' + ''.join(card(sid, s, r, x, i) for i, x in enumerate(r['picks'])) + '</div>'
-    return out + '<details class="more"><summary>进入个股研究时还要比较什么</summary><p class="note">' + E('；'.join(s['handoff'])) + '</p></details></details>'
+    return out + downstream.remaining_html(r) + '<details class="more"><summary>进入个股研究时还要比较什么</summary><p class="note">' + E('；'.join(s['handoff'])) + '</p></details></details>'
 
 
 def page(ctx):
@@ -213,7 +213,7 @@ def page(ctx):
     out += ('<section id="overview"><h2>行动看板</h2><p class="note">按“现在该做什么”把候选分组。港股的核验（资本开支、资本充足率）与五年估值分位尚未接入，所以价格到了买入区也只到“价格到位·待核”，不直接买。</p>' +
             SC.board(B, SP.L1_ORDER, '价格截至' + D['asof'] + '；规则见本页“港股价格规则”。', wide=('等开关',)) + '</section>')
     order = ['顺风', '前半段', '等开关', '逆风']
-    out += '<section id="logic1"><h2>按板块展开</h2><p class="note">每个板块按自己的类型看三层：基本面、位置、筹码。卡片结构与A股相同。</p>'
+    out += '<section id="logic1"><h2>按板块展开</h2><p class="note">赛道归属先入池，兑现质量在同业务、同报告期内比较，价格反映决定时机。保留原卡片结构；位置、南向和空头不参与财务排序，D/G在组合层约束节奏。</p>'
     for sid in sorted(L, key=lambda k: order.index(sec[k]['rating'])):
         out += sector_html(sid, sec[sid], L[sid])
     si = sec['hk-internet']

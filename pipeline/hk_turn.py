@@ -55,7 +55,7 @@ def view(x, pl):
     if x[SHORT] in ('rise', 'high'):
         return '不买：空头在增加'
     st = SC.status(pl)[0]
-    return {'未确认': '观察：未站上26周均线', '买入': '价格到位·待核', '高于': '等回落', '卖出': '不买：已到卖出参考价'}.get(st, '观察')
+    return '不买：已到卖出参考价' if st=='卖出' else '观察：待行业验证'
 
 
 def bucket(v):
@@ -70,7 +70,7 @@ def chain(L, x, pl):
     st = SC.status(pl)[0]
     pe = x[PX]/F[3] if F and F[3] and F[3] > 0 else None
     pb = x[PX]/F[4] if F and F[4] else None
-    steps = [('板块', '通过', '行业上调广度' + format(b[4], '+.2f') + '（' + str(b[1]) + '家有预测，' + str(b[2]) + '家上调、' + str(b[3]) + '家下调）。' + L['drivers'].get(x[IND], '')),
+    steps = [('板块', '待核', '预测上调只作行业线索，需补齐本市场大盘到行业利润的传导后再入池。行业上调广度' + format(b[4], '+.2f') + '（' + str(b[1]) + '家有预测，' + str(b[2]) + '家上调、' + str(b[3]) + '家下调）。' + L['drivers'].get(x[IND], '')),
              ('初筛', '通过', '最近一期单期利润同比' + f(x[G0], '+.0f', '%') + '，利润仍在下降'),
              ('核验', '待核', '反转动力：' + r.get('driver', '—') + ' 高频指标：' + r.get('hf', '—') + ' 兑现条件（' + r.get('next', '下一份报告') + '）：' + r.get('cond', '—') + ' 证伪：' + r.get('falsify', '—')),
              ('估值', '待核', '市盈率（TTM）' + ('亏损' if pe is None else format(pe, '.1f') + '倍') + '、市净率' + ('—' if pb is None else format(pb, '.2f')) + '；港股五年估值分位未接入，正常化估值待验证'),

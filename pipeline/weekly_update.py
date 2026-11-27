@@ -30,7 +30,7 @@ ASOF = arg("--asof") or BJ.date().isoformat()
 EN_P = ROOT / "data/raw/stock_pick/l1_enrich.json"; VX_P = ROOT / "data/raw/stock_pick/val_extra.json"
 SP_P = ROOT / "data/stock_pick.json"; ST_P = ROOT / "data/raw/weekly/state.json"
 SNAP = ROOT / "data/snapshots/prices"; CH_P = ROOT / "data/weekly_changes.json"
-RULES_VERSION = "price-reference-v2-2026-11-27"
+RULES_VERSION = "role-separated-v3-2026-11-27"
 PRICE_FIELDS = ["close", "pxdate", "pos52", "dd", "ret60", "vsMA60", "marginPct", "margin20", "holdersChg", "hdate", "focus", "top10free", "lift6m"]
 
 def codes():

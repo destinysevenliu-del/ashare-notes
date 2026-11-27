@@ -25,7 +25,8 @@ ORDER = [('可执行', 'ab-buy', '分红可持续、税后股息率达到买入�
 
 def load(root, fname):
     p = Path(root)/'data/raw/stock_pick'/fname
-    return json.loads(p.read_text()) if p.exists() else None
+    if not p.exists():return None
+    d=json.loads(p.read_text());d['sector_context']={s['id']:s for s in json.loads((Path(root)/'data/sector_selection.json').read_text())['sectors']};return d
 
 
 def verify(x):
@@ -44,7 +45,8 @@ def verify(x):
         return '未通过', '、'.join(bad) + '不达标'
     if miss:
         return '待核', '、'.join(miss) + '缺数据'
-    return '通过', '分红率、利润同比、经营现金流覆盖都达标'
+    if fin:return '待核','分红率与利润达标，资本充足、拨备和监管分红约束尚未逐股验证'
+    return '待核','初筛指标达标，资本开支后的自由现金流与分红覆盖尚未逐股验证'
 
 
 def levels(L, x):
@@ -60,6 +62,10 @@ def levels(L, x):
 
 def view(L, x, pl):
     st, _ = verify(x)
+    import downstream
+    gate,why=downstream.income_gate(L['market'],x[IND],L.get('sector_context',{}))
+    if gate=='待核':return '不买：待行业验证'
+    if gate=='暂停':return '不买：板块拥挤，暂停新增'
     if x[FLAG] == 'pause':
         return '不买：板块拥挤，暂停新增'
     if x[FLAG] in ('rise', 'high'):
@@ -87,10 +93,12 @@ def chain(L, x, pl, v):
     f = SP.f; st, why = verify(x); ps = SC.status(pl)[0]
     chip = {'rise': ('未通过', '空头8周内上升≥0.5个百分点'), 'high': ('未通过', '空头≥3%且没有下降'), 'pause': ('提示', '板块成交拥挤，暂停新增'),
             'na': ('提示', 'A股没有可报告淡仓数据')}.get(x[FLAG], ('提示', '空头占比低或在回补'))
-    steps = [('板块', '暂停' if x[FLAG] == 'pause' else '通过', E(x[IND]) + ('：成交拥挤度超过上限，暂停新增' if x[FLAG] == 'pause' else '')),
+    import downstream
+    gate,why=downstream.income_gate(L['market'],x[IND],L.get('sector_context',{}))
+    steps = [('板块',gate,why),
              ('初筛', '通过', '税后股息率' + f(x[DYN], '.2f', '%') + '，市值' + format(x[MC], ',') + '亿'),
              ('核验', st, why + '（分红率' + f(x[PAY], '.0f', '%') + '、利润同比' + f(x[NPY], '+.0f', '%') + '、经营现金流覆盖' + f(x[OCF], '.1f') + '倍）'),
-             ('估值', '通过', '市净率' + f(x[PB], '.2f') + '；红利股的估值就是股息率，价格规则已按股息率定'),
+             ('估值', '通过' if ps=='买入' else '否决' if ps=='卖出' else '未到', '辅助市净率' + f(x[PB], '.2f') + '；红利股的估值就是股息率，价格规则已按股息率定'),
              ('价格', {'买入': '到位', '高于': '未到', '卖出': '到卖出价'}.get(ps, '待核'), pl['where'] if pl else '—'),
              ('筹码', chip[0], chip[1])]
     return SP.chain_html({'steps': steps})
@@ -125,7 +133,7 @@ def render(L, hid, mkt):
     if not L:
         return SP.head(hid) + '<div class="hero"><h1>' + mkt + ' · 分母 · 红利高股息</h1><p>数据尚未取得。</p></div>'
     R = L['rules']; B = L['backtest']
-    rows = sorted(L['cand'], key=lambda x: -(x[DYN] or 0))
+    rows = sorted(L['cand'], key=lambda x: (x[IND], x[PAY] if x[PAY] is not None else 1e99, x[C]))
     out = '<style>' + SP.CSS + SC.CSS + '</style>' + SP.head(hid)
     out += ('<div class="hero"><h1>' + mkt + ' · 分母 · 红利高股息</h1><p class="sum">' + E(R['def']) + '</p><p class="hero-meta">价格截至' + E(L['asof']) + '；10年国债' + format(L['cn10y'], '.2f') +
             '%；买入线＝税后股息率≥国债+' + format(BUY_SPREAD, '.1f') + '个百分点，卖出线＝国债+' + format(SELL_SPREAD, '.1f') + '个百分点</p></div>')
@@ -139,7 +147,7 @@ def render(L, hid, mkt):
         pl = levels(L, x); v = view(L, x, pl)
         why = v.split('：')[-1].replace('板块拥挤，暂停新增', '拥挤暂停').replace('大盘转防守，暂停新增', '大盘防守') if v.startswith('不买') else ''
         Bk.setdefault(bucket(v), []).append(('d-' + x[C], x[N], format(x[DYN] or 0, '.1f') + '% · ' + (why + '，' if why else '') + SC.status(pl)[1].replace('（股息率达标）', '').replace('（股息率不足）', '')))
-    out += ('<section id="overview"><h2>行动看板</h2><p class="note">' + E(R['status']) + '</p>' + SC.board(Bk, ORDER, '按税后股息率排序；小字为股息率、不买的原因和价格状态。价格截至' + L['asof'] + '。') + '</section>')
+    out += ('<section id="overview"><h2>行动看板</h2><p class="note">' + E(R['status']) + '</p>' + SC.board(Bk, ORDER, '按行业分池；同池用利润对分红的覆盖（分红率倒数）作财务比较，税后股息率只决定价格时机。小字为股息率、不买的原因和价格状态。价格截至' + L['asof'] + '。') + '</section>')
     bad = [x for x in rows if verify(x)[0] == '未通过']
     rows = [x for x in rows if verify(x)[0] != '未通过']
     out += '<section id="cards"><h2>按行业展开（' + str(len(rows)) + '只）</h2><p class="note">' + E(R['universe']) + '分红可持续性未通过的' + str(len(bad)) + '只不展开，列在本节末尾。</p>'
